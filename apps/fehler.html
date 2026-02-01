@@ -32,15 +32,15 @@
             background: rgba(99, 102, 241, 0.2);
         }
 
-        .word.error {
-            color: var(--error);
+        .word.corrected {
+            color: var(--text-muted);
             text-decoration: line-through;
             opacity: 0.6;
         }
 
-        .word.error::after {
+        .word.corrected::after {
             content: attr(data-correction);
-            color: var(--success);
+            color: var(--accent-1);
             text-decoration: none;
             margin-left: 4px;
             font-weight: 600;
@@ -53,6 +53,13 @@
         .word.missed {
             background: rgba(239, 68, 68, 0.3);
             color: var(--error);
+        }
+
+        .word.missed::after {
+            content: " → " attr(data-correction);
+            color: var(--success);
+            text-decoration: none;
+            font-weight: 600;
         }
 
         /* Stats bar */
@@ -68,14 +75,6 @@
             display: flex;
             align-items: center;
             gap: 6px;
-        }
-
-        .found-count {
-            color: var(--success);
-        }
-
-        .missed-count {
-            color: var(--error);
         }
 
         /* Correction input popup */
@@ -145,29 +144,6 @@
             transform: translateY(-2px);
         }
 
-        .popup-feedback {
-            text-align: center;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: 500;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .popup-feedback.correct {
-            background: rgba(34, 197, 94, 0.15);
-            color: var(--success);
-        }
-
-        .popup-feedback.incorrect {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--error);
-        }
-
-        .popup-feedback.no-error {
-            background: rgba(107, 114, 128, 0.15);
-            color: var(--text-secondary);
-        }
-
         /* Actions */
         .actions {
             display: flex;
@@ -181,6 +157,10 @@
 
         .btn-check {
             background: linear-gradient(135deg, var(--success), #16a34a);
+        }
+
+        .btn-hint {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
         }
     </style>
 </head>
@@ -209,12 +189,11 @@
             <div id="quizScreen" class="quiz-content hidden">
                 <div class="stats-bar">
                     <span>Text <strong id="textNum">1</strong> von <strong id="totalTexts">7</strong></span>
-                    <span class="found-count">✓ Gefunden: <strong id="foundCount">0</strong></span>
-                    <span>Fehler: <strong id="errorCount">0</strong></span>
                 </div>
                 <div class="text-display" id="textDisplay"></div>
                 <div class="actions">
-                    <button class="btn btn-check" onclick="checkText()">Fertig – Prüfen</button>
+                    <button class="btn btn-hint" onclick="showHint()">💡 Hinweis</button>
+                    <button class="btn btn-check" onclick="checkText()">Überprüfen</button>
                 </div>
             </div>
 
@@ -246,12 +225,10 @@
                 <div class="popup-word-display" id="popupWord"></div>
                 <input type="text" class="popup-input" id="correctionInput" placeholder="Korrekte Schreibweise..."
                     autocomplete="off">
-                <div class="popup-feedback hidden" id="popupFeedback"></div>
-                <div class="popup-buttons" id="popupButtons">
+                <div class="popup-buttons">
                     <button class="popup-btn-cancel" onclick="closePopup()">Abbrechen</button>
-                    <button class="popup-btn-submit" onclick="submitCorrection()">Prüfen</button>
+                    <button class="popup-btn-submit" onclick="submitCorrection()">Übernehmen</button>
                 </div>
-                <button class="btn btn-primary hidden" id="continueBtn" onclick="closePopup()">Weiter</button>
             </div>
         </div>
     </div>
@@ -260,7 +237,7 @@
         // State
         let texts = [];
         let currentTextIndex = 0;
-        let currentTextErrors = []; // { wrongWord, correctWord, found: bool, wordIndex }
+        let currentTextErrors = []; // { wrongWord, correctWord, userCorrection, wordIndex }
         let totalFound = 0;
         let totalMissed = 0;
         let selectedWordIndex = null;
@@ -278,9 +255,8 @@
         // Parse text and extract errors
         function parseText(text) {
             const errors = [];
-            const pattern = /\[([^\]\/]+)\/([^\]]+)\]/g;
+            const pattern = /\[([^\/\]]+)\/([^\]]+)\]/g;
             let match;
-            let wordIndex = 0;
             let cleanText = text;
 
             // First pass: collect all errors with positions
@@ -329,7 +305,7 @@
                         errors.push({
                             wrongWord: error.wrong,
                             correctWord: error.correct,
-                            found: false,
+                            userCorrection: null,
                             wordIndex: wi
                         });
 
@@ -375,8 +351,6 @@
 
             document.getElementById('textNum').textContent = currentTextIndex + 1;
             document.getElementById('totalTexts').textContent = texts.length;
-            document.getElementById('errorCount').textContent = errors.length;
-            document.getElementById('foundCount').textContent = 0;
             updateProgress();
         }
 
@@ -385,70 +359,43 @@
             selectedWordIndex = wordIndex;
             document.getElementById('popupWord').textContent = wordText;
             document.getElementById('correctionInput').value = '';
-            document.getElementById('popupFeedback').classList.add('hidden');
-            document.getElementById('popupButtons').classList.remove('hidden');
-            document.getElementById('continueBtn').classList.add('hidden');
             document.getElementById('correctionPopup').classList.add('visible');
 
             // Store data for validation
             document.getElementById('correctionPopup').dataset.isError = isError;
             document.getElementById('correctionPopup').dataset.correct = correct || '';
+            document.getElementById('correctionPopup').dataset.originalWord = wordText;
 
             setTimeout(() => document.getElementById('correctionInput').focus(), 100);
         }
 
-        // Submit correction
+        // Submit correction - just apply it visually
         function submitCorrection() {
             const input = document.getElementById('correctionInput').value.trim();
             const isError = document.getElementById('correctionPopup').dataset.isError === 'true';
             const correct = document.getElementById('correctionPopup').dataset.correct;
-            const feedback = document.getElementById('popupFeedback');
+            const originalWord = document.getElementById('correctionPopup').dataset.originalWord;
             const wordSpan = document.querySelector(`.word[data-index="${selectedWordIndex}"]`);
 
-            if (!isError) {
-                // User clicked on a correct word
-                if (input === '' || input === wordSpan.textContent) {
-                    feedback.textContent = '✓ Dieses Wort ist korrekt!';
-                    feedback.className = 'popup-feedback no-error';
-                } else {
-                    feedback.textContent = '✗ Dieses Wort war bereits richtig.';
-                    feedback.className = 'popup-feedback incorrect';
-                }
-                wordSpan.classList.add('correct-click');
-            } else {
-                // Check if correction matches
-                if (input.toLowerCase() === correct.toLowerCase()) {
-                    feedback.textContent = `✓ Richtig! "${correct}"`;
-                    feedback.className = 'popup-feedback correct';
-                    wordSpan.classList.add('error');
-                    wordSpan.dataset.correction = correct;
+            if (input === '') {
+                // No input, just close
+                closePopup();
+                return;
+            }
 
-                    // Mark as found
-                    const error = currentTextErrors.find(e => e.wordIndex === selectedWordIndex && !e.found);
-                    if (error) {
-                        error.found = true;
-                        document.getElementById('foundCount').textContent =
-                            currentTextErrors.filter(e => e.found).length;
-                    }
-                } else if (input === '') {
-                    feedback.textContent = 'Bitte gib eine Korrektur ein.';
-                    feedback.className = 'popup-feedback incorrect';
-                    return; // Don't close
-                } else {
-                    feedback.textContent = `✗ Falsch. Die richtige Antwort: "${correct}"`;
-                    feedback.className = 'popup-feedback incorrect';
-                    wordSpan.classList.add('error');
-                    wordSpan.dataset.correction = correct;
+            // Apply the user's correction visually
+            wordSpan.classList.add('corrected');
+            wordSpan.dataset.correction = input;
 
-                    // Mark as found (but wrong correction)
-                    const error = currentTextErrors.find(e => e.wordIndex === selectedWordIndex && !e.found);
-                    if (error) error.found = true;
+            // Track the correction for later validation
+            if (isError) {
+                const error = currentTextErrors.find(e => e.wordIndex === selectedWordIndex);
+                if (error) {
+                    error.userCorrection = input;
                 }
             }
 
-            feedback.classList.remove('hidden');
-            document.getElementById('popupButtons').classList.add('hidden');
-            document.getElementById('continueBtn').classList.remove('hidden');
+            closePopup();
         }
 
         // Close popup
@@ -456,22 +403,49 @@
             document.getElementById('correctionPopup').classList.remove('visible');
         }
 
-        // Check text (move to next or show results)
+        // Show hint - remaining errors count
+        function showHint() {
+            const totalErrors = currentTextErrors.length;
+            const foundErrors = currentTextErrors.filter(e => e.userCorrection !== null).length;
+            const remaining = totalErrors - foundErrors;
+
+            alert(`${foundErrors}/${totalErrors} Fehler gefunden. Noch ${remaining} Fehler offen.`);
+        }
+
+        // Check text - validate all corrections
         function checkText() {
-            // Count found and missed
-            const found = currentTextErrors.filter(e => e.found).length;
-            const missed = currentTextErrors.filter(e => !e.found).length;
+            let foundCorrect = 0;
+            let foundWrong = 0;
+            let missed = 0;
 
-            totalFound += found;
-            totalMissed += missed;
-
-            // Highlight missed errors
-            currentTextErrors.filter(e => !e.found).forEach(error => {
+            currentTextErrors.forEach(error => {
                 const wordSpan = document.querySelector(`.word[data-index="${error.wordIndex}"]`);
-                if (wordSpan) {
+
+                if (error.userCorrection) {
+                    // User made a correction
+                    if (error.userCorrection.toLowerCase() === error.correctWord.toLowerCase()) {
+                        // Correct!
+                        foundCorrect++;
+                        wordSpan.classList.remove('corrected');
+                        wordSpan.classList.add('correct-click');
+                        wordSpan.dataset.correction = error.correctWord;
+                    } else {
+                        // Wrong correction
+                        foundWrong++;
+                        wordSpan.classList.remove('corrected');
+                        wordSpan.classList.add('missed');
+                        wordSpan.dataset.correction = error.correctWord;
+                    }
+                } else {
+                    // User didn't find this error
+                    missed++;
                     wordSpan.classList.add('missed');
+                    wordSpan.dataset.correction = error.correctWord;
                 }
             });
+
+            totalFound += foundCorrect;
+            totalMissed += missed + foundWrong;
 
             // Wait a moment then proceed
             setTimeout(() => {
@@ -481,7 +455,7 @@
                 } else {
                     renderText();
                 }
-            }, 1500);
+            }, 2000);
         }
 
         // Update progress bar
@@ -527,11 +501,7 @@
         // Handle Enter key in input
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && document.getElementById('correctionPopup').classList.contains('visible')) {
-                if (!document.getElementById('continueBtn').classList.contains('hidden')) {
-                    closePopup();
-                } else {
-                    submitCorrection();
-                }
+                submitCorrection();
             }
             if (e.key === 'Escape') {
                 closePopup();

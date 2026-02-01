@@ -158,7 +158,7 @@
         <div class="instructions">
             <h3>How to Use</h3>
             <p>
-                <strong>Polygon:</strong> Click to add vertices, double-click to close. Drag to move.<br>
+                <strong>Polygon:</strong> Click to add vertices, click near first vertex to close. Drag to move.<br>
                 <strong>Line:</strong> Click and drag to draw a mirror line. Drag endpoints to adjust.<br>
                 <strong>Point:</strong> Click to place a mirror point. Drag to move.<br>
                 The polygon will be mirrored across both the line and the point in real-time!
@@ -397,9 +397,16 @@
                 if (!polygon) {
                     polygon = { points: [pos], closed: false };
                 } else if (!polygon.closed) {
+                    // Check if clicking near the first point to close (touch-friendly)
+                    if (polygon.points.length >= 3 && distance(pos, polygon.points[0]) < 25) {
+                        polygon.closed = true;
+                        setStatus('Polygon closed! Drag to move it.');
+                        draw();
+                        return;
+                    }
                     polygon.points.push(pos);
                 }
-                setStatus(`Polygon: ${polygon.points.length} vertices. Double-click to close.`);
+                setStatus(`Polygon: ${polygon.points.length} vertices. Click near first point or double-click to close.`);
                 draw();
             } else if (currentTool === 'line') {
                 isDrawing = true;

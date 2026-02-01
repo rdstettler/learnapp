@@ -104,11 +104,15 @@
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.7);
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             z-index: 100;
             backdrop-filter: blur(4px);
+        }
+
+        .popup-overlay.visible {
+            display: flex;
         }
 
         .popup {
@@ -233,12 +237,12 @@
         </div>
 
         <!-- Choice Popup -->
-        <div class="popup-overlay hidden" id="popupOverlay">
+        <div class="popup-overlay" id="popupOverlay">
             <div class="popup">
                 <div class="popup-title">Wähle die richtige Form:</div>
                 <div class="popup-options">
-                    <button class="popup-option" data-choice="das">das</button>
-                    <button class="popup-option" data-choice="dass">dass</button>
+                    <button class="popup-option" id="optionDas">das</button>
+                    <button class="popup-option" id="optionDass">dass</button>
                 </div>
             </div>
         </div>
@@ -251,6 +255,7 @@
         let currentTextIndex = 0;
         let currentSlotIndex = null;
         let userChoices = {}; // { slotIndex: 'das' | 'dass' }
+        let slotData = {}; // { slotIndex: { correct: 'das'|'dass', capitalize: boolean } }
         let totalCorrect = 0;
         let totalWrong = 0;
         const TEXTS_PER_ROUND = 10;
@@ -281,21 +286,22 @@
         document.getElementById('restartBtn').addEventListener('click', restartQuiz);
 
         // Popup option clicks
-        document.querySelectorAll('.popup-option').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (currentSlotIndex !== null) {
-                    userChoices[currentSlotIndex] = btn.dataset.choice;
-                    updateSlotDisplay(currentSlotIndex);
-                    closePopup();
-                }
-            });
-        });
+        document.getElementById('optionDas').addEventListener('click', () => selectChoice('das'));
+        document.getElementById('optionDass').addEventListener('click', () => selectChoice('dass'));
 
         popupOverlay.addEventListener('click', (e) => {
             if (e.target === popupOverlay) {
                 closePopup();
             }
         });
+
+        function selectChoice(choice) {
+            if (currentSlotIndex !== null) {
+                userChoices[currentSlotIndex] = choice;
+                updateSlotDisplay(currentSlotIndex);
+                closePopup();
+            }
+        }
 
         function shuffle(array) {
             const arr = [...array];
@@ -330,19 +336,29 @@
 
             document.getElementById('roundDisplay').textContent = currentTextIndex + 1;
             userChoices = {};
+            slotData = {};
 
-            // Parse text and create slots
+            // Parse text and create slots - handle both [das] and [Das] (capitalized)
             let html = '';
             let slotIndex = 0;
+            const sentences = text.sentences;
 
-            text.sentences.forEach(sentence => {
-                // Replace [das] and [dass] markers with interactive slots
-                let processed = sentence.text.replace(/\[(das|dass)\]/g, (match, correct) => {
-                    const idx = slotIndex++;
-                    return `<span class="choice-slot" data-index="${idx}" data-correct="${correct}">?</span>`;
-                });
-                html += processed + ' ';
+            // Replace [das], [dass], [Das], [Dass] markers with interactive slots
+            let processed = sentences.replace(/\[(das|dass|Das|Dass)\]/gi, (match, word) => {
+                const idx = slotIndex++;
+                const lowerWord = word.toLowerCase();
+                const isCapitalized = word[0] === word[0].toUpperCase();
+
+                // Store the correct answer and capitalization info
+                slotData[idx] = {
+                    correct: lowerWord,
+                    capitalize: isCapitalized
+                };
+
+                return `<span class="choice-slot" data-index="${idx}" data-correct="${lowerWord}" data-capitalize="${isCapitalized}">?</span>`;
             });
+
+            html = processed;
 
             textContainer.innerHTML = html;
 
@@ -363,17 +379,22 @@
         function updateSlotDisplay(index) {
             const slot = document.querySelector(`.choice-slot[data-index="${index}"]`);
             if (slot && userChoices[index]) {
-                slot.textContent = userChoices[index];
+                let displayText = userChoices[index];
+                // Capitalize if the original was capitalized
+                if (slotData[index] && slotData[index].capitalize) {
+                    displayText = displayText.charAt(0).toUpperCase() + displayText.slice(1);
+                }
+                slot.textContent = displayText;
                 slot.classList.add('selected');
             }
         }
 
         function openPopup() {
-            popupOverlay.classList.remove('hidden');
+            popupOverlay.classList.add('visible');
         }
 
         function closePopup() {
-            popupOverlay.classList.add('hidden');
+            popupOverlay.classList.remove('visible');
             currentSlotIndex = null;
         }
 
@@ -385,18 +406,28 @@
             slots.forEach(slot => {
                 const index = parseInt(slot.dataset.index);
                 const correct = slot.dataset.correct;
+                const isCapitalized = slot.dataset.capitalize === 'true';
                 const userChoice = userChoices[index];
+
+                // Format display text with proper capitalization
+                const formatWord = (word) => {
+                    if (isCapitalized) {
+                        return word.charAt(0).toUpperCase() + word.slice(1);
+                    }
+                    return word;
+                };
 
                 if (userChoice === correct) {
                     slot.classList.add('correct');
+                    slot.textContent = formatWord(correct);
                     correctInText++;
                 } else if (userChoice) {
                     slot.classList.add('incorrect');
-                    slot.textContent = `${userChoice} → ${correct}`;
+                    slot.textContent = `${formatWord(userChoice)} → ${formatWord(correct)}`;
                     wrongInText++;
                 } else {
                     slot.classList.add('missed');
-                    slot.textContent = correct;
+                    slot.textContent = formatWord(correct);
                     wrongInText++;
                 }
             });
