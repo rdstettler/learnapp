@@ -133,6 +133,31 @@
             border-color: transparent;
             color: white;
         }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--accent-1);
+        }
+
+        .explanation-section {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+
+        .explanation-text {
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
     </style>
 </head>
 
@@ -172,7 +197,16 @@
                         <div class="feedback hidden" id="feedback"></div>
                     </div>
                 </div>
-                <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()">Prüfen</button>
+                <div class="explanation-section hidden" id="explanationSection">
+                    <div style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 8px;">💡 Erklärung:
+                    </div>
+                    <div class="explanation-text" id="explanationText"></div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-secondary hidden" id="explanationBtn" onclick="showExplanation()">Erklärung
+                        zeigen</button>
+                    <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()">Prüfen</button>
+                </div>
             </div>
 
             <!-- Results Screen -->
@@ -300,6 +334,8 @@
             document.getElementById('answerInput').value = '';
             document.getElementById('feedback').classList.add('hidden');
             document.getElementById('submitBtn').textContent = 'Prüfen';
+            document.getElementById('explanationSection').classList.add('hidden');
+            document.getElementById('explanationBtn').classList.add('hidden');
             answered = false;
 
             updateProgress();
@@ -315,36 +351,59 @@
 
             const question = filteredQuestions[currentQuestionIndex];
             const userAnswer = document.getElementById('answerInput').value.trim().replace(',', '.');
-            const correctAnswer = question.answer.toString().replace(',', '.');
             const feedback = document.getElementById('feedback');
 
-            // Parse numbers for comparison
-            const userNum = parseFloat(userAnswer);
-            const correctNum = parseFloat(correctAnswer);
-
-            if (userAnswer === '' || isNaN(userNum)) {
-                feedback.textContent = 'Bitte gib eine Zahl ein.';
+            if (userAnswer === '') {
+                feedback.textContent = 'Bitte gib eine Antwort ein.';
                 feedback.className = 'feedback incorrect';
                 feedback.classList.remove('hidden');
                 return;
             }
 
-            // Compare with small tolerance for floating point
-            const isCorrect = Math.abs(userNum - correctNum) < 0.001;
+            // Check against all valid answers
+            const answers = question.answers || [question.answer]; // Support both old and new format
+            const normalizedUserAnswer = userAnswer.toLowerCase();
+
+            // Try both exact text match and numeric comparison
+            let isCorrect = answers.some(ans => {
+                const normalizedAns = ans.toString().toLowerCase().replace(',', '.');
+                // Exact text match
+                if (normalizedUserAnswer === normalizedAns) return true;
+                // Numeric comparison with tolerance
+                const userNum = parseFloat(normalizedUserAnswer);
+                const ansNum = parseFloat(normalizedAns);
+                if (!isNaN(userNum) && !isNaN(ansNum) && Math.abs(userNum - ansNum) < 0.001) return true;
+                return false;
+            });
+
+            const firstAnswer = answers[0];
 
             if (isCorrect) {
-                feedback.textContent = `✓ Richtig! ${correctAnswer}`;
+                feedback.textContent = `✓ Richtig!`;
                 feedback.className = 'feedback correct';
                 correctCount++;
             } else {
-                feedback.textContent = `✗ Falsch. Die richtige Antwort: ${correctAnswer}`;
+                feedback.textContent = `✗ Falsch. Richtige Antworten: ${answers.slice(0, 3).join(', ')}`;
                 feedback.className = 'feedback incorrect';
                 wrongCount++;
             }
 
             feedback.classList.remove('hidden');
             document.getElementById('submitBtn').textContent = 'Weiter';
+
+            // Show explanation button if explanation exists
+            if (question.explanation) {
+                document.getElementById('explanationBtn').classList.remove('hidden');
+                document.getElementById('explanationText').textContent = question.explanation;
+            }
+
             answered = true;
+        }
+
+        // Show explanation
+        function showExplanation() {
+            document.getElementById('explanationSection').classList.remove('hidden');
+            document.getElementById('explanationBtn').classList.add('hidden');
         }
 
         // Next question

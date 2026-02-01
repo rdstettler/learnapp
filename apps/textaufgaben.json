@@ -6,6 +6,30 @@
             "Textaufgabe"
         ],
         "question": "Um einen grossen Garten eines Schlosses zu pflegen, müssen anfangs 45 Gärtner insgesamt 12 Tage lang vollen Einsatz leisten. Nach 5 Tagen werden 15 Gärtner an einem anderen Projekt benötigt und die verbleibenden Gärtner müssen die Arbeit alleine fortsetzen. Wie viele zusätzliche Tage benötigen die verbleibenden Gärtner, um die Arbeit abzuschliessen?",
-        "answer": "3.5"
+        "answers": [
+            "3.5",
+            "3.5 Tage",
+            "3.5d",
+            "3 1/2",
+            "3 1/2 Tage",
+            "3 1/2d"
+        ],
+        "explanation": "Für die gesamte Arbeit sind 45*12 Gärtner-Tage erforderlich. Nach 5 Tagen sind 45*5 = 225 Gärtner-Tage geleistet. Es verbleiben 540 - 225 = 315 Gärtner-Tage. Diese müssen von 30 Gärtnern geleistet werden. Das dauert 315 / 30 = 10.5 Tage. Da bereits 5 Tage vergangen sind, werden insgesamt 5 + 10.5 = 15.5 Tage benötigt oder eben 15.5 - 12 = 3.5 Tage zusätzlich."
+    },
+    {
+        "id": "prop-002",
+        "topics": [
+            "umgekehrte Proportionalität",
+            "Textaufgabe"
+        ],
+        "question": "Eine Produktionsapp für eine Fabrik könnte von einem Programmierer in 100 Stunden entwickelt werden. Das ist dem Chef zu langsam. Er will es schneller. Wenn der Programmierer in einem Team arbeitet, benötigt das Programm 1/4 mehr Zeit, weil sich die Programmierer abstimmen müssten. Wie schnell schaffen 5 Programmierer die App?",
+        "answers": [
+            "1/4 der Zeit",
+            "25 Stunden",
+            "25h",
+            "25 St.",
+            "1/4"
+        ],
+        "explanation": "Weil es mehr Programmierer sind brauchen sie 100 / 4 = 25 Stunden, 100 + 25 = 125 Stunden. Auf die 5 Programmierer aufgeteilt sind das 125 / 5 = 25 Stunden. Oder eben 25/100 = 1/4 der ursprünglichen Zeit."
     }
 ]

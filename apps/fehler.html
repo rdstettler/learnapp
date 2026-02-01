@@ -252,6 +252,16 @@
             }
         }
 
+        // Shuffle array
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
         // Parse text and extract errors
         function parseText(text) {
             const errors = [];
@@ -330,7 +340,6 @@
             const container = document.getElementById('textDisplay');
             container.innerHTML = '';
 
-            let wordIdx = 0;
             displayWords.forEach(item => {
                 if (item.isSpace) {
                     container.appendChild(document.createTextNode(item.text));
@@ -338,14 +347,14 @@
                     const span = document.createElement('span');
                     span.className = 'word';
                     span.textContent = item.text;
-                    span.dataset.index = wordIdx;
+                    const idx = item.wordIndex; // Capture the index
+                    span.dataset.index = idx;
                     span.dataset.isError = item.isError;
                     if (item.isError) {
                         span.dataset.correct = item.correct;
                     }
-                    span.onclick = () => openCorrectionPopup(wordIdx, item.text, item.isError, item.correct);
+                    span.onclick = () => openCorrectionPopup(idx, item.text, item.isError, item.correct);
                     container.appendChild(span);
-                    wordIdx++;
                 }
             });
 
@@ -379,6 +388,12 @@
 
             if (input === '') {
                 // No input, just close
+                closePopup();
+                return;
+            }
+
+            if (!wordSpan) {
+                console.error('Word span not found for index:', selectedWordIndex);
                 closePopup();
                 return;
             }
@@ -482,6 +497,7 @@
         function startGame() {
             document.getElementById('welcomeScreen').classList.add('hidden');
             document.getElementById('quizScreen').classList.remove('hidden');
+            texts = shuffle(texts); // Randomize texts
             currentTextIndex = 0;
             totalFound = 0;
             totalMissed = 0;

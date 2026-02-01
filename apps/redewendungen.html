@@ -221,8 +221,15 @@
         }
 
         function startQuiz() {
-            // Pick random questions
-            questions = shuffle(data.redewendungen).slice(0, QUESTIONS_PER_ROUND);
+            // Deduplicate by idiom text to prevent repeats
+            const seen = new Set();
+            const unique = data.redewendungen.filter(r => {
+                if (seen.has(r.idiom)) return false;
+                seen.add(r.idiom);
+                return true;
+            });
+            // Pick random questions from unique set
+            questions = shuffle(unique).slice(0, QUESTIONS_PER_ROUND);
             currentQuestion = 0;
             correctCount = 0;
             wrongCount = 0;
