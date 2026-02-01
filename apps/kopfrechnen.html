@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kopfrechnen</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        /* App-specific styles */
+        .equation-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            flex-wrap: wrap;
+            padding: 30px 0;
+        }
+
+        .equation-part {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .equation-blank {
+            width: 100px;
+            height: 70px;
+            padding: 10px;
+            border-radius: 12px;
+            border: 3px dashed var(--accent-1);
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--text-primary);
+            font-size: 2rem;
+            font-weight: 600;
+            font-family: inherit;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .equation-blank:focus {
+            outline: none;
+            border-style: solid;
+            border-color: var(--accent-1);
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .equation-blank.correct {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.2);
+            border-style: solid;
+        }
+
+        .equation-blank.incorrect {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.2);
+            border-style: solid;
+        }
+
+        .operator {
+            color: var(--accent-1);
+            font-size: 2rem;
+        }
+
+        /* Score display */
+        .score-live {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .score-live-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+        }
+
+        .score-live-item.correct {
+            color: var(--success);
+        }
+
+        .score-live-item.wrong {
+            color: var(--error);
+        }
+
+        /* Difficulty selector */
+        .difficulty-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .difficulty-btn {
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .difficulty-btn:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .difficulty-btn.active {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            border-color: transparent;
+            color: white;
+        }
+
+        /* Operation filter */
+        .operation-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .operation-btn {
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .operation-btn:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .operation-btn.active {
+            background: rgba(99, 102, 241, 0.3);
+            border-color: var(--accent-1);
+            color: var(--text-primary);
+        }
+
+        .streak-display {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 16px;
+        }
+
+        .streak-display .streak-count {
+            color: var(--accent-1);
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-animation"></div>
+    <div class="app">
+        <div class="header">
+            <h1>🧠 Kopfrechnen</h1>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <div class="card">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="welcome-container">
+                <div class="welcome-emoji">➕➗</div>
+                <h2 style="margin-bottom: 12px;">Kopfrechnen</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 20px; max-width: 300px;">
+                    Löse die Gleichung, indem du die fehlende Zahl eingibst!
+                </p>
+
+                <div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px;">Schwierigkeit:</div>
+                <div class="difficulty-selector">
+                    <button class="difficulty-btn active" data-level="easy">Einfach</button>
+                    <button class="difficulty-btn" data-level="medium">Mittel</button>
+                    <button class="difficulty-btn" data-level="hard">Schwer</button>
+                </div>
+
+                <div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px;">Rechenarten:</div>
+                <div class="operation-selector">
+                    <button class="operation-btn active" data-op="add">+ Addition</button>
+                    <button class="operation-btn active" data-op="div">÷ Division</button>
+                </div>
+
+                <button class="btn btn-primary" style="margin-top: 16px;" onclick="startQuiz()">Starten</button>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quizScreen" class="quiz-content hidden">
+                <div class="round-info">Aufgabe <span id="questionNum">1</span> / <span id="totalQuestions">10</span>
+                </div>
+
+                <div class="score-live">
+                    <div class="score-live-item correct">✓ <span id="liveCorrect">0</span></div>
+                    <div class="score-live-item wrong">✗ <span id="liveWrong">0</span></div>
+                </div>
+
+                <div class="equation-container" id="equationContainer">
+                    <!-- Generated equation goes here -->
+                </div>
+
+                <div class="feedback hidden" id="feedback"></div>
+
+                <button class="btn btn-primary" id="submitBtn" onclick="checkAnswer()">Prüfen</button>
+
+                <div class="streak-display">
+                    Serie: <span class="streak-count" id="streakCount">0</span> richtige Antworten
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div id="resultsScreen" class="score-display hidden">
+                <div class="score-circle" id="scoreCircle">0%</div>
+                <div class="score-text">Richtig beantwortet</div>
+                <div class="score-breakdown">
+                    <div class="score-item correct">
+                        <div class="score-item-number" id="finalCorrect">0</div>
+                        <div class="score-item-label">Richtig</div>
+                    </div>
+                    <div class="score-item wrong">
+                        <div class="score-item-number" id="finalWrong">0</div>
+                        <div class="score-item-label">Falsch</div>
+                    </div>
+                </div>
+                <div style="margin-top: 16px; color: var(--text-secondary);">
+                    Längste Serie: <strong id="finalStreak">0</strong>
+                </div>
+                <button class="btn btn-primary" style="margin-top: 30px; max-width: 200px;"
+                    onclick="restartQuiz()">Nochmal spielen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let difficulty = 'easy';
+        let operations = ['add', 'div'];
+        let currentQuestion = 0;
+        let correctAnswer = null;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let streak = 0;
+        let maxStreak = 0;
+        let answered = false;
+        const QUESTIONS_PER_ROUND = 10;
+
+        // Difficulty settings
+        const difficultySettings = {
+            easy: { addMax: 20, divMax: 50, divDivisorMax: 10 },
+            medium: { addMax: 100, divMax: 100, divDivisorMax: 12 },
+            hard: { addMax: 500, divMax: 200, divDivisorMax: 20 }
+        };
+
+        // Setup event listeners
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                difficulty = btn.dataset.level;
+            });
+        });
+
+        document.querySelectorAll('.operation-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('active');
+                const op = btn.dataset.op;
+                if (btn.classList.contains('active')) {
+                    if (!operations.includes(op)) operations.push(op);
+                } else {
+                    operations = operations.filter(o => o !== op);
+                    // Ensure at least one operation is selected
+                    if (operations.length === 0) {
+                        btn.classList.add('active');
+                        operations.push(op);
+                    }
+                }
+            });
+        });
+
+        // Random integer between min and max (inclusive)
+        function randInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Generate a question
+        function generateQuestion() {
+            const settings = difficultySettings[difficulty];
+            const operation = operations[randInt(0, operations.length - 1)];
+
+            let a, b, result, blankPosition;
+
+            if (operation === 'add') {
+                // Addition: a + b = result
+                a = randInt(1, settings.addMax);
+                b = randInt(1, settings.addMax);
+                result = a + b;
+                blankPosition = randInt(0, 2); // 0=a, 1=b, 2=result
+            } else {
+                // Division: result = a ÷ b (ensure clean division)
+                b = randInt(2, settings.divDivisorMax);
+                result = randInt(1, Math.floor(settings.divMax / b));
+                a = b * result;
+                blankPosition = randInt(0, 2); // 0=a, 1=b, 2=result
+            }
+
+            return { operation, a, b, result, blankPosition };
+        }
+
+        // Render the equation
+        function renderEquation(q) {
+            const container = document.getElementById('equationContainer');
+            const opSymbol = q.operation === 'add' ? '+' : '÷';
+
+            let html = '';
+
+            // First number (a)
+            if (q.blankPosition === 0) {
+                html += `<input type="text" class="equation-blank" id="blankInput" autocomplete="off" inputmode="numeric">`;
+                correctAnswer = q.a;
+            } else {
+                html += `<span class="equation-part">${q.a}</span>`;
+            }
+
+            html += `<span class="operator">${opSymbol}</span>`;
+
+            // Second number (b)
+            if (q.blankPosition === 1) {
+                html += `<input type="text" class="equation-blank" id="blankInput" autocomplete="off" inputmode="numeric">`;
+                correctAnswer = q.b;
+            } else {
+                html += `<span class="equation-part">${q.b}</span>`;
+            }
+
+            html += `<span class="operator">=</span>`;
+
+            // Result
+            if (q.blankPosition === 2) {
+                html += `<input type="text" class="equation-blank" id="blankInput" autocomplete="off" inputmode="numeric">`;
+                correctAnswer = q.result;
+            } else {
+                html += `<span class="equation-part">${q.result}</span>`;
+            }
+
+            container.innerHTML = html;
+
+            // Focus and add Enter key handler
+            const input = document.getElementById('blankInput');
+            setTimeout(() => input.focus(), 100);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    if (answered) {
+                        nextQuestion();
+                    } else {
+                        checkAnswer();
+                    }
+                }
+            });
+        }
+
+        // Check the answer
+        function checkAnswer() {
+            if (answered) {
+                nextQuestion();
+                return;
+            }
+
+            const input = document.getElementById('blankInput');
+            const userAnswer = parseFloat(input.value.trim().replace(',', '.'));
+            const feedback = document.getElementById('feedback');
+
+            if (isNaN(userAnswer)) {
+                feedback.textContent = 'Bitte gib eine Zahl ein.';
+                feedback.className = 'feedback incorrect';
+                feedback.classList.remove('hidden');
+                return;
+            }
+
+            const isCorrect = Math.abs(userAnswer - correctAnswer) < 0.001;
+
+            if (isCorrect) {
+                feedback.textContent = '✓ Richtig!';
+                feedback.className = 'feedback correct';
+                input.classList.add('correct');
+                correctCount++;
+                streak++;
+                if (streak > maxStreak) maxStreak = streak;
+            } else {
+                feedback.textContent = `✗ Falsch. Die Antwort war: ${correctAnswer}`;
+                feedback.className = 'feedback incorrect';
+                input.classList.add('incorrect');
+                wrongCount++;
+                streak = 0;
+            }
+
+            feedback.classList.remove('hidden');
+            document.getElementById('liveCorrect').textContent = correctCount;
+            document.getElementById('liveWrong').textContent = wrongCount;
+            document.getElementById('streakCount').textContent = streak;
+            document.getElementById('submitBtn').textContent = 'Weiter';
+            input.disabled = true;
+            answered = true;
+        }
+
+        // Next question
+        function nextQuestion() {
+            currentQuestion++;
+
+            if (currentQuestion >= QUESTIONS_PER_ROUND) {
+                showResults();
+            } else {
+                showQuestion();
+            }
+        }
+
+        // Show a question
+        function showQuestion() {
+            const question = generateQuestion();
+            renderEquation(question);
+
+            document.getElementById('questionNum').textContent = currentQuestion + 1;
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('submitBtn').textContent = 'Prüfen';
+            answered = false;
+
+            const progress = (currentQuestion / QUESTIONS_PER_ROUND) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+        }
+
+        // Start quiz
+        function startQuiz() {
+            currentQuestion = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            streak = 0;
+            maxStreak = 0;
+
+            document.getElementById('totalQuestions').textContent = QUESTIONS_PER_ROUND;
+            document.getElementById('liveCorrect').textContent = '0';
+            document.getElementById('liveWrong').textContent = '0';
+            document.getElementById('streakCount').textContent = '0';
+
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+
+            showQuestion();
+        }
+
+        // Show results
+        function showResults() {
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.remove('hidden');
+
+            const total = correctCount + wrongCount;
+            const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('scoreCircle').textContent = percentage + '%';
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalWrong').textContent = wrongCount;
+            document.getElementById('finalStreak').textContent = maxStreak;
+            document.getElementById('progressFill').style.width = '100%';
+        }
+
+        // Restart quiz
+        function restartQuiz() {
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+            document.getElementById('progressFill').style.width = '0%';
+        }
+
+        // Document-level Enter key handler for when input is disabled
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && answered && !document.getElementById('quizScreen').classList.contains('hidden')) {
+                nextQuestion();
+            }
+        });
+    </script>
+</body>
+
+</html>

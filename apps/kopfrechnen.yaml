@@ -1,0 +1,14 @@
+name: Kopfrechnen
+description: Trainiere dein Kopfrechnen mit Addition und Division
+category: Mathematik
+file: kopfrechnen.html
+icon: 🧠
+author: Antigravity
+version: 1.0.0
+tags:
+  - mathematik
+  - kopfrechnen
+  - addition
+  - division
+  - mental-math
+difficulty: beginner
