@@ -1,0 +1,13 @@
+name: Kasus-Quiz
+description: Lerne die deutschen Fälle - Nominativ, Akkusativ, Dativ und Genitiv anhand von Beispielsätzen
+category: Deutsch
+file: kasus.html
+icon: 📖
+author: Antigravity
+version: 1.0.0
+tags:
+  - deutsch
+  - grammatik
+  - kasus
+  - fälle
+difficulty: intermediate

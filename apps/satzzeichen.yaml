@@ -1,0 +1,13 @@
+name: Satzzeichen-Quiz
+description: Setze die fehlenden Satzzeichen in deutsche Texte mit wörtlicher Rede ein
+category: Deutsch
+file: satzzeichen.html
+icon: ✏️
+author: Antigravity
+version: 1.0.0
+tags:
+  - deutsch
+  - grammatik
+  - satzzeichen
+  - zeichensetzung
+difficulty: intermediate

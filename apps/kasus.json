@@ -1,0 +1,204 @@
+{
+    "exercises": [
+        {
+            "id": 1,
+            "text": "[N]Der Hund[/N] beißt [A]den Mann[/A], der neben [D]dem Zaun[/D] steht."
+        },
+        {
+            "id": 2,
+            "text": "[N]Die Mutter[/N] gibt [D]dem Kind[/D] [A]einen Apfel[/A] aus [D]dem Korb[/D]."
+        },
+        {
+            "id": 3,
+            "text": "[N]Das Auto[/N] [G]meines Vaters[/G] steht vor [D]dem Haus[/D] [G]der Nachbarn[/G]."
+        },
+        {
+            "id": 4,
+            "text": "[N]Ich[/N] helfe [D]meiner Schwester[/D] bei [D]der Arbeit[/D] und bringe [A]die Werkzeuge[/A]."
+        },
+        {
+            "id": 5,
+            "text": "[N]Der Lehrer[/N] erklärt [D]den Schülern[/D] [A]die schwierige Aufgabe[/A] mit [D]großer Geduld[/D]."
+        },
+        {
+            "id": 6,
+            "text": "[N]Das Buch[/N] [G]des berühmten Professors[/G] liegt auf [D]dem alten Tisch[/D] neben [D]dem Fenster[/D]."
+        },
+        {
+            "id": 7,
+            "text": "[N]Wir[/N] kaufen [A]ein neues Haus[/A] in [D]der Nähe[/D] [G]des Stadtzentrums[/G]."
+        },
+        {
+            "id": 8,
+            "text": "[N]Die Kinder[/N] spielen mit [D]dem bunten Ball[/D] auf [D]dem grünen Rasen[/D] [G]des Parks[/G]."
+        },
+        {
+            "id": 9,
+            "text": "[N]Der Chef[/N] dankt [D]seinen fleißigen Mitarbeitern[/D] für [A]ihre harte Arbeit[/A]."
+        },
+        {
+            "id": 10,
+            "text": "[N]Die Farbe[/N] [G]des Himmels[/G] erinnert [A]mich[/A] an [A]den Sommer[/A] [G]meiner Kindheit[/G]."
+        },
+        {
+            "id": 11,
+            "text": "[N]Er[/N] schenkt [D]seiner Freundin[/D] [A]eine rote Rose[/A] zum Geburtstag."
+        },
+        {
+            "id": 12,
+            "text": "[N]Der Arzt[/N] untersucht [A]den Patienten[/A] nach [D]der langen Wartezeit[/D] sehr gründlich."
+        },
+        {
+            "id": 13,
+            "text": "[N]Die Schönheit[/N] [G]der Natur[/G] beeindruckt [A]mich[/A] bei [D]jedem Spaziergang[/D]."
+        },
+        {
+            "id": 14,
+            "text": "[N]Sie[/N] folgt [D]dem schmalen Weg[/D] durch [A]den dunklen Wald[/A]."
+        },
+        {
+            "id": 15,
+            "text": "[N]Der Bauer[/N] füttert [A]die hungrigen Tiere[/A] auf [D]dem Bauernhof[/D] [G]seiner Familie[/G]."
+        },
+        {
+            "id": 16,
+            "text": "[N]Das alte Haus[/N] [G]meiner Großeltern[/G] steht am [D]Waldrand[/D] neben [D]einem kleinen Bach[/D]."
+        },
+        {
+            "id": 17,
+            "text": "[N]Die Polizei[/N] hilft [D]den verängstigten Bürgern[/D] während [G]des Sturms[/G]."
+        },
+        {
+            "id": 18,
+            "text": "[N]Er[/N] liest [A]einen spannenden Roman[/A] in [D]dem gemütlichen Sessel[/D] [G]seines Vaters[/G]."
+        },
+        {
+            "id": 19,
+            "text": "[N]Der Preis[/N] [G]des Erfolgs[/G] ist manchmal [N]die Einsamkeit[/N]."
+        },
+        {
+            "id": 20,
+            "text": "[N]Die Lehrerin[/N] zeigt [D]dem neuen Studenten[/D] [A]das historische Bild[/A] [G]des Gründers[/G]."
+        },
+        {
+            "id": 21,
+            "text": "[N]Mein Bruder[/N] trägt [A]den schweren Koffer[/A] für [A]unsere alte Nachbarin[/A]."
+        },
+        {
+            "id": 22,
+            "text": "[N]Sie[/N] begegnet [D]ihrem alten Freund[/D] vor [D]dem Eingang[/D] [G]des Museums[/G]."
+        },
+        {
+            "id": 23,
+            "text": "[N]Die Meinung[/N] [G]der internationalen Experten[/G] beeinflusst [A]die Entscheidung[/A] [G]der Regierung[/G]."
+        },
+        {
+            "id": 24,
+            "text": "[N]Der Kellner[/N] bringt [D]dem hungrigen Gast[/D] [A]die Rechnung[/A] an [A]den Tisch[/A]."
+        },
+        {
+            "id": 25,
+            "text": "[N]Wir[/N] besuchen [A]unsere kranke Tante[/A] in [D]dem großen Krankenhaus[/D]."
+        },
+        {
+            "id": 26,
+            "text": "[N]Das alte Spielzeug[/N] gehört [D]dem kleinen Mädchen[/D] aus [D]der Nachbarschaft[/D]."
+        },
+        {
+            "id": 27,
+            "text": "[N]Die Stimme[/N] [G]des berühmten Sängers[/G] erfüllt [A]den ganzen Saal[/A]."
+        },
+        {
+            "id": 28,
+            "text": "[N]Der Koch[/N] serviert [D]den hungrigen Gästen[/D] [A]das köstliche Essen[/A] mit [D]einem Lächeln[/D]."
+        },
+        {
+            "id": 29,
+            "text": "[N]Ich[/N] sehe [A]einen bunten Vogel[/A] auf [D]dem hohen Baum[/D] vor [D]meinem Fenster[/D]."
+        },
+        {
+            "id": 30,
+            "text": "[N]Er[/N] glaubt [D]dem einzigen Zeugen[/D] [G]des Unfalls[/G] ohne Zweifel."
+        },
+        {
+            "id": 31,
+            "text": "[N]Der Anfang[/N] [G]des spannenden Films[/G] überraschte [A]alle Zuschauer[/A] im Kino."
+        },
+        {
+            "id": 32,
+            "text": "[N]Die Krankenschwester[/N] gibt [D]dem kranken Mann[/D] [A]die wichtige Medizin[/A] nach [D]dem Frühstück[/D]."
+        },
+        {
+            "id": 33,
+            "text": "[N]Du[/N] rufst [A]deinen besten Freund[/A] an und erzählst [D]ihm[/D] [A]die Neuigkeiten[/A]."
+        },
+        {
+            "id": 34,
+            "text": "[N]Die Katze[/N] nähert sich [D]dem kleinen Vogel[/D] hinter [D]dem Busch[/D] [G]des Gartens[/G]."
+        },
+        {
+            "id": 35,
+            "text": "[N]Das Ende[/N] [G]der langen Geschichte[/G] überraschte [A]alle Leser[/A] [G]des Buches[/G]."
+        },
+        {
+            "id": 36,
+            "text": "[N]Der Postbote[/N] übergibt [D]der freundlichen Frau[/D] [A]ein großes Paket[/A] aus [D]dem Ausland[/D]."
+        },
+        {
+            "id": 37,
+            "text": "[N]Ihr[/N] singt [A]ein schönes Lied[/A] für [A]die Gäste[/A] [G]der Feier[/G]."
+        },
+        {
+            "id": 38,
+            "text": "[N]Das Pferd[/N] gehorcht [D]seinem erfahrenen Reiter[/D] während [G]des Turniers[/G]."
+        },
+        {
+            "id": 39,
+            "text": "[N]Die Qualität[/N] [G]der deutschen Produkte[/G] überzeugt [A]die Kunden[/A] weltweit."
+        },
+        {
+            "id": 40,
+            "text": "[N]Der Trainer[/N] empfiehlt [D]dem jungen Spieler[/D] [A]mehr tägliches Training[/A]."
+        },
+        {
+            "id": 41,
+            "text": "[N]Sie[/N] öffnet [A]die schwere Tür[/A] [G]des alten Schlosses[/G] mit [D]einem rostigen Schlüssel[/D]."
+        },
+        {
+            "id": 42,
+            "text": "[N]Der treue Hund[/N] folgt [D]seinem Herrchen[/D] durch [A]den ganzen Park[/A]."
+        },
+        {
+            "id": 43,
+            "text": "[N]Die Lösung[/N] [G]des mathematischen Problems[/G] war für [A]die Schüler[/A] einfach."
+        },
+        {
+            "id": 44,
+            "text": "[N]Der Verkäufer[/N] bietet [D]dem treuen Kunden[/D] [A]einen großzügigen Rabatt[/A] an."
+        },
+        {
+            "id": 45,
+            "text": "[N]Wir[/N] brauchen [A]mehr Zeit[/A] wegen [G]der vielen Probleme[/G] bei [D]der Arbeit[/D]."
+        },
+        {
+            "id": 46,
+            "text": "[N]Das kleine Kind[/N] antwortet [D]der besorgten Mutter[/D] mit [D]leiser Stimme[/D]."
+        },
+        {
+            "id": 47,
+            "text": "[N]Der Geruch[/N] [G]des frischen Kaffees[/G] weckt [A]mich[/A] jeden Morgen."
+        },
+        {
+            "id": 48,
+            "text": "[N]Die Großmutter[/N] erzählt [D]den aufmerksamen Enkeln[/D] [A]eine spannende Geschichte[/A] [G]der alten Zeit[/G]."
+        },
+        {
+            "id": 49,
+            "text": "[N]Er[/N] fotografiert [A]die wunderschöne Landschaft[/A] während [G]des Sonnenuntergangs[/G]."
+        },
+        {
+            "id": 50,
+            "text": "[N]Der mutige Student[/N] widerspricht [D]dem strengen Professor[/D] vor [D]der ganzen Klasse[/D]."
+        }
+    ]
+}

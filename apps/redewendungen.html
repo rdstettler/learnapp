@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Redewendungen-Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --accent-1: #6366f1;
+            --accent-2: #8b5cf6;
+            --accent-3: #d946ef;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --success: #22c55e;
+            --error: #ef4444;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .bg-animation {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(ellipse at 30% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .card {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            backdrop-filter: blur(20px);
+        }
+
+        .welcome-container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+        }
+
+        .welcome-emoji {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .quiz-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .round-info {
+            text-align: center;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .score-live {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .score-live-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+        }
+
+        .score-live-item.correct {
+            color: var(--success);
+        }
+
+        .score-live-item.wrong {
+            color: var(--error);
+        }
+
+        .idiom-container {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 16px;
+            padding: 28px 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .idiom-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .idiom-text {
+            font-size: 1.4rem;
+            font-weight: 600;
+            line-height: 1.5;
+            color: var(--text-primary);
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .option-btn {
+            padding: 18px 20px;
+            border-radius: 14px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            text-align: left;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--accent-1);
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .option-btn.selected {
+            border-color: var(--accent-2);
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .option-btn.correct {
+            border-color: var(--success) !important;
+            background: rgba(34, 197, 94, 0.2) !important;
+        }
+
+        .option-btn.incorrect {
+            border-color: var(--error) !important;
+            background: rgba(239, 68, 68, 0.2) !important;
+        }
+
+        .feedback {
+            text-align: center;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 16px;
+            font-weight: 500;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback.correct {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+
+        .feedback.incorrect {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .score-display {
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .score-text {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .score-breakdown {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-item-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .score-item-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .score-item.correct .score-item-number {
+            color: var(--success);
+        }
+
+        .score-item.wrong .score-item-number {
+            color: var(--error);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-animation"></div>
+
+    <div class="app">
+        <header class="header">
+            <h1>🎭 Redewendungen-Quiz</h1>
+        </header>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+
+        <div class="card">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="welcome-container">
+                <div class="welcome-emoji">🗣️</div>
+                <h2 style="margin-bottom: 10px;">Deutsche Redewendungen</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 30px;">
+                    Was bedeuten diese Redewendungen? Wähle die richtige Bedeutung!
+                </p>
+                <button class="btn btn-primary" id="startBtn">Quiz starten</button>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quizScreen" class="hidden quiz-content">
+                <div class="round-info">Frage <span id="roundDisplay">1</span> / <span id="totalDisplay">10</span></div>
+
+                <div class="score-live">
+                    <div class="score-live-item correct">✓ <span id="liveCorrect">0</span></div>
+                    <div class="score-live-item wrong">✗ <span id="liveWrong">0</span></div>
+                </div>
+
+                <div class="idiom-container">
+                    <div class="idiom-label">Redewendung</div>
+                    <div class="idiom-text" id="idiomText"></div>
+                </div>
+
+                <div class="options-container" id="optionsContainer"></div>
+
+                <div class="feedback hidden" id="feedback"></div>
+                <button class="btn btn-primary hidden" id="nextBtn">Weiter</button>
+            </div>
+
+            <!-- Results Screen -->
+            <div id="resultsScreen" class="hidden">
+                <div class="score-display">
+                    <div class="score-circle" id="finalScore">-</div>
+                    <p class="score-text" id="scoreText">Quiz abgeschlossen!</p>
+                    <div class="score-breakdown">
+                        <div class="score-item correct">
+                            <div class="score-item-number" id="correctCount">0</div>
+                            <div class="score-item-label">Richtig</div>
+                        </div>
+                        <div class="score-item wrong">
+                            <div class="score-item-number" id="wrongCount">0</div>
+                            <div class="score-item-label">Falsch</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="restartBtn">Nochmal spielen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let data = null;
+        let questions = [];
+        let currentQuestion = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        const QUESTIONS_PER_ROUND = 10;
+
+        // Load data
+        fetch('redewendungen.json')
+            .then(res => res.json())
+            .then(json => {
+                data = json;
+                document.getElementById('startBtn').disabled = false;
+            })
+            .catch(err => console.error('Error:', err));
+
+        // Elements
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const quizScreen = document.getElementById('quizScreen');
+        const resultsScreen = document.getElementById('resultsScreen');
+        const progressFill = document.getElementById('progressFill');
+        const idiomText = document.getElementById('idiomText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const feedback = document.getElementById('feedback');
+        const nextBtn = document.getElementById('nextBtn');
+
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', startQuiz);
+        nextBtn.addEventListener('click', nextQuestion);
+        document.getElementById('restartBtn').addEventListener('click', restartQuiz);
+
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function startQuiz() {
+            // Pick random questions
+            questions = shuffle(data.redewendungen).slice(0, QUESTIONS_PER_ROUND);
+            currentQuestion = 0;
+            correctCount = 0;
+            wrongCount = 0;
+
+            document.getElementById('totalDisplay').textContent = QUESTIONS_PER_ROUND;
+            document.getElementById('liveCorrect').textContent = '0';
+            document.getElementById('liveWrong').textContent = '0';
+
+            welcomeScreen.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            const progress = (currentQuestion / questions.length) * 100;
+            progressFill.style.width = `${progress}%`;
+
+            document.getElementById('roundDisplay').textContent = currentQuestion + 1;
+            idiomText.textContent = q.idiom;
+
+            // Shuffle options (first is always correct)
+            const correctAnswer = q.options[0];
+            const shuffledOptions = shuffle(q.options);
+
+            optionsContainer.innerHTML = shuffledOptions.map((opt, i) => `
+                <button class="option-btn" data-option="${opt}" data-correct="${opt === correctAnswer}">
+                    ${opt}
+                </button>
+            `).join('');
+
+            // Add click handlers
+            optionsContainer.querySelectorAll('.option-btn').forEach(btn => {
+                btn.addEventListener('click', () => selectOption(btn));
+            });
+
+            feedback.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+        }
+
+        function selectOption(btn) {
+            const isCorrect = btn.dataset.correct === 'true';
+            const allBtns = optionsContainer.querySelectorAll('.option-btn');
+
+            // Disable all buttons
+            allBtns.forEach(b => {
+                b.disabled = true;
+                if (b.dataset.correct === 'true') {
+                    b.classList.add('correct');
+                }
+            });
+
+            if (isCorrect) {
+                correctCount++;
+                document.getElementById('liveCorrect').textContent = correctCount;
+                feedback.textContent = '✓ Richtig!';
+                feedback.className = 'feedback correct';
+            } else {
+                wrongCount++;
+                document.getElementById('liveWrong').textContent = wrongCount;
+                btn.classList.add('incorrect');
+                feedback.textContent = '✗ Leider falsch!';
+                feedback.className = 'feedback incorrect';
+            }
+
+            feedback.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+
+            if (currentQuestion >= questions.length) {
+                showResults();
+            } else {
+                showQuestion();
+            }
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            progressFill.style.width = '100%';
+
+            const total = correctCount + wrongCount;
+            const percentage = Math.round((correctCount / total) * 100);
+            document.getElementById('finalScore').textContent = `${percentage}%`;
+            document.getElementById('scoreText').textContent = `${correctCount} von ${total} richtig!`;
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('wrongCount').textContent = total - correctCount;
+        }
+
+        function restartQuiz() {
+            resultsScreen.classList.add('hidden');
+            welcomeScreen.classList.remove('hidden');
+            progressFill.style.width = '0%';
+        }
+    </script>
+</body>
+
+</html>

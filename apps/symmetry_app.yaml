@@ -1,0 +1,13 @@
+name: Symmetry Drawing App
+description: Interactive drawing app with real-time polygon mirroring across lines and points
+category: Geometry
+file: symmetry_app.html
+icon: ✨
+author: Antigravity
+version: 1.0.0
+tags:
+  - drawing
+  - geometry
+  - symmetry
+  - visualization
+difficulty: beginner

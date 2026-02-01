@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Kasus-Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --accent-1: #6366f1;
+            --accent-2: #8b5cf6;
+            --accent-3: #d946ef;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --success: #22c55e;
+            --error: #ef4444;
+            --nominativ: #3b82f6;
+            --akkusativ: #f59e0b;
+            --dativ: #10b981;
+            --genitiv: #ec4899;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .bg-animation {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(ellipse at 30% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+        }
+
+        .app {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .card {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            backdrop-filter: blur(20px);
+        }
+
+        .welcome-container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+        }
+
+        .welcome-emoji {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.nom {
+            background: var(--nominativ);
+        }
+
+        .legend-dot.akk {
+            background: var(--akkusativ);
+        }
+
+        .legend-dot.dat {
+            background: var(--dativ);
+        }
+
+        .legend-dot.gen {
+            background: var(--genitiv);
+        }
+
+        .quiz-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .round-info {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .sentence-container {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            line-height: 2.2;
+            font-size: 1.15rem;
+        }
+
+        .kasus-word {
+            display: inline-block;
+            padding: 4px 12px;
+            margin: 4px 2px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px dashed var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .kasus-word:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .kasus-word.selected {
+            border-style: solid;
+        }
+
+        .kasus-word.selected.nominativ {
+            border-color: var(--nominativ);
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .kasus-word.selected.akkusativ {
+            border-color: var(--akkusativ);
+            background: rgba(245, 158, 11, 0.2);
+        }
+
+        .kasus-word.selected.dativ {
+            border-color: var(--dativ);
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .kasus-word.selected.genitiv {
+            border-color: var(--genitiv);
+            background: rgba(236, 72, 153, 0.2);
+        }
+
+        .kasus-word.correct {
+            border-color: var(--success) !important;
+            background: rgba(34, 197, 94, 0.2) !important;
+        }
+
+        .kasus-word.incorrect {
+            border-color: var(--error) !important;
+            background: rgba(239, 68, 68, 0.2) !important;
+        }
+
+        .kasus-label {
+            position: absolute;
+            top: -10px;
+            right: -5px;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .kasus-word.selected.nominativ .kasus-label {
+            background: var(--nominativ);
+        }
+
+        .kasus-word.selected.akkusativ .kasus-label {
+            background: var(--akkusativ);
+        }
+
+        .kasus-word.selected.dativ .kasus-label {
+            background: var(--dativ);
+        }
+
+        .kasus-word.selected.genitiv .kasus-label {
+            background: var(--genitiv);
+        }
+
+        /* Popup */
+        .popup-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .popup-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .popup {
+            background: #1a1a2e;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            min-width: 280px;
+            transform: scale(0.9);
+            transition: transform 0.2s ease;
+        }
+
+        .popup-overlay.visible .popup {
+            transform: scale(1);
+        }
+
+        .popup-title {
+            text-align: center;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .popup-word {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: var(--bg-card);
+            border-radius: 8px;
+        }
+
+        .popup-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .popup-option {
+            padding: 14px;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .popup-option:hover {
+            transform: translateY(-2px);
+        }
+
+        .popup-option.nom {
+            border-color: var(--nominativ);
+        }
+
+        .popup-option.nom:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .popup-option.akk {
+            border-color: var(--akkusativ);
+        }
+
+        .popup-option.akk:hover {
+            background: rgba(245, 158, 11, 0.2);
+        }
+
+        .popup-option.dat {
+            border-color: var(--dativ);
+        }
+
+        .popup-option.dat:hover {
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .popup-option.gen {
+            border-color: var(--genitiv);
+        }
+
+        .popup-option.gen:hover {
+            background: rgba(236, 72, 153, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: auto;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .score-display {
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .score-text {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .score-breakdown {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-item-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .score-item-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .score-item.correct .score-item-number {
+            color: var(--success);
+        }
+
+        .score-item.wrong .score-item-number {
+            color: var(--error);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .correction-hint {
+            font-size: 0.7rem;
+            margin-top: 4px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-animation"></div>
+
+    <div class="app">
+        <header class="header">
+            <h1>📖 Kasus-Quiz</h1>
+        </header>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+
+        <div class="card">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="welcome-container">
+                <div class="welcome-emoji">🎯</div>
+                <h2 style="margin-bottom: 10px;">Kasus erkennen</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                    Klicke auf die markierten Wörter und wähle den richtigen Kasus!
+                </p>
+                <div class="legend">
+                    <div class="legend-item"><span class="legend-dot nom"></span> Nominativ</div>
+                    <div class="legend-item"><span class="legend-dot akk"></span> Akkusativ</div>
+                    <div class="legend-item"><span class="legend-dot dat"></span> Dativ</div>
+                    <div class="legend-item"><span class="legend-dot gen"></span> Genitiv</div>
+                </div>
+                <button class="btn btn-primary" id="startBtn" style="margin-top: 20px;">Quiz starten</button>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quizScreen" class="hidden quiz-content">
+                <div class="round-info">Runde <span id="roundDisplay">1</span> / 5</div>
+                <div class="sentence-container" id="sentenceContainer"></div>
+                <button class="btn btn-primary" id="checkBtn" disabled>Überprüfen</button>
+                <button class="btn btn-primary hidden" id="nextBtn">Weiter</button>
+            </div>
+
+            <!-- Results Screen -->
+            <div id="resultsScreen" class="hidden">
+                <div class="score-display">
+                    <div class="score-circle" id="finalScore">-</div>
+                    <p class="score-text" id="scoreText">Quiz abgeschlossen!</p>
+                    <div class="score-breakdown">
+                        <div class="score-item correct">
+                            <div class="score-item-number" id="correctCount">0</div>
+                            <div class="score-item-label">Richtig</div>
+                        </div>
+                        <div class="score-item wrong">
+                            <div class="score-item-number" id="wrongCount">0</div>
+                            <div class="score-item-label">Falsch</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="restartBtn">Nochmal spielen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup">
+            <div class="popup-title">Welcher Kasus?</div>
+            <div class="popup-word" id="popupWord"></div>
+            <div class="popup-options">
+                <button class="popup-option nom" data-kasus="Nominativ">Nominativ</button>
+                <button class="popup-option akk" data-kasus="Akkusativ">Akkusativ</button>
+                <button class="popup-option dat" data-kasus="Dativ">Dativ</button>
+                <button class="popup-option gen" data-kasus="Genitiv">Genitiv</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let data = null;
+        let currentRound = 0;
+        let rounds = [];
+        let currentWordIndex = null;
+        let totalCorrect = 0;
+        let totalQuestions = 0;
+
+        const kasusMap = {
+            'N': 'Nominativ',
+            'A': 'Akkusativ',
+            'D': 'Dativ',
+            'G': 'Genitiv'
+        };
+
+        const kasusClass = {
+            'Nominativ': 'nominativ',
+            'Akkusativ': 'akkusativ',
+            'Dativ': 'dativ',
+            'Genitiv': 'genitiv'
+        };
+
+        // Parse text with markers like [N]...[/N]
+        function parseText(text) {
+            const parts = [];
+            const regex = /\[([NADG])\](.*?)\[\/\1\]/g;
+            let lastIndex = 0;
+            let match;
+
+            while ((match = regex.exec(text)) !== null) {
+                // Add plain text before match
+                if (match.index > lastIndex) {
+                    parts.push({
+                        text: text.slice(lastIndex, match.index),
+                        kasus: null
+                    });
+                }
+                // Add marked text
+                parts.push({
+                    text: match[2],
+                    kasus: kasusMap[match[1]]
+                });
+                lastIndex = regex.lastIndex;
+            }
+
+            // Add remaining text
+            if (lastIndex < text.length) {
+                parts.push({
+                    text: text.slice(lastIndex),
+                    kasus: null
+                });
+            }
+
+            return parts;
+        }
+
+        // Load data
+        fetch('kasus.json')
+            .then(res => res.json())
+            .then(json => {
+                data = json;
+                document.getElementById('startBtn').disabled = false;
+            })
+            .catch(err => console.error('Error:', err));
+
+        // Elements
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const quizScreen = document.getElementById('quizScreen');
+        const resultsScreen = document.getElementById('resultsScreen');
+        const progressFill = document.getElementById('progressFill');
+        const sentenceContainer = document.getElementById('sentenceContainer');
+        const checkBtn = document.getElementById('checkBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const popupOverlay = document.getElementById('popupOverlay');
+        const popupWord = document.getElementById('popupWord');
+
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', startQuiz);
+        checkBtn.addEventListener('click', checkAnswers);
+        nextBtn.addEventListener('click', nextRound);
+        document.getElementById('restartBtn').addEventListener('click', restartQuiz);
+
+        // Popup option clicks
+        document.querySelectorAll('.popup-option').forEach(btn => {
+            btn.addEventListener('click', () => selectKasus(btn.dataset.kasus));
+        });
+
+        // Close popup on overlay click
+        popupOverlay.addEventListener('click', (e) => {
+            if (e.target === popupOverlay) {
+                closePopup();
+            }
+        });
+
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function startQuiz() {
+            // Select 5 random exercises
+            rounds = shuffle(data.exercises).slice(0, 5);
+            currentRound = 0;
+            totalCorrect = 0;
+            totalQuestions = 0;
+
+            welcomeScreen.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+
+            showRound();
+        }
+
+        function showRound() {
+            const exercise = rounds[currentRound];
+            const parts = parseText(exercise.text);
+            const progress = (currentRound / rounds.length) * 100;
+            progressFill.style.width = `${progress}%`;
+
+            document.getElementById('roundDisplay').textContent = currentRound + 1;
+
+            // Build sentence HTML
+            let html = '';
+            let wordIndex = 0;
+
+            parts.forEach((part, i) => {
+                if (part.kasus) {
+                    html += `<span class="kasus-word" data-index="${wordIndex}" data-correct="${part.kasus}">
+                        ${part.text}
+                        <span class="kasus-label"></span>
+                    </span>`;
+                    wordIndex++;
+                } else {
+                    html += part.text;
+                }
+            });
+
+            sentenceContainer.innerHTML = html;
+            totalQuestions += wordIndex;
+
+            // Add click handlers to kasus words
+            document.querySelectorAll('.kasus-word').forEach(word => {
+                word.addEventListener('click', () => openPopup(word));
+            });
+
+            checkBtn.classList.remove('hidden');
+            checkBtn.disabled = true;
+            nextBtn.classList.add('hidden');
+
+            updateCheckButton();
+        }
+
+        function openPopup(wordElement) {
+            if (wordElement.classList.contains('correct') || wordElement.classList.contains('incorrect')) {
+                return; // Already checked
+            }
+            currentWordIndex = wordElement.dataset.index;
+            popupWord.textContent = wordElement.textContent.trim();
+            popupOverlay.classList.add('visible');
+        }
+
+        function closePopup() {
+            popupOverlay.classList.remove('visible');
+            currentWordIndex = null;
+        }
+
+        function selectKasus(kasus) {
+            const word = document.querySelector(`.kasus-word[data-index="${currentWordIndex}"]`);
+            if (!word) return;
+
+            // Remove previous selection
+            word.classList.remove('selected', 'nominativ', 'akkusativ', 'dativ', 'genitiv');
+
+            // Add new selection
+            word.classList.add('selected', kasusClass[kasus]);
+            word.dataset.selected = kasus;
+            word.querySelector('.kasus-label').textContent = kasus.substring(0, 3);
+
+            closePopup();
+            updateCheckButton();
+        }
+
+        function updateCheckButton() {
+            const words = document.querySelectorAll('.kasus-word');
+            const allSelected = Array.from(words).every(w => w.dataset.selected);
+            checkBtn.disabled = !allSelected;
+        }
+
+        function checkAnswers() {
+            const words = document.querySelectorAll('.kasus-word');
+
+            words.forEach(word => {
+                const selected = word.dataset.selected;
+                const correct = word.dataset.correct;
+
+                word.classList.remove('nominativ', 'akkusativ', 'dativ', 'genitiv');
+
+                if (selected === correct) {
+                    word.classList.add('correct');
+                    totalCorrect++;
+                } else {
+                    word.classList.add('incorrect');
+                    // Show correct answer
+                    const hint = document.createElement('div');
+                    hint.className = 'correction-hint';
+                    hint.textContent = `→ ${correct}`;
+                    word.appendChild(hint);
+                }
+
+                word.style.cursor = 'default';
+            });
+
+            checkBtn.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextRound() {
+            currentRound++;
+
+            if (currentRound >= rounds.length) {
+                showResults();
+            } else {
+                showRound();
+            }
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            progressFill.style.width = '100%';
+
+            const percentage = Math.round((totalCorrect / totalQuestions) * 100);
+            document.getElementById('finalScore').textContent = `${percentage}%`;
+            document.getElementById('scoreText').textContent = `${totalCorrect} von ${totalQuestions} richtig!`;
+            document.getElementById('correctCount').textContent = totalCorrect;
+            document.getElementById('wrongCount').textContent = totalQuestions - totalCorrect;
+        }
+
+        function restartQuiz() {
+            resultsScreen.classList.add('hidden');
+            welcomeScreen.classList.remove('hidden');
+            progressFill.style.width = '0%';
+        }
+    </script>
+</body>
+
+</html>

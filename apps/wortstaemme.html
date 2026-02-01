@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Wortstamm-Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-card: rgba(255, 255, 255, 0.04);
+            --bg-card-active: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #606070;
+            --accent-1: #6366f1;
+            --accent-2: #8b5cf6;
+            --accent-3: #d946ef;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --success: #22c55e;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --neutral: #6b7280;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        /* Background animation */
+        .bg-animation {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background: radial-gradient(ellipse at 30% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+        }
+
+        /* App container */
+        .app {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            padding: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Progress dots */
+        .progress-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            flex-shrink: 0;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background: var(--accent-1);
+            transform: scale(1.3);
+        }
+
+        .dot.completed {
+            background: var(--success);
+        }
+
+        /* Carousel */
+        .carousel {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .carousel-track {
+            display: flex;
+            height: 100%;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card {
+            flex: 0 0 100%;
+            height: 100%;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(20px);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .card-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        /* Form elements */
+        .stem-select {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .stem-select option {
+            background: var(--bg-primary);
+        }
+
+        /* Checkbox list */
+        .options-list {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 16px;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px;
+            margin-bottom: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-item:hover {
+            background: var(--bg-card-active);
+            border-color: var(--accent-1);
+        }
+
+        .option-item.selected {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: var(--accent-1);
+        }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .option-item.selected .checkbox {
+            background: var(--accent-1);
+            border-color: var(--accent-1);
+        }
+
+        .checkbox::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .option-item.selected .checkbox::after {
+            opacity: 1;
+        }
+
+        .option-text {
+            flex: 1;
+            font-size: 1rem;
+        }
+
+        /* Result items */
+        .result-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+        }
+
+        .result-item.true-positive {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .result-item.false-positive {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .result-item.false-negative {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .result-item.true-negative {
+            background: rgba(107, 114, 128, 0.1);
+            border: 1px solid rgba(107, 114, 128, 0.2);
+            color: var(--text-muted);
+        }
+
+        .result-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .result-label {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .true-positive .result-label {
+            background: var(--success);
+            color: white;
+        }
+
+        .false-positive .result-label {
+            background: var(--error);
+            color: white;
+        }
+
+        .false-negative .result-label {
+            background: var(--warning);
+            color: black;
+        }
+
+        .true-negative .result-label {
+            background: var(--neutral);
+            color: white;
+        }
+
+        /* Score display */
+        .score-display {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .score-text {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: auto;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        /* Word badge in meanings */
+        .word-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        /* Results summary */
+        .results-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .summary-item.correct {
+            background: rgba(34, 197, 94, 0.15);
+        }
+
+        .summary-item.wrong {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .summary-number {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .summary-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Legend */
+        .legend {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: var(--bg-card);
+            border-radius: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+        }
+
+        .legend-dot.tp {
+            background: var(--success);
+        }
+
+        .legend-dot.fp {
+            background: var(--error);
+        }
+
+        .legend-dot.fn {
+            background: var(--warning);
+        }
+
+        .legend-dot.tn {
+            background: var(--neutral);
+        }
+
+        /* Welcome emojis */
+        .welcome-emoji {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .welcome-text {
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Hide scrollbar but keep functionality */
+        .options-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .options-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .options-list::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-animation"></div>
+
+    <div class="app">
+        <header class="header">
+            <h1>📝 Wortstamm-Quiz</h1>
+        </header>
+
+        <div class="progress-dots" id="progressDots"></div>
+
+        <div class="carousel">
+            <div class="carousel-track" id="carouselTrack">
+                <!-- Cards will be dynamically generated -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // State
+        // ========================================
+        let data = null;
+        let currentStem = null;
+        let currentCardIndex = 0;
+        let cards = [];
+        let stage1Selections = new Set();
+        let stage2Selections = {}; // { word: Set() }
+        let stage1Results = null;
+        let stage2Results = {}; // { word: results }
+        let totalCorrect = 0;
+        let totalQuestions = 0;
+
+        // ========================================
+        // Load Data
+        // ========================================
+        fetch('wortstaemme.json')
+            .then(res => res.json())
+            .then(json => {
+                data = json;
+                init();
+            })
+            .catch(err => console.error('Error loading data:', err));
+
+        // ========================================
+        // Initialize
+        // ========================================
+        function init() {
+            buildCards();
+            renderCards();
+            updateProgress();
+            goToCard(0);
+        }
+
+        // ========================================
+        // Build Card Structure
+        // ========================================
+        function buildCards() {
+            cards = [
+                { type: 'welcome', id: 'welcome' }
+            ];
+        }
+
+        function rebuildCardsForStem(stemData) {
+            currentStem = stemData;
+            stage1Selections = new Set();
+            stage2Selections = {};
+            stage1Results = null;
+            stage2Results = {};
+            totalCorrect = 0;
+            totalQuestions = 0;
+
+            cards = [
+                { type: 'welcome', id: 'welcome' },
+                { type: 'stage1', id: 'stage1' },
+                { type: 'results1', id: 'results1' }
+            ];
+
+            // Add meaning cards for each existing word
+            const existingWords = stemData.composites
+                .filter(c => c.exists)
+                .map(c => c.word.replace(/-/g, ''));
+
+            existingWords.forEach(word => {
+                if (stemData.meanings[word]) {
+                    cards.push({ type: 'stage2', id: `stage2-${word}`, word: word });
+                    cards.push({ type: 'results2', id: `results2-${word}`, word: word });
+                    stage2Selections[word] = new Set();
+                }
+            });
+
+            cards.push({ type: 'final', id: 'final' });
+
+            renderCards();
+            updateProgress();
+        }
+
+        // ========================================
+        // Render Cards
+        // ========================================
+        function renderCards() {
+            const track = document.getElementById('carouselTrack');
+            track.innerHTML = cards.map(card => renderCard(card)).join('');
+            attachEventListeners();
+        }
+
+        function renderCard(card) {
+            switch (card.type) {
+                case 'welcome': return renderWelcomeCard();
+                case 'stage1': return renderStage1Card();
+                case 'results1': return renderResults1Card();
+                case 'stage2': return renderStage2Card(card.word);
+                case 'results2': return renderResults2Card(card.word);
+                case 'final': return renderFinalCard();
+                default: return '';
+            }
+        }
+
+        function renderWelcomeCard() {
+            const options = data ? data.stems.map(s =>
+                `<option value="${s.stem}">${s.stem}</option>`
+            ).join('') : '';
+
+            return `
+                <div class="card" data-card="welcome">
+                    <div class="card-content">
+                        <div class="welcome-text">
+                            <div class="welcome-emoji">🎯</div>
+                            <h2 class="card-title">Willkommen!</h2>
+                            <p class="card-subtitle">Wähle einen Wortstamm und teste dein Wissen über zusammengesetzte Wörter.</p>
+                        </div>
+                        <select class="stem-select" id="stemSelect">
+                            <option value="">Wortstamm wählen...</option>
+                            ${options}
+                        </select>
+                        <button class="btn btn-primary" id="startBtn" disabled>Quiz starten</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStage1Card() {
+            if (!currentStem) return '<div class="card"></div>';
+
+            const options = currentStem.composites.map(c => `
+                <div class="option-item" data-word="${c.word}">
+                    <div class="checkbox"></div>
+                    <span class="option-text">${c.word}</span>
+                </div>
+            `).join('');
+
+            return `
+                <div class="card" data-card="stage1">
+                    <div class="card-content">
+                        <h2 class="card-title">Stufe 1: Wortexistenz</h2>
+                        <p class="card-subtitle">Welche Wörter mit "<strong>${currentStem.stem}</strong>" existieren wirklich?</p>
+                        <div class="options-list" id="stage1Options">
+                            ${options}
+                        </div>
+                        <button class="btn btn-primary" id="checkStage1Btn">Überprüfen</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderResults1Card() {
+            return `
+                <div class="card" data-card="results1">
+                    <div class="card-content">
+                        <h2 class="card-title">Ergebnis: Stufe 1</h2>
+                        <div class="legend">
+                            <div class="legend-item"><div class="legend-dot tp"></div>Richtig erkannt</div>
+                            <div class="legend-item"><div class="legend-dot fp"></div>Falsch gewählt</div>
+                            <div class="legend-item"><div class="legend-dot fn"></div>Übersehen</div>
+                            <div class="legend-item"><div class="legend-dot tn"></div>Korrekt ignoriert</div>
+                        </div>
+                        <div class="options-list" id="results1List"></div>
+                        <button class="btn btn-primary" id="continueToStage2Btn">Weiter zu Bedeutungen</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStage2Card(word) {
+            if (!currentStem || !currentStem.meanings[word]) return '<div class="card"></div>';
+
+            const options = currentStem.meanings[word].map((m, i) => `
+                <div class="option-item" data-word="${word}" data-index="${i}">
+                    <div class="checkbox"></div>
+                    <span class="option-text">${m.option}</span>
+                </div>
+            `).join('');
+
+            return `
+                <div class="card" data-card="stage2-${word}">
+                    <div class="card-content">
+                        <h2 class="card-title">Stufe 2: Bedeutungen</h2>
+                        <div class="word-badge">${word}</div>
+                        <p class="card-subtitle">Welche Bedeutungen sind korrekt?</p>
+                        <div class="options-list" id="stage2Options-${word}">
+                            ${options}
+                        </div>
+                        <button class="btn btn-primary check-stage2-btn" data-word="${word}">Überprüfen</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderResults2Card(word) {
+            return `
+                <div class="card" data-card="results2-${word}">
+                    <div class="card-content">
+                        <h2 class="card-title">Ergebnis: ${word}</h2>
+                        <div class="legend">
+                            <div class="legend-item"><div class="legend-dot tp"></div>Richtig erkannt</div>
+                            <div class="legend-item"><div class="legend-dot fp"></div>Falsch gewählt</div>
+                            <div class="legend-item"><div class="legend-dot fn"></div>Übersehen</div>
+                            <div class="legend-item"><div class="legend-dot tn"></div>Korrekt ignoriert</div>
+                        </div>
+                        <div class="options-list" id="results2List-${word}"></div>
+                        <button class="btn btn-primary continue-btn">Weiter</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderFinalCard() {
+            return `
+                <div class="card" data-card="final">
+                    <div class="card-content">
+                        <div class="score-display">
+                            <div class="score-circle" id="finalScore">-</div>
+                            <p class="score-text" id="finalText">Quiz abgeschlossen!</p>
+                        </div>
+                        <button class="btn btn-primary" id="restartBtn">Neues Quiz starten</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ========================================
+        // Event Listeners
+        // ========================================
+        function attachEventListeners() {
+            // Stem select
+            const stemSelect = document.getElementById('stemSelect');
+            const startBtn = document.getElementById('startBtn');
+
+            if (stemSelect) {
+                stemSelect.addEventListener('change', () => {
+                    startBtn.disabled = !stemSelect.value;
+                });
+            }
+
+            if (startBtn) {
+                startBtn.addEventListener('click', () => {
+                    const stem = data.stems.find(s => s.stem === stemSelect.value);
+                    if (stem) {
+                        rebuildCardsForStem(stem);
+                        goToCard(1);
+                    }
+                });
+            }
+
+            // Stage 1 options
+            document.querySelectorAll('#stage1Options .option-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const word = item.dataset.word;
+                    if (stage1Selections.has(word)) {
+                        stage1Selections.delete(word);
+                        item.classList.remove('selected');
+                    } else {
+                        stage1Selections.add(word);
+                        item.classList.add('selected');
+                    }
+                });
+            });
+
+            // Check Stage 1
+            const checkStage1Btn = document.getElementById('checkStage1Btn');
+            if (checkStage1Btn) {
+                checkStage1Btn.addEventListener('click', () => {
+                    gradeStage1();
+                    goToCard(2);
+                });
+            }
+
+            // Continue to Stage 2
+            const continueBtn = document.getElementById('continueToStage2Btn');
+            if (continueBtn) {
+                continueBtn.addEventListener('click', () => {
+                    goToCard(3);
+                });
+            }
+
+            // Stage 2 options
+            document.querySelectorAll('[id^="stage2Options-"] .option-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const word = item.dataset.word;
+                    const index = item.dataset.index;
+                    const key = `${word}-${index}`;
+
+                    if (!stage2Selections[word]) stage2Selections[word] = new Set();
+
+                    if (stage2Selections[word].has(index)) {
+                        stage2Selections[word].delete(index);
+                        item.classList.remove('selected');
+                    } else {
+                        stage2Selections[word].add(index);
+                        item.classList.add('selected');
+                    }
+                });
+            });
+
+            // Check Stage 2 buttons
+            document.querySelectorAll('.check-stage2-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const word = btn.dataset.word;
+                    gradeStage2(word);
+                    nextCard();
+                });
+            });
+
+            // Continue buttons
+            document.querySelectorAll('.continue-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    nextCard();
+                });
+            });
+
+            // Restart
+            const restartBtn = document.getElementById('restartBtn');
+            if (restartBtn) {
+                restartBtn.addEventListener('click', () => {
+                    buildCards();
+                    renderCards();
+                    updateProgress();
+                    goToCard(0);
+                });
+            }
+        }
+
+        // ========================================
+        // Grading
+        // ========================================
+        function gradeStage1() {
+            const results = [];
+            let correct = 0;
+
+            currentStem.composites.forEach(c => {
+                const word = c.word;
+                const selected = stage1Selections.has(word);
+                const exists = c.exists;
+
+                let type;
+                if (selected && exists) {
+                    type = 'true-positive';
+                    correct++;
+                } else if (selected && !exists) {
+                    type = 'false-positive';
+                } else if (!selected && exists) {
+                    type = 'false-negative';
+                } else {
+                    type = 'true-negative';
+                    correct++;
+                }
+
+                results.push({ word, selected, exists, type });
+            });
+
+            stage1Results = results;
+            totalCorrect += correct;
+            totalQuestions += currentStem.composites.length;
+
+            // Render results
+            const resultsList = document.getElementById('results1List');
+            if (resultsList) {
+                resultsList.innerHTML = results.map(r => `
+                    <div class="result-item ${r.type}">
+                        <span class="result-icon">${getIcon(r.type)}</span>
+                        <span class="option-text">${r.word}</span>
+                        <span class="result-label">${getLabel(r.type)}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function gradeStage2(word) {
+            const meanings = currentStem.meanings[word];
+            const selections = stage2Selections[word] || new Set();
+            const results = [];
+            let correct = 0;
+
+            meanings.forEach((m, i) => {
+                const selected = selections.has(String(i));
+                const isCorrect = m.correct;
+
+                let type;
+                if (selected && isCorrect) {
+                    type = 'true-positive';
+                    correct++;
+                } else if (selected && !isCorrect) {
+                    type = 'false-positive';
+                } else if (!selected && isCorrect) {
+                    type = 'false-negative';
+                } else {
+                    type = 'true-negative';
+                    correct++;
+                }
+
+                results.push({ option: m.option, selected, isCorrect, type });
+            });
+
+            stage2Results[word] = results;
+            totalCorrect += correct;
+            totalQuestions += meanings.length;
+
+            // Render results
+            const resultsList = document.getElementById(`results2List-${word}`);
+            if (resultsList) {
+                resultsList.innerHTML = results.map(r => `
+                    <div class="result-item ${r.type}">
+                        <span class="result-icon">${getIcon(r.type)}</span>
+                        <span class="option-text">${r.option}</span>
+                        <span class="result-label">${getLabel(r.type)}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function getIcon(type) {
+            switch (type) {
+                case 'true-positive': return '✅';
+                case 'false-positive': return '❌';
+                case 'false-negative': return '⚠️';
+                case 'true-negative': return '✓';
+                default: return '';
+            }
+        }
+
+        function getLabel(type) {
+            switch (type) {
+                case 'true-positive': return 'Richtig';
+                case 'false-positive': return 'Falsch';
+                case 'false-negative': return 'Verpasst';
+                case 'true-negative': return 'OK';
+                default: return '';
+            }
+        }
+
+        // ========================================
+        // Navigation
+        // ========================================
+        function goToCard(index) {
+            currentCardIndex = index;
+            const track = document.getElementById('carouselTrack');
+            track.style.transform = `translateX(-${index * 100}%)`;
+            updateProgress();
+
+            // Update final score if on final card
+            if (cards[index]?.type === 'final') {
+                updateFinalScore();
+            }
+        }
+
+        function nextCard() {
+            if (currentCardIndex < cards.length - 1) {
+                goToCard(currentCardIndex + 1);
+            }
+        }
+
+        function updateProgress() {
+            const container = document.getElementById('progressDots');
+            container.innerHTML = cards.map((_, i) => `
+                <div class="dot ${i === currentCardIndex ? 'active' : ''} ${i < currentCardIndex ? 'completed' : ''}"></div>
+            `).join('');
+        }
+
+        function updateFinalScore() {
+            const scoreCircle = document.getElementById('finalScore');
+            const scoreText = document.getElementById('finalText');
+
+            if (scoreCircle && totalQuestions > 0) {
+                const percentage = Math.round((totalCorrect / totalQuestions) * 100);
+                scoreCircle.textContent = `${percentage}%`;
+                scoreText.textContent = `${totalCorrect} von ${totalQuestions} Fragen richtig!`;
+            }
+        }
+    </script>
+</body>
+
+</html>

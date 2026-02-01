@@ -1,0 +1,13 @@
+name: Wortstamm-Quiz
+description: Deutsches Wortstamm-Lernquiz zum Entdecken und Verstehen von Wortfamilien
+category: Deutsch
+file: wortstaemme.html
+icon: 📝
+author: Antigravity
+version: 1.0.0
+tags:
+  - deutsch
+  - sprache
+  - wortschatz
+  - quiz
+difficulty: beginner

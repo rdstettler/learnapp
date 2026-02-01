@@ -1,0 +1,13 @@
+name: Verben-Quiz
+description: Teste dein Wissen über deutsche Verbkonjugation - Präteritum, Perfekt und Plusquamperfekt
+category: Deutsch
+file: verben.html
+icon: ✍️
+author: Antigravity
+version: 1.0.0
+tags:
+  - deutsch
+  - grammatik
+  - verben
+  - konjugation
+difficulty: intermediate

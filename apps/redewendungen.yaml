@@ -1,0 +1,13 @@
+name: Redewendungen-Quiz
+description: Lerne deutsche Redewendungen und ihre Bedeutungen
+category: Deutsch
+file: redewendungen.html
+icon: 🎭
+author: Antigravity
+version: 1.0.0
+tags:
+  - deutsch
+  - redewendungen
+  - idiome
+  - sprache
+difficulty: intermediate
