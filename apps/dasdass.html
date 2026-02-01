@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Das/Dass Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        /* App-specific styles */
+        .app {
+            max-width: 700px;
+        }
+
+        /* Text container */
+        .text-container {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            line-height: 2.2;
+            font-size: 1.1rem;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Das/Dass choice slots */
+        .choice-slot {
+            display: inline-block;
+            min-width: 50px;
+            padding: 4px 12px;
+            margin: 0 2px;
+            border-radius: 8px;
+            background: rgba(99, 102, 241, 0.2);
+            border: 2px dashed var(--accent-1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .choice-slot:hover {
+            background: rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .choice-slot.selected {
+            border-style: solid;
+            background: rgba(99, 102, 241, 0.3);
+        }
+
+        .choice-slot.correct {
+            background: rgba(34, 197, 94, 0.3) !important;
+            border-color: var(--success) !important;
+            border-style: solid;
+        }
+
+        .choice-slot.incorrect {
+            background: rgba(239, 68, 68, 0.3) !important;
+            border-color: var(--error) !important;
+            border-style: solid;
+        }
+
+        .choice-slot.missed {
+            background: rgba(245, 158, 11, 0.3) !important;
+            border-color: var(--warning) !important;
+            border-style: solid;
+        }
+
+        /* Live score */
+        .score-live {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 16px;
+        }
+
+        .score-live-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+        }
+
+        .score-live-item.correct {
+            color: var(--success);
+        }
+
+        .score-live-item.wrong {
+            color: var(--error);
+        }
+
+        /* Popup for choice */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(4px);
+        }
+
+        .popup {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            max-width: 300px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .popup-title {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .popup-options {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .popup-option {
+            padding: 14px 28px;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .popup-option:hover {
+            border-color: var(--accent-1);
+            background: rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Rule explanation */
+        .rule-box {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .rule-box strong {
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-animation"></div>
+
+    <div class="app">
+        <header class="header">
+            <h1>📝 Das oder Dass?</h1>
+        </header>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+
+        <div class="card">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="welcome-container">
+                <div class="welcome-emoji">🎯</div>
+                <h2 style="margin-bottom: 10px;">Das oder Dass?</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                    Übe den Unterschied zwischen "das" und "dass". Klicke auf die markierten Stellen und wähle die
+                    richtige Schreibweise!
+                </p>
+                <div class="rule-box">
+                    <strong>Tipp:</strong> "Das" kann durch "dieses", "jenes" oder "welches" ersetzt werden. "Dass"
+                    leitet einen Nebensatz ein und kann nicht ersetzt werden.
+                </div>
+                <button class="btn btn-primary" id="startBtn" style="margin-top: 24px;">Quiz starten</button>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quizScreen" class="hidden quiz-content">
+                <div class="round-info">Text <span id="roundDisplay">1</span> / <span id="totalDisplay">10</span></div>
+
+                <div class="score-live">
+                    <div class="score-live-item correct">✓ <span id="liveCorrect">0</span></div>
+                    <div class="score-live-item wrong">✗ <span id="liveWrong">0</span></div>
+                </div>
+
+                <div class="text-container" id="textContainer"></div>
+
+                <button class="btn btn-primary" id="checkBtn">Überprüfen</button>
+                <button class="btn btn-primary hidden" id="nextBtn">Weiter</button>
+            </div>
+
+            <!-- Results Screen -->
+            <div id="resultsScreen" class="hidden">
+                <div class="score-display">
+                    <div class="score-circle" id="finalScore">-</div>
+                    <p class="score-text" id="scoreText">Quiz abgeschlossen!</p>
+                    <div class="score-breakdown">
+                        <div class="score-item correct">
+                            <div class="score-item-number" id="correctCount">0</div>
+                            <div class="score-item-label">Richtig</div>
+                        </div>
+                        <div class="score-item wrong">
+                            <div class="score-item-number" id="wrongCount">0</div>
+                            <div class="score-item-label">Falsch</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="restartBtn">Nochmal spielen</button>
+            </div>
+        </div>
+
+        <!-- Choice Popup -->
+        <div class="popup-overlay hidden" id="popupOverlay">
+            <div class="popup">
+                <div class="popup-title">Wähle die richtige Form:</div>
+                <div class="popup-options">
+                    <button class="popup-option" data-choice="das">das</button>
+                    <button class="popup-option" data-choice="dass">dass</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let data = null;
+        let texts = [];
+        let currentTextIndex = 0;
+        let currentSlotIndex = null;
+        let userChoices = {}; // { slotIndex: 'das' | 'dass' }
+        let totalCorrect = 0;
+        let totalWrong = 0;
+        const TEXTS_PER_ROUND = 10;
+
+        // Load data
+        fetch('dasdass.json')
+            .then(res => res.json())
+            .then(json => {
+                data = json;
+                document.getElementById('startBtn').disabled = false;
+            })
+            .catch(err => console.error('Error loading data:', err));
+
+        // Elements
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const quizScreen = document.getElementById('quizScreen');
+        const resultsScreen = document.getElementById('resultsScreen');
+        const progressFill = document.getElementById('progressFill');
+        const textContainer = document.getElementById('textContainer');
+        const checkBtn = document.getElementById('checkBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const popupOverlay = document.getElementById('popupOverlay');
+
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', startQuiz);
+        checkBtn.addEventListener('click', checkAnswers);
+        nextBtn.addEventListener('click', nextText);
+        document.getElementById('restartBtn').addEventListener('click', restartQuiz);
+
+        // Popup option clicks
+        document.querySelectorAll('.popup-option').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (currentSlotIndex !== null) {
+                    userChoices[currentSlotIndex] = btn.dataset.choice;
+                    updateSlotDisplay(currentSlotIndex);
+                    closePopup();
+                }
+            });
+        });
+
+        popupOverlay.addEventListener('click', (e) => {
+            if (e.target === popupOverlay) {
+                closePopup();
+            }
+        });
+
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function startQuiz() {
+            texts = shuffle(data.texts).slice(0, TEXTS_PER_ROUND);
+            currentTextIndex = 0;
+            totalCorrect = 0;
+            totalWrong = 0;
+
+            document.getElementById('totalDisplay').textContent = TEXTS_PER_ROUND;
+            document.getElementById('liveCorrect').textContent = '0';
+            document.getElementById('liveWrong').textContent = '0';
+
+            welcomeScreen.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+
+            showText();
+        }
+
+        function showText() {
+            const text = texts[currentTextIndex];
+            const progress = (currentTextIndex / texts.length) * 100;
+            progressFill.style.width = `${progress}%`;
+
+            document.getElementById('roundDisplay').textContent = currentTextIndex + 1;
+            userChoices = {};
+
+            // Parse text and create slots
+            let html = '';
+            let slotIndex = 0;
+
+            text.sentences.forEach(sentence => {
+                // Replace [das] and [dass] markers with interactive slots
+                let processed = sentence.text.replace(/\[(das|dass)\]/g, (match, correct) => {
+                    const idx = slotIndex++;
+                    return `<span class="choice-slot" data-index="${idx}" data-correct="${correct}">?</span>`;
+                });
+                html += processed + ' ';
+            });
+
+            textContainer.innerHTML = html;
+
+            // Add click handlers to slots
+            document.querySelectorAll('.choice-slot').forEach(slot => {
+                slot.addEventListener('click', () => {
+                    if (!slot.classList.contains('correct') && !slot.classList.contains('incorrect')) {
+                        currentSlotIndex = parseInt(slot.dataset.index);
+                        openPopup();
+                    }
+                });
+            });
+
+            checkBtn.classList.remove('hidden');
+            nextBtn.classList.add('hidden');
+        }
+
+        function updateSlotDisplay(index) {
+            const slot = document.querySelector(`.choice-slot[data-index="${index}"]`);
+            if (slot && userChoices[index]) {
+                slot.textContent = userChoices[index];
+                slot.classList.add('selected');
+            }
+        }
+
+        function openPopup() {
+            popupOverlay.classList.remove('hidden');
+        }
+
+        function closePopup() {
+            popupOverlay.classList.add('hidden');
+            currentSlotIndex = null;
+        }
+
+        function checkAnswers() {
+            const slots = document.querySelectorAll('.choice-slot');
+            let correctInText = 0;
+            let wrongInText = 0;
+
+            slots.forEach(slot => {
+                const index = parseInt(slot.dataset.index);
+                const correct = slot.dataset.correct;
+                const userChoice = userChoices[index];
+
+                if (userChoice === correct) {
+                    slot.classList.add('correct');
+                    correctInText++;
+                } else if (userChoice) {
+                    slot.classList.add('incorrect');
+                    slot.textContent = `${userChoice} → ${correct}`;
+                    wrongInText++;
+                } else {
+                    slot.classList.add('missed');
+                    slot.textContent = correct;
+                    wrongInText++;
+                }
+            });
+
+            totalCorrect += correctInText;
+            totalWrong += wrongInText;
+
+            document.getElementById('liveCorrect').textContent = totalCorrect;
+            document.getElementById('liveWrong').textContent = totalWrong;
+
+            checkBtn.classList.add('hidden');
+            nextBtn.classList.remove('hidden');
+        }
+
+        function nextText() {
+            currentTextIndex++;
+
+            if (currentTextIndex >= texts.length) {
+                showResults();
+            } else {
+                showText();
+            }
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            progressFill.style.width = '100%';
+
+            const total = totalCorrect + totalWrong;
+            const percentage = total > 0 ? Math.round((totalCorrect / total) * 100) : 0;
+
+            document.getElementById('finalScore').textContent = `${percentage}%`;
+            document.getElementById('scoreText').textContent = `${totalCorrect} von ${total} richtig!`;
+            document.getElementById('correctCount').textContent = totalCorrect;
+            document.getElementById('wrongCount').textContent = totalWrong;
+        }
+
+        function restartQuiz() {
+            resultsScreen.classList.add('hidden');
+            welcomeScreen.classList.remove('hidden');
+            progressFill.style.width = '0%';
+        }
+    </script>
+</body>
+
+</html>

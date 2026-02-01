@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fehler finden</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        /* App-specific styles */
+        .text-display {
+            flex: 1;
+            font-size: 1.1rem;
+            line-height: 2;
+            color: var(--text-primary);
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .word {
+            display: inline;
+            padding: 4px 2px;
+            margin: 2px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .word:hover {
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .word.error {
+            color: var(--error);
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .word.error::after {
+            content: attr(data-correction);
+            color: var(--success);
+            text-decoration: none;
+            margin-left: 4px;
+            font-weight: 600;
+        }
+
+        .word.correct-click {
+            background: rgba(34, 197, 94, 0.2);
+        }
+
+        .word.missed {
+            background: rgba(239, 68, 68, 0.3);
+            color: var(--error);
+        }
+
+        /* Stats bar */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .stats-bar span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .found-count {
+            color: var(--success);
+        }
+
+        .missed-count {
+            color: var(--error);
+        }
+
+        /* Correction input popup */
+        .popup-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .popup-word-display {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            padding: 16px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .popup-input {
+            padding: 14px;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            text-align: center;
+            transition: border-color 0.2s ease;
+        }
+
+        .popup-input:focus {
+            outline: none;
+            border-color: var(--accent-1);
+        }
+
+        .popup-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .popup-buttons button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .popup-btn-cancel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .popup-btn-submit {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: white;
+        }
+
+        .popup-btn-submit:hover {
+            transform: translateY(-2px);
+        }
+
+        .popup-feedback {
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .popup-feedback.correct {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+
+        .popup-feedback.incorrect {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+        }
+
+        .popup-feedback.no-error {
+            background: rgba(107, 114, 128, 0.15);
+            color: var(--text-secondary);
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .actions .btn {
+            flex: 1;
+        }
+
+        .btn-check {
+            background: linear-gradient(135deg, var(--success), #16a34a);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-animation"></div>
+    <div class="app">
+        <div class="header">
+            <h1>🔍 Fehler finden</h1>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <div class="card">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="welcome-container">
+                <div class="welcome-emoji">📝</div>
+                <h2 style="margin-bottom: 12px;">Finde die Fehler!</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 24px; max-width: 300px;">
+                    Lies den Text und klicke auf falsch geschriebene Wörter. Schreibe dann die korrekte Version.
+                </p>
+                <button class="btn btn-primary" onclick="startGame()">Starten</button>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quizScreen" class="quiz-content hidden">
+                <div class="stats-bar">
+                    <span>Text <strong id="textNum">1</strong> von <strong id="totalTexts">7</strong></span>
+                    <span class="found-count">✓ Gefunden: <strong id="foundCount">0</strong></span>
+                    <span>Fehler: <strong id="errorCount">0</strong></span>
+                </div>
+                <div class="text-display" id="textDisplay"></div>
+                <div class="actions">
+                    <button class="btn btn-check" onclick="checkText()">Fertig – Prüfen</button>
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div id="resultsScreen" class="score-display hidden">
+                <div class="score-circle" id="scoreCircle">0%</div>
+                <div class="score-text">Fehler gefunden</div>
+                <div class="score-breakdown">
+                    <div class="score-item correct">
+                        <div class="score-item-number" id="finalFound">0</div>
+                        <div class="score-item-label">Gefunden</div>
+                    </div>
+                    <div class="score-item wrong">
+                        <div class="score-item-number" id="finalMissed">0</div>
+                        <div class="score-item-label">Verpasst</div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" style="margin-top: 30px; max-width: 200px;"
+                    onclick="restartGame()">Nochmal spielen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Correction Popup -->
+    <div class="popup-overlay" id="correctionPopup">
+        <div class="popup">
+            <div class="popup-title">Wie schreibt man das richtig?</div>
+            <div class="popup-input-container">
+                <div class="popup-word-display" id="popupWord"></div>
+                <input type="text" class="popup-input" id="correctionInput" placeholder="Korrekte Schreibweise..."
+                    autocomplete="off">
+                <div class="popup-feedback hidden" id="popupFeedback"></div>
+                <div class="popup-buttons" id="popupButtons">
+                    <button class="popup-btn-cancel" onclick="closePopup()">Abbrechen</button>
+                    <button class="popup-btn-submit" onclick="submitCorrection()">Prüfen</button>
+                </div>
+                <button class="btn btn-primary hidden" id="continueBtn" onclick="closePopup()">Weiter</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let texts = [];
+        let currentTextIndex = 0;
+        let currentTextErrors = []; // { wrongWord, correctWord, found: bool, wordIndex }
+        let totalFound = 0;
+        let totalMissed = 0;
+        let selectedWordIndex = null;
+
+        // Load data
+        async function loadData() {
+            try {
+                const response = await fetch('fehler.json');
+                texts = await response.json();
+            } catch (e) {
+                console.error('Error loading data:', e);
+            }
+        }
+
+        // Parse text and extract errors
+        function parseText(text) {
+            const errors = [];
+            const pattern = /\[([^\]\/]+)\/([^\]]+)\]/g;
+            let match;
+            let wordIndex = 0;
+            let cleanText = text;
+
+            // First pass: collect all errors with positions
+            const matches = [];
+            while ((match = pattern.exec(text)) !== null) {
+                matches.push({
+                    fullMatch: match[0],
+                    correct: match[1],
+                    wrong: match[2],
+                    index: match.index
+                });
+            }
+
+            // Replace patterns with wrong word (keeping track for later)
+            matches.forEach((m, i) => {
+                cleanText = cleanText.replace(m.fullMatch, `{{ERROR_${i}}}`);
+            });
+
+            // Split into words and track error positions
+            const words = cleanText.split(/(\s+)/);
+            const displayWords = [];
+
+            words.forEach(word => {
+                if (word.trim() === '') {
+                    displayWords.push({ text: word, isSpace: true });
+                } else {
+                    // Check if this word contains an error marker
+                    const errorMatch = word.match(/\{\{ERROR_(\d+)\}\}/);
+                    if (errorMatch) {
+                        const errorIndex = parseInt(errorMatch[1]);
+                        const error = matches[errorIndex];
+                        const prefix = word.split(`{{ERROR_${errorIndex}}}`)[0];
+                        const suffix = word.split(`{{ERROR_${errorIndex}}}`)[1];
+
+                        if (prefix) {
+                            displayWords.push({ text: prefix, isError: false, wordIndex: displayWords.filter(w => !w.isSpace).length });
+                        }
+
+                        const wi = displayWords.filter(w => !w.isSpace).length;
+                        displayWords.push({
+                            text: error.wrong,
+                            isError: true,
+                            correct: error.correct,
+                            wordIndex: wi
+                        });
+                        errors.push({
+                            wrongWord: error.wrong,
+                            correctWord: error.correct,
+                            found: false,
+                            wordIndex: wi
+                        });
+
+                        if (suffix) {
+                            displayWords.push({ text: suffix, isError: false, wordIndex: displayWords.filter(w => !w.isSpace).length });
+                        }
+                    } else {
+                        displayWords.push({ text: word, isError: false, wordIndex: displayWords.filter(w => !w.isSpace).length });
+                    }
+                }
+            });
+
+            return { displayWords, errors };
+        }
+
+        // Render current text
+        function renderText() {
+            const text = texts[currentTextIndex];
+            const { displayWords, errors } = parseText(text);
+            currentTextErrors = errors;
+
+            const container = document.getElementById('textDisplay');
+            container.innerHTML = '';
+
+            let wordIdx = 0;
+            displayWords.forEach(item => {
+                if (item.isSpace) {
+                    container.appendChild(document.createTextNode(item.text));
+                } else {
+                    const span = document.createElement('span');
+                    span.className = 'word';
+                    span.textContent = item.text;
+                    span.dataset.index = wordIdx;
+                    span.dataset.isError = item.isError;
+                    if (item.isError) {
+                        span.dataset.correct = item.correct;
+                    }
+                    span.onclick = () => openCorrectionPopup(wordIdx, item.text, item.isError, item.correct);
+                    container.appendChild(span);
+                    wordIdx++;
+                }
+            });
+
+            document.getElementById('textNum').textContent = currentTextIndex + 1;
+            document.getElementById('totalTexts').textContent = texts.length;
+            document.getElementById('errorCount').textContent = errors.length;
+            document.getElementById('foundCount').textContent = 0;
+            updateProgress();
+        }
+
+        // Open popup for correction
+        function openCorrectionPopup(wordIndex, wordText, isError, correct) {
+            selectedWordIndex = wordIndex;
+            document.getElementById('popupWord').textContent = wordText;
+            document.getElementById('correctionInput').value = '';
+            document.getElementById('popupFeedback').classList.add('hidden');
+            document.getElementById('popupButtons').classList.remove('hidden');
+            document.getElementById('continueBtn').classList.add('hidden');
+            document.getElementById('correctionPopup').classList.add('visible');
+
+            // Store data for validation
+            document.getElementById('correctionPopup').dataset.isError = isError;
+            document.getElementById('correctionPopup').dataset.correct = correct || '';
+
+            setTimeout(() => document.getElementById('correctionInput').focus(), 100);
+        }
+
+        // Submit correction
+        function submitCorrection() {
+            const input = document.getElementById('correctionInput').value.trim();
+            const isError = document.getElementById('correctionPopup').dataset.isError === 'true';
+            const correct = document.getElementById('correctionPopup').dataset.correct;
+            const feedback = document.getElementById('popupFeedback');
+            const wordSpan = document.querySelector(`.word[data-index="${selectedWordIndex}"]`);
+
+            if (!isError) {
+                // User clicked on a correct word
+                if (input === '' || input === wordSpan.textContent) {
+                    feedback.textContent = '✓ Dieses Wort ist korrekt!';
+                    feedback.className = 'popup-feedback no-error';
+                } else {
+                    feedback.textContent = '✗ Dieses Wort war bereits richtig.';
+                    feedback.className = 'popup-feedback incorrect';
+                }
+                wordSpan.classList.add('correct-click');
+            } else {
+                // Check if correction matches
+                if (input.toLowerCase() === correct.toLowerCase()) {
+                    feedback.textContent = `✓ Richtig! "${correct}"`;
+                    feedback.className = 'popup-feedback correct';
+                    wordSpan.classList.add('error');
+                    wordSpan.dataset.correction = correct;
+
+                    // Mark as found
+                    const error = currentTextErrors.find(e => e.wordIndex === selectedWordIndex && !e.found);
+                    if (error) {
+                        error.found = true;
+                        document.getElementById('foundCount').textContent =
+                            currentTextErrors.filter(e => e.found).length;
+                    }
+                } else if (input === '') {
+                    feedback.textContent = 'Bitte gib eine Korrektur ein.';
+                    feedback.className = 'popup-feedback incorrect';
+                    return; // Don't close
+                } else {
+                    feedback.textContent = `✗ Falsch. Die richtige Antwort: "${correct}"`;
+                    feedback.className = 'popup-feedback incorrect';
+                    wordSpan.classList.add('error');
+                    wordSpan.dataset.correction = correct;
+
+                    // Mark as found (but wrong correction)
+                    const error = currentTextErrors.find(e => e.wordIndex === selectedWordIndex && !e.found);
+                    if (error) error.found = true;
+                }
+            }
+
+            feedback.classList.remove('hidden');
+            document.getElementById('popupButtons').classList.add('hidden');
+            document.getElementById('continueBtn').classList.remove('hidden');
+        }
+
+        // Close popup
+        function closePopup() {
+            document.getElementById('correctionPopup').classList.remove('visible');
+        }
+
+        // Check text (move to next or show results)
+        function checkText() {
+            // Count found and missed
+            const found = currentTextErrors.filter(e => e.found).length;
+            const missed = currentTextErrors.filter(e => !e.found).length;
+
+            totalFound += found;
+            totalMissed += missed;
+
+            // Highlight missed errors
+            currentTextErrors.filter(e => !e.found).forEach(error => {
+                const wordSpan = document.querySelector(`.word[data-index="${error.wordIndex}"]`);
+                if (wordSpan) {
+                    wordSpan.classList.add('missed');
+                }
+            });
+
+            // Wait a moment then proceed
+            setTimeout(() => {
+                currentTextIndex++;
+                if (currentTextIndex >= texts.length) {
+                    showResults();
+                } else {
+                    renderText();
+                }
+            }, 1500);
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = ((currentTextIndex) / texts.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        // Show results
+        function showResults() {
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.remove('hidden');
+
+            const total = totalFound + totalMissed;
+            const percentage = total > 0 ? Math.round((totalFound / total) * 100) : 0;
+
+            document.getElementById('scoreCircle').textContent = percentage + '%';
+            document.getElementById('finalFound').textContent = totalFound;
+            document.getElementById('finalMissed').textContent = totalMissed;
+            document.getElementById('progressFill').style.width = '100%';
+        }
+
+        // Start game
+        function startGame() {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+            currentTextIndex = 0;
+            totalFound = 0;
+            totalMissed = 0;
+            renderText();
+        }
+
+        // Restart game
+        function restartGame() {
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+            document.getElementById('progressFill').style.width = '0%';
+            currentTextIndex = 0;
+            totalFound = 0;
+            totalMissed = 0;
+        }
+
+        // Handle Enter key in input
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && document.getElementById('correctionPopup').classList.contains('visible')) {
+                if (!document.getElementById('continueBtn').classList.contains('hidden')) {
+                    closePopup();
+                } else {
+                    submitCorrection();
+                }
+            }
+            if (e.key === 'Escape') {
+                closePopup();
+            }
+        });
+
+        // Init
+        loadData();
+    </script>
+</body>
+
+</html>

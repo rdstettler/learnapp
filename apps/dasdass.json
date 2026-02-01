@@ -1,0 +1,1024 @@
+{
+    "texts": [
+        {
+            "id": 1,
+            "sentences": [
+                {
+                    "text": "Ich weiss, [dass] du recht hast."
+                },
+                {
+                    "text": "[Das] Buch, [das] du mir geliehen hast, war sehr spannend."
+                },
+                {
+                    "text": "Er sagte, [dass] er morgen kommt."
+                },
+                {
+                    "text": "[Das] ist [das] Beste, [das] mir je passiert ist."
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "sentences": [
+                {
+                    "text": "[Das] Auto, [das] dort steht, gehört meinem Vater."
+                },
+                {
+                    "text": "Sie glaubt, [dass] [das] richtig war."
+                },
+                {
+                    "text": "[Das] Problem ist, [dass] wir keine Zeit haben."
+                },
+                {
+                    "text": "Ich hoffe, [dass] [das] Wetter morgen besser wird."
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "sentences": [
+                {
+                    "text": "[Das] Kind, [das] im Garten spielt, ist mein Neffe."
+                },
+                {
+                    "text": "Weisst du, [dass] [das] nicht erlaubt ist?"
+                },
+                {
+                    "text": "[Das] bedeutet, [dass] wir früher aufstehen müssen."
+                },
+                {
+                    "text": "[Das] Geschenk, [das] ich bekommen habe, war wunderschön."
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "sentences": [
+                {
+                    "text": "Er behauptet, [dass] [das] Experiment erfolgreich war."
+                },
+                {
+                    "text": "[Das] Haus, [das] wir besichtigt haben, ist zu teuer."
+                },
+                {
+                    "text": "Ich finde, [dass] [das] eine gute Idee ist."
+                },
+                {
+                    "text": "[Das] Wichtigste ist, [dass] alle gesund bleiben."
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "sentences": [
+                {
+                    "text": "[Das] Mädchen, [das] dort singt, hat eine schöne Stimme."
+                },
+                {
+                    "text": "Man sagt, [dass] [das] Glück bringt."
+                },
+                {
+                    "text": "[Das] verstehe ich nicht, [dass] du so handelst."
+                },
+                {
+                    "text": "[Das] Ergebnis zeigt, [dass] wir auf dem richtigen Weg sind."
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "sentences": [
+                {
+                    "text": "Ich wusste nicht, [dass] [das] so kompliziert ist."
+                },
+                {
+                    "text": "[Das] Spiel, [das] wir gestern gesehen haben, war aufregend."
+                },
+                {
+                    "text": "[Das] Beste daran ist, [dass] es kostenlos ist."
+                },
+                {
+                    "text": "[Das] Tier, [das] im Zoo lebt, ist ein Löwe."
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "sentences": [
+                {
+                    "text": "Sie erzählte mir, [dass] [das] Restaurant geschlossen hat."
+                },
+                {
+                    "text": "[Das] Fenster, [das] kaputt war, wurde repariert."
+                },
+                {
+                    "text": "Er meinte, [dass] [das] nicht seine Schuld sei."
+                },
+                {
+                    "text": "[Das] Schöne ist, [dass] wir zusammen sind."
+                }
+            ]
+        },
+        {
+            "id": 8,
+            "sentences": [
+                {
+                    "text": "[Das] Lied, [das] gerade spielt, gefällt mir sehr."
+                },
+                {
+                    "text": "Ich bin sicher, [dass] [das] stimmt."
+                },
+                {
+                    "text": "[Das] Bild, [das] an der Wand hängt, ist antik."
+                },
+                {
+                    "text": "Es ist schade, [dass] [das] Konzert abgesagt wurde."
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "sentences": [
+                {
+                    "text": "[Das] Kleid, [das] sie trägt, steht ihr gut."
+                },
+                {
+                    "text": "Glaubst du, [dass] [das] wahr ist?"
+                },
+                {
+                    "text": "[Das] Geheimnis ist, [dass] man nie aufgibt."
+                },
+                {
+                    "text": "[Das] Essen, [das] Oma kocht, schmeckt immer lecker."
+                }
+            ]
+        },
+        {
+            "id": 10,
+            "sentences": [
+                {
+                    "text": "Man hofft, [dass] [das] neue Gesetz hilft."
+                },
+                {
+                    "text": "[Das] Handy, [das] ich gekauft habe, ist sehr schnell."
+                },
+                {
+                    "text": "[Das] Interessante ist, [dass] niemand [das] wusste."
+                },
+                {
+                    "text": "Er vergass, [dass] [das] Meeting heute war."
+                }
+            ]
+        },
+        {
+            "id": 11,
+            "sentences": [
+                {
+                    "text": "[Das] Team, [das] gewonnen hat, feierte bis spät."
+                },
+                {
+                    "text": "Ich denke, [dass] [das] fair war."
+                },
+                {
+                    "text": "[Das] Schlimme ist, [dass] wir keine Beweise haben."
+                },
+                {
+                    "text": "[Das] Fahrrad, [das] gestohlen wurde, war neu."
+                }
+            ]
+        },
+        {
+            "id": 12,
+            "sentences": [
+                {
+                    "text": "Sie erwähnte, [dass] [das] Hotel ausgebucht ist."
+                },
+                {
+                    "text": "[Das] Café, [das] um die Ecke ist, hat guten Kaffee."
+                },
+                {
+                    "text": "Ich bezweifle, [dass] [das] funktioniert."
+                },
+                {
+                    "text": "[Das] Einzige, [das] zählt, ist [dass] du glücklich bist."
+                }
+            ]
+        },
+        {
+            "id": 13,
+            "sentences": [
+                {
+                    "text": "[Das] Video, [das] du geschickt hast, war lustig."
+                },
+                {
+                    "text": "Wir wissen alle, [dass] [das] schwierig wird."
+                },
+                {
+                    "text": "[Das] Merkwürdige ist, [dass] er nicht anrief."
+                },
+                {
+                    "text": "[Das] Spielzeug, [das] kaputtging, war teuer."
+                }
+            ]
+        },
+        {
+            "id": 14,
+            "sentences": [
+                {
+                    "text": "Es freut mich, [dass] [das] Projekt abgeschlossen ist."
+                },
+                {
+                    "text": "[Das] Rezept, [das] ich ausprobiert habe, war super."
+                },
+                {
+                    "text": "[Das] Traurige ist, [dass] sie umziehen muss."
+                },
+                {
+                    "text": "[Das] Buch, [das] auf dem Tisch liegt, gehört mir."
+                }
+            ]
+        },
+        {
+            "id": 15,
+            "sentences": [
+                {
+                    "text": "Ich fürchte, [dass] [das] nicht reicht."
+                },
+                {
+                    "text": "[Das] Erlebnis, [das] wir hatten, war unvergesslich."
+                },
+                {
+                    "text": "[Das] Komische war, [dass] niemand reagierte."
+                },
+                {
+                    "text": "[Das] Foto, [das] du gemacht hast, ist schön."
+                }
+            ]
+        },
+        {
+            "id": 16,
+            "sentences": [
+                {
+                    "text": "[Das] Wetter, [das] vorhergesagt wurde, stimmt nicht."
+                },
+                {
+                    "text": "Sie sagte, [dass] [das] Paket angekommen ist."
+                },
+                {
+                    "text": "[Das] Gute daran ist, [dass] wir lernen."
+                },
+                {
+                    "text": "[Das] Dokument, [das] fehlt, ist wichtig."
+                }
+            ]
+        },
+        {
+            "id": 17,
+            "sentences": [
+                {
+                    "text": "Es stimmt, [dass] [das] Museum montags geschlossen ist."
+                },
+                {
+                    "text": "[Das] Geschäft, [das] neueröffnet hat, ist toll."
+                },
+                {
+                    "text": "[Das] Frustrierende ist, [dass] [das] immer passiert."
+                },
+                {
+                    "text": "[Das] Hemd, [das] er trägt, ist kariert."
+                }
+            ]
+        },
+        {
+            "id": 18,
+            "sentences": [
+                {
+                    "text": "Manche glauben, [dass] [das] Universum unendlich ist."
+                },
+                {
+                    "text": "[Das] Gebäude, [das] abgerissen wird, war alt."
+                },
+                {
+                    "text": "[Das] Positive ist, [dass] wir Fortschritte machen."
+                },
+                {
+                    "text": "[Das] Werkzeug, [das] ich brauche, liegt im Keller."
+                }
+            ]
+        },
+        {
+            "id": 19,
+            "sentences": [
+                {
+                    "text": "[Das] Ziel ist, [dass] alle mitmachen."
+                },
+                {
+                    "text": "[Das] Angebot, [das] sie gemacht haben, ist gut."
+                },
+                {
+                    "text": "Ich vermute, [dass] [das] ein Fehler war."
+                },
+                {
+                    "text": "[Das] Tablet, [das] herunterfiel, ist kaputt."
+                }
+            ]
+        },
+        {
+            "id": 20,
+            "sentences": [
+                {
+                    "text": "Es ist klar, [dass] [das] nicht so weitergehen kann."
+                },
+                {
+                    "text": "[Das] Möbelstück, [das] wir gekauft haben, passt perfekt."
+                },
+                {
+                    "text": "[Das] Ärgerliche ist, [dass] [das] vermeidbar war."
+                },
+                {
+                    "text": "[Das] Land, [das] ich besucht habe, war faszinierend."
+                }
+            ]
+        },
+        {
+            "id": 21,
+            "sentences": [
+                {
+                    "text": "[Das] Medikament, [das] der Arzt verschrieb, half sofort."
+                },
+                {
+                    "text": "Er bestreitet, [dass] [das] seine Idee war."
+                },
+                {
+                    "text": "[Das] Seltsame ist, [dass] [das] Licht flackert."
+                },
+                {
+                    "text": "[Das] Zimmer, [das] frei war, habe ich gebucht."
+                }
+            ]
+        },
+        {
+            "id": 22,
+            "sentences": [
+                {
+                    "text": "Ich bin froh, [dass] [das] geklärt ist."
+                },
+                {
+                    "text": "[Das] Gemälde, [das] im Museum hängt, ist berühmt."
+                },
+                {
+                    "text": "[Das] Problem ist nur, [dass] [das] teuer ist."
+                },
+                {
+                    "text": "[Das] Instrument, [das] er spielt, ist eine Geige."
+                }
+            ]
+        },
+        {
+            "id": 23,
+            "sentences": [
+                {
+                    "text": "[Das] System, [das] wir nutzen, ist veraltet."
+                },
+                {
+                    "text": "Sie befürchtet, [dass] [das] schiefgeht."
+                },
+                {
+                    "text": "[Das] Überraschende war, [dass] er zusagte."
+                },
+                {
+                    "text": "[Das] Gerät, [das] nicht funktioniert, muss ersetzt werden."
+                }
+            ]
+        },
+        {
+            "id": 24,
+            "sentences": [
+                {
+                    "text": "[Das] Thema, [das] wir besprochen haben, ist komplex."
+                },
+                {
+                    "text": "Ich hoffe, [dass] [das] klappt."
+                },
+                {
+                    "text": "[Das] Schlechte ist, [dass] wir warten müssen."
+                },
+                {
+                    "text": "[Das] Sofa, [das] wir ausgesucht haben, wird geliefert."
+                }
+            ]
+        },
+        {
+            "id": 25,
+            "sentences": [
+                {
+                    "text": "Alle wissen, [dass] [das] nur eine Ausrede ist."
+                },
+                {
+                    "text": "[Das] Büro, [das] renoviert wurde, sieht modern aus."
+                },
+                {
+                    "text": "[Das] Tolle ist, [dass] [das] Wochenende lang ist."
+                },
+                {
+                    "text": "[Das] Spielzeug, [das] quietscht, ist lustig."
+                }
+            ]
+        },
+        {
+            "id": 26,
+            "sentences": [
+                {
+                    "text": "[Das] Ereignis, [das] stattfand, war historisch."
+                },
+                {
+                    "text": "Sie erkannte, [dass] [das] ein Irrtum war."
+                },
+                {
+                    "text": "[Das] Dumme ist, [dass] ich [das] vergessen habe."
+                },
+                {
+                    "text": "[Das] Papier, [das] bedruckt wurde, ist verschmiert."
+                }
+            ]
+        },
+        {
+            "id": 27,
+            "sentences": [
+                {
+                    "text": "Es ist unglaublich, [dass] [das] passiert ist."
+                },
+                {
+                    "text": "[Das] Fest, [das] wir planen, wird gross."
+                },
+                {
+                    "text": "[Das] Erstaunliche ist, [dass] [das] niemand bemerkte."
+                },
+                {
+                    "text": "[Das] Glas, [das] zerbrach, war antik."
+                }
+            ]
+        },
+        {
+            "id": 28,
+            "sentences": [
+                {
+                    "text": "[Das] Programm, [das] ich installiert habe, funktioniert nicht."
+                },
+                {
+                    "text": "Er versprach, [dass] [das] nicht mehr vorkommt."
+                },
+                {
+                    "text": "[Das] Verrückte ist, [dass] es keiner glaubt."
+                },
+                {
+                    "text": "[Das] Paket, [das] ankam, war beschädigt."
+                }
+            ]
+        },
+        {
+            "id": 29,
+            "sentences": [
+                {
+                    "text": "[Das] Projekt, [das] gestartet wurde, ist innovativ."
+                },
+                {
+                    "text": "Ich glaube nicht, [dass] [das] richtig ist."
+                },
+                {
+                    "text": "[Das] Praktische ist, [dass] [das] klappbar ist."
+                },
+                {
+                    "text": "[Das] Geschirr, [das] geerbt wurde, ist wertvoll."
+                }
+            ]
+        },
+        {
+            "id": 30,
+            "sentences": [
+                {
+                    "text": "Sie bemerkte, [dass] [das] Band gerissen war."
+                },
+                {
+                    "text": "[Das] Lokal, [das] neue eröffnet hat, ist voll."
+                },
+                {
+                    "text": "[Das] Witzige ist, [dass] [das] immer passiert."
+                },
+                {
+                    "text": "[Das] Gebäck, [das] gebacken wurde, duftet herrlich."
+                }
+            ]
+        },
+        {
+            "id": 31,
+            "sentences": [
+                {
+                    "text": "[Das] Seminar, [das] angeboten wird, ist ausgebucht."
+                },
+                {
+                    "text": "Niemand ahnte, [dass] [das] so enden würde."
+                },
+                {
+                    "text": "[Das] Schöne daran ist, [dass] es regnet."
+                },
+                {
+                    "text": "[Das] Radio, [das] lief, störte niemanden."
+                }
+            ]
+        },
+        {
+            "id": 32,
+            "sentences": [
+                {
+                    "text": "[Das] Resultat, [das] erzielt wurde, übertraf alles."
+                },
+                {
+                    "text": "Ich nehme an, [dass] [das] normal ist."
+                },
+                {
+                    "text": "[Das] Erfreuliche ist, [dass] alle gesund sind."
+                },
+                {
+                    "text": "[Das] Regal, [das] wackelt, muss befestigt werden."
+                }
+            ]
+        },
+        {
+            "id": 33,
+            "sentences": [
+                {
+                    "text": "[Das] Interview, [das] stattfand, war interessant."
+                },
+                {
+                    "text": "Er betonte, [dass] [das] wichtig sei."
+                },
+                {
+                    "text": "[Das] Ungewöhnliche war, [dass] [das] Tier zahm war."
+                },
+                {
+                    "text": "[Das] Outfit, [das] sie trug, war elegant."
+                }
+            ]
+        },
+        {
+            "id": 34,
+            "sentences": [
+                {
+                    "text": "Wir hofften, [dass] [das] Wetter hält."
+                },
+                {
+                    "text": "[Das] Accessoire, [das] sie kaufte, war stilvoll."
+                },
+                {
+                    "text": "[Das] Blöde ist, [dass] [das] teuer war."
+                },
+                {
+                    "text": "[Das] Ticket, [das] ich bestellte, kam nicht an."
+                }
+            ]
+        },
+        {
+            "id": 35,
+            "sentences": [
+                {
+                    "text": "[Das] Lager, [das] leer ist, muss aufgefüllt werden."
+                },
+                {
+                    "text": "Sie wusste, [dass] [das] riskant war."
+                },
+                {
+                    "text": "[Das] Bemerkenswerte ist, [dass] [das] funktionierte."
+                },
+                {
+                    "text": "[Das] Geschäft, [das] Rabatt gab, war überlaufen."
+                }
+            ]
+        },
+        {
+            "id": 36,
+            "sentences": [
+                {
+                    "text": "[Das] Kapitel, [das] ich las, war spannend."
+                },
+                {
+                    "text": "Es zeigt sich, [dass] [das] möglich ist."
+                },
+                {
+                    "text": "[Das] Nervige ist, [dass] [das] lange dauert."
+                },
+                {
+                    "text": "[Das] Parfum, [das] sie benutzt, riecht gut."
+                }
+            ]
+        },
+        {
+            "id": 37,
+            "sentences": [
+                {
+                    "text": "[Das] Material, [das] verwendet wurde, ist nachhaltig."
+                },
+                {
+                    "text": "Ich bezweifle nicht, [dass] [das] stimmt."
+                },
+                {
+                    "text": "[Das] Beruhigende ist, [dass] [das] harmlos ist."
+                },
+                {
+                    "text": "[Das] Band, [das] gespielt hat, war laut."
+                }
+            ]
+        },
+        {
+            "id": 38,
+            "sentences": [
+                {
+                    "text": "[Das] Protokoll, [das] geschrieben wurde, ist lang."
+                },
+                {
+                    "text": "Man vermutet, [dass] [das] absichtlich war."
+                },
+                {
+                    "text": "[Das] Ironische ist, [dass] [das] niemand wollte."
+                },
+                {
+                    "text": "[Das] Croissant, [das] ich ass, war köstlich."
+                }
+            ]
+        },
+        {
+            "id": 39,
+            "sentences": [
+                {
+                    "text": "[Das] Experiment, [das] scheiterte, war lehrreich."
+                },
+                {
+                    "text": "Sie versicherte, [dass] [das] korrekt ist."
+                },
+                {
+                    "text": "[Das] Tragische ist, [dass] [das] spät kam."
+                },
+                {
+                    "text": "[Das] Poster, [das] hängt, ist bunt."
+                }
+            ]
+        },
+        {
+            "id": 40,
+            "sentences": [
+                {
+                    "text": "[Das] Stipendium, [das] vergeben wurde, ist hoch."
+                },
+                {
+                    "text": "Er zweifelte, [dass] [das] realistisch ist."
+                },
+                {
+                    "text": "[Das] Faszinierende ist, [dass] [das] funktioniert."
+                },
+                {
+                    "text": "[Das] Symbol, [das] gewählt wurde, ist passend."
+                }
+            ]
+        },
+        {
+            "id": 41,
+            "sentences": [
+                {
+                    "text": "[Das] Motto, [das] gewählt wurde, ist inspirierend."
+                },
+                {
+                    "text": "Ich weiss genau, [dass] [das] wahr ist."
+                },
+                {
+                    "text": "[Das] Überraschende ist, [dass] [das] niemand merkte."
+                },
+                {
+                    "text": "[Das] Dessert, [das] serviert wurde, war himmlisch."
+                }
+            ]
+        },
+        {
+            "id": 42,
+            "sentences": [
+                {
+                    "text": "[Das] Zertifikat, [das] ausgestellt wurde, ist gültig."
+                },
+                {
+                    "text": "Sie bestätigte, [dass] [das] erledigt ist."
+                },
+                {
+                    "text": "[Das] Peinliche ist, [dass] [das] öffentlich war."
+                },
+                {
+                    "text": "[Das] Magazin, [das] erschien, ist beliebt."
+                }
+            ]
+        },
+        {
+            "id": 43,
+            "sentences": [
+                {
+                    "text": "[Das] Verfahren, [das] angewandt wurde, ist neu."
+                },
+                {
+                    "text": "Man sieht, [dass] [das] Auswirkungen hat."
+                },
+                {
+                    "text": "[Das] Absurde ist, [dass] [das] legal ist."
+                },
+                {
+                    "text": "[Das] Formular, [das] ausgefüllt wurde, ist vollständig."
+                }
+            ]
+        },
+        {
+            "id": 44,
+            "sentences": [
+                {
+                    "text": "[Das] Konzept, [das] vorgestellt wurde, ist überzeugend."
+                },
+                {
+                    "text": "Ich verstehe nicht, [dass] [das] erlaubt ist."
+                },
+                {
+                    "text": "[Das] Erstaunliche ist, [dass] [das] schnell ging."
+                },
+                {
+                    "text": "[Das] Etikett, [das] draufklebt, ist falsch."
+                }
+            ]
+        },
+        {
+            "id": 45,
+            "sentences": [
+                {
+                    "text": "[Das] Menü, [das] angeboten wird, ist vielfältig."
+                },
+                {
+                    "text": "Es ist bekannt, [dass] [das] schwer ist."
+                },
+                {
+                    "text": "[Das] Unglaubliche ist, [dass] [das] klappte."
+                },
+                {
+                    "text": "[Das] Update, [das] installiert wurde, ist gross."
+                }
+            ]
+        },
+        {
+            "id": 46,
+            "sentences": [
+                {
+                    "text": "[Das] Netzwerk, [das] aufgebaut wurde, ist stabil."
+                },
+                {
+                    "text": "Sie räumte ein, [dass] [das] missverständlich war."
+                },
+                {
+                    "text": "[Das] Kuriose ist, [dass] [das] niemand fragte."
+                },
+                {
+                    "text": "[Das] Logo, [das] entworfen wurde, ist schlicht."
+                }
+            ]
+        },
+        {
+            "id": 47,
+            "sentences": [
+                {
+                    "text": "[Das] Festival, [das] stattfand, war ein Erfolg."
+                },
+                {
+                    "text": "Ich bin überzeugt, [dass] [das] klappt."
+                },
+                {
+                    "text": "[Das] Beunruhigende ist, [dass] [das] zunimmt."
+                },
+                {
+                    "text": "[Das] Gerücht, [das] kursiert, ist falsch."
+                }
+            ]
+        },
+        {
+            "id": 48,
+            "sentences": [
+                {
+                    "text": "[Das] Layout, [das] gewählt wurde, ist übersichtlich."
+                },
+                {
+                    "text": "Er leugnete, [dass] [das] geschehen ist."
+                },
+                {
+                    "text": "[Das] Bedenkliche ist, [dass] [das] ignoriert wird."
+                },
+                {
+                    "text": "[Das] Getränk, [das] serviert wurde, war kalt."
+                }
+            ]
+        },
+        {
+            "id": 49,
+            "sentences": [
+                {
+                    "text": "[Das] Modell, [das] vorgestellt wurde, ist innovativ."
+                },
+                {
+                    "text": "Man erkennt, [dass] [das] durchdacht ist."
+                },
+                {
+                    "text": "[Das] Schockierende ist, [dass] [das] passierte."
+                },
+                {
+                    "text": "[Das] Kabel, [das] fehlt, ist wichtig."
+                }
+            ]
+        },
+        {
+            "id": 50,
+            "sentences": [
+                {
+                    "text": "[Das] System, [das] entwickelt wurde, ist effizient."
+                },
+                {
+                    "text": "Sie beteuerte, [dass] [das] die Wahrheit ist."
+                },
+                {
+                    "text": "[Das] Erschreckende ist, [dass] [das] niemand stoppt."
+                },
+                {
+                    "text": "[Das] Finale, [das] stattfand, war dramatisch."
+                }
+            ]
+        },
+        {
+            "id": 51,
+            "sentences": [
+                {
+                    "text": "[Das] Handwerk, [das] ausgeübt wird, ist traditionell."
+                },
+                {
+                    "text": "Ich finde es gut, [dass] [das] klappt."
+                },
+                {
+                    "text": "[Das] Spannende ist, [dass] [das] neu ist."
+                },
+                {
+                    "text": "[Das] Rätsel, [das] gelöst wurde, war schwer."
+                }
+            ]
+        },
+        {
+            "id": 52,
+            "sentences": [
+                {
+                    "text": "[Das] Porträt, [das] gemalt wurde, ist lebensecht."
+                },
+                {
+                    "text": "Er gestand, [dass] [das] sein Fehler war."
+                },
+                {
+                    "text": "[Das] Angenehme ist, [dass] [das] ruhig ist."
+                },
+                {
+                    "text": "[Das] Getreide, [das] geerntet wurde, ist biologisch."
+                }
+            ]
+        },
+        {
+            "id": 53,
+            "sentences": [
+                {
+                    "text": "[Das] Museum, [das] eröffnet wurde, ist beeindruckend."
+                },
+                {
+                    "text": "Niemand glaubt, [dass] [das] Zufall war."
+                },
+                {
+                    "text": "[Das] Offensichtliche ist, [dass] [das] fehlt."
+                },
+                {
+                    "text": "[Das] Poster, [das] aufgehängt wurde, ist gross."
+                }
+            ]
+        },
+        {
+            "id": 54,
+            "sentences": [
+                {
+                    "text": "[Das] Tutorial, [das] erstellt wurde, ist hilfreich."
+                },
+                {
+                    "text": "Ich bin mir sicher, [dass] [das] richtig ist."
+                },
+                {
+                    "text": "[Das] Seltsame ist, [dass] [das] verschwand."
+                },
+                {
+                    "text": "[Das] Souvenir, [das] gekauft wurde, ist hübsch."
+                }
+            ]
+        },
+        {
+            "id": 55,
+            "sentences": [
+                {
+                    "text": "[Das] Büffet, [das] aufgebaut wurde, ist reichhaltig."
+                },
+                {
+                    "text": "Sie befand, [dass] [das] angemessen ist."
+                },
+                {
+                    "text": "[Das] Lustige ist, [dass] [das] alle wussten."
+                },
+                {
+                    "text": "[Das] Manuskript, [das] eingereicht wurde, ist lang."
+                }
+            ]
+        },
+        {
+            "id": 56,
+            "sentences": [
+                {
+                    "text": "[Das] Orchester, [das] spielte, war fantastisch."
+                },
+                {
+                    "text": "Es beweist, [dass] [das] funktioniert."
+                },
+                {
+                    "text": "[Das] Ärgerliche ist, [dass] [das] nötig war."
+                },
+                {
+                    "text": "[Das] Skateboard, [das] er fuhr, ist neu."
+                }
+            ]
+        },
+        {
+            "id": 57,
+            "sentences": [
+                {
+                    "text": "[Das] Quartier, [das] wir besuchten, ist historisch."
+                },
+                {
+                    "text": "Sie dachte, [dass] [das] einfach wäre."
+                },
+                {
+                    "text": "[Das] Unfassbare ist, [dass] [das] klappte."
+                },
+                {
+                    "text": "[Das] Jubiläum, [das] gefeiert wird, ist wichtig."
+                }
+            ]
+        },
+        {
+            "id": 58,
+            "sentences": [
+                {
+                    "text": "[Das] Archiv, [das] durchsucht wurde, ist gross."
+                },
+                {
+                    "text": "Man weiss, [dass] [das] stimmt."
+                },
+                {
+                    "text": "[Das] Beeindruckende ist, [dass] [das] hält."
+                },
+                {
+                    "text": "[Das] Panorama, [das] sich bot, war atemberaubend."
+                }
+            ]
+        },
+        {
+            "id": 59,
+            "sentences": [
+                {
+                    "text": "[Das] Gebiet, [das] erkundet wurde, ist wild."
+                },
+                {
+                    "text": "Er fühlte, [dass] [das] nicht richtig war."
+                },
+                {
+                    "text": "[Das] Typische ist, [dass] [das] immer passiert."
+                },
+                {
+                    "text": "[Das] Hörspiel, [das] lief, war spannend."
+                }
+            ]
+        },
+        {
+            "id": 60,
+            "sentences": [
+                {
+                    "text": "[Das] Patent, [das] angemeldet wurde, ist wertvoll."
+                },
+                {
+                    "text": "Ich weiss, [dass] [das] der Fall ist."
+                },
+                {
+                    "text": "[Das] Besondere ist, [dass] [das] einzigartig ist."
+                },
+                {
+                    "text": "[Das] Erbe, [das] hinterlassen wurde, ist bedeutend."
+                }
+            ]
+        }
+    ]
+}

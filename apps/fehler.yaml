@@ -1,0 +1,13 @@
+name: Fehler finden
+description: Finde und korrigiere die Rechtschreib- und Grammatikfehler im Text
+category: Deutsch
+file: fehler.html
+icon: 🔍
+author: Antigravity
+version: 1.0.0
+tags:
+  - deutsch
+  - rechtschreibung
+  - grammatik
+  - korrektur
+difficulty: intermediate
