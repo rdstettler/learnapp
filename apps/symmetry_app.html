@@ -1,111 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Symmetry Drawing App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        /* App-specific overrides */
+        .app {
+            max-width: 1000px;
+            height: auto;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
         }
 
-        h1 {
-            color: #eee;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
+        /* Controls toolbar */
         .controls {
             display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 16px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
-        .btn {
-            padding: 12px 24px;
-            font-size: 16px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
+        .btn-tool {
+            padding: 12px 20px;
+            font-size: 0.9rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .btn-polygon {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
             color: white;
         }
 
         .btn-line {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #f093fb, #f5576c);
             color: white;
         }
 
         .btn-point {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
             color: white;
         }
 
         .btn-clear {
-            background: linear-gradient(135deg, #434343 0%, #000000 100%);
+            background: linear-gradient(135deg, #434343, #000000);
             color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
         }
 
         .btn.active {
             transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255,255,255,0.5);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
         }
 
+        /* Status text */
+        .status {
+            color: var(--accent-1);
+            text-align: center;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            min-height: 24px;
+        }
+
+        /* Canvas container */
         .canvas-container {
-            position: relative;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 12px;
+            backdrop-filter: blur(20px);
+            margin-bottom: 20px;
         }
 
         canvas {
-            background: #f8f9fa;
+            width: 100%;
+            height: auto;
             display: block;
+            border-radius: 12px;
+            background: #f8f9fa;
         }
 
+        /* Instructions card */
         .instructions {
-            color: #aaa;
-            margin-top: 20px;
-            text-align: center;
-            max-width: 800px;
-            line-height: 1.6;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(20px);
         }
 
         .instructions h3 {
-            color: #fff;
-            margin-bottom: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin-bottom: 12px;
+            text-align: center;
         }
 
+        .instructions p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .instructions strong {
+            color: var(--text-primary);
+        }
+
+        /* Legend */
         .legend {
             display: flex;
             gap: 20px;
-            margin-top: 15px;
             flex-wrap: wrap;
             justify-content: center;
         }
@@ -114,59 +122,60 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #ccc;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
         }
 
         .legend-color {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             border-radius: 4px;
-        }
-
-        .status {
-            color: #4facfe;
-            margin-top: 10px;
-            font-size: 14px;
-            min-height: 20px;
         }
     </style>
 </head>
+
 <body>
-    <h1>✨ Symmetry Drawing App</h1>
-    
-    <div class="controls">
-        <button class="btn btn-polygon" id="btnPolygon">Draw Polygon</button>
-        <button class="btn btn-line" id="btnLine">Draw Line</button>
-        <button class="btn btn-point" id="btnPoint">Draw Point</button>
-        <button class="btn btn-clear" id="btnClear">Clear All</button>
-    </div>
+    <div class="bg-animation"></div>
 
-    <div class="status" id="status">Select a tool to start drawing</div>
+    <div class="app">
+        <header class="header">
+            <h1>✨ Symmetry Drawing</h1>
+        </header>
 
-    <div class="canvas-container">
-        <canvas id="canvas" width="900" height="600"></canvas>
-    </div>
+        <div class="controls">
+            <button class="btn btn-tool btn-polygon" id="btnPolygon">Draw Polygon</button>
+            <button class="btn btn-tool btn-line" id="btnLine">Draw Line</button>
+            <button class="btn btn-tool btn-point" id="btnPoint">Draw Point</button>
+            <button class="btn btn-tool btn-clear" id="btnClear">Clear All</button>
+        </div>
 
-    <div class="instructions">
-        <h3>How to Use</h3>
-        <p>
-            <strong>Polygon:</strong> Click to add vertices, double-click to close the polygon. Drag to move.<br>
-            <strong>Line:</strong> Click and drag to draw a mirror line. Drag endpoints to adjust.<br>
-            <strong>Point:</strong> Click to place a mirror point. Drag to move.<br>
-            The polygon will be mirrored across both the line and the point in real-time!
-        </p>
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color" style="background: #667eea;"></div>
-                <span>Original Polygon</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: #f5576c;"></div>
-                <span>Line Mirror</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: #00f2fe;"></div>
-                <span>Point Mirror</span>
+        <div class="status" id="status">Select a tool to start drawing</div>
+
+        <div class="canvas-container">
+            <canvas id="canvas" width="900" height="550"></canvas>
+        </div>
+
+        <div class="instructions">
+            <h3>How to Use</h3>
+            <p>
+                <strong>Polygon:</strong> Click to add vertices, double-click to close. Drag to move.<br>
+                <strong>Line:</strong> Click and drag to draw a mirror line. Drag endpoints to adjust.<br>
+                <strong>Point:</strong> Click to place a mirror point. Drag to move.<br>
+                The polygon will be mirrored across both the line and the point in real-time!
+            </p>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #667eea;"></div>
+                    <span>Original Polygon</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #f5576c;"></div>
+                    <span>Line Mirror</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #00f2fe;"></div>
+                    <span>Point Mirror</span>
+                </div>
             </div>
         </div>
     </div>
@@ -204,7 +213,7 @@
         function setTool(tool) {
             currentTool = tool;
             [btnPolygon, btnLine, btnPoint].forEach(btn => btn.classList.remove('active'));
-            
+
             if (tool === 'polygon') {
                 btnPolygon.classList.add('active');
                 setStatus('Click to add polygon vertices, double-click to close');
@@ -237,12 +246,46 @@
         canvas.addEventListener('mouseup', handleMouseUp);
         canvas.addEventListener('dblclick', handleDoubleClick);
 
+        // Touch support
+        canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+        canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+        canvas.addEventListener('touchend', handleTouchEnd);
+
         function getMousePos(e) {
             const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
             return {
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top
+                x: (e.clientX - rect.left) * scaleX,
+                y: (e.clientY - rect.top) * scaleY
             };
+        }
+
+        function getTouchPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const touch = e.touches[0];
+            return {
+                x: (touch.clientX - rect.left) * scaleX,
+                y: (touch.clientY - rect.top) * scaleY
+            };
+        }
+
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const pos = getTouchPos(e);
+            handleInteractionStart(pos);
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const pos = getTouchPos(e);
+            handleInteractionMove(pos);
+        }
+
+        function handleTouchEnd(e) {
+            handleInteractionEnd();
         }
 
         function distance(p1, p2) {
@@ -285,10 +328,10 @@
 
         function isPointInPolygon(point, poly) {
             if (!poly || poly.points.length < 3) return false;
-            
+
             let inside = false;
             const points = poly.points;
-            
+
             for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
                 if ((points[i].y > point.y) !== (points[j].y > point.y) &&
                     point.x < (points[j].x - points[i].x) * (point.y - points[i].y) / (points[j].y - points[i].y) + points[i].x) {
@@ -300,8 +343,10 @@
 
         function handleMouseDown(e) {
             const pos = getMousePos(e);
-            const now = Date.now();
+            handleInteractionStart(pos);
+        }
 
+        function handleInteractionStart(pos) {
             // Check for dragging existing objects first
             if (mirrorPoint && distance(pos, mirrorPoint) < 15) {
                 isDragging = true;
@@ -327,9 +372,9 @@
                 if (pointToLineDistance(pos, mirrorLine.start, mirrorLine.end) < 10) {
                     isDragging = true;
                     dragTarget = 'line';
-                    dragOffset = { 
-                        x: pos.x - mirrorLine.start.x, 
-                        y: pos.y - mirrorLine.start.y 
+                    dragOffset = {
+                        x: pos.x - mirrorLine.start.x,
+                        y: pos.y - mirrorLine.start.y
                     };
                     setStatus('Dragging mirror line');
                     return;
@@ -369,7 +414,20 @@
 
         function handleMouseMove(e) {
             const pos = getMousePos(e);
+            handleInteractionMove(pos);
 
+            // Update cursor
+            let cursor = 'default';
+            if (mirrorPoint && distance(pos, mirrorPoint) < 15) cursor = 'move';
+            if (mirrorLine) {
+                if (distance(pos, mirrorLine.start) < 15 || distance(pos, mirrorLine.end) < 15) cursor = 'move';
+                else if (pointToLineDistance(pos, mirrorLine.start, mirrorLine.end) < 10) cursor = 'move';
+            }
+            if (polygon && polygon.closed && isPointInPolygon(pos, polygon)) cursor = 'move';
+            canvas.style.cursor = cursor;
+        }
+
+        function handleInteractionMove(pos) {
             if (isDrawing && currentTool === 'line') {
                 mirrorLine.end = { ...pos };
                 draw();
@@ -403,19 +461,13 @@
                 }
                 draw();
             }
-
-            // Update cursor
-            let cursor = 'default';
-            if (mirrorPoint && distance(pos, mirrorPoint) < 15) cursor = 'move';
-            if (mirrorLine) {
-                if (distance(pos, mirrorLine.start) < 15 || distance(pos, mirrorLine.end) < 15) cursor = 'move';
-                else if (pointToLineDistance(pos, mirrorLine.start, mirrorLine.end) < 10) cursor = 'move';
-            }
-            if (polygon && polygon.closed && isPointInPolygon(pos, polygon)) cursor = 'move';
-            canvas.style.cursor = cursor;
         }
 
         function handleMouseUp(e) {
+            handleInteractionEnd();
+        }
+
+        function handleInteractionEnd() {
             if (isDrawing && currentTool === 'line') {
                 isDrawing = false;
                 setStatus('Mirror line created. Drag endpoints to adjust.');
@@ -530,7 +582,7 @@
                     ctx.lineTo(polygon.points[i].x, polygon.points[i].y);
                 }
                 ctx.closePath();
-                
+
                 const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
                 gradient.addColorStop(0, 'rgba(102, 126, 234, 0.6)');
                 gradient.addColorStop(1, 'rgba(118, 75, 162, 0.6)');
@@ -603,7 +655,7 @@
             const dx = mirrorLine.end.x - mirrorLine.start.x;
             const dy = mirrorLine.end.y - mirrorLine.start.y;
             const len = Math.sqrt(dx * dx + dy * dy);
-            
+
             if (len > 0) {
                 const extendFactor = 2000;
                 const extStart = {
@@ -688,4 +740,5 @@
         draw();
     </script>
 </body>
+
 </html>

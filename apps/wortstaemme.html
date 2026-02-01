@@ -6,75 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Wortstamm-Quiz</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg-primary: #0a0a0f;
-            --bg-card: rgba(255, 255, 255, 0.04);
-            --bg-card-active: rgba(255, 255, 255, 0.08);
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0b0;
-            --text-muted: #606070;
-            --accent-1: #6366f1;
-            --accent-2: #8b5cf6;
-            --accent-3: #d946ef;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --success: #22c55e;
-            --error: #ef4444;
-            --warning: #f59e0b;
-            --neutral: #6b7280;
-        }
-
-        html,
-        body {
-            height: 100%;
-            overflow: hidden;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-        }
-
-        /* Background animation */
-        .bg-animation {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            background: radial-gradient(ellipse at 30% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 70% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
-        }
-
-        /* App container */
+        /* App-specific: remove max-width for full-width carousel */
         .app {
-            position: relative;
-            z-index: 1;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
+            max-width: none;
+            padding: 0;
         }
 
         /* Header */
         .header {
             padding: 20px;
-            text-align: center;
             flex-shrink: 0;
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         /* Progress dots */
@@ -123,6 +66,10 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            backdrop-filter: none;
         }
 
         .card-content {
@@ -299,65 +246,15 @@
             color: white;
         }
 
-        /* Score display */
+        /* Score display overrides */
         .score-display {
-            text-align: center;
             padding: 30px;
         }
 
         .score-circle {
             width: 120px;
             height: 120px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            display: flex;
-            align-items: center;
-            justify-content: center;
             margin: 0 auto 20px;
-            font-size: 2.5rem;
-            font-weight: 700;
-        }
-
-        .score-text {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-        }
-
-        /* Buttons */
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border-radius: 12px;
-            border: none;
-            font-size: 1rem;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: auto;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn-secondary {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
         }
 
         /* Word badge in meanings */
@@ -444,25 +341,7 @@
             background: var(--neutral);
         }
 
-        /* Welcome emojis */
-        .welcome-emoji {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
+        /* Welcome text */
         .welcome-text {
             text-align: center;
             flex: 1;
@@ -787,7 +666,6 @@
                 item.addEventListener('click', () => {
                     const word = item.dataset.word;
                     const index = item.dataset.index;
-                    const key = `${word}-${index}`;
 
                     if (!stage2Selections[word]) stage2Selections[word] = new Set();
 
@@ -806,14 +684,14 @@
                 btn.addEventListener('click', () => {
                     const word = btn.dataset.word;
                     gradeStage2(word);
-                    nextCard();
+                    goToCard(currentCardIndex + 1);
                 });
             });
 
-            // Continue buttons
+            // Continue buttons in results
             document.querySelectorAll('.continue-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    nextCard();
+                    goToCard(currentCardIndex + 1);
                 });
             });
 
@@ -837,8 +715,7 @@
             let correct = 0;
 
             currentStem.composites.forEach(c => {
-                const word = c.word;
-                const selected = stage1Selections.has(word);
+                const selected = stage1Selections.has(c.word);
                 const exists = c.exists;
 
                 let type;
@@ -854,23 +731,31 @@
                     correct++;
                 }
 
-                results.push({ word, selected, exists, type });
+                results.push({ word: c.word, type, exists });
             });
 
             stage1Results = results;
             totalCorrect += correct;
             totalQuestions += currentStem.composites.length;
 
-            // Render results
+            // Update results display
             const resultsList = document.getElementById('results1List');
             if (resultsList) {
-                resultsList.innerHTML = results.map(r => `
-                    <div class="result-item ${r.type}">
-                        <span class="result-icon">${getIcon(r.type)}</span>
-                        <span class="option-text">${r.word}</span>
-                        <span class="result-label">${getLabel(r.type)}</span>
-                    </div>
-                `).join('');
+                resultsList.innerHTML = results.map(r => {
+                    const icon = r.type === 'true-positive' ? '✓' :
+                        r.type === 'false-positive' ? '✗' :
+                            r.type === 'false-negative' ? '!' : '–';
+                    const label = r.type === 'true-positive' ? 'Richtig' :
+                        r.type === 'false-positive' ? 'Falsch' :
+                            r.type === 'false-negative' ? 'Übersehen' : 'Korrekt';
+                    return `
+                        <div class="result-item ${r.type}">
+                            <span class="result-icon">${icon}</span>
+                            <span class="option-text">${r.word}</span>
+                            <span class="result-label">${label}</span>
+                        </div>
+                    `;
+                }).join('');
             }
         }
 
@@ -897,43 +782,31 @@
                     correct++;
                 }
 
-                results.push({ option: m.option, selected, isCorrect, type });
+                results.push({ option: m.option, type });
             });
 
             stage2Results[word] = results;
             totalCorrect += correct;
             totalQuestions += meanings.length;
 
-            // Render results
+            // Update results display
             const resultsList = document.getElementById(`results2List-${word}`);
             if (resultsList) {
-                resultsList.innerHTML = results.map(r => `
-                    <div class="result-item ${r.type}">
-                        <span class="result-icon">${getIcon(r.type)}</span>
-                        <span class="option-text">${r.option}</span>
-                        <span class="result-label">${getLabel(r.type)}</span>
-                    </div>
-                `).join('');
-            }
-        }
-
-        function getIcon(type) {
-            switch (type) {
-                case 'true-positive': return '✅';
-                case 'false-positive': return '❌';
-                case 'false-negative': return '⚠️';
-                case 'true-negative': return '✓';
-                default: return '';
-            }
-        }
-
-        function getLabel(type) {
-            switch (type) {
-                case 'true-positive': return 'Richtig';
-                case 'false-positive': return 'Falsch';
-                case 'false-negative': return 'Verpasst';
-                case 'true-negative': return 'OK';
-                default: return '';
+                resultsList.innerHTML = results.map(r => {
+                    const icon = r.type === 'true-positive' ? '✓' :
+                        r.type === 'false-positive' ? '✗' :
+                            r.type === 'false-negative' ? '!' : '–';
+                    const label = r.type === 'true-positive' ? 'Richtig' :
+                        r.type === 'false-positive' ? 'Falsch' :
+                            r.type === 'false-negative' ? 'Übersehen' : 'Korrekt';
+                    return `
+                        <div class="result-item ${r.type}">
+                            <span class="result-icon">${icon}</span>
+                            <span class="option-text">${r.option}</span>
+                            <span class="result-label">${label}</span>
+                        </div>
+                    `;
+                }).join('');
             }
         }
 
@@ -947,33 +820,23 @@
             updateProgress();
 
             // Update final score if on final card
-            if (cards[index]?.type === 'final') {
-                updateFinalScore();
-            }
-        }
-
-        function nextCard() {
-            if (currentCardIndex < cards.length - 1) {
-                goToCard(currentCardIndex + 1);
+            if (cards[index] && cards[index].type === 'final') {
+                const percentage = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+                const finalScore = document.getElementById('finalScore');
+                const finalText = document.getElementById('finalText');
+                if (finalScore) finalScore.textContent = `${percentage}%`;
+                if (finalText) finalText.textContent = `${totalCorrect} von ${totalQuestions} richtig!`;
             }
         }
 
         function updateProgress() {
-            const container = document.getElementById('progressDots');
-            container.innerHTML = cards.map((_, i) => `
-                <div class="dot ${i === currentCardIndex ? 'active' : ''} ${i < currentCardIndex ? 'completed' : ''}"></div>
-            `).join('');
-        }
-
-        function updateFinalScore() {
-            const scoreCircle = document.getElementById('finalScore');
-            const scoreText = document.getElementById('finalText');
-
-            if (scoreCircle && totalQuestions > 0) {
-                const percentage = Math.round((totalCorrect / totalQuestions) * 100);
-                scoreCircle.textContent = `${percentage}%`;
-                scoreText.textContent = `${totalCorrect} von ${totalQuestions} Fragen richtig!`;
-            }
+            const dotsContainer = document.getElementById('progressDots');
+            dotsContainer.innerHTML = cards.map((card, i) => {
+                let className = 'dot';
+                if (i === currentCardIndex) className += ' active';
+                else if (i < currentCardIndex) className += ' completed';
+                return `<div class="${className}"></div>`;
+            }).join('');
         }
     </script>
 </body>
