@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathe-Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared.css">
+    <style>
+        /* App-specific styles */
+        .question-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .topics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .topic-tag {
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent-1);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-primary);
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .answer-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .answer-input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .answer-input {
+            flex: 1;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-family: inherit;
+            transition: border-color 0.2s ease;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--accent-1);
+        }
+
+        .unit-display {
+            padding: 14px 18px;
+            border-radius: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 1rem;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .question-id {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Filter popup */
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--accent-1);
+        }
+
+        .filter-container {
+            margin-bottom: 16px;
+        }
+
+        .topic-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .topic-filter {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .topic-filter:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .topic-filter.active {
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            border-color: transparent;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-animation"></div>
+    <div class="app">
+        <div class="header">
+            <h1>🧮 Mathe-Quiz</h1>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <div class="card">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="welcome-container">
+                <div class="welcome-emoji">📐</div>
+                <h2 style="margin-bottom: 12px;">Mathe-Textaufgaben</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 24px; max-width: 300px;">
+                    Löse mathematische Textaufgaben aus verschiedenen Themengebieten.
+                </p>
+                <div class="filter-container" id="filterContainer"></div>
+                <button class="btn btn-primary" onclick="startQuiz()">Starten</button>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div id="quizScreen" class="quiz-content hidden">
+                <div class="stats-bar">
+                    <span>Frage <strong id="questionNum">1</strong> von <strong id="totalQuestions">1</strong></span>
+                    <span class="question-id" id="questionId"></span>
+                </div>
+                <div class="question-container">
+                    <div class="topics" id="topics"></div>
+                    <div class="question-text" id="questionText"></div>
+                    <div class="answer-section">
+                        <div class="answer-input-row">
+                            <input type="text" class="answer-input" id="answerInput" placeholder="Deine Antwort..."
+                                autocomplete="off">
+                            <div class="unit-display" id="unitDisplay"></div>
+                        </div>
+                        <div class="feedback hidden" id="feedback"></div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()">Prüfen</button>
+            </div>
+
+            <!-- Results Screen -->
+            <div id="resultsScreen" class="score-display hidden">
+                <div class="score-circle" id="scoreCircle">0%</div>
+                <div class="score-text">Richtig beantwortet</div>
+                <div class="score-breakdown">
+                    <div class="score-item correct">
+                        <div class="score-item-number" id="finalCorrect">0</div>
+                        <div class="score-item-label">Richtig</div>
+                    </div>
+                    <div class="score-item wrong">
+                        <div class="score-item-number" id="finalWrong">0</div>
+                        <div class="score-item-label">Falsch</div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" style="margin-top: 30px; max-width: 200px;"
+                    onclick="restartQuiz()">Nochmal spielen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let allQuestions = [];
+        let filteredQuestions = [];
+        let currentQuestionIndex = 0;
+        let correctCount = 0;
+        let wrongCount = 0;
+        let selectedTopics = new Set();
+        let answered = false;
+
+        // Load data
+        async function loadData() {
+            try {
+                const response = await fetch('mathe.json');
+                allQuestions = await response.json();
+                filteredQuestions = [...allQuestions];
+                renderFilters();
+            } catch (e) {
+                console.error('Error loading data:', e);
+            }
+        }
+
+        // Get all unique topics
+        function getAllTopics() {
+            const topics = new Set();
+            allQuestions.forEach(q => q.topics.forEach(t => topics.add(t)));
+            return Array.from(topics).sort();
+        }
+
+        // Render topic filters
+        function renderFilters() {
+            const topics = getAllTopics();
+            const container = document.getElementById('filterContainer');
+
+            if (topics.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = `
+                <div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 8px;">Themen filtern:</div>
+                <div class="topic-filters">
+                    <button class="topic-filter ${selectedTopics.size === 0 ? 'active' : ''}" data-topic="all">Alle</button>
+                    ${topics.map(t => `
+                        <button class="topic-filter ${selectedTopics.has(t) ? 'active' : ''}" data-topic="${t}">${t}</button>
+                    `).join('')}
+                </div>
+            `;
+
+            container.querySelectorAll('.topic-filter').forEach(btn => {
+                btn.onclick = () => {
+                    const topic = btn.dataset.topic;
+                    if (topic === 'all') {
+                        selectedTopics.clear();
+                    } else {
+                        if (selectedTopics.has(topic)) {
+                            selectedTopics.delete(topic);
+                        } else {
+                            selectedTopics.add(topic);
+                        }
+                    }
+                    updateFilteredQuestions();
+                    renderFilters();
+                };
+            });
+        }
+
+        // Update filtered questions based on selected topics
+        function updateFilteredQuestions() {
+            if (selectedTopics.size === 0) {
+                filteredQuestions = [...allQuestions];
+            } else {
+                filteredQuestions = allQuestions.filter(q =>
+                    q.topics.some(t => selectedTopics.has(t))
+                );
+            }
+        }
+
+        // Shuffle array
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // Render current question
+        function renderQuestion() {
+            const question = filteredQuestions[currentQuestionIndex];
+
+            document.getElementById('questionNum').textContent = currentQuestionIndex + 1;
+            document.getElementById('totalQuestions').textContent = filteredQuestions.length;
+            document.getElementById('questionId').textContent = question.id;
+
+            document.getElementById('topics').innerHTML = question.topics.map(t =>
+                `<span class="topic-tag">${t}</span>`
+            ).join('');
+
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('unitDisplay').textContent = question.unit || '';
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('submitBtn').textContent = 'Prüfen';
+            answered = false;
+
+            updateProgress();
+            setTimeout(() => document.getElementById('answerInput').focus(), 100);
+        }
+
+        // Submit answer
+        function submitAnswer() {
+            if (answered) {
+                nextQuestion();
+                return;
+            }
+
+            const question = filteredQuestions[currentQuestionIndex];
+            const userAnswer = document.getElementById('answerInput').value.trim().replace(',', '.');
+            const correctAnswer = question.answer.toString().replace(',', '.');
+            const feedback = document.getElementById('feedback');
+
+            // Parse numbers for comparison
+            const userNum = parseFloat(userAnswer);
+            const correctNum = parseFloat(correctAnswer);
+
+            if (userAnswer === '' || isNaN(userNum)) {
+                feedback.textContent = 'Bitte gib eine Zahl ein.';
+                feedback.className = 'feedback incorrect';
+                feedback.classList.remove('hidden');
+                return;
+            }
+
+            // Compare with small tolerance for floating point
+            const isCorrect = Math.abs(userNum - correctNum) < 0.001;
+
+            if (isCorrect) {
+                feedback.textContent = `✓ Richtig! ${correctAnswer} ${question.unit || ''}`;
+                feedback.className = 'feedback correct';
+                correctCount++;
+            } else {
+                feedback.textContent = `✗ Falsch. Die richtige Antwort: ${correctAnswer} ${question.unit || ''}`;
+                feedback.className = 'feedback incorrect';
+                wrongCount++;
+            }
+
+            feedback.classList.remove('hidden');
+            document.getElementById('submitBtn').textContent = 'Weiter';
+            answered = true;
+        }
+
+        // Next question
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex >= filteredQuestions.length) {
+                showResults();
+            } else {
+                renderQuestion();
+            }
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = (currentQuestionIndex / filteredQuestions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        // Show results
+        function showResults() {
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.remove('hidden');
+
+            const total = correctCount + wrongCount;
+            const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+
+            document.getElementById('scoreCircle').textContent = percentage + '%';
+            document.getElementById('finalCorrect').textContent = correctCount;
+            document.getElementById('finalWrong').textContent = wrongCount;
+            document.getElementById('progressFill').style.width = '100%';
+        }
+
+        // Start quiz
+        function startQuiz() {
+            if (filteredQuestions.length === 0) {
+                alert('Keine Fragen verfügbar. Bitte wähle andere Themen.');
+                return;
+            }
+
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+
+            filteredQuestions = shuffle(filteredQuestions);
+            currentQuestionIndex = 0;
+            correctCount = 0;
+            wrongCount = 0;
+
+            renderQuestion();
+        }
+
+        // Restart quiz
+        function restartQuiz() {
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+            document.getElementById('progressFill').style.width = '0%';
+            currentQuestionIndex = 0;
+            correctCount = 0;
+            wrongCount = 0;
+            renderFilters();
+        }
+
+        // Handle Enter key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !document.getElementById('quizScreen').classList.contains('hidden')) {
+                submitAnswer();
+            }
+        });
+
+        // Init
+        loadData();
+    </script>
+</body>
+
+</html>

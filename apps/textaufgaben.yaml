@@ -1,0 +1,13 @@
+name: Textaufgaben
+description: Löse mathematische Textaufgaben aus verschiedenen Themengebieten
+category: Mathematik
+file: textaufgaben.html
+icon: 🧮
+author: Antigravity
+version: 1.0.0
+tags:
+  - mathematik
+  - textaufgaben
+  - proportionalität
+  - rechnen
+difficulty: intermediate
