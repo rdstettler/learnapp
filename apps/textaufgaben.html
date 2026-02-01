@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mathe-Quiz</title>
+    <title>Textaufgaben</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="shared.css">
     <style>
@@ -68,16 +68,7 @@
             border-color: var(--accent-1);
         }
 
-        .unit-display {
-            padding: 14px 18px;
-            border-radius: 12px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            font-size: 1rem;
-            min-width: 80px;
-            text-align: center;
-        }
+
 
         .question-id {
             font-size: 0.75rem;
@@ -149,7 +140,7 @@
     <div class="bg-animation"></div>
     <div class="app">
         <div class="header">
-            <h1>🧮 Mathe-Quiz</h1>
+            <h1>🧮 Textaufgaben</h1>
         </div>
         <div class="progress-bar">
             <div class="progress-fill" id="progressFill" style="width: 0%"></div>
@@ -158,7 +149,7 @@
             <!-- Welcome Screen -->
             <div id="welcomeScreen" class="welcome-container">
                 <div class="welcome-emoji">📐</div>
-                <h2 style="margin-bottom: 12px;">Mathe-Textaufgaben</h2>
+                <h2 style="margin-bottom: 12px;">Textaufgaben</h2>
                 <p style="color: var(--text-secondary); margin-bottom: 24px; max-width: 300px;">
                     Löse mathematische Textaufgaben aus verschiedenen Themengebieten.
                 </p>
@@ -176,11 +167,8 @@
                     <div class="topics" id="topics"></div>
                     <div class="question-text" id="questionText"></div>
                     <div class="answer-section">
-                        <div class="answer-input-row">
-                            <input type="text" class="answer-input" id="answerInput" placeholder="Deine Antwort..."
-                                autocomplete="off">
-                            <div class="unit-display" id="unitDisplay"></div>
-                        </div>
+                        <input type="text" class="answer-input" id="answerInput" placeholder="Deine Antwort..."
+                            autocomplete="off">
                         <div class="feedback hidden" id="feedback"></div>
                     </div>
                 </div>
@@ -220,7 +208,7 @@
         // Load data
         async function loadData() {
             try {
-                const response = await fetch('mathe.json');
+                const response = await fetch('textaufgaben.json');
                 allQuestions = await response.json();
                 filteredQuestions = [...allQuestions];
                 renderFilters();
@@ -308,7 +296,7 @@
             ).join('');
 
             document.getElementById('questionText').textContent = question.question;
-            document.getElementById('unitDisplay').textContent = question.unit || '';
+
             document.getElementById('answerInput').value = '';
             document.getElementById('feedback').classList.add('hidden');
             document.getElementById('submitBtn').textContent = 'Prüfen';
@@ -345,11 +333,11 @@
             const isCorrect = Math.abs(userNum - correctNum) < 0.001;
 
             if (isCorrect) {
-                feedback.textContent = `✓ Richtig! ${correctAnswer} ${question.unit || ''}`;
+                feedback.textContent = `✓ Richtig! ${correctAnswer}`;
                 feedback.className = 'feedback correct';
                 correctCount++;
             } else {
-                feedback.textContent = `✗ Falsch. Die richtige Antwort: ${correctAnswer} ${question.unit || ''}`;
+                feedback.textContent = `✗ Falsch. Die richtige Antwort: ${correctAnswer}`;
                 feedback.className = 'feedback incorrect';
                 wrongCount++;
             }
