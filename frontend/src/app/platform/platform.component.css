@@ -1,0 +1,153 @@
+/* Platform-specific styles */
+
+/* Reset anchor styling for app cards */
+a.app-card {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.app-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.app-stats {
+    display: flex;
+    gap: 16px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.app-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.platform-footer {
+    text-align: center;
+    margin-top: 60px;
+    padding: 24px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.user-id {
+    font-family: monospace;
+    background: var(--glass-bg);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+}
+
+/* Auth Controls */
+.auth-controls {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    z-index: 10;
+}
+
+
+.auth-loading {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.auth-btn {
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.login-btn {
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    color: white;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.logout-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.logout-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: var(--error);
+    color: var(--error);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent-1);
+}
+
+.user-avatar-placeholder {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.user-name {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Make header relative for auth controls positioning */
+.platform-header {
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .auth-controls {
+        position: static;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .user-info {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .user-name {
+        display: none;
+    }
+}

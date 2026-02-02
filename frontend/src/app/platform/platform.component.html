@@ -1,6 +1,25 @@
 <div class="bg-animation"></div>
 <div class="platform-container">
     <header class="platform-header">
+        <!-- Auth Controls -->
+        <div class="auth-controls">
+            @if (authService.loading()) {
+            <span class="auth-loading">Laden...</span>
+            } @else if (authService.isAuthenticated()) {
+            <div class="user-info">
+                @if (authService.user()?.photoURL) {
+                <img [src]="authService.user()?.photoURL" alt="Avatar" class="user-avatar">
+                } @else {
+                <div class="user-avatar-placeholder">{{ authService.user()?.email?.charAt(0)?.toUpperCase() }}</div>
+                }
+                <span class="user-name">{{ authService.user()?.displayName || authService.user()?.email }}</span>
+                <button class="auth-btn logout-btn" (click)="signOut()">Abmelden</button>
+            </div>
+            } @else {
+            <button class="auth-btn login-btn" (click)="openAuthModal()">🔑 Anmelden</button>
+            }
+        </div>
+
         <div class="platform-logo">🚀</div>
         <h1 class="platform-title">LearnApp</h1>
         <p class="platform-subtitle">Explore interactive learning experiences</p>
@@ -40,6 +59,13 @@
     </div>
 
     <footer class="platform-footer">
+        @if (authService.isAuthenticated()) {
+        <p>Angemeldet als: <span class="user-id">{{ authService.user()?.email }}</span></p>
+        } @else {
         <p>Your session: <span class="user-id">{{ displayUserId }}</span></p>
+        }
     </footer>
 </div>
+
+<!-- Auth Modal -->
+<app-auth-modal></app-auth-modal>

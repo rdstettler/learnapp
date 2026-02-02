@@ -1,7 +1,10 @@
-import { Component, inject, signal, computed, ChangeDetectorRef, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectorRef, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { UserService } from '../services/user.service';
+import { AuthService } from '../services/auth.service';
+import { ApiService } from '../services/api.service';
+import { AuthModalComponent } from '../shared';
 
 export interface AppInfo {
     id: string;
@@ -20,7 +23,7 @@ interface AppsConfig {
 @Component({
     selector: 'app-platform',
     standalone: true,
-    imports: [],
+    imports: [AuthModalComponent],
     templateUrl: './platform.component.html',
     styleUrl: './platform.component.css'
 })
@@ -29,6 +32,13 @@ export class PlatformComponent implements OnInit {
     private http = inject(HttpClient);
     private userService = inject(UserService);
     private cdr = inject(ChangeDetectorRef);
+    private apiService = inject(ApiService);
+
+    // Auth
+    authService = inject(AuthService);
+    @ViewChild(AuthModalComponent) authModal!: AuthModalComponent;
+
+
 
     // Apps loaded from config
     readonly apps = signal<AppInfo[]>([]);
@@ -90,6 +100,9 @@ export class PlatformComponent implements OnInit {
         console.log('navigateToApp called:', app.id, app.route);
         this.userService.recordAppOpen(app.id);
 
+        // Track in database if user is authenticated
+        this.apiService.trackAppOpen(app.id);
+
         // Use the router properly - navigate returns a promise
         this.router.navigate([app.route]).then(success => {
             console.log('Navigation result:', success);
@@ -100,6 +113,7 @@ export class PlatformComponent implements OnInit {
             console.error('Navigation error:', err);
         });
     }
+
 
     recordAppUsage(appId: string): void {
         this.userService.recordAppOpen(appId);
@@ -113,5 +127,14 @@ export class PlatformComponent implements OnInit {
         if (!isoDate) return 'Never';
         return new Date(isoDate).toLocaleDateString();
     }
+
+    openAuthModal(): void {
+        this.authModal.open('login');
+    }
+
+    signOut(): void {
+        this.authService.signOut();
+    }
 }
+
 
