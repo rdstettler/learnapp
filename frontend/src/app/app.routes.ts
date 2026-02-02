@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
     { path: '', loadComponent: () => import('./platform/platform.component').then(m => m.PlatformComponent) },
+    { path: 'aehnlichewoerter', loadComponent: () => import('./apps/aehnlichewoerter/aehnlichewoerter.component').then(m => m.AehnlichewoerterComponent) },
     { path: 'kopfrechnen', loadComponent: () => import('./apps/kopfrechnen/kopfrechnen.component').then(m => m.KopfrechnenComponent) },
     { path: 'symmetry', loadComponent: () => import('./apps/symmetry/symmetry.component').then(m => m.SymmetryComponent) },
     { path: 'wortstaemme', loadComponent: () => import('./apps/wortstaemme/wortstaemme.component').then(m => m.WortstaemmeComponent) },

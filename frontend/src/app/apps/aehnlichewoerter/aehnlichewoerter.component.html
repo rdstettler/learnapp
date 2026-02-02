@@ -1,0 +1,127 @@
+<div class="bg-animation"></div>
+<div class="app-container">
+    <div class="app-header">
+        <h1>🔤 Ähnliche Wörter</h1>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+        <!-- Welcome Screen -->
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">🎯</div>
+            <h2 style="margin-bottom: 10px;">Ähnliche Wörter unterscheiden</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Wähle ein Wortpaar und übe den Unterschied zwischen ähnlich klingenden Wörtern!
+            </p>
+            
+            <select class="pair-select" (change)="selectPair($event)">
+                <option value="">Wortpaar wählen...</option>
+                @for (pair of pairs(); track pair.id) {
+                <option [value]="pair.id">{{ pair.words[0] }} / {{ pair.words[1] }} – {{ pair.description }}</option>
+                }
+            </select>
+            
+            <div class="rule-box">
+                <strong>Tipp:</strong> Achte genau auf die Bedeutung der Wörter im Satz. 
+                Oft hilft es, den Satz laut zu lesen und zu überlegen, was gemeint ist.
+            </div>
+            
+            <button class="btn btn-primary" style="margin-top: 24px;" (click)="startQuiz()" 
+                    [disabled]="!dataLoaded() || !selectedPairId()">
+                Quiz starten
+            </button>
+        </div>
+        }
+
+        <!-- Quiz Screen -->
+        @if (screen() === 'quiz') {
+        <div class="quiz-content">
+            <div class="round-info">Satz {{ currentSentenceIndex() + 1 }} / {{ SENTENCES_PER_ROUND }}</div>
+            
+            <div class="pair-badge">
+                {{ currentPair()?.words?.[0] }} / {{ currentPair()?.words?.[1] }}
+            </div>
+
+            <div class="score-live">
+                <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
+                <div class="score-live-item wrong">✗ {{ totalWrong() }}</div>
+            </div>
+
+            <div class="text-container">
+                @for (part of getProcessedText().parts; track $index) {
+                    @if (part.type === 'text') {
+                        <span>{{ part.content }}</span>
+                    } @else {
+                        <span class="choice-slot" [class]="getSlotClass()">{{ getSlotDisplay() }}</span>
+                    }
+                }
+            </div>
+
+            <div class="word-options">
+                @for (word of currentPair()?.words; track word) {
+                <button class="word-option" 
+                        [class.selected]="getSlotDisplay().toLowerCase() === word.toLowerCase()"
+                        [disabled]="answered()"
+                        (click)="selectWord(word)">
+                    {{ word }}
+                </button>
+                }
+            </div>
+
+            @if (answered() && getSlotClass() === 'incorrect') {
+            <div class="correction-hint">
+                <span class="correction-label">Richtig wäre:</span>
+                <span class="correction-word">{{ getCorrectAnswer() }}</span>
+            </div>
+            }
+
+            @if (!answered()) {
+            <button class="btn btn-primary" (click)="checkAnswer()" 
+                    [disabled]="getSlotDisplay() === '?'">
+                Überprüfen
+            </button>
+            } @else {
+            <button class="btn btn-primary" (click)="nextSentence()">
+                {{ currentSentenceIndex() + 1 >= SENTENCES_PER_ROUND ? 'Ergebnis anzeigen' : 'Weiter' }}
+            </button>
+            }
+        </div>
+        }
+
+        <!-- Results Screen -->
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <p class="score-text">{{ totalCorrect() }} von {{ totalCorrect() + totalWrong() }} richtig!</p>
+            
+            <div class="result-pair">
+                {{ currentPair()?.words?.[0] }} / {{ currentPair()?.words?.[1] }}
+            </div>
+            
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ totalCorrect() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ totalWrong() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
+            </div>
+            
+            <div class="result-actions">
+                <button class="btn btn-secondary" (click)="playAgainSamePair()">
+                    Gleiches Paar nochmal
+                </button>
+                <button class="btn btn-primary" (click)="restartQuiz()">
+                    Anderes Paar wählen
+                </button>
+            </div>
+        </div>
+        }
+    </div>
+</div>

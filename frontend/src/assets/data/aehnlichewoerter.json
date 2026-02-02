@@ -1,0 +1,808 @@
+{
+    "pairs": [
+        {
+            "id": "viel-fiel",
+            "words": ["viel", "fiel"],
+            "description": "viel (Menge) vs. fiel (Vergangenheit von fallen)",
+            "sentences": [
+                {
+                    "id": 1,
+                    "text": "Der Apfel [fiel] vom Baum.",
+                    "correct": "fiel"
+                },
+                {
+                    "id": 2,
+                    "text": "Ich habe [viel] zu tun.",
+                    "correct": "viel"
+                },
+                {
+                    "id": 3,
+                    "text": "Das Glas [fiel] auf den Boden.",
+                    "correct": "fiel"
+                },
+                {
+                    "id": 4,
+                    "text": "Es gibt [viel] Schnee im Winter.",
+                    "correct": "viel"
+                },
+                {
+                    "id": 5,
+                    "text": "Mir [fiel] nichts mehr ein.",
+                    "correct": "fiel"
+                },
+                {
+                    "id": 6,
+                    "text": "Das kostet [viel] Geld.",
+                    "correct": "viel"
+                },
+                {
+                    "id": 7,
+                    "text": "Der Schnee [fiel] leise vom Himmel.",
+                    "correct": "fiel"
+                },
+                {
+                    "id": 8,
+                    "text": "Wir haben [viel] gelernt.",
+                    "correct": "viel"
+                },
+                {
+                    "id": 9,
+                    "text": "Er [fiel] über einen Stein.",
+                    "correct": "fiel"
+                },
+                {
+                    "id": 10,
+                    "text": "In dieser Stadt gibt es [viel] zu entdecken.",
+                    "correct": "viel"
+                },
+                {
+                    "id": 11,
+                    "text": "Das Blatt [fiel] langsam zu Boden.",
+                    "correct": "fiel"
+                },
+                {
+                    "id": 12,
+                    "text": "Sie hat [viel] Freunde.",
+                    "correct": "viel"
+                }
+            ]
+        },
+        {
+            "id": "seid-seit",
+            "words": ["seid", "seit"],
+            "description": "seid (ihr seid) vs. seit (Zeitangabe)",
+            "sentences": [
+                {
+                    "id": 1,
+                    "text": "[Seit] wann bist du hier?",
+                    "correct": "seit"
+                },
+                {
+                    "id": 2,
+                    "text": "Ihr [seid] meine besten Freunde.",
+                    "correct": "seid"
+                },
+                {
+                    "id": 3,
+                    "text": "[Seit] gestern regnet es.",
+                    "correct": "seit"
+                },
+                {
+                    "id": 4,
+                    "text": "[Seid] ihr fertig mit den Hausaufgaben?",
+                    "correct": "seid"
+                },
+                {
+                    "id": 5,
+                    "text": "Ich wohne hier [seit] drei Jahren.",
+                    "correct": "seit"
+                },
+                {
+                    "id": 6,
+                    "text": "[Seid] ihr schon müde?",
+                    "correct": "seid"
+                },
+                {
+                    "id": 7,
+                    "text": "[Seit] dem Sommer ist alles anders.",
+                    "correct": "seit"
+                },
+                {
+                    "id": 8,
+                    "text": "Wann [seid] ihr angekommen?",
+                    "correct": "seid"
+                },
+                {
+                    "id": 9,
+                    "text": "[Seit] letzter Woche habe ich Ferien.",
+                    "correct": "seit"
+                },
+                {
+                    "id": 10,
+                    "text": "Ihr [seid] zu spät gekommen.",
+                    "correct": "seid"
+                },
+                {
+                    "id": 11,
+                    "text": "[Seit] dem Unfall fahre ich vorsichtiger.",
+                    "correct": "seit"
+                },
+                {
+                    "id": 12,
+                    "text": "[Seid] ihr bereit für die Prüfung?",
+                    "correct": "seid"
+                }
+            ]
+        },
+        {
+            "id": "wieder-wider",
+            "words": ["wieder", "wider"],
+            "description": "wieder (nochmal) vs. wider (gegen)",
+            "sentences": [
+                {
+                    "id": 1,
+                    "text": "Ich bin [wieder] zu Hause.",
+                    "correct": "wieder"
+                },
+                {
+                    "id": 2,
+                    "text": "Das ist [wider] die Regeln.",
+                    "correct": "wider"
+                },
+                {
+                    "id": 3,
+                    "text": "Kannst du das bitte [wieder]holen?",
+                    "correct": "wieder"
+                },
+                {
+                    "id": 4,
+                    "text": "Er handelte [wider] besseres Wissen.",
+                    "correct": "wider"
+                },
+                {
+                    "id": 5,
+                    "text": "Wir sehen uns [wieder]!",
+                    "correct": "wieder"
+                },
+                {
+                    "id": 6,
+                    "text": "Das ist [wider] Erwarten gut gelaufen.",
+                    "correct": "wider"
+                },
+                {
+                    "id": 7,
+                    "text": "Schon [wieder] hast du das vergessen!",
+                    "correct": "wieder"
+                },
+                {
+                    "id": 8,
+                    "text": "Der [Wider]spruch war offensichtlich.",
+                    "correct": "Wider"
+                },
+                {
+                    "id": 9,
+                    "text": "Bitte [wieder]hole die Übung.",
+                    "correct": "wieder"
+                },
+                {
+                    "id": 10,
+                    "text": "Das [wider]spricht den Fakten.",
+                    "correct": "wider"
+                },
+                {
+                    "id": 11,
+                    "text": "Morgen gehe ich [wieder] in die Schule.",
+                    "correct": "wieder"
+                },
+                {
+                    "id": 12,
+                    "text": "Sie tat es [wider] Willen.",
+                    "correct": "wider"
+                }
+            ]
+        },
+        {
+            "id": "weg-weg",
+            "words": ["weg", "Weg"],
+            "description": "weg (fort) vs. Weg (Pfad)",
+            "sentences": [
+                {
+                    "id": 1,
+                    "text": "Der [Weg] ist sehr lang.",
+                    "correct": "Weg"
+                },
+                {
+                    "id": 2,
+                    "text": "Geh [weg] von hier!",
+                    "correct": "weg"
+                },
+                {
+                    "id": 3,
+                    "text": "Wir haben den [Weg] gefunden.",
+                    "correct": "Weg"
+                },
+                {
+                    "id": 4,
+                    "text": "Die Katze ist [weg]gelaufen.",
+                    "correct": "weg"
+                },
+                {
+                    "id": 5,
+                    "text": "Der [Weg] führt durch den Wald.",
+                    "correct": "Weg"
+                },
+                {
+                    "id": 6,
+                    "text": "Die Schmerzen sind [weg].",
+                    "correct": "weg"
+                },
+                {
+                    "id": 7,
+                    "text": "Zeig mir den [Weg] zum Bahnhof.",
+                    "correct": "Weg"
+                },
+                {
+                    "id": 8,
+                    "text": "Räum das bitte [weg].",
+                    "correct": "weg"
+                },
+                {
+                    "id": 9,
+                    "text": "Der kürzeste [Weg] ist nicht immer der beste.",
+                    "correct": "Weg"
+                },
+                {
+                    "id": 10,
+                    "text": "Ich bin gleich [weg].",
+                    "correct": "weg"
+                },
+                {
+                    "id": 11,
+                    "text": "Auf dem [Weg] zur Schule traf ich Lena.",
+                    "correct": "Weg"
+                },
+                {
+                    "id": 12,
+                    "text": "Der Fleck geht nicht [weg].",
+                    "correct": "weg"
+                }
+            ]
+        },
+        {
+            "id": "war-wahr",
+            "words": ["war", "wahr"],
+            "description": "war (Vergangenheit von sein) vs. wahr (richtig, echt)",
+            "sentences": [
+                {
+                    "id": 1,
+                    "text": "Es [war] ein schöner Tag.",
+                    "correct": "war"
+                },
+                {
+                    "id": 2,
+                    "text": "Das ist [wahr]!",
+                    "correct": "wahr"
+                },
+                {
+                    "id": 3,
+                    "text": "Ich [war] gestern im Kino.",
+                    "correct": "war"
+                },
+                {
+                    "id": 4,
+                    "text": "Die Geschichte ist [wahr].",
+                    "correct": "wahr"
+                },
+                {
+                    "id": 5,
+                    "text": "Wo [war]st du gestern?",
+                    "correct": "war"
+                },
+                {
+                    "id": 6,
+                    "text": "Ein [wahr]er Freund ist selten.",
+                    "correct": "wahr"
+                },
+                {
+                    "id": 7,
+                    "text": "Das Wetter [war] schlecht.",
+                    "correct": "war"
+                },
+                {
+                    "id": 8,
+                    "text": "Sein Traum wurde [wahr].",
+                    "correct": "wahr"
+                },
+                {
+                    "id": 9,
+                    "text": "Er [war] mein Nachbar.",
+                    "correct": "war"
+                },
+                {
+                    "id": 10,
+                    "text": "Nicht alles, was man hört, ist [wahr].",
+                    "correct": "wahr"
+                },
+                {
+                    "id": 11,
+                    "text": "Wer [war] das?",
+                    "correct": "war"
+                },
+                {
+                    "id": 12,
+                    "text": "Die [Wahr]heit tut manchmal weh.",
+                    "correct": "Wahr"
+                }
+            ]
+        },
+        {
+            "id": "man-mann",
+            "words": ["man", "Mann"],
+            "description": "man (jemand/alle) vs. Mann (männliche Person)",
+            "sentences": [
+                {
+                    "id": 1,
+                    "text": "Der [Mann] trägt einen Hut.",
+                    "correct": "Mann"
+                },
+                {
+                    "id": 2,
+                    "text": "[Man] soll nicht lügen.",
+                    "correct": "Man"
+                },
+                {
+                    "id": 3,
+                    "text": "Ein [Mann] steht vor der Tür.",
+                    "correct": "Mann"
+                },
+                {
+                    "id": 4,
+                    "text": "Das kann [man] so nicht sagen.",
+                    "correct": "man"
+                },
+                {
+                    "id": 5,
+                    "text": "Der alte [Mann] lächelte freundlich.",
+                    "correct": "Mann"
+                },
+                {
+                    "id": 6,
+                    "text": "Wie schreibt [man] das?",
+                    "correct": "man"
+                },
+                {
+                    "id": 7,
+                    "text": "Der [Mann] reparierte das Auto.",
+                    "correct": "Mann"
+                },
+                {
+                    "id": 8,
+                    "text": "[Man] muss vorsichtig sein.",
+                    "correct": "Man"
+                },
+                {
+                    "id": 9,
+                    "text": "Mein Onkel ist ein netter [Mann].",
+                    "correct": "Mann"
+                },
+                {
+                    "id": 10,
+                    "text": "Dort kann [man] gut essen.",
+                    "correct": "man"
+                },
+                {
+                    "id": 11,
+                    "text": "Welcher [Mann] ist dein Vater?",
+                    "correct": "Mann"
+                },
+                {
+                    "id": 12,
+                    "text": "Das weiss [man] nie genau.",
+                    "correct": "man"
+                }
+            ]
+        },
+        {
+            "id": "mal-Mal",
+            "words": ["mal", "Mal"],
+            "description": "mal (einmal/kurz) vs. Mal (das Mal)",
+            "sentences": [
+                {
+                    "id": 1,
+                    "text": "Komm doch [mal] her!",
+                    "correct": "mal"
+                },
+                {
+                    "id": 2,
+                    "text": "Das erste [Mal] war aufregend.",
+                    "correct": "Mal"
+                },
+                {
+                    "id": 3,
+                    "text": "Ich gehe [mal] kurz raus.",
+                    "correct": "mal"
+                },
+                {
+                    "id": 4,
+                    "text": "Dieses [Mal] habe ich gewonnen!",
+                    "correct": "Mal"
+                },
+                {
+                    "id": 5,
+                    "text": "Schau [mal], was ich gefunden habe!",
+                    "correct": "mal"
+                },
+                {
+                    "id": 6,
+                    "text": "Zum zweiten [Mal] bin ich hier.",
+                    "correct": "Mal"
+                },
+                {
+                    "id": 7,
+                    "text": "Kannst du mir [mal] helfen?",
+                    "correct": "mal"
+                },
+                {
+                    "id": 8,
+                    "text": "Das letzte [Mal] war es anders.",
+                    "correct": "Mal"
+                },
+                {
+                    "id": 9,
+                    "text": "Denk [mal] nach!",
+                    "correct": "mal"
+                },
+                {
+                    "id": 10,
+                    "text": "Jedes [Mal] freue ich mich darauf.",
+                    "correct": "Mal"
+                },
+                {
+                    "id": 11,
+                    "text": "Pass [mal] auf!",
+                    "correct": "mal"
+                },
+                {
+                    "id": 12,
+                    "text": "Ein [Mal] ist kein [Mal].",
+                    "correct": "Mal"
+                }
+            ]
+        },
+        {
+            "id": "tod-tot",
+            "words": ["Tod", "tot"],
+            "description": "Tod (Substantiv) vs. tot (Adjektiv)",
+            "sentences": [
+                {
+                    "id": 1,
+                    "text": "Der Vogel war [tot].",
+                    "correct": "tot"
+                },
+                {
+                    "id": 2,
+                    "text": "Der [Tod] gehört zum Leben.",
+                    "correct": "Tod"
+                },
+                {
+                    "id": 3,
+                    "text": "Die Blume ist [tot].",
+                    "correct": "tot"
+                },
+                {
+                    "id": 4,
+                    "text": "Niemand spricht gern über den [Tod].",
+                    "correct": "Tod"
+                },
+                {
+                    "id": 5,
+                    "text": "Der Käfer stellte sich [tot].",
+                    "correct": "tot"
+                },
+                {
+                    "id": 6,
+                    "text": "Der [Tod] ist ein schweres Thema.",
+                    "correct": "Tod"
+                },
+                {
+                    "id": 7,
+                    "text": "Das Handy ist [tot] – kein Akku mehr.",
+                    "correct": "tot"
+                },
+                {
+                    "id": 8,
+                    "text": "Nach dem [Tod] des Königs kam sein Sohn.",
+                    "correct": "Tod"
+                },
+                {
+                    "id": 9,
+                    "text": "Sie war [tot]müde.",
+                    "correct": "tot"
+                },
+                {
+                    "id": 10,
+                    "text": "Die Angst vor dem [Tod] ist normal.",
+                    "correct": "Tod"
+                },
+                {
+                    "id": 11,
+                    "text": "Der Ast war schon lange [tot].",
+                    "correct": "tot"
+                },
+                {
+                    "id": 12,
+                    "text": "Er entkam dem [Tod] knapp.",
+                    "correct": "Tod"
+                }
+            ]
+        },
+        {
+            "id": "los-Los",
+            "words": ["los", "Los"],
+            "description": "los (Bewegung/Aufforderung) vs. Los (Schicksal/Lotterie)",
+            "sentences": [
+                {
+                    "id": 1,
+                    "text": "[Los], wir müssen gehen!",
+                    "correct": "Los"
+                },
+                {
+                    "id": 2,
+                    "text": "Ich habe ein [Los] gekauft.",
+                    "correct": "Los"
+                },
+                {
+                    "id": 3,
+                    "text": "Was ist hier [los]?",
+                    "correct": "los"
+                },
+                {
+                    "id": 4,
+                    "text": "Das [Los] entscheidet, wer anfängt.",
+                    "correct": "Los"
+                },
+                {
+                    "id": 5,
+                    "text": "Ich bin den Schnupfen endlich [los].",
+                    "correct": "los"
+                },
+                {
+                    "id": 6,
+                    "text": "Wir ziehen ein [Los].",
+                    "correct": "Los"
+                },
+                {
+                    "id": 7,
+                    "text": "[Los] geht's!",
+                    "correct": "Los"
+                },
+                {
+                    "id": 8,
+                    "text": "Er hat das grosse [Los] gezogen.",
+                    "correct": "Los"
+                },
+                {
+                    "id": 9,
+                    "text": "Was ist mit dir [los]?",
+                    "correct": "los"
+                },
+                {
+                    "id": 10,
+                    "text": "Das traurige [Los] der Flüchtlinge.",
+                    "correct": "Los"
+                },
+                {
+                    "id": 11,
+                    "text": "Lass mich [los]!",
+                    "correct": "los"
+                },
+                {
+                    "id": 12,
+                    "text": "Das [Los] wurde gezogen.",
+                    "correct": "Los"
+                }
+            ]
+        },
+        {
+            "id": "meer-mehr",
+            "words": ["Meer", "mehr"],
+            "description": "Meer (Ozean) vs. mehr (grössere Menge)",
+            "sentences": [
+                {
+                    "id": 1,
+                    "text": "Das [Meer] ist blau.",
+                    "correct": "Meer"
+                },
+                {
+                    "id": 2,
+                    "text": "Ich möchte [mehr] Schokolade.",
+                    "correct": "mehr"
+                },
+                {
+                    "id": 3,
+                    "text": "Wir fahren ans [Meer].",
+                    "correct": "Meer"
+                },
+                {
+                    "id": 4,
+                    "text": "Es gibt [mehr] Fragen als Antworten.",
+                    "correct": "mehr"
+                },
+                {
+                    "id": 5,
+                    "text": "Im [Meer] leben viele Fische.",
+                    "correct": "Meer"
+                },
+                {
+                    "id": 6,
+                    "text": "Ich will nicht [mehr].",
+                    "correct": "mehr"
+                },
+                {
+                    "id": 7,
+                    "text": "Das [Meer] rauscht laut.",
+                    "correct": "Meer"
+                },
+                {
+                    "id": 8,
+                    "text": "Es gibt nichts [mehr] zu sagen.",
+                    "correct": "mehr"
+                },
+                {
+                    "id": 9,
+                    "text": "Muscheln findet man am [Meer].",
+                    "correct": "Meer"
+                },
+                {
+                    "id": 10,
+                    "text": "Je [mehr] ich lerne, desto besser werde ich.",
+                    "correct": "mehr"
+                },
+                {
+                    "id": 11,
+                    "text": "Das [Meer] hat keine Grenzen.",
+                    "correct": "Meer"
+                },
+                {
+                    "id": 12,
+                    "text": "Er isst immer [mehr] als ich.",
+                    "correct": "mehr"
+                }
+            ]
+        },
+        {
+            "id": "lehren-leeren",
+            "words": ["lehren", "leeren"],
+            "description": "lehren (unterrichten) vs. leeren (leer machen)",
+            "sentences": [
+                {
+                    "id": 1,
+                    "text": "Die Lehrerin will uns Rechnen [lehren].",
+                    "correct": "lehren"
+                },
+                {
+                    "id": 2,
+                    "text": "Bitte [leeren] Sie den Papierkorb.",
+                    "correct": "leeren"
+                },
+                {
+                    "id": 3,
+                    "text": "Er wird mich das Schwimmen [lehren].",
+                    "correct": "lehren"
+                },
+                {
+                    "id": 4,
+                    "text": "Ich muss noch die Tasche [leeren].",
+                    "correct": "leeren"
+                },
+                {
+                    "id": 5,
+                    "text": "Die Eltern [lehren] ihre Kinder Respekt.",
+                    "correct": "lehren"
+                },
+                {
+                    "id": 6,
+                    "text": "Bitte das Glas [leeren]!",
+                    "correct": "leeren"
+                },
+                {
+                    "id": 7,
+                    "text": "Man kann einen alten Hund neue Tricks [lehren].",
+                    "correct": "lehren"
+                },
+                {
+                    "id": 8,
+                    "text": "Die Arbeiter [leeren] die Container.",
+                    "correct": "leeren"
+                },
+                {
+                    "id": 9,
+                    "text": "Er möchte Deutsch [lehren].",
+                    "correct": "lehren"
+                },
+                {
+                    "id": 10,
+                    "text": "Kannst du bitte den Briefkasten [leeren]?",
+                    "correct": "leeren"
+                },
+                {
+                    "id": 11,
+                    "text": "Die Erfahrung wird ihn [lehren].",
+                    "correct": "lehren"
+                },
+                {
+                    "id": 12,
+                    "text": "Wir müssen das Becken [leeren].",
+                    "correct": "leeren"
+                }
+            ]
+        },
+        {
+            "id": "seite-saite",
+            "words": ["Seite", "Saite"],
+            "description": "Seite (Buchseite/Richtung) vs. Saite (Musikinstrument)",
+            "sentences": [
+                {
+                    "id": 1,
+                    "text": "Schlage bitte die nächste [Seite] auf.",
+                    "correct": "Seite"
+                },
+                {
+                    "id": 2,
+                    "text": "Die [Saite] der Gitarre ist gerissen.",
+                    "correct": "Saite"
+                },
+                {
+                    "id": 3,
+                    "text": "Auf welcher [Seite] steht das?",
+                    "correct": "Seite"
+                },
+                {
+                    "id": 4,
+                    "text": "Die [Saite]n müssen gestimmt werden.",
+                    "correct": "Saite"
+                },
+                {
+                    "id": 5,
+                    "text": "Er stand an meiner [Seite].",
+                    "correct": "Seite"
+                },
+                {
+                    "id": 6,
+                    "text": "Eine [Saite] fehlt am Tennisschläger.",
+                    "correct": "Saite"
+                },
+                {
+                    "id": 7,
+                    "text": "Die rechte [Seite] ist kürzer.",
+                    "correct": "Seite"
+                },
+                {
+                    "id": 8,
+                    "text": "Die tiefste [Saite] gibt den Bass.",
+                    "correct": "Saite"
+                },
+                {
+                    "id": 9,
+                    "text": "Lies die [Seite] 42!",
+                    "correct": "Seite"
+                },
+                {
+                    "id": 10,
+                    "text": "Die [Saite] vibriert, wenn man sie zupft.",
+                    "correct": "Saite"
+                },
+                {
+                    "id": 11,
+                    "text": "Von welcher [Seite] kommst du?",
+                    "correct": "Seite"
+                },
+                {
+                    "id": 12,
+                    "text": "Eine Geige hat vier [Saite]n.",
+                    "correct": "Saite"
+                }
+            ]
+        }
+    ]
+}

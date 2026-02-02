@@ -1,6 +1,20 @@
 {
     "apps": [
         {
+            "id": "aehnlichewoerter",
+            "name": "Ähnliche Wörter",
+            "description": "Lerne den Unterschied zwischen ähnlich klingenden Wörtern wie viel/fiel, seid/seit, wieder/wider",
+            "category": "Deutsch",
+            "route": "/aehnlichewoerter",
+            "icon": "🔤",
+            "tags": [
+                "deutsch",
+                "rechtschreibung",
+                "homophone",
+                "ähnliche wörter"
+            ]
+        },
+        {
             "id": "symmetry",
             "name": "Symmetry Drawing",
             "description": "Kreatives Zeichnen mit rotierender Symmetrie - male Mandalas und mehr!",
