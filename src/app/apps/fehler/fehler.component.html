@@ -1,0 +1,91 @@
+<div class="bg-animation"></div>
+<div class="app-container">
+    <div class="app-header">
+        <h1>🔍 Fehler finden</h1>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+        <!-- Welcome Screen -->
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">📝</div>
+            <h2 style="margin-bottom: 12px;">Finde die Fehler!</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px; max-width: 300px;">
+                Lies den Text und klicke auf falsch geschriebene Wörter. Schreibe dann die korrekte Version.
+            </p>
+            <button class="btn btn-primary" (click)="startQuiz()" [disabled]="!dataLoaded()">Starten</button>
+        </div>
+        }
+
+        <!-- Quiz Screen -->
+        @if (screen() === 'quiz') {
+        <div class="quiz-content">
+            <div class="stats-bar">
+                <span>Text <strong>{{ currentTextIndex() + 1 }}</strong> von <strong>{{ texts().length
+                        }}</strong></span>
+            </div>
+
+            <div class="text-display">
+                @for (word of displayWords(); track word.wordIndex) {
+                <span class="word" [class]="getWordClass(word)"
+                    [attr.data-correction]="checked() ? getRevealedCorrection(word) : getWordCorrection(word)"
+                    (click)="openCorrectionPopup(word)">{{ word.text }}</span>{{ ' ' }}
+                }
+            </div>
+
+            <div class="actions">
+                @if (!checked()) {
+                <button class="btn btn-hint" (click)="showHint()">💡 Hinweis</button>
+                <button class="btn btn-check" (click)="checkText()">Überprüfen</button>
+                } @else {
+                <button class="btn btn-primary" (click)="nextText()">Weiter</button>
+                }
+            </div>
+        </div>
+        }
+
+        <!-- Results Screen -->
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <div class="score-text">Fehler gefunden</div>
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ totalFound() }}</div>
+                    <div class="score-item-label">Gefunden</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ totalMissed() }}</div>
+                    <div class="score-item-label">Verpasst</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 30px;" (click)="restartQuiz()">
+                Nochmal spielen
+            </button>
+        </div>
+        }
+    </div>
+
+    <!-- Correction Popup -->
+    @if (showPopup()) {
+    <div class="popup-overlay visible" (click)="closePopup()">
+        <div class="popup" (click)="$event.stopPropagation()">
+            <div class="popup-title">Wie schreibt man das richtig?</div>
+            <div class="popup-input-container">
+                <div class="popup-word-display">{{ popupWordText() }}</div>
+                <input type="text" class="popup-input" [(ngModel)]="correctionInput"
+                    placeholder="Korrekte Schreibweise..." (keydown.enter)="submitCorrection()"
+                    (keydown.escape)="closePopup()">
+                <div class="popup-buttons">
+                    <button class="popup-btn-cancel" (click)="closePopup()">Abbrechen</button>
+                    <button class="popup-btn-submit" (click)="submitCorrection()">Übernehmen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>

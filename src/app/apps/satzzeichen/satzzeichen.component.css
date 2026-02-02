@@ -1,0 +1,179 @@
+/* Satzzeichen-specific styles */
+
+/* App max-width override */
+.satzzeichen-app .card {
+    max-width: 800px;
+}
+
+/* Text container */
+.text-container {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    line-height: 2.4;
+    font-size: 1.1rem;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.word {
+    display: inline;
+}
+
+/* Punctuation slots */
+.punct-slot {
+    display: inline-block;
+    min-width: 20px;
+    padding: 2px 4px;
+    margin: 0 1px;
+    border-radius: 4px;
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px dashed var(--accent-1);
+    cursor: pointer;
+    font-size: 0.95rem;
+    text-align: center;
+    transition: all 0.2s ease;
+    vertical-align: middle;
+}
+
+.punct-slot:hover {
+    background: rgba(99, 102, 241, 0.3);
+    transform: scale(1.1);
+}
+
+.punct-slot.filled {
+    background: rgba(139, 92, 246, 0.3);
+    border-style: solid;
+    border-color: var(--accent-2);
+}
+
+.punct-slot.correct {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: var(--success);
+    border-style: solid;
+}
+
+.punct-slot.incorrect {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: var(--error);
+    border-style: solid;
+}
+
+.punct-slot.missing {
+    background: rgba(245, 158, 11, 0.2);
+    border-color: #f59e0b;
+    border-style: solid;
+}
+
+.correction {
+    font-size: 0.7rem;
+    display: block;
+}
+
+/* Popup */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+}
+
+.popup {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 24px;
+    max-width: 320px;
+    width: 90%;
+    text-align: center;
+}
+
+.popup-title {
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.popup-current-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.popup-current {
+    text-align: center;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 8px;
+    font-size: 1.5rem;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.popup-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.popup-option {
+    padding: 14px 8px;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.popup-option:hover {
+    border-color: var(--accent-1);
+    background: rgba(99, 102, 241, 0.2);
+}
+
+.popup-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.popup-action {
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.popup-action.confirm {
+    background: linear-gradient(135deg, var(--success), #16a34a);
+    color: white;
+}
+
+.popup-action.clear {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--error);
+}
+
+.popup-action:hover {
+    transform: translateY(-2px);
+}

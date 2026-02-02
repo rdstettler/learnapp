@@ -1,0 +1,129 @@
+<div class="bg-animation"></div>
+<div class="app-container">
+    <div class="app-header">
+        <h1>🧠 Kopfrechnen</h1>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+        <!-- Welcome Screen -->
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">➕➗</div>
+            <h2 style="margin-bottom: 12px;">Kopfrechnen</h2>
+            <p class="text-secondary" style="margin-bottom: 20px; max-width: 300px;">
+                Löse die Gleichung, indem du die fehlende Zahl eingibst!
+            </p>
+
+            <div class="text-secondary" style="font-size: 0.9rem; margin-bottom: 8px;">Schwierigkeit:</div>
+            <div class="difficulty-selector">
+                <button class="difficulty-btn" [class.active]="difficulty() === 'easy'"
+                    (click)="setDifficulty('easy')">Einfach</button>
+                <button class="difficulty-btn" [class.active]="difficulty() === 'medium'"
+                    (click)="setDifficulty('medium')">Mittel</button>
+                <button class="difficulty-btn" [class.active]="difficulty() === 'hard'"
+                    (click)="setDifficulty('hard')">Schwer</button>
+            </div>
+
+            <div class="text-secondary" style="font-size: 0.9rem; margin-bottom: 8px; margin-top: 16px;">Rechenarten:
+            </div>
+            <div class="operation-selector">
+                <button class="operation-btn" [class.active]="isOperationActive('add')"
+                    (click)="toggleOperation('add')">+ Addition</button>
+                <button class="operation-btn" [class.active]="isOperationActive('div')"
+                    (click)="toggleOperation('div')">÷ Division</button>
+            </div>
+
+            <button class="btn btn-primary" style="margin-top: 24px;" (click)="startQuiz()">Starten</button>
+        </div>
+        }
+
+        <!-- Quiz Screen -->
+        @if (screen() === 'quiz') {
+        <div class="quiz-content">
+            <div class="round-info">Aufgabe {{ currentQuestion() + 1 }} / {{ QUESTIONS_PER_ROUND }}</div>
+
+            <div class="score-live">
+                <div class="score-live-item correct">✓ {{ correctCount() }}</div>
+                <div class="score-live-item wrong">✗ {{ wrongCount() }}</div>
+            </div>
+
+            @if (question(); as q) {
+            <div class="equation-container">
+                @if (q.blankPosition === 0) {
+                <input type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
+                    [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
+                    (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
+                    inputmode="numeric" autofocus>
+                } @else {
+                <span class="equation-part">{{ q.a }}</span>
+                }
+
+                <span class="operator">{{ getOperatorSymbol() }}</span>
+
+                @if (q.blankPosition === 1) {
+                <input type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
+                    [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
+                    (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
+                    inputmode="numeric" autofocus>
+                } @else {
+                <span class="equation-part">{{ q.b }}</span>
+                }
+
+                <span class="operator">=</span>
+
+                @if (q.blankPosition === 2) {
+                <input type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
+                    [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
+                    (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
+                    inputmode="numeric" autofocus>
+                } @else {
+                <span class="equation-part">{{ q.result }}</span>
+                }
+            </div>
+            }
+
+            @if (feedbackText()) {
+            <div class="feedback" [class.correct]="isCorrect()" [class.incorrect]="!isCorrect()">
+                {{ feedbackText() }}
+            </div>
+            }
+
+            <button class="btn btn-primary" (click)="checkAnswer()">
+                {{ answered() ? 'Weiter' : 'Prüfen' }}
+            </button>
+
+            <div class="streak-display">
+                Serie: <span class="streak-count">{{ streak() }}</span> richtige Antworten
+            </div>
+        </div>
+        }
+
+        <!-- Results Screen -->
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <div class="score-text">Richtig beantwortet</div>
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ correctCount() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ wrongCount() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
+            </div>
+            <div style="margin-top: 16px;" class="text-secondary">
+                Längste Serie: <strong>{{ maxStreak() }}</strong>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 30px; max-width: 200px;" (click)="restartQuiz()">
+                Nochmal spielen
+            </button>
+        </div>
+        }
+    </div>
+</div>

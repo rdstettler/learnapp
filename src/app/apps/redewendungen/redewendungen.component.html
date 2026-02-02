@@ -1,0 +1,82 @@
+<div class="bg-animation"></div>
+<div class="app-container">
+    <div class="app-header">
+        <h1>🎭 Redewendungen-Quiz</h1>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">🗣️</div>
+            <h2>Deutsche Redewendungen</h2>
+            <p class="text-secondary" style="margin-bottom: 30px;">
+                Was bedeuten diese Redewendungen? Wähle die richtige Bedeutung!
+            </p>
+            <button class="btn btn-primary" (click)="startQuiz()" [disabled]="redewendungen().length === 0">
+                Quiz starten
+            </button>
+        </div>
+        }
+
+        @if (screen() === 'quiz') {
+        <div class="quiz-content">
+            <div class="round-info">Frage {{ currentQuestion() + 1 }} / {{ QUESTIONS_PER_ROUND }}</div>
+
+            <div class="score-live">
+                <div class="score-live-item correct">✓ {{ correctCount() }}</div>
+                <div class="score-live-item wrong">✗ {{ wrongCount() }}</div>
+            </div>
+
+            <div class="idiom-container">
+                <div class="idiom-label">Redewendung</div>
+                <div class="idiom-text">{{ getCurrentIdiom() }}</div>
+            </div>
+
+            <div class="options-container">
+                @for (option of currentOptions(); track $index) {
+                <button class="option-btn" [class.selected]="option.selected"
+                    [class.correct]="answered() && option.isCorrect"
+                    [class.incorrect]="answered() && option.selected && !option.isCorrect" [disabled]="option.disabled"
+                    (click)="selectOption($index)">
+                    {{ option.text }}
+                </button>
+                }
+            </div>
+
+            @if (feedbackText()) {
+            <div class="feedback" [class.correct]="isCorrect()" [class.incorrect]="!isCorrect()">
+                {{ feedbackText() }}
+            </div>
+            }
+
+            @if (answered()) {
+            <button class="btn btn-primary" (click)="nextQuestion()">Weiter</button>
+            }
+        </div>
+        }
+
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <p class="score-text">{{ correctCount() }} von {{ QUESTIONS_PER_ROUND }} richtig!</p>
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ correctCount() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ wrongCount() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 30px;" (click)="restartQuiz()">
+                Nochmal spielen
+            </button>
+        </div>
+        }
+    </div>
+</div>

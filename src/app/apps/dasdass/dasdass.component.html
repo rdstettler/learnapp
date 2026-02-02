@@ -1,0 +1,94 @@
+<div class="bg-animation"></div>
+<div class="app-container">
+    <div class="app-header">
+        <h1>📝 Das oder Dass?</h1>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+        <!-- Welcome Screen -->
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">🎯</div>
+            <h2 style="margin-bottom: 10px;">Das oder Dass?</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Übe den Unterschied zwischen "das" und "dass". Klicke auf die markierten Stellen und wähle die
+                richtige Schreibweise!
+            </p>
+            <div class="rule-box">
+                <strong>Tipp:</strong> "Das" kann durch "dieses", "jenes" oder "welches" ersetzt werden. "Dass"
+                leitet einen Nebensatz ein und kann nicht ersetzt werden.
+            </div>
+            <button class="btn btn-primary" style="margin-top: 24px;" (click)="startQuiz()" [disabled]="!dataLoaded()">
+                Quiz starten
+            </button>
+        </div>
+        }
+
+        <!-- Quiz Screen -->
+        @if (screen() === 'quiz') {
+        <div class="quiz-content">
+            <div class="round-info">Text {{ currentTextIndex() + 1 }} / {{ TEXTS_PER_ROUND }}</div>
+
+            <div class="score-live">
+                <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
+                <div class="score-live-item wrong">✗ {{ totalWrong() }}</div>
+            </div>
+
+            <div class="text-container">
+                @for (part of getProcessedText().parts; track $index) {
+                @if (part.type === 'text') {
+                <span>{{ part.content }}</span>
+                } @else {
+                <span class="choice-slot" [class]="getSlotClass(part.index!)" (click)="openPopup(part.index!)">{{
+                    getSlotDisplay(part.index!) }}</span>
+                }
+                }
+            </div>
+
+            @if (!answered()) {
+            <button class="btn btn-primary" (click)="checkAnswers()">Überprüfen</button>
+            } @else {
+            <button class="btn btn-primary" (click)="nextText()">Weiter</button>
+            }
+        </div>
+        }
+
+        <!-- Results Screen -->
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <p class="score-text">{{ totalCorrect() }} von {{ totalCorrect() + totalWrong() }} richtig!</p>
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ totalCorrect() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ totalWrong() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 30px;" (click)="restartQuiz()">
+                Nochmal spielen
+            </button>
+        </div>
+        }
+    </div>
+
+    <!-- Choice Popup -->
+    @if (showPopup()) {
+    <div class="popup-overlay visible" (click)="closePopup()">
+        <div class="popup" (click)="$event.stopPropagation()">
+            <div class="popup-title">Wähle die richtige Form:</div>
+            <div class="popup-options">
+                <button class="popup-option" (click)="selectChoice('das')">das</button>
+                <button class="popup-option" (click)="selectChoice('dass')">dass</button>
+            </div>
+        </div>
+    </div>
+    }
+</div>

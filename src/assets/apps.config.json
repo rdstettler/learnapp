@@ -1,0 +1,186 @@
+{
+    "apps": [
+        {
+            "id": "symmetry",
+            "name": "Symmetry Drawing",
+            "description": "Kreatives Zeichnen mit rotierender Symmetrie - male Mandalas und mehr!",
+            "category": "Geometry",
+            "route": "/symmetry",
+            "icon": "✨",
+            "tags": [
+                "drawing",
+                "geometry",
+                "symmetry",
+                "creative"
+            ]
+        },
+        {
+            "id": "symmetrien",
+            "name": "Symmetrien an Punkt und Strich",
+            "description": "Zeichne Polygone und spiegle sie an Punkt und Gerade",
+            "category": "Geometry",
+            "route": "/symmetrien",
+            "icon": "🔀",
+            "tags": [
+                "geometry",
+                "symmetry",
+                "mirroring",
+                "polygon"
+            ]
+        },
+        {
+            "id": "wortstaemme",
+            "name": "Wortstamm-Quiz",
+            "description": "Deutsches Wortstamm-Lernquiz zum Entdecken von Wortfamilien",
+            "category": "Deutsch",
+            "route": "/wortstaemme",
+            "icon": "📝",
+            "tags": [
+                "deutsch",
+                "sprache",
+                "quiz"
+            ]
+        },
+        {
+            "id": "verben",
+            "name": "Verben-Quiz",
+            "description": "Teste dein Wissen über deutsche Verbkonjugation",
+            "category": "Deutsch",
+            "route": "/verben",
+            "icon": "✍️",
+            "tags": [
+                "deutsch",
+                "grammatik",
+                "verben"
+            ]
+        },
+        {
+            "id": "kasus",
+            "name": "Kasus-Quiz",
+            "description": "Lerne die deutschen Fälle - Nominativ, Akkusativ, Dativ und Genitiv",
+            "category": "Deutsch",
+            "route": "/kasus",
+            "icon": "📖",
+            "tags": [
+                "deutsch",
+                "grammatik",
+                "kasus",
+                "fälle"
+            ]
+        },
+        {
+            "id": "redewendungen",
+            "name": "Redewendungen-Quiz",
+            "description": "Lerne deutsche Redewendungen und ihre Bedeutungen",
+            "category": "Deutsch",
+            "route": "/redewendungen",
+            "icon": "🎭",
+            "tags": [
+                "deutsch",
+                "redewendungen",
+                "idiome",
+                "sprache"
+            ]
+        },
+        {
+            "id": "satzzeichen",
+            "name": "Satzzeichen-Quiz",
+            "description": "Setze die fehlenden Satzzeichen in Texte mit wörtlicher Rede ein",
+            "category": "Deutsch",
+            "route": "/satzzeichen",
+            "icon": "✏️",
+            "tags": [
+                "deutsch",
+                "grammatik",
+                "satzzeichen",
+                "zeichensetzung"
+            ]
+        },
+        {
+            "id": "fehler",
+            "name": "Fehler finden",
+            "description": "Finde und korrigiere die Rechtschreib- und Grammatikfehler im Text",
+            "category": "Deutsch",
+            "route": "/fehler",
+            "icon": "🔍",
+            "tags": [
+                "deutsch",
+                "rechtschreibung",
+                "grammatik",
+                "korrektur"
+            ]
+        },
+        {
+            "id": "dasdass",
+            "name": "Das/Dass-Quiz",
+            "description": "Lerne den Unterschied zwischen 'das' und 'dass' kennen",
+            "category": "Deutsch",
+            "route": "/dasdass",
+            "icon": "🎯",
+            "tags": [
+                "deutsch",
+                "grammatik",
+                "rechtschreibung",
+                "das",
+                "dass"
+            ]
+        },
+        {
+            "id": "textaufgaben",
+            "name": "Textaufgaben",
+            "description": "Löse mathematische Textaufgaben aus verschiedenen Themengebieten",
+            "category": "Mathematik",
+            "route": "/textaufgaben",
+            "icon": "🧮",
+            "tags": [
+                "mathematik",
+                "textaufgaben",
+                "proportionalität",
+                "rechnen"
+            ]
+        },
+        {
+            "id": "kopfrechnen",
+            "name": "Kopfrechnen",
+            "description": "Trainiere dein Kopfrechnen mit Addition und Division",
+            "category": "Mathematik",
+            "route": "/kopfrechnen",
+            "icon": "🧠",
+            "tags": [
+                "mathematik",
+                "kopfrechnen",
+                "addition",
+                "division"
+            ]
+        },
+        {
+            "id": "isolation",
+            "name": "Isolation",
+            "description": "Strategisches Brettspiel - bewege deine Figur und isoliere deine Gegner!",
+            "category": "Spiele",
+            "route": "/isolation",
+            "icon": "♟️",
+            "tags": [
+                "spiel",
+                "strategie",
+                "brettspiel",
+                "multiplayer"
+            ]
+        },
+        {
+            "id": "quarto",
+            "name": "Quarto 3D",
+            "description": "3D-Strategiespiel - sei der Erste mit 4 Steinen in einer Reihe mit gemeinsamen Attributen!",
+            "category": "Spiele",
+            "route": "/quarto",
+            "icon": "🎲",
+            "tags": [
+                "spiel",
+                "strategie",
+                "brettspiel",
+                "3d",
+                "quarto"
+            ]
+        }
+    ]
+}

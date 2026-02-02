@@ -1,0 +1,100 @@
+<div class="bg-animation"></div>
+<div class="app-container">
+    <div class="app-header">
+        <h1>📖 Kasus-Quiz</h1>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">🎯</div>
+            <h2>Kasus erkennen</h2>
+            <p class="text-secondary" style="margin-bottom: 20px;">
+                Klicke auf die markierten Wörter und wähle den richtigen Kasus!
+            </p>
+            <div class="legend">
+                <div class="legend-item"><span class="legend-dot nom"></span> Nominativ</div>
+                <div class="legend-item"><span class="legend-dot akk"></span> Akkusativ</div>
+                <div class="legend-item"><span class="legend-dot dat"></span> Dativ</div>
+                <div class="legend-item"><span class="legend-dot gen"></span> Genitiv</div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 20px;" (click)="startQuiz()"
+                [disabled]="exercises().length === 0">Quiz starten</button>
+        </div>
+        }
+
+        @if (screen() === 'quiz') {
+        <div class="quiz-content">
+            <div class="round-info">Runde {{ currentRound() + 1 }} / 5</div>
+
+            <div class="sentence-container">
+                @for (part of parts(); track $index) {
+                @if (part.kasus) {
+                <span class="kasus-word" [class.selected]="part.selected" [class.correct]="answered() && part.isCorrect"
+                    [class.incorrect]="answered() && !part.isCorrect"
+                    [class]="part.selected ? getKasusClass(part.selected) : ''" (click)="openPopup($index)">
+                    {{ part.text }}
+                    @if (part.selected) {
+                    <span class="kasus-label">{{ part.selected.substring(0, 3) }}</span>
+                    }
+                    @if (answered() && !part.isCorrect) {
+                    <span class="correction-hint">→ {{ part.kasus }}</span>
+                    }
+                </span>
+                } @else {
+                <span>{{ part.text }}</span>
+                }
+                }
+            </div>
+
+            @if (!answered()) {
+            <button class="btn btn-primary" [disabled]="!canCheck()" (click)="checkAnswers()">
+                Überprüfen
+            </button>
+            } @else {
+            <button class="btn btn-primary" (click)="nextRound()">Weiter</button>
+            }
+        </div>
+        }
+
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <p class="score-text">{{ totalCorrect() }} von {{ totalQuestions() }} richtig!</p>
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ totalCorrect() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ totalQuestions() - totalCorrect() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 30px;" (click)="restartQuiz()">
+                Nochmal spielen
+            </button>
+        </div>
+        }
+    </div>
+</div>
+
+<!-- Popup -->
+@if (showPopup()) {
+<div class="popup-overlay" (click)="closePopup()">
+    <div class="popup" (click)="$event.stopPropagation()">
+        <div class="popup-title">Welcher Kasus?</div>
+        <div class="popup-word">{{ popupWord() }}</div>
+        <div class="popup-options">
+            @for (kasus of kasusOptions; track kasus) {
+            <button class="popup-option" [class]="getKasusClass(kasus).substring(0,3)" (click)="selectKasus(kasus)">{{
+                kasus }}</button>
+            }
+        </div>
+    </div>
+</div>
+}

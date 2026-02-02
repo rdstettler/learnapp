@@ -1,0 +1,32 @@
+<div class="bg-animation"></div>
+<div class="app-container quarto-container">
+    <div class="app-header">
+        <h1>🎲 Quarto 3D</h1>
+    </div>
+
+    <div class="card game-card">
+        <div class="info-panel">
+            <div class="status" [style.color]="statusColor()">{{ statusMessage() }}</div>
+            <div class="sub-status">{{ subStatusMessage() }}</div>
+            @if (showResetButton()) {
+            <button class="btn btn-primary reset-btn" (click)="resetGame()">Play Again</button>
+            }
+        </div>
+
+        <div class="canvas-wrapper">
+            <div #canvasContainer class="canvas-container"></div>
+        </div>
+
+        <div class="rules-panel">
+            <h3>How to Play</h3>
+            <ul>
+                <li><strong>Goal:</strong> Be the player to complete a row of 4 pieces sharing at least ONE common
+                    attribute.</li>
+                <li><strong>Twist:</strong> You don't place your own piece! You pick which piece your opponent must
+                    place.</li>
+                <li><strong>Attributes:</strong> Color (Dark/Light), Shape (Round/Square), Height (Short/Tall), Top
+                    (Solid/Hollow)</li>
+            </ul>
+        </div>
+    </div>
+</div>

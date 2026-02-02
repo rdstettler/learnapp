@@ -1,0 +1,63 @@
+/* Textaufgaben-specific styles */
+
+.problem-container {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.problem-text {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+}
+
+.problem-question {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.answer-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.answer-input {
+    flex: 1;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.answer-input:focus {
+    outline: none;
+    border-color: var(--accent-1);
+}
+
+.answer-input.correct {
+    border-color: var(--success);
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.answer-input.incorrect {
+    border-color: var(--error);
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.unit {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    min-width: 40px;
+}

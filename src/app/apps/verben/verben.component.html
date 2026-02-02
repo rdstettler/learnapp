@@ -1,0 +1,76 @@
+<div class="bg-animation"></div>
+<div class="app-container">
+    <div class="app-header">
+        <h1>✍️ Verben-Quiz</h1>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">✍️</div>
+            <h2>Verben Konjugation</h2>
+            <p class="text-secondary" style="margin-bottom: 30px;">
+                Teste dein Wissen! 5 Runden mit je 3 verschiedenen Verben.
+            </p>
+            <button class="btn btn-primary" (click)="startQuiz()" [disabled]="verbs().length === 0">
+                Quiz starten
+            </button>
+        </div>
+        }
+
+        @if (screen() === 'quiz') {
+        <div class="quiz-content">
+            <div class="round-info">Runde {{ currentRoundIndex() + 1 }} / 5</div>
+
+            <div class="question-list">
+                @for (q of currentRound(); track $index) {
+                <div class="question-item">
+                    <div class="question-label">
+                        <span class="verb-badge">{{ q.verb }}</span>
+                        <span class="person-badge">{{ q.person }}</span>
+                        <span class="tense-badge">{{ tenseNames[q.tense] }}</span>
+                    </div>
+                    <input type="text" class="answer-input" [class.correct]="answered() && q.isCorrect"
+                        [class.incorrect]="answered() && !q.isCorrect" [value]="roundAnswers()[$index]"
+                        (input)="updateAnswer($index, $any($event.target).value)" [disabled]="answered()"
+                        placeholder="Antwort eingeben..." autocomplete="off">
+                    @if (answered() && !q.isCorrect) {
+                    <div class="correction">Richtig: {{ q.answer }}</div>
+                    }
+                </div>
+                }
+            </div>
+
+            @if (!answered()) {
+            <button class="btn btn-primary" (click)="checkAnswers()">Überprüfen</button>
+            } @else {
+            <button class="btn btn-primary" (click)="nextRound()">Weiter</button>
+            }
+        </div>
+        }
+
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <p class="score-text">{{ totalCorrect() }} von {{ totalQuestions() }} richtig!</p>
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ totalCorrect() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ totalQuestions() - totalCorrect() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 30px;" (click)="restartQuiz()">
+                Nochmal spielen
+            </button>
+        </div>
+        }
+    </div>
+</div>

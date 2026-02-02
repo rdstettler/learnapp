@@ -1,0 +1,115 @@
+<div class="bg-animation"></div>
+<div class="app-container wortstaemme-app">
+    <div class="app-header">
+        <h1>📝 Wortstamm-Quiz</h1>
+    </div>
+
+    <div class="card">
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">🎯</div>
+            <h2>Willkommen!</h2>
+            <p class="text-secondary" style="margin-bottom: 20px;">
+                Wähle einen Wortstamm und teste dein Wissen über zusammengesetzte Wörter.
+            </p>
+            <select class="stem-select" (change)="selectStem($event)">
+                <option value="">Wortstamm wählen...</option>
+                @for (stem of stems(); track stem.stem) {
+                <option [value]="stem.stem">{{ stem.stem }}</option>
+                }
+            </select>
+            <button class="btn btn-primary" [disabled]="!selectedStemValue()" (click)="startQuiz()">
+                Quiz starten
+            </button>
+        </div>
+        }
+
+        @if (screen() === 'stage1') {
+        <div class="quiz-content">
+            <h2 class="stage-title">Stufe 1: Wortexistenz</h2>
+            <p class="stage-subtitle">Welche Wörter mit "<strong>{{ currentStem()?.stem }}</strong>" existieren
+                wirklich?</p>
+
+            <div class="options-list">
+                @for (composite of currentStem()?.composites; track composite.word) {
+                <div class="option-item" [class.selected]="stage1Selections().has(composite.word)"
+                    (click)="toggleStage1Selection(composite.word)">
+                    <div class="checkbox"></div>
+                    <span>{{ composite.word }}</span>
+                </div>
+                }
+            </div>
+
+            <button class="btn btn-primary" (click)="checkStage1()">Überprüfen</button>
+        </div>
+        }
+
+        @if (screen() === 'results1') {
+        <div class="quiz-content">
+            <h2 class="stage-title">Ergebnis: Stufe 1</h2>
+            <div class="legend">
+                <div class="legend-item"><span class="legend-dot tp"></span> Richtig erkannt</div>
+                <div class="legend-item"><span class="legend-dot fp"></span> Falsch gewählt</div>
+                <div class="legend-item"><span class="legend-dot fn"></span> Übersehen</div>
+                <div class="legend-item"><span class="legend-dot tn"></span> Korrekt ignoriert</div>
+            </div>
+            <div class="options-list">
+                @for (result of stage1Results(); track result.word) {
+                <div class="result-item" [class]="result.type">
+                    <span class="result-icon">{{ getResultIcon(result.type) }}</span>
+                    <span>{{ result.word }}</span>
+                    <span class="result-label">{{ getResultLabel(result.type) }}</span>
+                </div>
+                }
+            </div>
+            <button class="btn btn-primary" (click)="continueToStage2()">Weiter zu Bedeutungen</button>
+        </div>
+        }
+
+        @if (screen() === 'stage2') {
+        <div class="quiz-content">
+            <h2 class="stage-title">Stufe 2: Bedeutungen</h2>
+            <div class="word-badge">{{ currentMeaningWord() }}</div>
+            <p class="stage-subtitle">Welche Bedeutungen sind korrekt?</p>
+
+            <div class="options-list">
+                @for (meaning of currentMeanings(); track $index) {
+                <div class="option-item" [class.selected]="stage2Selections().has($index)"
+                    (click)="toggleStage2Selection($index)">
+                    <div class="checkbox"></div>
+                    <span>{{ meaning.option }}</span>
+                </div>
+                }
+            </div>
+
+            <button class="btn btn-primary" (click)="checkStage2()">Überprüfen</button>
+        </div>
+        }
+
+        @if (screen() === 'results2') {
+        <div class="quiz-content">
+            <h2 class="stage-title">Ergebnis: {{ currentMeaningWord() }}</h2>
+            <div class="options-list">
+                @for (result of stage2Results(); track result.option) {
+                <div class="result-item" [class]="result.type">
+                    <span class="result-icon">{{ getResultIcon(result.type) }}</span>
+                    <span>{{ result.option }}</span>
+                    <span class="result-label">{{ getResultLabel(result.type) }}</span>
+                </div>
+                }
+            </div>
+            <button class="btn btn-primary" (click)="continueAfterResults2()">Weiter</button>
+        </div>
+        }
+
+        @if (screen() === 'final') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <p class="score-text">{{ totalCorrect() }} von {{ totalQuestions() }} richtig!</p>
+            <button class="btn btn-primary" style="margin-top: 30px;" (click)="restartQuiz()">
+                Neues Quiz starten
+            </button>
+        </div>
+        }
+    </div>
+</div>

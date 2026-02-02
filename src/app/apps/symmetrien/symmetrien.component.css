@@ -1,0 +1,153 @@
+/* Symmetrien-specific styles */
+
+.symmetrien-app {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+/* Controls toolbar */
+.controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn-tool {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-polygon {
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    color: white;
+}
+
+.btn-line {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+}
+
+.btn-point {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+}
+
+.btn-clear {
+    background: linear-gradient(135deg, #434343, #000000);
+    color: white;
+}
+
+.btn-tool.active {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+.btn-tool:hover {
+    transform: translateY(-2px);
+}
+
+/* Status text */
+.status {
+    color: var(--accent-1);
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    min-height: 24px;
+}
+
+/* Canvas container */
+.canvas-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 12px;
+    backdrop-filter: blur(20px);
+    margin-bottom: 20px;
+}
+
+canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+    background: #f8f9fa;
+    touch-action: none;
+}
+
+/* Instructions card */
+.instructions {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    backdrop-filter: blur(20px);
+}
+
+.instructions h3 {
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.instructions p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.instructions strong {
+    color: var(--text-primary);
+}
+
+/* Legend */
+.legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+}
+
+@media (max-width: 600px) {
+    .controls {
+        gap: 8px;
+    }
+
+    .btn-tool {
+        padding: 10px 14px;
+        font-size: 0.8rem;
+    }
+
+    .legend {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}

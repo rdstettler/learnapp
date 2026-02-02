@@ -1,0 +1,1376 @@
+{
+    "verbs": [
+        {
+            "verb": "dürfen",
+            "category": "Modalverben",
+            "praeteritum": {
+                "ich": "durfte",
+                "du": "durftest",
+                "er/sie/es": "durfte",
+                "wir": "durften",
+                "ihr": "durftet",
+                "sie/Sie": "durften"
+            },
+            "perfekt": {
+                "ich": "habe gedurft",
+                "du": "hast gedurft",
+                "er/sie/es": "hat gedurft",
+                "wir": "haben gedurft",
+                "ihr": "habt gedurft",
+                "sie/Sie": "haben gedurft"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gedurft",
+                "du": "hattest gedurft",
+                "er/sie/es": "hatte gedurft",
+                "wir": "hatten gedurft",
+                "ihr": "hattet gedurft",
+                "sie/Sie": "hatten gedurft"
+            }
+        },
+        {
+            "verb": "können",
+            "category": "Modalverben",
+            "praeteritum": {
+                "ich": "konnte",
+                "du": "konntest",
+                "er/sie/es": "konnte",
+                "wir": "konnten",
+                "ihr": "konntet",
+                "sie/Sie": "konnten"
+            },
+            "perfekt": {
+                "ich": "habe gekonnt",
+                "du": "hast gekonnt",
+                "er/sie/es": "hat gekonnt",
+                "wir": "haben gekonnt",
+                "ihr": "habt gekonnt",
+                "sie/Sie": "haben gekonnt"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gekonnt",
+                "du": "hattest gekonnt",
+                "er/sie/es": "hatte gekonnt",
+                "wir": "hatten gekonnt",
+                "ihr": "hattet gekonnt",
+                "sie/Sie": "hatten gekonnt"
+            }
+        },
+        {
+            "verb": "mögen",
+            "category": "Modalverben",
+            "praeteritum": {
+                "ich": "mochte",
+                "du": "mochtest",
+                "er/sie/es": "mochte",
+                "wir": "mochten",
+                "ihr": "mochtet",
+                "sie/Sie": "mochten"
+            },
+            "perfekt": {
+                "ich": "habe gemocht",
+                "du": "hast gemocht",
+                "er/sie/es": "hat gemocht",
+                "wir": "haben gemocht",
+                "ihr": "habt gemocht",
+                "sie/Sie": "haben gemocht"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gemocht",
+                "du": "hattest gemocht",
+                "er/sie/es": "hatte gemocht",
+                "wir": "hatten gemocht",
+                "ihr": "hattet gemocht",
+                "sie/Sie": "hatten gemocht"
+            }
+        },
+        {
+            "verb": "müssen",
+            "category": "Modalverben",
+            "praeteritum": {
+                "ich": "musste",
+                "du": "musstest",
+                "er/sie/es": "musste",
+                "wir": "mussten",
+                "ihr": "musstet",
+                "sie/Sie": "mussten"
+            },
+            "perfekt": {
+                "ich": "habe gemusst",
+                "du": "hast gemusst",
+                "er/sie/es": "hat gemusst",
+                "wir": "haben gemusst",
+                "ihr": "habt gemusst",
+                "sie/Sie": "haben gemusst"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gemusst",
+                "du": "hattest gemusst",
+                "er/sie/es": "hatte gemusst",
+                "wir": "hatten gemusst",
+                "ihr": "hattet gemusst",
+                "sie/Sie": "hatten gemusst"
+            }
+        },
+        {
+            "verb": "sollen",
+            "category": "Modalverben",
+            "praeteritum": {
+                "ich": "sollte",
+                "du": "solltest",
+                "er/sie/es": "sollte",
+                "wir": "sollten",
+                "ihr": "solltet",
+                "sie/Sie": "sollten"
+            },
+            "perfekt": {
+                "ich": "habe gesollt",
+                "du": "hast gesollt",
+                "er/sie/es": "hat gesollt",
+                "wir": "haben gesollt",
+                "ihr": "habt gesollt",
+                "sie/Sie": "haben gesollt"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gesollt",
+                "du": "hattest gesollt",
+                "er/sie/es": "hatte gesollt",
+                "wir": "hatten gesollt",
+                "ihr": "hattet gesollt",
+                "sie/Sie": "hatten gesollt"
+            }
+        },
+        {
+            "verb": "wollen",
+            "category": "Modalverben",
+            "praeteritum": {
+                "ich": "wollte",
+                "du": "wolltest",
+                "er/sie/es": "wollte",
+                "wir": "wollten",
+                "ihr": "wolltet",
+                "sie/Sie": "wollten"
+            },
+            "perfekt": {
+                "ich": "habe gewollt",
+                "du": "hast gewollt",
+                "er/sie/es": "hat gewollt",
+                "wir": "haben gewollt",
+                "ihr": "habt gewollt",
+                "sie/Sie": "haben gewollt"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gewollt",
+                "du": "hattest gewollt",
+                "er/sie/es": "hatte gewollt",
+                "wir": "hatten gewollt",
+                "ihr": "hattet gewollt",
+                "sie/Sie": "hatten gewollt"
+            }
+        },
+        {
+            "verb": "sein",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "war",
+                "du": "warst",
+                "er/sie/es": "war",
+                "wir": "waren",
+                "ihr": "wart",
+                "sie/Sie": "waren"
+            },
+            "perfekt": {
+                "ich": "bin gewesen",
+                "du": "bist gewesen",
+                "er/sie/es": "ist gewesen",
+                "wir": "sind gewesen",
+                "ihr": "seid gewesen",
+                "sie/Sie": "sind gewesen"
+            },
+            "plusquamperfekt": {
+                "ich": "war gewesen",
+                "du": "warst gewesen",
+                "er/sie/es": "war gewesen",
+                "wir": "waren gewesen",
+                "ihr": "wart gewesen",
+                "sie/Sie": "waren gewesen"
+            }
+        },
+        {
+            "verb": "haben",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "hatte",
+                "du": "hattest",
+                "er/sie/es": "hatte",
+                "wir": "hatten",
+                "ihr": "hattet",
+                "sie/Sie": "hatten"
+            },
+            "perfekt": {
+                "ich": "habe gehabt",
+                "du": "hast gehabt",
+                "er/sie/es": "hat gehabt",
+                "wir": "haben gehabt",
+                "ihr": "habt gehabt",
+                "sie/Sie": "haben gehabt"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gehabt",
+                "du": "hattest gehabt",
+                "er/sie/es": "hatte gehabt",
+                "wir": "hatten gehabt",
+                "ihr": "hattet gehabt",
+                "sie/Sie": "hatten gehabt"
+            }
+        },
+        {
+            "verb": "werden",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "wurde",
+                "du": "wurdest",
+                "er/sie/es": "wurde",
+                "wir": "wurden",
+                "ihr": "wurdet",
+                "sie/Sie": "wurden"
+            },
+            "perfekt": {
+                "ich": "bin geworden",
+                "du": "bist geworden",
+                "er/sie/es": "ist geworden",
+                "wir": "sind geworden",
+                "ihr": "seid geworden",
+                "sie/Sie": "sind geworden"
+            },
+            "plusquamperfekt": {
+                "ich": "war geworden",
+                "du": "warst geworden",
+                "er/sie/es": "war geworden",
+                "wir": "waren geworden",
+                "ihr": "wart geworden",
+                "sie/Sie": "waren geworden"
+            }
+        },
+        {
+            "verb": "gehen",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "ging",
+                "du": "gingst",
+                "er/sie/es": "ging",
+                "wir": "gingen",
+                "ihr": "gingt",
+                "sie/Sie": "gingen"
+            },
+            "perfekt": {
+                "ich": "bin gegangen",
+                "du": "bist gegangen",
+                "er/sie/es": "ist gegangen",
+                "wir": "sind gegangen",
+                "ihr": "seid gegangen",
+                "sie/Sie": "sind gegangen"
+            },
+            "plusquamperfekt": {
+                "ich": "war gegangen",
+                "du": "warst gegangen",
+                "er/sie/es": "war gegangen",
+                "wir": "waren gegangen",
+                "ihr": "wart gegangen",
+                "sie/Sie": "waren gegangen"
+            }
+        },
+        {
+            "verb": "kommen",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "kam",
+                "du": "kamst",
+                "er/sie/es": "kam",
+                "wir": "kamen",
+                "ihr": "kamt",
+                "sie/Sie": "kamen"
+            },
+            "perfekt": {
+                "ich": "bin gekommen",
+                "du": "bist gekommen",
+                "er/sie/es": "ist gekommen",
+                "wir": "sind gekommen",
+                "ihr": "seid gekommen",
+                "sie/Sie": "sind gekommen"
+            },
+            "plusquamperfekt": {
+                "ich": "war gekommen",
+                "du": "warst gekommen",
+                "er/sie/es": "war gekommen",
+                "wir": "waren gekommen",
+                "ihr": "wart gekommen",
+                "sie/Sie": "waren gekommen"
+            }
+        },
+        {
+            "verb": "geben",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "gab",
+                "du": "gabst",
+                "er/sie/es": "gab",
+                "wir": "gaben",
+                "ihr": "gabt",
+                "sie/Sie": "gaben"
+            },
+            "perfekt": {
+                "ich": "habe gegeben",
+                "du": "hast gegeben",
+                "er/sie/es": "hat gegeben",
+                "wir": "haben gegeben",
+                "ihr": "habt gegeben",
+                "sie/Sie": "haben gegeben"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gegeben",
+                "du": "hattest gegeben",
+                "er/sie/es": "hatte gegeben",
+                "wir": "hatten gegeben",
+                "ihr": "hattet gegeben",
+                "sie/Sie": "hatten gegeben"
+            }
+        },
+        {
+            "verb": "nehmen",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "nahm",
+                "du": "nahmst",
+                "er/sie/es": "nahm",
+                "wir": "nahmen",
+                "ihr": "nahmt",
+                "sie/Sie": "nahmen"
+            },
+            "perfekt": {
+                "ich": "habe genommen",
+                "du": "hast genommen",
+                "er/sie/es": "hat genommen",
+                "wir": "haben genommen",
+                "ihr": "habt genommen",
+                "sie/Sie": "haben genommen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte genommen",
+                "du": "hattest genommen",
+                "er/sie/es": "hatte genommen",
+                "wir": "hatten genommen",
+                "ihr": "hattet genommen",
+                "sie/Sie": "hatten genommen"
+            }
+        },
+        {
+            "verb": "sehen",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "sah",
+                "du": "sahst",
+                "er/sie/es": "sah",
+                "wir": "sahen",
+                "ihr": "saht",
+                "sie/Sie": "sahen"
+            },
+            "perfekt": {
+                "ich": "habe gesehen",
+                "du": "hast gesehen",
+                "er/sie/es": "hat gesehen",
+                "wir": "haben gesehen",
+                "ihr": "habt gesehen",
+                "sie/Sie": "haben gesehen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gesehen",
+                "du": "hattest gesehen",
+                "er/sie/es": "hatte gesehen",
+                "wir": "hatten gesehen",
+                "ihr": "hattet gesehen",
+                "sie/Sie": "hatten gesehen"
+            }
+        },
+        {
+            "verb": "finden",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "fand",
+                "du": "fandest",
+                "er/sie/es": "fand",
+                "wir": "fanden",
+                "ihr": "fandet",
+                "sie/Sie": "fanden"
+            },
+            "perfekt": {
+                "ich": "habe gefunden",
+                "du": "hast gefunden",
+                "er/sie/es": "hat gefunden",
+                "wir": "haben gefunden",
+                "ihr": "habt gefunden",
+                "sie/Sie": "haben gefunden"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gefunden",
+                "du": "hattest gefunden",
+                "er/sie/es": "hatte gefunden",
+                "wir": "hatten gefunden",
+                "ihr": "hattet gefunden",
+                "sie/Sie": "hatten gefunden"
+            }
+        },
+        {
+            "verb": "wissen",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "wusste",
+                "du": "wusstest",
+                "er/sie/es": "wusste",
+                "wir": "wussten",
+                "ihr": "wusstet",
+                "sie/Sie": "wussten"
+            },
+            "perfekt": {
+                "ich": "habe gewusst",
+                "du": "hast gewusst",
+                "er/sie/es": "hat gewusst",
+                "wir": "haben gewusst",
+                "ihr": "habt gewusst",
+                "sie/Sie": "haben gewusst"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gewusst",
+                "du": "hattest gewusst",
+                "er/sie/es": "hatte gewusst",
+                "wir": "hatten gewusst",
+                "ihr": "hattet gewusst",
+                "sie/Sie": "hatten gewusst"
+            }
+        },
+        {
+            "verb": "denken",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "dachte",
+                "du": "dachtest",
+                "er/sie/es": "dachte",
+                "wir": "dachten",
+                "ihr": "dachtet",
+                "sie/Sie": "dachten"
+            },
+            "perfekt": {
+                "ich": "habe gedacht",
+                "du": "hast gedacht",
+                "er/sie/es": "hat gedacht",
+                "wir": "haben gedacht",
+                "ihr": "habt gedacht",
+                "sie/Sie": "haben gedacht"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gedacht",
+                "du": "hattest gedacht",
+                "er/sie/es": "hatte gedacht",
+                "wir": "hatten gedacht",
+                "ihr": "hattet gedacht",
+                "sie/Sie": "hatten gedacht"
+            }
+        },
+        {
+            "verb": "bringen",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "brachte",
+                "du": "brachtest",
+                "er/sie/es": "brachte",
+                "wir": "brachten",
+                "ihr": "brachtet",
+                "sie/Sie": "brachten"
+            },
+            "perfekt": {
+                "ich": "habe gebracht",
+                "du": "hast gebracht",
+                "er/sie/es": "hat gebracht",
+                "wir": "haben gebracht",
+                "ihr": "habt gebracht",
+                "sie/Sie": "haben gebracht"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gebracht",
+                "du": "hattest gebracht",
+                "er/sie/es": "hatte gebracht",
+                "wir": "hatten gebracht",
+                "ihr": "hattet gebracht",
+                "sie/Sie": "hatten gebracht"
+            }
+        },
+        {
+            "verb": "lassen",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "ließ",
+                "du": "ließest",
+                "er/sie/es": "ließ",
+                "wir": "ließen",
+                "ihr": "ließt",
+                "sie/Sie": "ließen"
+            },
+            "perfekt": {
+                "ich": "habe gelassen",
+                "du": "hast gelassen",
+                "er/sie/es": "hat gelassen",
+                "wir": "haben gelassen",
+                "ihr": "habt gelassen",
+                "sie/Sie": "haben gelassen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gelassen",
+                "du": "hattest gelassen",
+                "er/sie/es": "hatte gelassen",
+                "wir": "hatten gelassen",
+                "ihr": "hattet gelassen",
+                "sie/Sie": "hatten gelassen"
+            }
+        },
+        {
+            "verb": "bleiben",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "blieb",
+                "du": "bliebst",
+                "er/sie/es": "blieb",
+                "wir": "blieben",
+                "ihr": "bliebt",
+                "sie/Sie": "blieben"
+            },
+            "perfekt": {
+                "ich": "bin geblieben",
+                "du": "bist geblieben",
+                "er/sie/es": "ist geblieben",
+                "wir": "sind geblieben",
+                "ihr": "seid geblieben",
+                "sie/Sie": "sind geblieben"
+            },
+            "plusquamperfekt": {
+                "ich": "war geblieben",
+                "du": "warst geblieben",
+                "er/sie/es": "war geblieben",
+                "wir": "waren geblieben",
+                "ihr": "wart geblieben",
+                "sie/Sie": "waren geblieben"
+            }
+        },
+        {
+            "verb": "fahren",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "fuhr",
+                "du": "fuhrst",
+                "er/sie/es": "fuhr",
+                "wir": "fuhren",
+                "ihr": "fuhrt",
+                "sie/Sie": "fuhren"
+            },
+            "perfekt": {
+                "ich": "bin gefahren",
+                "du": "bist gefahren",
+                "er/sie/es": "ist gefahren",
+                "wir": "sind gefahren",
+                "ihr": "seid gefahren",
+                "sie/Sie": "sind gefahren"
+            },
+            "plusquamperfekt": {
+                "ich": "war gefahren",
+                "du": "warst gefahren",
+                "er/sie/es": "war gefahren",
+                "wir": "waren gefahren",
+                "ihr": "wart gefahren",
+                "sie/Sie": "waren gefahren"
+            }
+        },
+        {
+            "verb": "essen",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "aß",
+                "du": "aßest",
+                "er/sie/es": "aß",
+                "wir": "aßen",
+                "ihr": "aßt",
+                "sie/Sie": "aßen"
+            },
+            "perfekt": {
+                "ich": "habe gegessen",
+                "du": "hast gegessen",
+                "er/sie/es": "hat gegessen",
+                "wir": "haben gegessen",
+                "ihr": "habt gegessen",
+                "sie/Sie": "haben gegessen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gegessen",
+                "du": "hattest gegessen",
+                "er/sie/es": "hatte gegessen",
+                "wir": "hatten gegessen",
+                "ihr": "hattet gegessen",
+                "sie/Sie": "hatten gegessen"
+            }
+        },
+        {
+            "verb": "trinken",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "trank",
+                "du": "trankst",
+                "er/sie/es": "trank",
+                "wir": "tranken",
+                "ihr": "trankt",
+                "sie/Sie": "tranken"
+            },
+            "perfekt": {
+                "ich": "habe getrunken",
+                "du": "hast getrunken",
+                "er/sie/es": "hat getrunken",
+                "wir": "haben getrunken",
+                "ihr": "habt getrunken",
+                "sie/Sie": "haben getrunken"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte getrunken",
+                "du": "hattest getrunken",
+                "er/sie/es": "hatte getrunken",
+                "wir": "hatten getrunken",
+                "ihr": "hattet getrunken",
+                "sie/Sie": "hatten getrunken"
+            }
+        },
+        {
+            "verb": "schreiben",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "schrieb",
+                "du": "schriebst",
+                "er/sie/es": "schrieb",
+                "wir": "schrieben",
+                "ihr": "schriebt",
+                "sie/Sie": "schrieben"
+            },
+            "perfekt": {
+                "ich": "habe geschrieben",
+                "du": "hast geschrieben",
+                "er/sie/es": "hat geschrieben",
+                "wir": "haben geschrieben",
+                "ihr": "habt geschrieben",
+                "sie/Sie": "haben geschrieben"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte geschrieben",
+                "du": "hattest geschrieben",
+                "er/sie/es": "hatte geschrieben",
+                "wir": "hatten geschrieben",
+                "ihr": "hattet geschrieben",
+                "sie/Sie": "hatten geschrieben"
+            }
+        },
+        {
+            "verb": "lesen",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "las",
+                "du": "lasest",
+                "er/sie/es": "las",
+                "wir": "lasen",
+                "ihr": "last",
+                "sie/Sie": "lasen"
+            },
+            "perfekt": {
+                "ich": "habe gelesen",
+                "du": "hast gelesen",
+                "er/sie/es": "hat gelesen",
+                "wir": "haben gelesen",
+                "ihr": "habt gelesen",
+                "sie/Sie": "haben gelesen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gelesen",
+                "du": "hattest gelesen",
+                "er/sie/es": "hatte gelesen",
+                "wir": "hatten gelesen",
+                "ihr": "hattet gelesen",
+                "sie/Sie": "hatten gelesen"
+            }
+        },
+        {
+            "verb": "sprechen",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "sprach",
+                "du": "sprachst",
+                "er/sie/es": "sprach",
+                "wir": "sprachen",
+                "ihr": "spracht",
+                "sie/Sie": "sprachen"
+            },
+            "perfekt": {
+                "ich": "habe gesprochen",
+                "du": "hast gesprochen",
+                "er/sie/es": "hat gesprochen",
+                "wir": "haben gesprochen",
+                "ihr": "habt gesprochen",
+                "sie/Sie": "haben gesprochen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gesprochen",
+                "du": "hattest gesprochen",
+                "er/sie/es": "hatte gesprochen",
+                "wir": "hatten gesprochen",
+                "ihr": "hattet gesprochen",
+                "sie/Sie": "hatten gesprochen"
+            }
+        },
+        {
+            "verb": "helfen",
+            "category": "Häufig",
+            "praeteritum": {
+                "ich": "half",
+                "du": "halfst",
+                "er/sie/es": "half",
+                "wir": "halfen",
+                "ihr": "halft",
+                "sie/Sie": "halfen"
+            },
+            "perfekt": {
+                "ich": "habe geholfen",
+                "du": "hast geholfen",
+                "er/sie/es": "hat geholfen",
+                "wir": "haben geholfen",
+                "ihr": "habt geholfen",
+                "sie/Sie": "haben geholfen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte geholfen",
+                "du": "hattest geholfen",
+                "er/sie/es": "hatte geholfen",
+                "wir": "hatten geholfen",
+                "ihr": "hattet geholfen",
+                "sie/Sie": "hatten geholfen"
+            }
+        },
+        {
+            "verb": "kaufen",
+            "category": "Regelmäßig",
+            "praeteritum": {
+                "ich": "kaufte",
+                "du": "kauftest",
+                "er/sie/es": "kaufte",
+                "wir": "kauften",
+                "ihr": "kauftet",
+                "sie/Sie": "kauften"
+            },
+            "perfekt": {
+                "ich": "habe gekauft",
+                "du": "hast gekauft",
+                "er/sie/es": "hat gekauft",
+                "wir": "haben gekauft",
+                "ihr": "habt gekauft",
+                "sie/Sie": "haben gekauft"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gekauft",
+                "du": "hattest gekauft",
+                "er/sie/es": "hatte gekauft",
+                "wir": "hatten gekauft",
+                "ihr": "hattet gekauft",
+                "sie/Sie": "hatten gekauft"
+            }
+        },
+        {
+            "verb": "machen",
+            "category": "Regelmäßig",
+            "praeteritum": {
+                "ich": "machte",
+                "du": "machtest",
+                "er/sie/es": "machte",
+                "wir": "machten",
+                "ihr": "machtet",
+                "sie/Sie": "machten"
+            },
+            "perfekt": {
+                "ich": "habe gemacht",
+                "du": "hast gemacht",
+                "er/sie/es": "hat gemacht",
+                "wir": "haben gemacht",
+                "ihr": "habt gemacht",
+                "sie/Sie": "haben gemacht"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gemacht",
+                "du": "hattest gemacht",
+                "er/sie/es": "hatte gemacht",
+                "wir": "hatten gemacht",
+                "ihr": "hattet gemacht",
+                "sie/Sie": "hatten gemacht"
+            }
+        },
+        {
+            "verb": "spielen",
+            "category": "Regelmäßig",
+            "praeteritum": {
+                "ich": "spielte",
+                "du": "spieltest",
+                "er/sie/es": "spielte",
+                "wir": "spielten",
+                "ihr": "spieltet",
+                "sie/Sie": "spielten"
+            },
+            "perfekt": {
+                "ich": "habe gespielt",
+                "du": "hast gespielt",
+                "er/sie/es": "hat gespielt",
+                "wir": "haben gespielt",
+                "ihr": "habt gespielt",
+                "sie/Sie": "haben gespielt"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gespielt",
+                "du": "hattest gespielt",
+                "er/sie/es": "hatte gespielt",
+                "wir": "hatten gespielt",
+                "ihr": "hattet gespielt",
+                "sie/Sie": "hatten gespielt"
+            }
+        },
+        {
+            "verb": "arbeiten",
+            "category": "Regelmäßig",
+            "praeteritum": {
+                "ich": "arbeitete",
+                "du": "arbeitetest",
+                "er/sie/es": "arbeitete",
+                "wir": "arbeiteten",
+                "ihr": "arbeitetet",
+                "sie/Sie": "arbeiteten"
+            },
+            "perfekt": {
+                "ich": "habe gearbeitet",
+                "du": "hast gearbeitet",
+                "er/sie/es": "hat gearbeitet",
+                "wir": "haben gearbeitet",
+                "ihr": "habt gearbeitet",
+                "sie/Sie": "haben gearbeitet"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gearbeitet",
+                "du": "hattest gearbeitet",
+                "er/sie/es": "hatte gearbeitet",
+                "wir": "hatten gearbeitet",
+                "ihr": "hattet gearbeitet",
+                "sie/Sie": "hatten gearbeitet"
+            }
+        },
+        {
+            "verb": "lernen",
+            "category": "Regelmäßig",
+            "praeteritum": {
+                "ich": "lernte",
+                "du": "lerntest",
+                "er/sie/es": "lernte",
+                "wir": "lernten",
+                "ihr": "lerntet",
+                "sie/Sie": "lernten"
+            },
+            "perfekt": {
+                "ich": "habe gelernt",
+                "du": "hast gelernt",
+                "er/sie/es": "hat gelernt",
+                "wir": "haben gelernt",
+                "ihr": "habt gelernt",
+                "sie/Sie": "haben gelernt"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gelernt",
+                "du": "hattest gelernt",
+                "er/sie/es": "hatte gelernt",
+                "wir": "hatten gelernt",
+                "ihr": "hattet gelernt",
+                "sie/Sie": "hatten gelernt"
+            }
+        },
+        {
+            "verb": "backen",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "buk",
+                "du": "bukst",
+                "er/sie/es": "buk",
+                "wir": "buken",
+                "ihr": "bukt",
+                "sie/Sie": "buken"
+            },
+            "perfekt": {
+                "ich": "habe gebacken",
+                "du": "hast gebacken",
+                "er/sie/es": "hat gebacken",
+                "wir": "haben gebacken",
+                "ihr": "habt gebacken",
+                "sie/Sie": "haben gebacken"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gebacken",
+                "du": "hattest gebacken",
+                "er/sie/es": "hatte gebacken",
+                "wir": "hatten gebacken",
+                "ihr": "hattet gebacken",
+                "sie/Sie": "hatten gebacken"
+            }
+        },
+        {
+            "verb": "beginnen",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "begann",
+                "du": "begannst",
+                "er/sie/es": "begann",
+                "wir": "begannen",
+                "ihr": "begannt",
+                "sie/Sie": "begannen"
+            },
+            "perfekt": {
+                "ich": "habe begonnen",
+                "du": "hast begonnen",
+                "er/sie/es": "hat begonnen",
+                "wir": "haben begonnen",
+                "ihr": "habt begonnen",
+                "sie/Sie": "haben begonnen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte begonnen",
+                "du": "hattest begonnen",
+                "er/sie/es": "hatte begonnen",
+                "wir": "hatten begonnen",
+                "ihr": "hattet begonnen",
+                "sie/Sie": "hatten begonnen"
+            }
+        },
+        {
+            "verb": "beißen",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "biss",
+                "du": "bissest",
+                "er/sie/es": "biss",
+                "wir": "bissen",
+                "ihr": "bisst",
+                "sie/Sie": "bissen"
+            },
+            "perfekt": {
+                "ich": "habe gebissen",
+                "du": "hast gebissen",
+                "er/sie/es": "hat gebissen",
+                "wir": "haben gebissen",
+                "ihr": "habt gebissen",
+                "sie/Sie": "haben gebissen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gebissen",
+                "du": "hattest gebissen",
+                "er/sie/es": "hatte gebissen",
+                "wir": "hatten gebissen",
+                "ihr": "hattet gebissen",
+                "sie/Sie": "hatten gebissen"
+            }
+        },
+        {
+            "verb": "bieten",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "bot",
+                "du": "botest",
+                "er/sie/es": "bot",
+                "wir": "boten",
+                "ihr": "botet",
+                "sie/Sie": "boten"
+            },
+            "perfekt": {
+                "ich": "habe geboten",
+                "du": "hast geboten",
+                "er/sie/es": "hat geboten",
+                "wir": "haben geboten",
+                "ihr": "habt geboten",
+                "sie/Sie": "haben geboten"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte geboten",
+                "du": "hattest geboten",
+                "er/sie/es": "hatte geboten",
+                "wir": "hatten geboten",
+                "ihr": "hattet geboten",
+                "sie/Sie": "hatten geboten"
+            }
+        },
+        {
+            "verb": "fallen",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "fiel",
+                "du": "fielst",
+                "er/sie/es": "fiel",
+                "wir": "fielen",
+                "ihr": "fielt",
+                "sie/Sie": "fielen"
+            },
+            "perfekt": {
+                "ich": "bin gefallen",
+                "du": "bist gefallen",
+                "er/sie/es": "ist gefallen",
+                "wir": "sind gefallen",
+                "ihr": "seid gefallen",
+                "sie/Sie": "sind gefallen"
+            },
+            "plusquamperfekt": {
+                "ich": "war gefallen",
+                "du": "warst gefallen",
+                "er/sie/es": "war gefallen",
+                "wir": "waren gefallen",
+                "ihr": "wart gefallen",
+                "sie/Sie": "waren gefallen"
+            }
+        },
+        {
+            "verb": "fangen",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "fing",
+                "du": "fingst",
+                "er/sie/es": "fing",
+                "wir": "fingen",
+                "ihr": "fingt",
+                "sie/Sie": "fingen"
+            },
+            "perfekt": {
+                "ich": "habe gefangen",
+                "du": "hast gefangen",
+                "er/sie/es": "hat gefangen",
+                "wir": "haben gefangen",
+                "ihr": "habt gefangen",
+                "sie/Sie": "haben gefangen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gefangen",
+                "du": "hattest gefangen",
+                "er/sie/es": "hatte gefangen",
+                "wir": "hatten gefangen",
+                "ihr": "hattet gefangen",
+                "sie/Sie": "hatten gefangen"
+            }
+        },
+        {
+            "verb": "fliegen",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "flog",
+                "du": "flogst",
+                "er/sie/es": "flog",
+                "wir": "flogen",
+                "ihr": "flogt",
+                "sie/Sie": "flogen"
+            },
+            "perfekt": {
+                "ich": "bin geflogen",
+                "du": "bist geflogen",
+                "er/sie/es": "ist geflogen",
+                "wir": "sind geflogen",
+                "ihr": "seid geflogen",
+                "sie/Sie": "sind geflogen"
+            },
+            "plusquamperfekt": {
+                "ich": "war geflogen",
+                "du": "warst geflogen",
+                "er/sie/es": "war geflogen",
+                "wir": "waren geflogen",
+                "ihr": "wart geflogen",
+                "sie/Sie": "waren geflogen"
+            }
+        },
+        {
+            "verb": "laufen",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "lief",
+                "du": "liefst",
+                "er/sie/es": "lief",
+                "wir": "liefen",
+                "ihr": "lieft",
+                "sie/Sie": "liefen"
+            },
+            "perfekt": {
+                "ich": "bin gelaufen",
+                "du": "bist gelaufen",
+                "er/sie/es": "ist gelaufen",
+                "wir": "sind gelaufen",
+                "ihr": "seid gelaufen",
+                "sie/Sie": "sind gelaufen"
+            },
+            "plusquamperfekt": {
+                "ich": "war gelaufen",
+                "du": "warst gelaufen",
+                "er/sie/es": "war gelaufen",
+                "wir": "waren gelaufen",
+                "ihr": "wart gelaufen",
+                "sie/Sie": "waren gelaufen"
+            }
+        },
+        {
+            "verb": "schlafen",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "schlief",
+                "du": "schliefst",
+                "er/sie/es": "schlief",
+                "wir": "schliefen",
+                "ihr": "schlieft",
+                "sie/Sie": "schliefen"
+            },
+            "perfekt": {
+                "ich": "habe geschlafen",
+                "du": "hast geschlafen",
+                "er/sie/es": "hat geschlafen",
+                "wir": "haben geschlafen",
+                "ihr": "habt geschlafen",
+                "sie/Sie": "haben geschlafen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte geschlafen",
+                "du": "hattest geschlafen",
+                "er/sie/es": "hatte geschlafen",
+                "wir": "hatten geschlafen",
+                "ihr": "hattet geschlafen",
+                "sie/Sie": "hatten geschlafen"
+            }
+        },
+        {
+            "verb": "singen",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "sang",
+                "du": "sangst",
+                "er/sie/es": "sang",
+                "wir": "sangen",
+                "ihr": "sangt",
+                "sie/Sie": "sangen"
+            },
+            "perfekt": {
+                "ich": "habe gesungen",
+                "du": "hast gesungen",
+                "er/sie/es": "hat gesungen",
+                "wir": "haben gesungen",
+                "ihr": "habt gesungen",
+                "sie/Sie": "haben gesungen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gesungen",
+                "du": "hattest gesungen",
+                "er/sie/es": "hatte gesungen",
+                "wir": "hatten gesungen",
+                "ihr": "hattet gesungen",
+                "sie/Sie": "hatten gesungen"
+            }
+        },
+        {
+            "verb": "sitzen",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "saß",
+                "du": "saßest",
+                "er/sie/es": "saß",
+                "wir": "saßen",
+                "ihr": "saßt",
+                "sie/Sie": "saßen"
+            },
+            "perfekt": {
+                "ich": "habe gesessen",
+                "du": "hast gesessen",
+                "er/sie/es": "hat gesessen",
+                "wir": "haben gesessen",
+                "ihr": "habt gesessen",
+                "sie/Sie": "haben gesessen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gesessen",
+                "du": "hattest gesessen",
+                "er/sie/es": "hatte gesessen",
+                "wir": "hatten gesessen",
+                "ihr": "hattet gesessen",
+                "sie/Sie": "hatten gesessen"
+            }
+        },
+        {
+            "verb": "stehen",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "stand",
+                "du": "standest",
+                "er/sie/es": "stand",
+                "wir": "standen",
+                "ihr": "standet",
+                "sie/Sie": "standen"
+            },
+            "perfekt": {
+                "ich": "habe gestanden",
+                "du": "hast gestanden",
+                "er/sie/es": "hat gestanden",
+                "wir": "haben gestanden",
+                "ihr": "habt gestanden",
+                "sie/Sie": "haben gestanden"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gestanden",
+                "du": "hattest gestanden",
+                "er/sie/es": "hatte gestanden",
+                "wir": "hatten gestanden",
+                "ihr": "hattet gestanden",
+                "sie/Sie": "hatten gestanden"
+            }
+        },
+        {
+            "verb": "tragen",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "trug",
+                "du": "trugst",
+                "er/sie/es": "trug",
+                "wir": "trugen",
+                "ihr": "trugt",
+                "sie/Sie": "trugen"
+            },
+            "perfekt": {
+                "ich": "habe getragen",
+                "du": "hast getragen",
+                "er/sie/es": "hat getragen",
+                "wir": "haben getragen",
+                "ihr": "habt getragen",
+                "sie/Sie": "haben getragen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte getragen",
+                "du": "hattest getragen",
+                "er/sie/es": "hatte getragen",
+                "wir": "hatten getragen",
+                "ihr": "hattet getragen",
+                "sie/Sie": "hatten getragen"
+            }
+        },
+        {
+            "verb": "treffen",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "traf",
+                "du": "trafst",
+                "er/sie/es": "traf",
+                "wir": "trafen",
+                "ihr": "traft",
+                "sie/Sie": "trafen"
+            },
+            "perfekt": {
+                "ich": "habe getroffen",
+                "du": "hast getroffen",
+                "er/sie/es": "hat getroffen",
+                "wir": "haben getroffen",
+                "ihr": "habt getroffen",
+                "sie/Sie": "haben getroffen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte getroffen",
+                "du": "hattest getroffen",
+                "er/sie/es": "hatte getroffen",
+                "wir": "hatten getroffen",
+                "ihr": "hattet getroffen",
+                "sie/Sie": "hatten getroffen"
+            }
+        },
+        {
+            "verb": "vergessen",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "vergaß",
+                "du": "vergaßest",
+                "er/sie/es": "vergaß",
+                "wir": "vergaßen",
+                "ihr": "vergaßt",
+                "sie/Sie": "vergaßen"
+            },
+            "perfekt": {
+                "ich": "habe vergessen",
+                "du": "hast vergessen",
+                "er/sie/es": "hat vergessen",
+                "wir": "haben vergessen",
+                "ihr": "habt vergessen",
+                "sie/Sie": "haben vergessen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte vergessen",
+                "du": "hattest vergessen",
+                "er/sie/es": "hatte vergessen",
+                "wir": "hatten vergessen",
+                "ihr": "hattet vergessen",
+                "sie/Sie": "hatten vergessen"
+            }
+        },
+        {
+            "verb": "werfen",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "warf",
+                "du": "warfst",
+                "er/sie/es": "warf",
+                "wir": "warfen",
+                "ihr": "warft",
+                "sie/Sie": "warfen"
+            },
+            "perfekt": {
+                "ich": "habe geworfen",
+                "du": "hast geworfen",
+                "er/sie/es": "hat geworfen",
+                "wir": "haben geworfen",
+                "ihr": "habt geworfen",
+                "sie/Sie": "haben geworfen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte geworfen",
+                "du": "hattest geworfen",
+                "er/sie/es": "hatte geworfen",
+                "wir": "hatten geworfen",
+                "ihr": "hattet geworfen",
+                "sie/Sie": "hatten geworfen"
+            }
+        },
+        {
+            "verb": "ziehen",
+            "category": "Rest",
+            "praeteritum": {
+                "ich": "zog",
+                "du": "zogst",
+                "er/sie/es": "zog",
+                "wir": "zogen",
+                "ihr": "zogt",
+                "sie/Sie": "zogen"
+            },
+            "perfekt": {
+                "ich": "habe gezogen",
+                "du": "hast gezogen",
+                "er/sie/es": "hat gezogen",
+                "wir": "haben gezogen",
+                "ihr": "habt gezogen",
+                "sie/Sie": "haben gezogen"
+            },
+            "plusquamperfekt": {
+                "ich": "hatte gezogen",
+                "du": "hattest gezogen",
+                "er/sie/es": "hatte gezogen",
+                "wir": "hatten gezogen",
+                "ihr": "hattet gezogen",
+                "sie/Sie": "hatten gezogen"
+            }
+        }
+    ]
+}

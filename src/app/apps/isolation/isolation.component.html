@@ -1,0 +1,296 @@
+<div class="bg-animation"></div>
+<div class="app-container isolation-container">
+    <div class="app-header">
+        <h1>♟️ Isolation</h1>
+    </div>
+
+    <div class="card">
+        <!-- Grid Size Selection -->
+        @if (state() === 'setup_grid') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">🎮</div>
+            <h2>Isolation</h2>
+            <p class="text-secondary" style="margin-bottom: 24px; max-width: 400px;">
+                Strategisches Brettspiel: Bewege deine Figur und blockiere deine Gegner. Der letzte Spieler, der sich
+                bewegen kann, gewinnt!
+            </p>
+
+            <div class="setup-section">
+                <h3>Spielfeldgrösse wählen</h3>
+                <div class="grid-selector">
+                    @for (w of gridOptions; track w) {
+                    @for (h of gridOptions; track h) {
+                    <button class="grid-option" (click)="selectGridSize(w, h)">
+                        {{ w }}×{{ h }}
+                    </button>
+                    }
+                    }
+                </div>
+            </div>
+        </div>
+        }
+
+        <!-- Player Count Selection -->
+        @if (state() === 'setup_players') {
+        <div class="welcome-container">
+            <div class="setup-section">
+                <h3>Spieleranzahl wählen</h3>
+                <div class="player-selector">
+                    @for (n of [2, 3, 4]; track n) {
+                    <button class="player-option" (click)="selectPlayerCount(n)">
+                        {{ n }} Spieler
+                    </button>
+                    }
+                </div>
+                <button class="btn btn-secondary computer-btn" (click)="selectPlayerCount(2, true)">
+                    🤖 Gegen Computer spielen
+                </button>
+            </div>
+        </div>
+        }
+
+        <!-- Color Selection -->
+        @if (state() === 'setup_colors') {
+        <div class="welcome-container">
+            <div class="setup-section">
+                <h3>Spieler {{ currentSetupPlayer() }}: Farbe wählen</h3>
+                <div class="color-selector">
+                    @for (color of getColors(); track color) {
+                    <button class="color-option" [style.--player-color]="getColorValue(color)"
+                        (click)="selectColor(color)">
+                        <span class="color-swatch" [style.background]="getColorValue(color)"></span>
+                        {{ color }}
+                    </button>
+                    }
+                </div>
+                @if (currentSetupPlayer() === 1) {
+                <button class="btn btn-secondary random-btn" (click)="randomizeAll()">
+                    🎲 Zufall für alle
+                </button>
+                }
+            </div>
+        </div>
+        }
+
+        <!-- Shape Selection -->
+        @if (state() === 'setup_shapes') {
+        <div class="welcome-container">
+            <div class="setup-section">
+                <h3>Spieler {{ currentSetupPlayer() }}: Form wählen</h3>
+                <div class="shape-selector">
+                    @for (shape of getShapes(); track shape) {
+                    <button class="shape-option" (click)="selectShape(shape)">
+                        <span class="shape-preview" [class]="getShapeClass(shape)">
+                            @switch (shape) {
+                            @case ('Kreuz') {
+                            <svg viewBox="0 0 40 40">
+                                <line x1="8" y1="8" x2="32" y2="32" stroke="currentColor" stroke-width="4"
+                                    stroke-linecap="round" />
+                                <line x1="32" y1="8" x2="8" y2="32" stroke="currentColor" stroke-width="4"
+                                    stroke-linecap="round" />
+                            </svg>
+                            }
+                            @case ('Kreis') {
+                            <svg viewBox="0 0 40 40">
+                                <circle cx="20" cy="20" r="14" fill="none" stroke="currentColor" stroke-width="4" />
+                            </svg>
+                            }
+                            @case ('Dreieck') {
+                            <svg viewBox="0 0 40 40">
+                                <polygon points="20,4 36,36 4,36" fill="none" stroke="currentColor" stroke-width="3" />
+                            </svg>
+                            }
+                            @case ('Zylinder') {
+                            <svg viewBox="0 0 40 40">
+                                <rect x="8" y="8" width="24" height="24" rx="2" fill="none" stroke="currentColor"
+                                    stroke-width="3" />
+                                <ellipse cx="20" cy="8" rx="12" ry="4" fill="none" stroke="currentColor"
+                                    stroke-width="2" />
+                            </svg>
+                            }
+                            @case ('Stern') {
+                            <svg viewBox="0 0 40 40">
+                                <polygon points="20,2 24,14 37,14 27,22 31,35 20,27 9,35 13,22 3,14 16,14" fill="none"
+                                    stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            }
+                            }
+                        </span>
+                        {{ shape }}
+                    </button>
+                    }
+                </div>
+            </div>
+        </div>
+        }
+
+        <!-- Placement Phase -->
+        @if (state() === 'placement') {
+        <div class="game-container">
+            <div class="turn-indicator">
+                <span class="player-badge" [style.--player-color]="players()[placementTurn()]?.color">
+                    Spieler {{ placementTurn() + 1 }}
+                </span>
+                platziert seine Figur
+            </div>
+
+            <div class="board-wrapper">
+                <div class="game-board" [style.--grid-cols]="gridSize().x" [style.--grid-rows]="gridSize().y">
+                    @for (y of [].constructor(gridSize().y); track $index; let yIdx = $index) {
+                    @for (x of [].constructor(gridSize().x); track $index; let xIdx = $index) {
+                    <div class="cell" [class.blocked]="getCellState(xIdx, yIdx) === 'blocked'"
+                        [class.gray]="getCellState(xIdx, yIdx) === 'gray'"
+                        [class.clickable]="getCellState(xIdx, yIdx) === null" (click)="onCellClick(xIdx, yIdx)">
+                        @if (getPlayerAt(xIdx, yIdx); as player) {
+                        <div class="player-piece" [style.color]="player.color">
+                            @switch (player.shape) {
+                            @case ('Kreuz') {
+                            <svg viewBox="0 0 40 40">
+                                <line x1="8" y1="8" x2="32" y2="32" stroke="currentColor" stroke-width="4"
+                                    stroke-linecap="round" />
+                                <line x1="32" y1="8" x2="8" y2="32" stroke="currentColor" stroke-width="4"
+                                    stroke-linecap="round" />
+                            </svg>
+                            }
+                            @case ('Kreis') {
+                            <svg viewBox="0 0 40 40">
+                                <circle cx="20" cy="20" r="14" fill="none" stroke="currentColor" stroke-width="4" />
+                            </svg>
+                            }
+                            @case ('Dreieck') {
+                            <svg viewBox="0 0 40 40">
+                                <polygon points="20,4 36,36 4,36" fill="none" stroke="currentColor" stroke-width="3" />
+                            </svg>
+                            }
+                            @case ('Zylinder') {
+                            <svg viewBox="0 0 40 40">
+                                <rect x="8" y="8" width="24" height="24" rx="2" fill="none" stroke="currentColor"
+                                    stroke-width="3" />
+                                <ellipse cx="20" cy="8" rx="12" ry="4" fill="none" stroke="currentColor"
+                                    stroke-width="2" />
+                            </svg>
+                            }
+                            @case ('Stern') {
+                            <svg viewBox="0 0 40 40">
+                                <polygon points="20,2 24,14 37,14 27,22 31,35 20,27 9,35 13,22 3,14 16,14" fill="none"
+                                    stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            }
+                            }
+                        </div>
+                        }
+                    </div>
+                    }
+                    }
+                </div>
+            </div>
+        </div>
+        }
+
+        <!-- Gameplay Phase -->
+        @if (state() === 'gameplay') {
+        <div class="game-container">
+            <div class="turn-indicator">
+                <span class="player-badge" [style.--player-color]="players()[currentPlayer()]?.color">
+                    Spieler {{ currentPlayer() + 1 }}
+                </span>
+                @if (vsComputer() && currentPlayer() === 1) {
+                (Computer denkt...)
+                } @else {
+                ist am Zug
+                }
+            </div>
+
+            @if (message()) {
+            <div class="game-message">{{ message() }}</div>
+            }
+
+            <div class="board-wrapper">
+                <div class="game-board" [style.--grid-cols]="gridSize().x" [style.--grid-rows]="gridSize().y">
+                    @for (y of [].constructor(gridSize().y); track $index; let yIdx = $index) {
+                    @for (x of [].constructor(gridSize().x); track $index; let xIdx = $index) {
+                    <div class="cell" [class.blocked]="getCellState(xIdx, yIdx) === 'blocked'"
+                        [class.gray]="getCellState(xIdx, yIdx) === 'gray'"
+                        [class.highlighted]="isHighlighted(xIdx, yIdx)" [class.clickable]="isHighlighted(xIdx, yIdx)"
+                        [style.--highlight-color]="highlightColor()" (click)="onCellClick(xIdx, yIdx)">
+                        @if (getPlayerAt(xIdx, yIdx); as player) {
+                        <div class="player-piece" [style.color]="player.color">
+                            @switch (player.shape) {
+                            @case ('Kreuz') {
+                            <svg viewBox="0 0 40 40">
+                                <line x1="8" y1="8" x2="32" y2="32" stroke="currentColor" stroke-width="4"
+                                    stroke-linecap="round" />
+                                <line x1="32" y1="8" x2="8" y2="32" stroke="currentColor" stroke-width="4"
+                                    stroke-linecap="round" />
+                            </svg>
+                            }
+                            @case ('Kreis') {
+                            <svg viewBox="0 0 40 40">
+                                <circle cx="20" cy="20" r="14" fill="none" stroke="currentColor" stroke-width="4" />
+                            </svg>
+                            }
+                            @case ('Dreieck') {
+                            <svg viewBox="0 0 40 40">
+                                <polygon points="20,4 36,36 4,36" fill="none" stroke="currentColor" stroke-width="3" />
+                            </svg>
+                            }
+                            @case ('Zylinder') {
+                            <svg viewBox="0 0 40 40">
+                                <rect x="8" y="8" width="24" height="24" rx="2" fill="none" stroke="currentColor"
+                                    stroke-width="3" />
+                                <ellipse cx="20" cy="8" rx="12" ry="4" fill="none" stroke="currentColor"
+                                    stroke-width="2" />
+                            </svg>
+                            }
+                            @case ('Stern') {
+                            <svg viewBox="0 0 40 40">
+                                <polygon points="20,2 24,14 37,14 27,22 31,35 20,27 9,35 13,22 3,14 16,14" fill="none"
+                                    stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            }
+                            }
+                        </div>
+                        }
+                    </div>
+                    }
+                    }
+                </div>
+            </div>
+
+            <div class="player-status">
+                @for (player of players(); track $index; let i = $index) {
+                <div class="player-status-item" [class.active]="i === currentPlayer()"
+                    [class.eliminated]="!player.active">
+                    <span class="player-chip" [style.--player-color]="player.color">
+                        <span class="player-shape">
+                            @switch (player.shape) {
+                            @case ('Kreuz') { ✕ }
+                            @case ('Kreis') { ○ }
+                            @case ('Dreieck') { △ }
+                            @case ('Zylinder') { ▢ }
+                            @case ('Stern') { ☆ }
+                            }
+                        </span>
+                        Spieler {{ i + 1 }}
+                    </span>
+                    @if (!player.active) {
+                    <span class="eliminated-badge">Ausgeschieden</span>
+                    }
+                </div>
+                }
+            </div>
+        </div>
+        }
+
+        <!-- End Screen -->
+        @if (state() === 'end') {
+        <div class="score-display">
+            <div class="winner-emoji">🏆</div>
+            <h2 class="winner-text">{{ message() }}</h2>
+            <button class="btn btn-primary" style="margin-top: 30px; max-width: 200px;" (click)="resetGame()">
+                Neues Spiel
+            </button>
+        </div>
+        }
+    </div>
+</div>

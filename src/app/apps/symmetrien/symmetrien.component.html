@@ -1,0 +1,55 @@
+<div class="bg-animation"></div>
+<div class="symmetrien-app">
+    <div class="app-header">
+        <h1>🔀 Symmetrien an Punkt und Strich</h1>
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-tool btn-polygon" [class.active]="currentTool() === 'polygon'"
+            (click)="setTool('polygon')">
+            Polygon zeichnen
+        </button>
+        <button class="btn btn-tool btn-line" [class.active]="currentTool() === 'line'" (click)="setTool('line')">
+            Spiegelgerade
+        </button>
+        <button class="btn btn-tool btn-point" [class.active]="currentTool() === 'point'" (click)="setTool('point')">
+            Spiegelpunkt
+        </button>
+        <button class="btn btn-tool btn-clear" (click)="clearAll()">
+            Alles löschen
+        </button>
+    </div>
+
+    <div class="status">{{ status() }}</div>
+
+    <div class="canvas-container">
+        <canvas #canvas (pointerdown)="onPointerDown($event)" (pointermove)="onPointerMove($event)"
+            (pointerup)="onPointerUp()" (pointerleave)="onPointerUp()" (dblclick)="onDoubleClick($event)">
+        </canvas>
+    </div>
+
+    <div class="instructions">
+        <h3>Anleitung</h3>
+        <p>
+            <strong>Polygon:</strong> Klicke um Eckpunkte zu setzen, Doppelklick oder nah am ersten Punkt klicken zum
+            Schließen.<br>
+            <strong>Spiegelgerade:</strong> Klicken und ziehen um eine Spiegelgerade zu zeichnen.<br>
+            <strong>Spiegelpunkt:</strong> Klicken um einen Spiegelpunkt zu setzen.<br>
+            Das Polygon wird in Echtzeit an der Geraden und dem Punkt gespiegelt!
+        </p>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #667eea;"></div>
+                <span>Original-Polygon</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f5576c;"></div>
+                <span>Geradenspiegelung</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #00f2fe;"></div>
+                <span>Punktspiegelung</span>
+            </div>
+        </div>
+    </div>
+</div>

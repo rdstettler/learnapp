@@ -1,0 +1,45 @@
+<div class="bg-animation"></div>
+<div class="platform-container">
+    <header class="platform-header">
+        <div class="platform-logo">🚀</div>
+        <h1 class="platform-title">LearnApp</h1>
+        <p class="platform-subtitle">Explore interactive learning experiences</p>
+    </header>
+
+    <div class="controls">
+        <div class="category-filters">
+            @for (category of categories(); track category) {
+            <button class="category-chip" [class.active]="currentCategory() === category"
+                (click)="selectCategory(category)">
+                {{ category === 'all' ? 'All' : category }}
+            </button>
+            }
+        </div>
+    </div>
+
+    <div class="apps-grid">
+        @for (app of filteredApps(); track app.id) {
+        <div class="app-card" (click)="navigateToApp(app)" style="cursor: pointer;">
+            <div class="app-card-icon">{{ app.icon }}</div>
+            <h2 class="app-card-name">{{ app.name }}</h2>
+            <p class="app-card-description">{{ app.description }}</p>
+            <div class="app-meta">
+                <span class="tag-category">📁 {{ app.category }}</span>
+                <div class="app-stats">
+                    <span>🔥 {{ getAppMetrics(app.id).openCount }} uses</span>
+                    <span>🕐 {{ formatDate(getAppMetrics(app.id).lastOpened) }}</span>
+                </div>
+            </div>
+            <div class="app-tags">
+                @for (tag of app.tags; track tag) {
+                <span class="tag">#{{ tag }}</span>
+                }
+            </div>
+        </div>
+        }
+    </div>
+
+    <footer class="platform-footer">
+        <p>Your session: <span class="user-id">{{ displayUserId }}</span></p>
+    </footer>
+</div>

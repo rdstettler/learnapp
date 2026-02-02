@@ -1,0 +1,93 @@
+<div class="bg-animation"></div>
+<div class="app-container satzzeichen-app">
+    <div class="app-header">
+        <h1>✏️ Satzzeichen-Quiz</h1>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+        <!-- Welcome Screen -->
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">📝</div>
+            <h2 style="margin-bottom: 10px;">Satzzeichen setzen</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 30px;">
+                Setze die fehlenden Satzzeichen an den richtigen Stellen ein.
+            </p>
+            <button class="btn btn-primary" (click)="startQuiz()" [disabled]="!dataLoaded()">Quiz starten</button>
+        </div>
+        }
+
+        <!-- Quiz Screen -->
+        @if (screen() === 'quiz') {
+        <div class="quiz-content">
+            <div class="round-info">Text {{ currentTextIndex() + 1 }} / {{ texts().length }}</div>
+
+            <div class="text-container">
+                @for (slot of slots(); track $index) {
+                <span class="word">{{ slot.word }}</span><span class="punct-slot" [class]="getSlotClass(slot)"
+                    (click)="openPopup($index)">@if (slot.checked && slot.expected !== slot.selected && slot.expected) {
+                    @if (slot.selected) {
+                    {{ slot.selected }}<span class="correction">→ {{ slot.expected }}</span>
+                    } @else {
+                    <span class="correction">{{ slot.expected }}</span>
+                    }
+                    } @else {
+                    {{ slot.selected }}
+                    }</span>{{ ' ' }}
+                }
+            </div>
+
+            @if (!answered()) {
+            <button class="btn btn-primary" (click)="checkAnswers()">Überprüfen</button>
+            } @else {
+            <button class="btn btn-primary" (click)="nextText()">Weiter</button>
+            }
+        </div>
+        }
+
+        <!-- Results Screen -->
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <p class="score-text">{{ totalCorrect() }} von {{ totalSlots() }} richtig!</p>
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ totalCorrect() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ totalSlots() - totalCorrect() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 30px;" (click)="restartQuiz()">
+                Nochmal spielen
+            </button>
+        </div>
+        }
+    </div>
+
+    <!-- Popup -->
+    @if (showPopup()) {
+    <div class="popup-overlay visible" (click)="closePopup()">
+        <div class="popup" (click)="$event.stopPropagation()">
+            <div class="popup-title">Satzzeichen wählen</div>
+            <div class="popup-current-label">Aktuelle Auswahl:</div>
+            <div class="popup-current">{{ currentBuilding() || '(leer)' }}</div>
+            <div class="popup-options">
+                @for (opt of punctOptions; track opt) {
+                <button class="popup-option" (click)="addSymbol(opt)">{{ opt }}</button>
+                }
+            </div>
+            <div class="popup-actions">
+                <button class="popup-action clear" (click)="clearBuilding()">Löschen</button>
+                <button class="popup-action confirm" (click)="confirmSelection()">OK ✓</button>
+            </div>
+        </div>
+    </div>
+    }
+</div>

@@ -1,0 +1,1308 @@
+{
+    "redewendungen": [
+        {
+            "idiom": "Den Nagel auf den Kopf treffen",
+            "options": [
+                "genau richtig",
+                "sich verletzen",
+                "etwas zerstören"
+            ]
+        },
+        {
+            "idiom": "Ins Fettnäpfchen treten",
+            "options": [
+                "peinlicher Fehler",
+                "reich werden",
+                "Sport machen"
+            ]
+        },
+        {
+            "idiom": "Kalte Füße bekommen",
+            "options": [
+                "Angst/Zögern",
+                "krank werden",
+                "draußen stehen"
+            ]
+        },
+        {
+            "idiom": "Den inneren Schweinehund überwinden",
+            "options": [
+                "Faulheit besiegen",
+                "ein Tier fangen",
+                "Angst haben"
+            ]
+        },
+        {
+            "idiom": "Durch die rosarote Brille sehen",
+            "options": [
+                "idealisiert",
+                "schlecht sehen",
+                "verliebt sein"
+            ]
+        },
+        {
+            "idiom": "Tomaten auf den Augen haben",
+            "options": [
+                "blind/nicht sehen",
+                "müde sein",
+                "Gemüse mögen"
+            ]
+        },
+        {
+            "idiom": "Das fünfte Rad am Wagen sein",
+            "options": [
+                "überflüssig",
+                "wichtig sein",
+                "Auto fahren"
+            ]
+        },
+        {
+            "idiom": "Auf dem Holzweg sein",
+            "options": [
+                "falscher Weg",
+                "wandern gehen",
+                "Holz sammeln"
+            ]
+        },
+        {
+            "idiom": "Jemandem einen Bären aufbinden",
+            "options": [
+                "anlügen",
+                "helfen",
+                "ein Tier schenken"
+            ]
+        },
+        {
+            "idiom": "Die Katze im Sack kaufen",
+            "options": [
+                "unüberlegt kaufen",
+                "ein Haustier bekommen",
+                "sparen"
+            ]
+        },
+        {
+            "idiom": "Da beißt die Maus keinen Faden ab",
+            "options": [
+                "unwiderlegbar",
+                "unmöglich",
+                "Mäuse fangen"
+            ]
+        },
+        {
+            "idiom": "In die Puschen kommen",
+            "options": [
+                "loslegen",
+                "Hausschuhe anziehen",
+                "aufwachen"
+            ]
+        },
+        {
+            "idiom": "Auf Wolke sieben schweben",
+            "options": [
+                "sehr glücklich",
+                "fliegen können",
+                "träumen"
+            ]
+        },
+        {
+            "idiom": "Nicht alle Tassen im Schrank haben",
+            "options": [
+                "verrückt",
+                "arm sein",
+                "unordentlich sein"
+            ]
+        },
+        {
+            "idiom": "Den Bock zum Gärtner machen",
+            "options": [
+                "ungeeignete Person",
+                "Tiere pflegen",
+                "im Garten arbeiten"
+            ]
+        },
+        {
+            "idiom": "Ins Schwarze treffen",
+            "options": [
+                "Volltreffer",
+                "traurig sein",
+                "etwas färben"
+            ]
+        },
+        {
+            "idiom": "Mit dem Feuer spielen",
+            "options": [
+                "gefährlich handeln",
+                "Spaß haben",
+                "warm werden"
+            ]
+        },
+        {
+            "idiom": "Die Flinte ins Korn werfen",
+            "options": [
+                "aufgeben",
+                "jagen gehen",
+                "wütend werden"
+            ]
+        },
+        {
+            "idiom": "Alle Register ziehen",
+            "options": [
+                "alles einsetzen",
+                "Musik spielen",
+                "ordnen"
+            ]
+        },
+        {
+            "idiom": "Das ist ein alter Hut",
+            "options": [
+                "nichts Neues",
+                "wertvoll",
+                "altmodisch kleiden"
+            ]
+        },
+        {
+            "idiom": "Jemandem auf den Zahn fühlen",
+            "options": [
+                "prüfen",
+                "zum Zahnarzt gehen",
+                "etwas kauen"
+            ]
+        },
+        {
+            "idiom": "Über den eigenen Schatten springen",
+            "options": [
+                "sich überwinden",
+                "Sport treiben",
+                "schnell laufen"
+            ]
+        },
+        {
+            "idiom": "Das Kind beim Namen nennen",
+            "options": [
+                "direkt sagen",
+                "taufen",
+                "rufen"
+            ]
+        },
+        {
+            "idiom": "Wie ein Elefant im Porzellanladen",
+            "options": [
+                "tollpatschig",
+                "stark sein",
+                "einkaufen gehen"
+            ]
+        },
+        {
+            "idiom": "Auf großem Fuß leben",
+            "options": [
+                "luxuriös",
+                "große Schuhe tragen",
+                "viel laufen"
+            ]
+        },
+        {
+            "idiom": "Mit allen Wassern gewaschen sein",
+            "options": [
+                "gerissen",
+                "sauber sein",
+                "schwimmen können"
+            ]
+        },
+        {
+            "idiom": "Das Pulver nicht erfunden haben",
+            "options": [
+                "nicht schlau",
+                "friedlich sein",
+                "nichts erfinden"
+            ]
+        },
+        {
+            "idiom": "Jemandem Honig um den Mund schmieren",
+            "options": [
+                "schmeicheln",
+                "füttern",
+                "kochen"
+            ]
+        },
+        {
+            "idiom": "Die Kirche im Dorf lassen",
+            "options": [
+                "maßhalten",
+                "religiös sein",
+                "nicht umziehen"
+            ]
+        },
+        {
+            "idiom": "In Saus und Braus leben",
+            "options": [
+                "verschwenderisch",
+                "laut sein",
+                "Party machen"
+            ]
+        },
+        {
+            "idiom": "Etwas aus dem FF können",
+            "options": [
+                "perfekt beherrschen",
+                "vergessen haben",
+                "nachschlagen"
+            ]
+        },
+        {
+            "idiom": "Der Fisch stinkt vom Kopf her",
+            "options": [
+                "Führung schuld",
+                "schlecht kochen",
+                "alt sein"
+            ]
+        },
+        {
+            "idiom": "Jemandem die Daumen drücken",
+            "options": [
+                "Glück wünschen",
+                "verletzen",
+                "massieren"
+            ]
+        },
+        {
+            "idiom": "Das ist Schnee von gestern",
+            "options": [
+                "vergangen",
+                "kalt sein",
+                "Winter haben"
+            ]
+        },
+        {
+            "idiom": "Eine Extrawurst verlangen",
+            "options": [
+                "Sonderbehandlung",
+                "hungrig sein",
+                "einkaufen"
+            ]
+        },
+        {
+            "idiom": "Den Wald vor lauter Bäumen nicht sehen",
+            "options": [
+                "Wesentliches übersehen",
+                "verlaufen sein",
+                "blind sein"
+            ]
+        },
+        {
+            "idiom": "Mit Kanonen auf Spatzen schießen",
+            "options": [
+                "übertrieben",
+                "jagen gehen",
+                "laut sein"
+            ]
+        },
+        {
+            "idiom": "Auf die Palme bringen",
+            "options": [
+                "wütend machen",
+                "klettern helfen",
+                "in Urlaub fahren"
+            ]
+        },
+        {
+            "idiom": "Das Ei des Kolumbus",
+            "options": [
+                "einfache Lösung",
+                "etwas Altes",
+                "eine Entdeckung"
+            ]
+        },
+        {
+            "idiom": "Jemandem einen Strich durch die Rechnung machen",
+            "options": [
+                "vereiteln",
+                "beim Rechnen helfen",
+                "bezahlen"
+            ]
+        },
+        {
+            "idiom": "Die Zähne zusammenbeißen",
+            "options": [
+                "durchhalten",
+                "wütend sein",
+                "essen"
+            ]
+        },
+        {
+            "idiom": "Auf dem Schlauch stehen",
+            "options": [
+                "nicht verstehen",
+                "warten",
+                "im Weg stehen"
+            ]
+        },
+        {
+            "idiom": "Jemandem die Leviten lesen",
+            "options": [
+                "tadeln",
+                "vorlesen",
+                "unterrichten"
+            ]
+        },
+        {
+            "idiom": "Das ist ein Tropfen auf den heißen Stein",
+            "options": [
+                "zu wenig",
+                "heiß sein",
+                "kochen"
+            ]
+        },
+        {
+            "idiom": "In den sauren Apfel beißen",
+            "options": [
+                "Unangenehmes akzeptieren",
+                "schlecht essen",
+                "Obst mögen"
+            ]
+        },
+        {
+            "idiom": "Wie die Katze um den heißen Brei herumschleichen",
+            "options": [
+                "zögerlich",
+                "hungrig sein",
+                "vorsichtig sein"
+            ]
+        },
+        {
+            "idiom": "Das schwarze Schaf sein",
+            "options": [
+                "Außenseiter",
+                "schmutzig sein",
+                "ein Tier haben"
+            ]
+        },
+        {
+            "idiom": "Blut und Wasser schwitzen",
+            "options": [
+                "große Angst",
+                "krank sein",
+                "Sport machen"
+            ]
+        },
+        {
+            "idiom": "Alle Hebel in Bewegung setzen",
+            "options": [
+                "alles versuchen",
+                "Sport treiben",
+                "reparieren"
+            ]
+        },
+        {
+            "idiom": "Jemandem den Kopf waschen",
+            "options": [
+                "Ausschimpfen",
+                "helfen",
+                "frisieren"
+            ]
+        },
+        {
+            "idiom": "Er hat eine Schraube locker",
+            "options": [
+                "Spinnen",
+                "kaputt sein",
+                "reparieren müssen"
+            ]
+        },
+        {
+            "idiom": "Er pickt Rosinen aus dem Kuchen",
+            "options": [
+                "Pingelig sein",
+                "backen können",
+                "hungrig sein"
+            ]
+        },
+        {
+            "idiom": "Das Geld zum Fenster werfen",
+            "options": [
+                "Verschwenderisch sein",
+                "reich sein",
+                "aufräumen"
+            ]
+        },
+        {
+            "idiom": "... wo der Pfeffer wächst",
+            "options": [
+                "Irgendwo weit weg",
+                "im Garten",
+                "in der Küche"
+            ]
+        },
+        {
+            "idiom": "Den Nagel auf den Kopf treffen",
+            "options": [
+                "genau richtig",
+                "sich verletzen",
+                "etwas zerstören"
+            ]
+        },
+        {
+            "idiom": "Ins Fettnäpfchen treten",
+            "options": [
+                "peinlicher Fehler",
+                "reich werden",
+                "Sport machen"
+            ]
+        },
+        {
+            "idiom": "Kalte Füße bekommen",
+            "options": [
+                "Angst/Zögern",
+                "krank werden",
+                "draußen stehen"
+            ]
+        },
+        {
+            "idiom": "Den inneren Schweinehund überwinden",
+            "options": [
+                "Faulheit besiegen",
+                "ein Tier fangen",
+                "Angst haben"
+            ]
+        },
+        {
+            "idiom": "Durch die rosarote Brille sehen",
+            "options": [
+                "idealisiert",
+                "schlecht sehen",
+                "verliebt sein"
+            ]
+        },
+        {
+            "idiom": "Tomaten auf den Augen haben",
+            "options": [
+                "blind/nicht sehen",
+                "müde sein",
+                "Gemüse mögen"
+            ]
+        },
+        {
+            "idiom": "Das fünfte Rad am Wagen sein",
+            "options": [
+                "überflüssig",
+                "wichtig sein",
+                "Auto fahren"
+            ]
+        },
+        {
+            "idiom": "Auf dem Holzweg sein",
+            "options": [
+                "falscher Weg",
+                "wandern gehen",
+                "Holz sammeln"
+            ]
+        },
+        {
+            "idiom": "Jemandem einen Bären aufbinden",
+            "options": [
+                "anlügen",
+                "helfen",
+                "ein Tier schenken"
+            ]
+        },
+        {
+            "idiom": "Die Katze im Sack kaufen",
+            "options": [
+                "unüberlegt kaufen",
+                "ein Haustier bekommen",
+                "sparen"
+            ]
+        },
+        {
+            "idiom": "Da beißt die Maus keinen Faden ab",
+            "options": [
+                "unwiderlegbar",
+                "unmöglich",
+                "Mäuse fangen"
+            ]
+        },
+        {
+            "idiom": "In die Puschen kommen",
+            "options": [
+                "loslegen",
+                "Hausschuhe anziehen",
+                "aufwachen"
+            ]
+        },
+        {
+            "idiom": "Auf Wolke sieben schweben",
+            "options": [
+                "sehr glücklich",
+                "fliegen können",
+                "träumen"
+            ]
+        },
+        {
+            "idiom": "Nicht alle Tassen im Schrank haben",
+            "options": [
+                "verrückt",
+                "arm sein",
+                "unordentlich sein"
+            ]
+        },
+        {
+            "idiom": "Den Bock zum Gärtner machen",
+            "options": [
+                "ungeeignete Person",
+                "Tiere pflegen",
+                "im Garten arbeiten"
+            ]
+        },
+        {
+            "idiom": "Ins Schwarze treffen",
+            "options": [
+                "Volltreffer",
+                "traurig sein",
+                "etwas färben"
+            ]
+        },
+        {
+            "idiom": "Mit dem Feuer spielen",
+            "options": [
+                "gefährlich handeln",
+                "Spaß haben",
+                "warm werden"
+            ]
+        },
+        {
+            "idiom": "Die Flinte ins Korn werfen",
+            "options": [
+                "aufgeben",
+                "jagen gehen",
+                "wütend werden"
+            ]
+        },
+        {
+            "idiom": "Alle Register ziehen",
+            "options": [
+                "alles einsetzen",
+                "Musik spielen",
+                "ordnen"
+            ]
+        },
+        {
+            "idiom": "Das ist ein alter Hut",
+            "options": [
+                "nichts Neues",
+                "wertvoll",
+                "altmodisch kleiden"
+            ]
+        },
+        {
+            "idiom": "Jemandem auf den Zahn fühlen",
+            "options": [
+                "prüfen",
+                "zum Zahnarzt gehen",
+                "etwas kauen"
+            ]
+        },
+        {
+            "idiom": "Über den eigenen Schatten springen",
+            "options": [
+                "sich überwinden",
+                "Sport treiben",
+                "schnell laufen"
+            ]
+        },
+        {
+            "idiom": "Das Kind beim Namen nennen",
+            "options": [
+                "direkt sagen",
+                "taufen",
+                "rufen"
+            ]
+        },
+        {
+            "idiom": "Wie ein Elefant im Porzellanladen",
+            "options": [
+                "tollpatschig",
+                "stark sein",
+                "einkaufen gehen"
+            ]
+        },
+        {
+            "idiom": "Auf großem Fuß leben",
+            "options": [
+                "luxuriös",
+                "große Schuhe tragen",
+                "viel laufen"
+            ]
+        },
+        {
+            "idiom": "Mit allen Wassern gewaschen sein",
+            "options": [
+                "gerissen",
+                "sauber sein",
+                "schwimmen können"
+            ]
+        },
+        {
+            "idiom": "Das Pulver nicht erfunden haben",
+            "options": [
+                "nicht schlau",
+                "friedlich sein",
+                "nichts erfinden"
+            ]
+        },
+        {
+            "idiom": "Jemandem Honig um den Mund schmieren",
+            "options": [
+                "schmeicheln",
+                "füttern",
+                "kochen"
+            ]
+        },
+        {
+            "idiom": "Die Kirche im Dorf lassen",
+            "options": [
+                "maßhalten",
+                "religiös sein",
+                "nicht umziehen"
+            ]
+        },
+        {
+            "idiom": "In Saus und Braus leben",
+            "options": [
+                "verschwenderisch",
+                "laut sein",
+                "Party machen"
+            ]
+        },
+        {
+            "idiom": "Etwas aus dem FF können",
+            "options": [
+                "perfekt beherrschen",
+                "vergessen haben",
+                "nachschlagen"
+            ]
+        },
+        {
+            "idiom": "Der Fisch stinkt vom Kopf her",
+            "options": [
+                "Führung schuld",
+                "schlecht kochen",
+                "alt sein"
+            ]
+        },
+        {
+            "idiom": "Jemandem die Daumen drücken",
+            "options": [
+                "Glück wünschen",
+                "verletzen",
+                "massieren"
+            ]
+        },
+        {
+            "idiom": "Das ist Schnee von gestern",
+            "options": [
+                "vergangen",
+                "kalt sein",
+                "Winter haben"
+            ]
+        },
+        {
+            "idiom": "Eine Extrawurst verlangen",
+            "options": [
+                "Sonderbehandlung",
+                "hungrig sein",
+                "einkaufen"
+            ]
+        },
+        {
+            "idiom": "Den Wald vor lauter Bäumen nicht sehen",
+            "options": [
+                "Wesentliches übersehen",
+                "verlaufen sein",
+                "blind sein"
+            ]
+        },
+        {
+            "idiom": "Mit Kanonen auf Spatzen schießen",
+            "options": [
+                "übertrieben",
+                "jagen gehen",
+                "laut sein"
+            ]
+        },
+        {
+            "idiom": "Auf die Palme bringen",
+            "options": [
+                "wütend machen",
+                "klettern helfen",
+                "in Urlaub fahren"
+            ]
+        },
+        {
+            "idiom": "Das Ei des Kolumbus",
+            "options": [
+                "einfache Lösung",
+                "etwas Altes",
+                "eine Entdeckung"
+            ]
+        },
+        {
+            "idiom": "Jemandem einen Strich durch die Rechnung machen",
+            "options": [
+                "vereiteln",
+                "beim Rechnen helfen",
+                "bezahlen"
+            ]
+        },
+        {
+            "idiom": "Die Zähne zusammenbeißen",
+            "options": [
+                "durchhalten",
+                "wütend sein",
+                "essen"
+            ]
+        },
+        {
+            "idiom": "Auf dem Schlauch stehen",
+            "options": [
+                "nicht verstehen",
+                "warten",
+                "im Weg stehen"
+            ]
+        },
+        {
+            "idiom": "Jemandem die Leviten lesen",
+            "options": [
+                "tadeln",
+                "vorlesen",
+                "unterrichten"
+            ]
+        },
+        {
+            "idiom": "Das ist ein Tropfen auf den heißen Stein",
+            "options": [
+                "zu wenig",
+                "heiß sein",
+                "kochen"
+            ]
+        },
+        {
+            "idiom": "In den sauren Apfel beißen",
+            "options": [
+                "Unangenehmes akzeptieren",
+                "schlecht essen",
+                "Obst mögen"
+            ]
+        },
+        {
+            "idiom": "Wie die Katze um den heißen Brei herumschleichen",
+            "options": [
+                "zögerlich",
+                "hungrig sein",
+                "vorsichtig sein"
+            ]
+        },
+        {
+            "idiom": "Das schwarze Schaf sein",
+            "options": [
+                "Außenseiter",
+                "schmutzig sein",
+                "ein Tier haben"
+            ]
+        },
+        {
+            "idiom": "Blut und Wasser schwitzen",
+            "options": [
+                "große Angst",
+                "krank sein",
+                "Sport machen"
+            ]
+        },
+        {
+            "idiom": "Alle Hebel in Bewegung setzen",
+            "options": [
+                "alles versuchen",
+                "Sport treiben",
+                "reparieren"
+            ]
+        },
+        {
+            "idiom": "Jemandem den Kopf waschen",
+            "options": [
+                "Ausschimpfen",
+                "helfen",
+                "frisieren"
+            ]
+        },
+        {
+            "idiom": "Er hat eine Schraube locker",
+            "options": [
+                "Spinnen",
+                "kaputt sein",
+                "reparieren müssen"
+            ]
+        },
+        {
+            "idiom": "Er pickt Rosinen aus dem Kuchen",
+            "options": [
+                "Pingelig sein",
+                "backen können",
+                "hungrig sein"
+            ]
+        },
+        {
+            "idiom": "Das Geld zum Fenster werfen",
+            "options": [
+                "Verschwenderisch sein",
+                "reich sein",
+                "aufräumen"
+            ]
+        },
+        {
+            "idiom": "... wo der Pfeffer wächst",
+            "options": [
+                "Irgendwo weit weg",
+                "im Garten",
+                "in der Küche"
+            ]
+        },
+        {
+            "idiom": "Jemandem auf die Schliche kommen",
+            "options": [
+                "herausfinden",
+                "verfolgen",
+                "schleichen lernen"
+            ]
+        },
+        {
+            "idiom": "Die Arschkarte ziehen",
+            "options": [
+                "Pech haben",
+                "spielen",
+                "verlieren"
+            ]
+        },
+        {
+            "idiom": "Etwas auf die lange Bank schieben",
+            "options": [
+                "aufschieben",
+                "sitzen lassen",
+                "Möbel kaufen"
+            ]
+        },
+        {
+            "idiom": "Den Gürtel enger schnallen",
+            "options": [
+                "sparen",
+                "abnehmen",
+                "Kleidung anpassen"
+            ]
+        },
+        {
+            "idiom": "Aus dem Häuschen sein",
+            "options": [
+                "aufgeregt",
+                "umziehen",
+                "draußen sein"
+            ]
+        },
+        {
+            "idiom": "Die Pferde scheu machen",
+            "options": [
+                "beunruhigen",
+                "Tiere pflegen",
+                "reiten lernen"
+            ]
+        },
+        {
+            "idiom": "Einen Kater haben",
+            "options": [
+                "Kater nach Alkohol",
+                "ein Haustier",
+                "krank sein"
+            ]
+        },
+        {
+            "idiom": "Jemandem den Laufpass geben",
+            "options": [
+                "Schluss machen",
+                "laufen lassen",
+                "einen Pass geben"
+            ]
+        },
+        {
+            "idiom": "Den Löffel abgeben",
+            "options": [
+                "sterben",
+                "essen beenden",
+                "Besteck weggeben"
+            ]
+        },
+        {
+            "idiom": "Etwas auf dem Kerbholz haben",
+            "options": [
+                "schuldig sein",
+                "Holz bearbeiten",
+                "Notizen machen"
+            ]
+        },
+        {
+            "idiom": "Jemandem einen Korb geben",
+            "options": [
+                "ablehnen",
+                "einkaufen gehen",
+                "Geschenke machen"
+            ]
+        },
+        {
+            "idiom": "Das Handtuch werfen",
+            "options": [
+                "aufgeben",
+                "baden gehen",
+                "reinigen"
+            ]
+        },
+        {
+            "idiom": "Einen Frosch im Hals haben",
+            "options": [
+                "heiser sein",
+                "ein Tier schlucken",
+                "Angst haben"
+            ]
+        },
+        {
+            "idiom": "Hals über Kopf",
+            "options": [
+                "überstürzt",
+                "fallen",
+                "rennen"
+            ]
+        },
+        {
+            "idiom": "Die Nase voll haben",
+            "options": [
+                "genervt sein",
+                "erkältet sein",
+                "riechen können"
+            ]
+        },
+        {
+            "idiom": "Aus dem Nähkästchen plaudern",
+            "options": [
+                "Geheimnisse verraten",
+                "nähen",
+                "reden lernen"
+            ]
+        },
+        {
+            "idiom": "Jemandem auf den Keks gehen",
+            "options": [
+                "nerven",
+                "essen teilen",
+                "backen"
+            ]
+        },
+        {
+            "idiom": "Der Tropfen, der das Fass zum Überlaufen bringt",
+            "options": [
+                "letzter Auslöser",
+                "trinken",
+                "Wasser sammeln"
+            ]
+        },
+        {
+            "idiom": "Etwas im Schilde führen",
+            "options": [
+                "hinterhältig planen",
+                "kämpfen",
+                "schützen"
+            ]
+        },
+        {
+            "idiom": "Jemandem den Wind aus den Segeln nehmen",
+            "options": [
+                "Vorteil nehmen",
+                "segeln gehen",
+                "Wind machen"
+            ]
+        },
+        {
+            "idiom": "Auf Tauchstation gehen",
+            "options": [
+                "verschwinden",
+                "tauchen lernen",
+                "unter Wasser sein"
+            ]
+        },
+        {
+            "idiom": "Den Teufel an die Wand malen",
+            "options": [
+                "schwarzmalen",
+                "malen",
+                "Angst machen"
+            ]
+        },
+        {
+            "idiom": "Eine harte Nuss knacken",
+            "options": [
+                "schwieriges Problem lösen",
+                "essen",
+                "Nüsse sammeln"
+            ]
+        },
+        {
+            "idiom": "Etwas auf die Goldwaage legen",
+            "options": [
+                "genau prüfen",
+                "Gold wiegen",
+                "wertvoll machen"
+            ]
+        },
+        {
+            "idiom": "Den Ball flach halten",
+            "options": [
+                "vorsichtig sein",
+                "Fußball spielen",
+                "fallen lassen"
+            ]
+        },
+        {
+            "idiom": "Jemandem etwas anhängen",
+            "options": [
+                "falsch beschuldigen",
+                "aufhängen",
+                "helfen"
+            ]
+        },
+        {
+            "idiom": "In die Röhre gucken",
+            "options": [
+                "verlieren",
+                "fernsehen",
+                "schauen"
+            ]
+        },
+        {
+            "idiom": "Etwas auf Herz und Nieren prüfen",
+            "options": [
+                "gründlich untersuchen",
+                "krank sein",
+                "operieren"
+            ]
+        },
+        {
+            "idiom": "Die Katze aus dem Sack lassen",
+            "options": [
+                "Geheimnis verraten",
+                "Tier freilassen",
+                "verstecken"
+            ]
+        },
+        {
+            "idiom": "Den Hut nehmen",
+            "options": [
+                "gehen",
+                "Kleidung anziehen",
+                "verlieren"
+            ]
+        },
+        {
+            "idiom": "Etwas durch die Blume sagen",
+            "options": [
+                "indirekt sagen",
+                "Blumen schenken",
+                "duften"
+            ]
+        },
+        {
+            "idiom": "Jemandem auf die Pelle rücken",
+            "options": [
+                "zu nahe kommen",
+                "kleiden",
+                "hautnah sein"
+            ]
+        },
+        {
+            "idiom": "Den Gürtel enger schnallen",
+            "options": [
+                "sparen",
+                "abnehmen",
+                "Kleidung anpassen"
+            ]
+        },
+        {
+            "idiom": "Ein Auge zudrücken",
+            "options": [
+                "nachsichtig sein",
+                "blinzeln",
+                "schlafen"
+            ]
+        },
+        {
+            "idiom": "Das Licht der Welt erblicken",
+            "options": [
+                "geboren werden",
+                "Licht anmachen",
+                "sehen lernen"
+            ]
+        },
+        {
+            "idiom": "Etwas in den Sand setzen",
+            "options": [
+                "scheitern",
+                "bauen",
+                "vergraben"
+            ]
+        },
+        {
+            "idiom": "Jemandem das Wort im Mund umdrehen",
+            "options": [
+                "verfälschen",
+                "reden lassen",
+                "schweigen"
+            ]
+        },
+        {
+            "idiom": "Den Stein des Anstoßes sein",
+            "options": [
+                "Ursache für Ärger",
+                "Stolpern",
+                "Stein sammeln"
+            ]
+        },
+        {
+            "idiom": "Etwas an die große Glocke hängen",
+            "options": [
+                "bekannt machen",
+                "läuten",
+                "aufhängen"
+            ]
+        },
+        {
+            "idiom": "Jemandem einen Floh ins Ohr setzen",
+            "options": [
+                "Idee einflüstern",
+                "Tier einführen",
+                "jucken"
+            ]
+        },
+        {
+            "idiom": "Die Hände in den Schoß legen",
+            "options": [
+                "nichts tun",
+                "sitzen",
+                "ruhen"
+            ]
+        },
+        {
+            "idiom": "Etwas hinter dem Rücken tun",
+            "options": [
+                "heimlich",
+                "verstecken",
+                "tragen"
+            ]
+        },
+        {
+            "idiom": "Jemandem auf der Nase herumtanzen",
+            "options": [
+                "dominieren",
+                "tanzen lernen",
+                "belästigen"
+            ]
+        },
+        {
+            "idiom": "Den roten Faden verlieren",
+            "options": [
+                "Zusammenhang verlieren",
+                "nähen",
+                "färben"
+            ]
+        },
+        {
+            "idiom": "Etwas unter den Teppich kehren",
+            "options": [
+                "verheimlichen",
+                "reinigen",
+                "verstecken"
+            ]
+        },
+        {
+            "idiom": "Jemandem die Stange halten",
+            "options": [
+                "unterstützen",
+                "Sport treiben",
+                "halten"
+            ]
+        },
+        {
+            "idiom": "Den Vogel abschießen",
+            "options": [
+                "das Beste sein",
+                "jagen",
+                "fliegen lassen"
+            ]
+        },
+        {
+            "idiom": "Etwas auf den Kopf stellen",
+            "options": [
+                "verändern",
+                "umdrehen",
+                "denken"
+            ]
+        },
+        {
+            "idiom": "Jemandem ins Gewissen reden",
+            "options": [
+                "ermahnen",
+                "flüstern",
+                "beraten"
+            ]
+        },
+        {
+            "idiom": "Die Zeit totschlagen",
+            "options": [
+                "vergeuden",
+                "warten",
+                "Uhr reparieren"
+            ]
+        },
+        {
+            "idiom": "Etwas aus dem Ärmel schütteln",
+            "options": [
+                "mühelos",
+                "ausziehen",
+                "verlieren"
+            ]
+        },
+        {
+            "idiom": "Jemandem den Rang ablaufen",
+            "options": [
+                "überholen",
+                "laufen",
+                "gewinnen"
+            ]
+        },
+        {
+            "idiom": "Den Kopf in den Sand stecken",
+            "options": [
+                "ignorieren",
+                "vergraben",
+                "baden"
+            ]
+        },
+        {
+            "idiom": "Etwas durch die Lappen gehen",
+            "options": [
+                "entgehen",
+                "reinigen",
+                "fangen"
+            ]
+        },
+        {
+            "idiom": "Jemandem Steine in den Weg legen",
+            "options": [
+                "behindern",
+                "bauen",
+                "sammeln"
+            ]
+        }
+    ]
+}

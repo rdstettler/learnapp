@@ -1,0 +1,82 @@
+<div class="bg-animation"></div>
+<div class="app-container">
+    <div class="app-header">
+        <h1>📐 Textaufgaben</h1>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">📐</div>
+            <h2>Textaufgaben</h2>
+            <p class="text-secondary" style="margin-bottom: 30px;">
+                Löse die Textaufgaben und teste dein mathematisches Denken!
+            </p>
+            <button class="btn btn-primary" (click)="startQuiz()" [disabled]="items().length === 0">
+                Quiz starten
+            </button>
+        </div>
+        }
+
+        @if (screen() === 'quiz') {
+        <div class="quiz-content">
+            <div class="round-info">Aufgabe {{ currentRound() + 1 }} / 5</div>
+
+            @if (getCurrentProblem(); as problem) {
+            <div class="problem-container">
+                <p class="problem-text">{{ problem.text }}</p>
+                <p class="problem-question">{{ problem.question }}</p>
+            </div>
+
+            <div class="answer-row">
+                <input type="text" class="answer-input" [class.correct]="answered() && isCorrect()"
+                    [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
+                    (input)="updateAnswer($any($event.target).value)" [disabled]="answered()"
+                    placeholder="Antwort eingeben..." autocomplete="off" inputmode="decimal">
+                @if (problem.unit) {
+                <span class="unit">{{ problem.unit }}</span>
+                }
+            </div>
+            }
+
+            @if (feedbackText()) {
+            <div class="feedback" [class.correct]="isCorrect()" [class.incorrect]="!isCorrect()">
+                {{ feedbackText() }}
+            </div>
+            }
+
+            @if (!answered()) {
+            <button class="btn btn-primary" [disabled]="!userAnswer()" (click)="checkAnswer()">
+                Überprüfen
+            </button>
+            } @else {
+            <button class="btn btn-primary" (click)="nextRound()">Weiter</button>
+            }
+        </div>
+        }
+
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <p class="score-text">{{ totalCorrect() }} von {{ totalQuestions() }} richtig!</p>
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ totalCorrect() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ totalQuestions() - totalCorrect() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 30px;" (click)="restartQuiz()">
+                Nochmal spielen
+            </button>
+        </div>
+        }
+    </div>
+</div>

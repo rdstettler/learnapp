@@ -1,0 +1,966 @@
+{
+  "stems": [
+    {
+      "stem": "sagen",
+      "composites": [
+        {"word": "Ver-sagen", "exists": true},
+        {"word": "Be-sagen", "exists": true},
+        {"word": "Um-sagen", "exists": false},
+        {"word": "Nach-sagen", "exists": true},
+        {"word": "Über-sagen", "exists": false},
+        {"word": "Ent-sagen", "exists": true},
+        {"word": "Aus-sagen", "exists": true},
+        {"word": "Zu-sagen", "exists": true}
+      ],
+      "meanings": {
+        "Versagen": [
+          {"option": "Nicht erfolgreich sein oder scheitern", "correct": true},
+          {"option": "Etwas laut sagen", "correct": false},
+          {"option": "Eine Maschine defekt machen", "correct": true},
+          {"option": "Ein Versprechen geben", "correct": false},
+          {"option": "Etwas ablehnen", "correct": false}
+        ],
+        "Besagen": [
+          {"option": "Etwas bedeuten oder ausdrücken", "correct": true},
+          {"option": "Jemandem etwas vorsagen", "correct": false},
+          {"option": "Eine Aussage machen", "correct": true},
+          {"option": "Etwas besitzen", "correct": false}
+        ],
+        "Nachsagen": [
+          {"option": "Wiederholen, was jemand gesagt hat", "correct": true},
+          {"option": "Ein Gerücht verbreiten", "correct": true},
+          {"option": "Etwas nach dem Essen sagen", "correct": false},
+          {"option": "Jemandem hinterherlaufen und rufen", "correct": false},
+          {"option": "Etwas nachahmen", "correct": true}
+        ],
+        "Entsagen": [
+          {"option": "Auf etwas verzichten", "correct": true},
+          {"option": "Etwas entscheiden sagen", "correct": false},
+          {"option": "Aus einer Sache herauskommen", "correct": false},
+          {"option": "Etwas ablehnen", "correct": true}
+        ],
+        "Aussagen": [
+          {"option": "Etwas äußern oder bekunden", "correct": true},
+          {"option": "Aus dem Haus sagen", "correct": false},
+          {"option": "Eine Zeugenaussage machen", "correct": true},
+          {"option": "Etwas ausschalten", "correct": false},
+          {"option": "Vorhersagen", "correct": false}
+        ],
+        "Zusagen": [
+          {"option": "Etwas versprechen oder zustimmen", "correct": true},
+          {"option": "Zusammen sagen", "correct": false},
+          {"option": "Einladung annehmen", "correct": true},
+          {"option": "Etwas hinzufügen", "correct": false}
+        ]
+      }
+    },
+    {
+      "stem": "gehen",
+      "composites": [
+        {"word": "Aus-gehen", "exists": true},
+        {"word": "Ein-gehen", "exists": true},
+        {"word": "Vor-gehen", "exists": true},
+        {"word": "Um-gehen", "exists": true},
+        {"word": "Nach-gehen", "exists": true},
+        {"word": "Über-gehen", "exists": true},
+        {"word": "Ent-gehen", "exists": false},
+        {"word": "Zu-gehen", "exists": true}
+      ],
+      "meanings": {
+        "Ausgehen": [
+          {"option": "Das Haus verlassen, um sich zu amüsieren", "correct": true},
+          {"option": "Etwas ausgehen lassen", "correct": false},
+          {"option": "Enden oder ablaufen", "correct": true},
+          {"option": "Aus einem Weg gehen", "correct": false},
+          {"option": "Etwas annehmen", "correct": false}
+        ],
+        "Eingehen": [
+          {"option": "Eine Verbindung eingehen", "correct": true},
+          {"option": "Kaputtgehen oder schrumpfen", "correct": true},
+          {"option": "In ein Haus gehen", "correct": false},
+          {"option": "Etwas einpacken", "correct": false}
+        ],
+        "Vorgehen": [
+          {"option": "Handlungsweise oder Methode", "correct": true},
+          {"option": "Vor jemandem gehen", "correct": false},
+          {"option": "Fortschreiten", "correct": true},
+          {"option": "Etwas vorbereiten", "correct": false},
+          {"option": "Angreifen", "correct": true}
+        ],
+        "Umgehen": [
+          {"option": "Etwas vermeiden oder umlaufen", "correct": true},
+          {"option": "Mit jemandem umgehen", "correct": true},
+          {"option": "Um etwas gehen", "correct": false},
+          {"option": "Etwas umtauschen", "correct": false}
+        ],
+        "Nachgehen": [
+          {"option": "Etwas verfolgen oder überprüfen", "correct": true},
+          {"option": "Nach jemandem gehen", "correct": false},
+          {"option": "Einer Tätigkeit nachgehen", "correct": true},
+          {"option": "Etwas nachholen", "correct": false},
+          {"option": "Spät gehen", "correct": false}
+        ],
+        "Übergehen": [
+          {"option": "Etwas ignorieren oder überspringen", "correct": true},
+          {"option": "Über einen Weg gehen", "correct": false},
+          {"option": "Zu etwas übergehen", "correct": true},
+          {"option": "Etwas übernehmen", "correct": false}
+        ],
+        "Zugehen": [
+          {"option": "Auf jemanden zugehen", "correct": true},
+          {"option": "Etwas schließen", "correct": false},
+          {"option": "Sich einer Sache nähern", "correct": true},
+          {"option": "Zusammen gehen", "correct": false},
+          {"option": "Etwas hinzufügen", "correct": false}
+        ]
+      }
+    },
+    {
+      "stem": "halten",
+      "composites": [
+        {"word": "Be-halten", "exists": true},
+        {"word": "Vor-halten", "exists": true},
+        {"word": "Aus-halten", "exists": true},
+        {"word": "Ein-halten", "exists": true},
+        {"word": "Nach-halten", "exists": false},
+        {"word": "Über-halten", "exists": false},
+        {"word": "Ent-halten", "exists": true},
+        {"word": "Zu-halten", "exists": true}
+      ],
+      "meanings": {
+        "Behalten": [
+          {"option": "Etwas nicht weggeben", "correct": true},
+          {"option": "Beim Halten bleiben", "correct": false},
+          {"option": "Im Gedächtnis behalten", "correct": true},
+          {"option": "Etwas besitzen", "correct": false},
+          {"option": "Recht behalten", "correct": true}
+        ],
+        "Vorhalten": [
+          {"option": "Jemandem etwas vorwerfen", "correct": true},
+          {"option": "Vor etwas halten", "correct": false},
+          {"option": "Etwas bereitstellen", "correct": true},
+          {"option": "Vorne halten", "correct": false}
+        ],
+        "Aushalten": [
+          {"option": "Etwas ertragen", "correct": true},
+          {"option": "Aus dem Halt gehen", "correct": false},
+          {"option": "Lange halten", "correct": true},
+          {"option": "Etwas aushändigen", "correct": false},
+          {"option": "Durchhalten", "correct": true}
+        ],
+        "Einhalten": [
+          {"option": "Regeln befolgen", "correct": true},
+          {"option": "In etwas halten", "correct": false},
+          {"option": "Eine Pause einhalten", "correct": true},
+          {"option": "Etwas einpacken", "correct": false}
+        ],
+        "Enthalten": [
+          {"option": "Etwas beinhalten", "correct": true},
+          {"option": "Sich enthalten", "correct": true},
+          {"option": "Aus etwas enthalten", "correct": false},
+          {"option": "Etwas verbieten", "correct": false}
+        ],
+        "Zuhalten": [
+          {"option": "Etwas schließen oder festhalten", "correct": true},
+          {"option": "Zu jemandem halten", "correct": true},
+          {"option": "Zusammen halten", "correct": false},
+          {"option": "Etwas zuhalten", "correct": false},
+          {"option": "Loyal sein", "correct": true}
+        ]
+      }
+    },
+    {
+      "stem": "sehen",
+      "composites": [
+        {"word": "An-sehen", "exists": true},
+        {"word": "Aus-sehen", "exists": true},
+        {"word": "Be-sehen", "exists": true},
+        {"word": "Vor-sehen", "exists": true},
+        {"word": "Nach-sehen", "exists": true},
+        {"word": "Über-sehen", "exists": true},
+        {"word": "Ent-sehen", "exists": false},
+        {"word": "Ein-sehen", "exists": true}
+      ],
+      "meanings": {
+        "Ansehen": [
+          {"option": "Betrachten oder schauen", "correct": true},
+          {"option": "Ruf oder Reputation", "correct": true},
+          {"option": "An etwas sehen", "correct": false},
+          {"option": "Etwas annehmen", "correct": false},
+          {"option": "Fernsehen ansehen", "correct": true}
+        ],
+        "Aussehen": [
+          {"option": "Äußeres Erscheinungsbild", "correct": true},
+          {"option": "Aus dem Sehen gehen", "correct": false},
+          {"option": "Etwas auswählen", "correct": false},
+          {"option": "Wie etwas wirkt", "correct": true}
+        ],
+        "Besehen": [
+          {"option": "Genau betrachten", "correct": true},
+          {"option": "Beim Sehen bleiben", "correct": false},
+          {"option": "Etwas besuchen", "correct": false},
+          {"option": "Inspektion", "correct": true}
+        ],
+        "Vorsehen": [
+          {"option": "Vorsorgen oder planen", "correct": true},
+          {"option": "Vor etwas sehen", "correct": false},
+          {"option": "Vorausplanen", "correct": true},
+          {"option": "Etwas vorsehen", "correct": true},
+          {"option": "Vorne sehen", "correct": false}
+        ],
+        "Nachsehen": [
+          {"option": "Etwas überprüfen", "correct": true},
+          {"option": "Nach jemandem schauen", "correct": true},
+          {"option": "Nach dem Sehen", "correct": false},
+          {"option": "Verzeihen", "correct": true}
+        ],
+        "Übersehen": [
+          {"option": "Etwas nicht bemerken", "correct": true},
+          {"option": "Über etwas sehen", "correct": false},
+          {"option": "Überblicken", "correct": true},
+          {"option": "Etwas ignorieren", "correct": true},
+          {"option": "Übernehmen", "correct": false}
+        ],
+        "Einsehen": [
+          {"option": "Einsicht haben oder akzeptieren", "correct": true},
+          {"option": "In etwas sehen", "correct": true},
+          {"option": "Etwas einladen", "correct": false},
+          {"option": "Dokumente einsehen", "correct": true}
+        ]
+      }
+    },
+    {
+      "stem": "kommen",
+      "composites": [
+        {"word": "An-kommen", "exists": true},
+        {"word": "Aus-kommen", "exists": true},
+        {"word": "Be-kommen", "exists": true},
+        {"word": "Vor-kommen", "exists": true},
+        {"word": "Nach-kommen", "exists": true},
+        {"word": "Über-kommen", "exists": true},
+        {"word": "Ent-kommen", "exists": true},
+        {"word": "Zu-kommen", "exists": true}
+      ],
+      "meanings": {
+        "Ankommen": [
+          {"option": "An einem Ort eintreffen", "correct": true},
+          {"option": "Etwas annehmen", "correct": false},
+          {"option": "Beliebt sein", "correct": true},
+          {"option": "An etwas kommen", "correct": false},
+          {"option": "Anfangen", "correct": false}
+        ],
+        "Auskommen": [
+          {"option": "Mit etwas zurechtkommen", "correct": true},
+          {"option": "Aus dem Kommen gehen", "correct": false},
+          {"option": "Finanziell ausreichen", "correct": true},
+          {"option": "Etwas aushalten", "correct": false}
+        ],
+        "Bekommen": [
+          {"option": "Etwas erhalten", "correct": true},
+          {"option": "Beim Kommen bleiben", "correct": false},
+          {"option": "Passen oder geeignet sein", "correct": true},
+          {"option": "Etwas bekommen", "correct": true}
+        ],
+        "Vorkommen": [
+          {"option": "Etwas passiert oder existiert", "correct": true},
+          {"option": "Vor dem Kommen", "correct": false},
+          {"option": "Vorkommen wie", "correct": true},
+          {"option": "Etwas vorplanen", "correct": false},
+          {"option": "Natürlich vorkommen", "correct": true}
+        ],
+        "Nachkommen": [
+          {"option": "Jemandem folgen", "correct": true},
+          {"option": "Nach dem Kommen", "correct": false},
+          {"option": "Verpflichtung erfüllen", "correct": true},
+          {"option": "Nachkommen haben", "correct": true}
+        ],
+        "Überkommen": [
+          {"option": "Etwas überfällt einen (z.B. Gefühl)", "correct": true},
+          {"option": "Über etwas kommen", "correct": false},
+          {"option": "Besiegen", "correct": true},
+          {"option": "Etwas übernehmen", "correct": false}
+        ],
+        "Entkommen": [
+          {"option": "Entfliehen oder entgehen", "correct": true},
+          {"option": "Aus etwas entkommen", "correct": true},
+          {"option": "Entscheiden kommen", "correct": false},
+          {"option": "Etwas entfernen", "correct": false}
+        ],
+        "Zukommen": [
+          {"option": "Etwas zuteilwerden", "correct": true},
+          {"option": "Zu jemandem kommen", "correct": true},
+          {"option": "Zusammen kommen", "correct": false},
+          {"option": "Etwas zuschicken", "correct": true},
+          {"option": "Zukunft kommen", "correct": false}
+        ]
+      }
+    },
+    {
+      "stem": "machen",
+      "composites": [
+        {"word": "Aus-machen", "exists": true},
+        {"word": "Be-machen", "exists": false},
+        {"word": "Vor-machen", "exists": true},
+        {"word": "Nach-machen", "exists": true},
+        {"word": "Über-machen", "exists": false},
+        {"word": "Ent-machen", "exists": false},
+        {"word": "Ein-machen", "exists": true},
+        {"word": "Zu-machen", "exists": true}
+      ],
+      "meanings": {
+        "Ausmachen": [
+          {"option": "Etwas ausschalten", "correct": true},
+          {"option": "Vereinbaren oder ausmachen", "correct": true},
+          {"option": "Aus etwas machen", "correct": false},
+          {"option": "Entscheiden", "correct": true},
+          {"option": "Etwas aushalten", "correct": false}
+        ],
+        "Vormachen": [
+          {"option": "Etwas demonstrieren", "correct": true},
+          {"option": "Vor etwas machen", "correct": false},
+          {"option": "Täuschen", "correct": true},
+          {"option": "Vorne machen", "correct": false}
+        ],
+        "Nachmachen": [
+          {"option": "Etwas imitieren", "correct": true},
+          {"option": "Nach dem Machen", "correct": false},
+          {"option": "Fälschen", "correct": true},
+          {"option": "Etwas nachholen", "correct": false},
+          {"option": "Kopieren", "correct": true}
+        ],
+        "Einmachen": [
+          {"option": "Obst einmachen (einwecken)", "correct": true},
+          {"option": "In etwas machen", "correct": false},
+          {"option": "Einladen", "correct": false},
+          {"option": "Etwas konservieren", "correct": true}
+        ],
+        "Zumachen": [
+          {"option": "Etwas schließen", "correct": true},
+          {"option": "Zu etwas machen", "correct": false},
+          {"option": "Kaputtmachen", "correct": false},
+          {"option": "Etwas verriegeln", "correct": true},
+          {"option": "Zusammenmachen", "correct": false}
+        ]
+      }
+    },
+    {
+      "stem": "geben",
+      "composites": [
+        {"word": "Aus-geben", "exists": true},
+        {"word": "Be-geben", "exists": true},
+        {"word": "Vor-geben", "exists": true},
+        {"word": "Nach-geben", "exists": true},
+        {"word": "Über-geben", "exists": true},
+        {"word": "Ent-geben", "exists": false},
+        {"word": "Ein-geben", "exists": true},
+        {"word": "Zu-geben", "exists": true}
+      ],
+      "meanings": {
+        "Ausgeben": [
+          {"option": "Geld ausgeben", "correct": true},
+          {"option": "Etwas austeilen", "correct": true},
+          {"option": "Aus etwas geben", "correct": false},
+          {"option": "Sich ausgeben als", "correct": true},
+          {"option": "Etwas herausgeben", "correct": true}
+        ],
+        "Begeben": [
+          {"option": "Sich begeben (gehen)", "correct": true},
+          {"option": "Beim Geben bleiben", "correct": false},
+          {"option": "Etwas riskieren", "correct": true},
+          {"option": "Begebenheiten", "correct": true}
+        ],
+        "Vorgeben": [
+          {"option": "Etwas vortäuschen", "correct": true},
+          {"option": "Vor dem Geben", "correct": false},
+          {"option": "Vorgeben (z.B. Tempo)", "correct": true},
+          {"option": "Etwas angeben", "correct": true},
+          {"option": "Vorne geben", "correct": false}
+        ],
+        "Nachgeben": [
+          {"option": "Etwas nachholen geben", "correct": false},
+          {"option": "Nach dem Geben", "correct": false},
+          {"option": "Zustimmen oder weich werden", "correct": true},
+          {"option": "Etwas nachgeben", "correct": true}
+        ],
+        "Übergeben": [
+          {"option": "Etwas abgeben oder überreichen", "correct": true},
+          {"option": "Sich erbrechen", "correct": true},
+          {"option": "Über etwas geben", "correct": false},
+          {"option": "Etwas übertragen", "correct": true}
+        ],
+        "Eingeben": [
+          {"option": "Daten eingeben", "correct": true},
+          {"option": "In etwas geben", "correct": false},
+          {"option": "Etwas einflößen", "correct": true},
+          {"option": "Eingabe", "correct": true},
+          {"option": "Etwas einladen", "correct": false}
+        ],
+        "Zugeben": [
+          {"option": "Etwas zugeben (einräumen)", "correct": true},
+          {"option": "Zu jemandem geben", "correct": false},
+          {"option": "Hinzufügen", "correct": true},
+          {"option": "Etwas zugeben", "correct": true}
+        ]
+      }
+    },
+    {
+      "stem": "finden",
+      "composites": [
+        {"word": "Aus-finden", "exists": true},
+        {"word": "Be-finden", "exists": true},
+        {"word": "Vor-finden", "exists": true},
+        {"word": "Nach-finden", "exists": false},
+        {"word": "Über-finden", "exists": false},
+        {"word": "Ent-finden", "exists": true},
+        {"word": "Ein-finden", "exists": true},
+        {"word": "Zu-finden", "exists": false}
+      ],
+      "meanings": {
+        "Ausfinden": [
+          {"option": "Etwas herausfinden", "correct": true},
+          {"option": "Aus dem Finden gehen", "correct": false},
+          {"option": "Erforschen", "correct": true},
+          {"option": "Etwas aushalten", "correct": false}
+        ],
+        "Befinden": [
+          {"option": "Zustand oder Gesundheit", "correct": true},
+          {"option": "Beim Finden bleiben", "correct": false},
+          {"option": "Sich befinden (sein)", "correct": true},
+          {"option": "Etwas befinden", "correct": true},
+          {"option": "Befehl geben", "correct": false}
+        ],
+        "Vorfinden": [
+          {"option": "Etwas so antreffen", "correct": true},
+          {"option": "Vor dem Finden", "correct": false},
+          {"option": "Vorhanden finden", "correct": true},
+          {"option": "Vorne finden", "correct": false}
+        ],
+        "Entfinden": [
+          {"option": "Etwas erfinden", "correct": false},
+          {"option": "Aus etwas finden", "correct": false},
+          {"option": "Entdecken", "correct": true},
+          {"option": "Etwas erfinden (falsch, ist erfinden)", "correct": false}
+        ],
+        "Einfinden": [
+          {"option": "Sich einfinden (erscheinen)", "correct": true},
+          {"option": "In etwas finden", "correct": false},
+          {"option": "Etwas einfügen", "correct": false},
+          {"option": "Sich anpassen", "correct": true}
+        ]
+      }
+    },
+    {
+      "stem": "wissen",
+      "composites": [
+        {"word": "Be-wissen", "exists": false},
+        {"word": "Vor-wissen", "exists": false},
+        {"word": "Aus-wissen", "exists": false},
+        {"word": "Mit-wissen", "exists": true},
+        {"word": "Nach-wissen", "exists": false},
+        {"word": "Über-wissen", "exists": false},
+        {"word": "Ent-wissen", "exists": false},
+        {"word": "Zu-wissen", "exists": false}
+      ],
+      "meanings": {
+        "Mitwissen": [
+          {"option": "Etwas mitbekommen oder wissen", "correct": true},
+          {"option": "Mit jemandem wissen", "correct": false},
+          {"option": "Geheimnis teilen", "correct": true},
+          {"option": "Etwas mitmachen", "correct": false}
+        ]
+      }
+    },
+    {
+      "stem": "nehmen",
+      "composites": [
+        {"word": "Aus-nehmen", "exists": true},
+        {"word": "Be-nehmen", "exists": true},
+        {"word": "Vor-nehmen", "exists": true},
+        {"word": "Nach-nehmen", "exists": true},
+        {"word": "Über-nehmen", "exists": true},
+        {"word": "Ent-nehmen", "exists": true},
+        {"word": "Ein-nehmen", "exists": true},
+        {"word": "Zu-nehmen", "exists": true}
+      ],
+      "meanings": {
+        "Ausnehmen": [
+          {"option": "Etwas herausnehmen", "correct": true},
+          {"option": "Ausnutzen oder betrügen", "correct": true},
+          {"option": "Aus dem Nehmen gehen", "correct": false},
+          {"option": "Fisch ausnehmen", "correct": true},
+          {"option": "Etwas ausschließen", "correct": true}
+        ],
+        "Benehmen": [
+          {"option": "Verhalten oder Manieren", "correct": true},
+          {"option": "Beim Nehmen bleiben", "correct": false},
+          {"option": "Sich benehmen", "correct": true},
+          {"option": "Etwas benehmen", "correct": false}
+        ],
+        "Vornehmen": [
+          {"option": "Etwas planen oder vorhaben", "correct": true},
+          {"option": "Vor dem Nehmen", "correct": false},
+          {"option": "Sich etwas vornehmen", "correct": true},
+          {"option": "Vorne nehmen", "correct": false},
+          {"option": "Etwas ernst nehmen", "correct": false}
+        ],
+        "Nachnehmen": [
+          {"option": "Etwas nachholen", "correct": true},
+          {"option": "Nach dem Nehmen", "correct": false},
+          {"option": "Nochmal nehmen", "correct": true},
+          {"option": "Etwas nachahmen", "correct": false}
+        ],
+        "Übernehmen": [
+          {"option": "Verantwortung übernehmen", "correct": true},
+          {"option": "Etwas übernehmen (kaufen)", "correct": true},
+          {"option": "Über etwas nehmen", "correct": false},
+          {"option": "Übertreiben", "correct": false}
+        ],
+        "Entnehmen": [
+          {"option": "Etwas herausnehmen", "correct": true},
+          {"option": "Aus etwas entnehmen", "correct": true},
+          {"option": "Entscheiden nehmen", "correct": false},
+          {"option": "Etwas ablehnen", "correct": false}
+        ],
+        "Einnehmen": [
+          {"option": "Medizin einnehmen", "correct": true},
+          {"option": "Einnahmen haben", "correct": true},
+          {"option": "In etwas nehmen", "correct": false},
+          {"option": "Etwas erobern", "correct": true},
+          {"option": "Einladen", "correct": false}
+        ],
+        "Zunehmen": [
+          {"option": "Gewicht zunehmen", "correct": true},
+          {"option": "Zu etwas nehmen", "correct": false},
+          {"option": "Zunehmen (an Intensität)", "correct": true},
+          {"option": "Etwas hinzunehmen", "correct": true}
+        ]
+      }
+    },
+    {
+      "stem": "stehen",
+      "composites": [
+        {"word": "Auf-stehen", "exists": true},
+        {"word": "Be-stehen", "exists": true},
+        {"word": "Ver-stehen", "exists": true},
+        {"word": "Ent-stehen", "exists": true},
+        {"word": "An-stehen", "exists": true},
+        {"word": "Aus-stehen", "exists": true},
+        {"word": "Über-stehen", "exists": true},
+        {"word": "Zu-stehen", "exists": true}
+      ],
+      "meanings": {
+        "Aufstehen": [
+          {"option": "Vom Sitzen oder Liegen erheben", "correct": true},
+          {"option": "Auf etwas stehen", "correct": false},
+          {"option": "Sich auflehnen", "correct": true},
+          {"option": "Morgens aufwachen", "correct": true},
+          {"option": "Etwas aufbauen", "correct": false}
+        ],
+        "Bestehen": [
+          {"option": "Eine Prüfung erfolgreich absolvieren", "correct": true},
+          {"option": "Beim Stehen bleiben", "correct": false},
+          {"option": "Existieren oder vorhanden sein", "correct": true},
+          {"option": "Aus etwas bestehen", "correct": true},
+          {"option": "Auf etwas bestehen (beharren)", "correct": true}
+        ],
+        "Verstehen": [
+          {"option": "Etwas begreifen oder kapieren", "correct": true},
+          {"option": "Sich mit jemandem verstehen", "correct": true},
+          {"option": "Vor etwas stehen", "correct": false},
+          {"option": "Etwas hören und erfassen", "correct": true}
+        ],
+        "Entstehen": [
+          {"option": "Etwas bildet sich oder wird geschaffen", "correct": true},
+          {"option": "Ent stehen gehen", "correct": false},
+          {"option": "Entstehung von etwas Neuem", "correct": true},
+          {"option": "Etwas entfernen", "correct": false}
+        ],
+        "Anstehen": [
+          {"option": "In einer Schlange warten", "correct": true},
+          {"option": "An etwas stehen", "correct": false},
+          {"option": "Etwas steht bevor", "correct": true},
+          {"option": "Etwas annehmen", "correct": false},
+          {"option": "Sich ziemen oder angemessen sein", "correct": true}
+        ],
+        "Ausstehen": [
+          {"option": "Noch nicht bezahlt sein", "correct": true},
+          {"option": "Jemanden nicht ausstehen können", "correct": true},
+          {"option": "Aus dem Stehen gehen", "correct": false},
+          {"option": "Etwas ertragen", "correct": true}
+        ],
+        "Überstehen": [
+          {"option": "Etwas Schwieriges durchhalten", "correct": true},
+          {"option": "Über etwas stehen", "correct": false},
+          {"option": "Eine Krankheit überleben", "correct": true},
+          {"option": "Etwas überragen", "correct": true}
+        ],
+        "Zustehen": [
+          {"option": "Ein Recht haben auf etwas", "correct": true},
+          {"option": "Zu etwas stehen", "correct": false},
+          {"option": "Jemandem gebühren", "correct": true},
+          {"option": "Zusammen stehen", "correct": false}
+        ]
+      }
+    },
+    {
+      "stem": "lassen",
+      "composites": [
+        {"word": "Ver-lassen", "exists": true},
+        {"word": "Be-lassen", "exists": true},
+        {"word": "Ent-lassen", "exists": true},
+        {"word": "Ein-lassen", "exists": true},
+        {"word": "Aus-lassen", "exists": true},
+        {"word": "Zu-lassen", "exists": true},
+        {"word": "Nach-lassen", "exists": true},
+        {"word": "Über-lassen", "exists": true}
+      ],
+      "meanings": {
+        "Verlassen": [
+          {"option": "Einen Ort oder eine Person verlassen", "correct": true},
+          {"option": "Sich auf jemanden verlassen", "correct": true},
+          {"option": "Ver lassen gehen", "correct": false},
+          {"option": "Im Stich lassen", "correct": true}
+        ],
+        "Belassen": [
+          {"option": "Etwas so lassen wie es ist", "correct": true},
+          {"option": "Beim Lassen bleiben", "correct": false},
+          {"option": "Nicht verändern", "correct": true},
+          {"option": "Etwas behalten", "correct": false}
+        ],
+        "Entlassen": [
+          {"option": "Jemanden aus dem Dienst entlassen", "correct": true},
+          {"option": "Aus dem Krankenhaus entlassen", "correct": true},
+          {"option": "Ent lassen gehen", "correct": false},
+          {"option": "Freilassen", "correct": true}
+        ],
+        "Einlassen": [
+          {"option": "Jemanden hereinlassen", "correct": true},
+          {"option": "Sich auf etwas einlassen", "correct": true},
+          {"option": "In etwas lassen", "correct": false},
+          {"option": "Wasser einlassen (Badewanne)", "correct": true}
+        ],
+        "Auslassen": [
+          {"option": "Etwas überspringen oder weglassen", "correct": true},
+          {"option": "Seine Wut an jemandem auslassen", "correct": true},
+          {"option": "Aus dem Lassen gehen", "correct": false},
+          {"option": "Butter auslassen (schmelzen)", "correct": true}
+        ],
+        "Zulassen": [
+          {"option": "Etwas erlauben oder genehmigen", "correct": true},
+          {"option": "Zu etwas lassen", "correct": false},
+          {"option": "Ein Fahrzeug zulassen", "correct": true},
+          {"option": "Nicht verhindern", "correct": true}
+        ],
+        "Nachlassen": [
+          {"option": "Schwächer werden oder abnehmen", "correct": true},
+          {"option": "Nach dem Lassen", "correct": false},
+          {"option": "Im Preis nachlassen", "correct": true},
+          {"option": "Nachgeben", "correct": true}
+        ],
+        "Überlassen": [
+          {"option": "Jemandem etwas überlassen", "correct": true},
+          {"option": "Über etwas lassen", "correct": false},
+          {"option": "Die Entscheidung überlassen", "correct": true},
+          {"option": "Abgeben oder schenken", "correct": true}
+        ]
+      }
+    },
+    {
+      "stem": "fallen",
+      "composites": [
+        {"word": "Auf-fallen", "exists": true},
+        {"word": "Aus-fallen", "exists": true},
+        {"word": "Be-fallen", "exists": true},
+        {"word": "Ein-fallen", "exists": true},
+        {"word": "Ent-fallen", "exists": true},
+        {"word": "Ge-fallen", "exists": true},
+        {"word": "Ver-fallen", "exists": true},
+        {"word": "Zu-fallen", "exists": true}
+      ],
+      "meanings": {
+        "Auffallen": [
+          {"option": "Bemerkt werden oder hervorstechen", "correct": true},
+          {"option": "Auf etwas fallen", "correct": false},
+          {"option": "Aufmerksamkeit erregen", "correct": true},
+          {"option": "Etwas aufheben", "correct": false}
+        ],
+        "Ausfallen": [
+          {"option": "Nicht stattfinden", "correct": true},
+          {"option": "Haare fallen aus", "correct": true},
+          {"option": "Aus dem Fallen gehen", "correct": false},
+          {"option": "Ein Ergebnis ausfallen", "correct": true}
+        ],
+        "Befallen": [
+          {"option": "Von einer Krankheit befallen werden", "correct": true},
+          {"option": "Beim Fallen bleiben", "correct": false},
+          {"option": "Von Schädlingen befallen", "correct": true},
+          {"option": "Etwas überkommen", "correct": true}
+        ],
+        "Einfallen": [
+          {"option": "Eine Idee haben", "correct": true},
+          {"option": "In ein Land einfallen (einmarschieren)", "correct": true},
+          {"option": "In etwas fallen", "correct": false},
+          {"option": "Zusammenbrechen (Gebäude)", "correct": true}
+        ],
+        "Entfallen": [
+          {"option": "Vergessen oder nicht mehr wissen", "correct": true},
+          {"option": "Wegfallen oder gestrichen werden", "correct": true},
+          {"option": "Ent fallen gehen", "correct": false},
+          {"option": "Anteilig zukommen", "correct": true}
+        ],
+        "Gefallen": [
+          {"option": "Freude bereiten oder angenehm sein", "correct": true},
+          {"option": "Bei dem Fallen bleiben", "correct": false},
+          {"option": "Einen Gefallen tun", "correct": true},
+          {"option": "Im Krieg gefallen", "correct": true}
+        ],
+        "Verfallen": [
+          {"option": "Ablaufen oder ungültig werden", "correct": true},
+          {"option": "In Verfall geraten", "correct": true},
+          {"option": "Ver fallen gehen", "correct": false},
+          {"option": "Einer Sache verfallen sein (süchtig)", "correct": true}
+        ],
+        "Zufallen": [
+          {"option": "Sich von selbst schließen", "correct": true},
+          {"option": "Jemandem zuteilwerden", "correct": true},
+          {"option": "Zu etwas fallen", "correct": false},
+          {"option": "Die Augen fallen zu", "correct": true}
+        ]
+      }
+    },
+    {
+      "stem": "schreiben",
+      "composites": [
+        {"word": "Auf-schreiben", "exists": true},
+        {"word": "Be-schreiben", "exists": true},
+        {"word": "Ein-schreiben", "exists": true},
+        {"word": "Aus-schreiben", "exists": true},
+        {"word": "Vor-schreiben", "exists": true},
+        {"word": "Über-schreiben", "exists": true},
+        {"word": "Ab-schreiben", "exists": true},
+        {"word": "Ent-schreiben", "exists": false}
+      ],
+      "meanings": {
+        "Aufschreiben": [
+          {"option": "Etwas notieren", "correct": true},
+          {"option": "Auf etwas schreiben", "correct": false},
+          {"option": "Schriftlich festhalten", "correct": true},
+          {"option": "Etwas aufbauen", "correct": false}
+        ],
+        "Beschreiben": [
+          {"option": "Etwas mit Worten darstellen", "correct": true},
+          {"option": "Beim Schreiben bleiben", "correct": false},
+          {"option": "Eine Fläche beschreiben (vollschreiben)", "correct": true},
+          {"option": "Schildern", "correct": true}
+        ],
+        "Einschreiben": [
+          {"option": "Einen Brief einschreiben lassen", "correct": true},
+          {"option": "Sich einschreiben (immatrikulieren)", "correct": true},
+          {"option": "In etwas schreiben", "correct": false},
+          {"option": "Registrieren", "correct": true}
+        ],
+        "Ausschreiben": [
+          {"option": "Eine Stelle ausschreiben", "correct": true},
+          {"option": "Vollständig ausschreiben (nicht abkürzen)", "correct": true},
+          {"option": "Aus dem Schreiben gehen", "correct": false},
+          {"option": "Einen Wettbewerb ausschreiben", "correct": true}
+        ],
+        "Vorschreiben": [
+          {"option": "Bestimmen oder anordnen", "correct": true},
+          {"option": "Vor dem Schreiben", "correct": false},
+          {"option": "Regeln vorschreiben", "correct": true},
+          {"option": "Als Vorlage schreiben", "correct": true}
+        ],
+        "Überschreiben": [
+          {"option": "Etwas übertragen (z.B. Eigentum)", "correct": true},
+          {"option": "Daten überschreiben (ersetzen)", "correct": true},
+          {"option": "Über etwas schreiben", "correct": false},
+          {"option": "Eine Überschrift geben", "correct": true}
+        ],
+        "Abschreiben": [
+          {"option": "Von jemandem abschreiben (kopieren)", "correct": true},
+          {"option": "Etwas als Verlust abschreiben", "correct": true},
+          {"option": "Ab dem Schreiben", "correct": false},
+          {"option": "Steuerlich absetzen", "correct": true}
+        ]
+      }
+    },
+    {
+      "stem": "ziehen",
+      "composites": [
+        {"word": "An-ziehen", "exists": true},
+        {"word": "Aus-ziehen", "exists": true},
+        {"word": "Be-ziehen", "exists": true},
+        {"word": "Ein-ziehen", "exists": true},
+        {"word": "Er-ziehen", "exists": true},
+        {"word": "Um-ziehen", "exists": true},
+        {"word": "Vor-ziehen", "exists": true},
+        {"word": "Ent-ziehen", "exists": true}
+      ],
+      "meanings": {
+        "Anziehen": [
+          {"option": "Kleidung anziehen", "correct": true},
+          {"option": "Jemanden anlocken", "correct": true},
+          {"option": "An etwas ziehen", "correct": false},
+          {"option": "Schraube anziehen (festziehen)", "correct": true}
+        ],
+        "Ausziehen": [
+          {"option": "Kleidung ausziehen", "correct": true},
+          {"option": "Aus einer Wohnung ausziehen", "correct": true},
+          {"option": "Aus dem Ziehen gehen", "correct": false},
+          {"option": "Etwas extrahieren", "correct": true}
+        ],
+        "Beziehen": [
+          {"option": "Ein Bett beziehen", "correct": true},
+          {"option": "Sich auf etwas beziehen", "correct": true},
+          {"option": "Beim Ziehen bleiben", "correct": false},
+          {"option": "Gehalt beziehen", "correct": true}
+        ],
+        "Einziehen": [
+          {"option": "In eine Wohnung einziehen", "correct": true},
+          {"option": "Geld einziehen (einfordern)", "correct": true},
+          {"option": "In etwas ziehen", "correct": false},
+          {"option": "Eingezogen werden (Militär)", "correct": true}
+        ],
+        "Erziehen": [
+          {"option": "Kinder erziehen", "correct": true},
+          {"option": "Er ziehen gehen", "correct": false},
+          {"option": "Ausbilden und formen", "correct": true},
+          {"option": "Zu etwas erziehen", "correct": true}
+        ],
+        "Umziehen": [
+          {"option": "Den Wohnort wechseln", "correct": true},
+          {"option": "Kleidung wechseln", "correct": true},
+          {"option": "Um etwas ziehen", "correct": false},
+          {"option": "Etwas umtauschen", "correct": false}
+        ],
+        "Vorziehen": [
+          {"option": "Bevorzugen", "correct": true},
+          {"option": "Einen Vorhang vorziehen", "correct": true},
+          {"option": "Vor dem Ziehen", "correct": false},
+          {"option": "Einen Termin vorziehen", "correct": true}
+        ],
+        "Entziehen": [
+          {"option": "Etwas wegnehmen", "correct": true},
+          {"option": "Sich einer Sache entziehen", "correct": true},
+          {"option": "Ent ziehen gehen", "correct": false},
+          {"option": "Entzug (z.B. Führerschein)", "correct": true}
+        ]
+      }
+    },
+    {
+      "stem": "führen",
+      "composites": [
+        {"word": "An-führen", "exists": true},
+        {"word": "Auf-führen", "exists": true},
+        {"word": "Aus-führen", "exists": true},
+        {"word": "Be-führen", "exists": false},
+        {"word": "Durch-führen", "exists": true},
+        {"word": "Ein-führen", "exists": true},
+        {"word": "Ver-führen", "exists": true},
+        {"word": "Zu-führen", "exists": true}
+      ],
+      "meanings": {
+        "Anführen": [
+          {"option": "Eine Gruppe leiten", "correct": true},
+          {"option": "Etwas als Beispiel anführen", "correct": true},
+          {"option": "An etwas führen", "correct": false},
+          {"option": "Jemanden anführen (täuschen)", "correct": true}
+        ],
+        "Aufführen": [
+          {"option": "Ein Theaterstück aufführen", "correct": true},
+          {"option": "Sich schlecht aufführen (benehmen)", "correct": true},
+          {"option": "Auf etwas führen", "correct": false},
+          {"option": "In einer Liste aufführen", "correct": true}
+        ],
+        "Ausführen": [
+          {"option": "Eine Aufgabe erledigen", "correct": true},
+          {"option": "Etwas im Detail erklären", "correct": true},
+          {"option": "Aus dem Führen gehen", "correct": false},
+          {"option": "Waren exportieren", "correct": true}
+        ],
+        "Durchführen": [
+          {"option": "Etwas veranstalten oder realisieren", "correct": true},
+          {"option": "Durch etwas führen", "correct": false},
+          {"option": "Ein Projekt durchführen", "correct": true},
+          {"option": "Etwas zu Ende bringen", "correct": true}
+        ],
+        "Einführen": [
+          {"option": "Etwas Neues einführen", "correct": true},
+          {"option": "Jemanden vorstellen", "correct": true},
+          {"option": "In etwas führen", "correct": false},
+          {"option": "Waren importieren", "correct": true}
+        ],
+        "Verführen": [
+          {"option": "Jemanden in Versuchung bringen", "correct": true},
+          {"option": "Ver führen gehen", "correct": false},
+          {"option": "Jemanden verlocken", "correct": true},
+          {"option": "Romantisch verführen", "correct": true}
+        ],
+        "Zuführen": [
+          {"option": "Etwas hinzufügen oder liefern", "correct": true},
+          {"option": "Zu etwas führen", "correct": false},
+          {"option": "Der Polizei zuführen", "correct": true},
+          {"option": "Energie zuführen", "correct": true}
+        ]
+      }
+    },
+    {
+      "stem": "sprechen",
+      "composites": [
+        {"word": "An-sprechen", "exists": true},
+        {"word": "Aus-sprechen", "exists": true},
+        {"word": "Be-sprechen", "exists": true},
+        {"word": "Ent-sprechen", "exists": true},
+        {"word": "Ver-sprechen", "exists": true},
+        {"word": "Wider-sprechen", "exists": true},
+        {"word": "Zu-sprechen", "exists": true},
+        {"word": "Über-sprechen", "exists": false}
+      ],
+      "meanings": {
+        "Ansprechen": [
+          {"option": "Jemanden ansprechen (kontaktieren)", "correct": true},
+          {"option": "Auf etwas ansprechen (reagieren)", "correct": true},
+          {"option": "An etwas sprechen", "correct": false},
+          {"option": "Gefallen oder zusagen", "correct": true}
+        ],
+        "Aussprechen": [
+          {"option": "Ein Wort aussprechen", "correct": true},
+          {"option": "Eine Meinung aussprechen", "correct": true},
+          {"option": "Aus dem Sprechen gehen", "correct": false},
+          {"option": "Sich aussprechen (über Probleme reden)", "correct": true}
+        ],
+        "Besprechen": [
+          {"option": "Etwas diskutieren", "correct": true},
+          {"option": "Beim Sprechen bleiben", "correct": false},
+          {"option": "Einen Anrufbeantworter besprechen", "correct": true},
+          {"option": "Eine Besprechung haben", "correct": true}
+        ],
+        "Entsprechen": [
+          {"option": "Übereinstimmen mit", "correct": true},
+          {"option": "Ent sprechen gehen", "correct": false},
+          {"option": "Den Anforderungen entsprechen", "correct": true},
+          {"option": "Gleichwertig sein", "correct": true}
+        ],
+        "Versprechen": [
+          {"option": "Ein Versprechen geben", "correct": true},
+          {"option": "Sich versprechen (falsch sagen)", "correct": true},
+          {"option": "Ver sprechen gehen", "correct": false},
+          {"option": "Etwas zusagen", "correct": true}
+        ],
+        "Widersprechen": [
+          {"option": "Gegen etwas argumentieren", "correct": true},
+          {"option": "Wider sprechen gehen", "correct": false},
+          {"option": "Anderer Meinung sein", "correct": true},
+          {"option": "Im Widerspruch stehen", "correct": true}
+        ],
+        "Zusprechen": [
+          {"option": "Jemandem Mut zusprechen", "correct": true},
+          {"option": "Zu etwas sprechen", "correct": false},
+          {"option": "Etwas zuteilen (rechtlich)", "correct": true},
+          {"option": "Viel essen (dem Essen zusprechen)", "correct": true}
+        ]
+      }
+    }
+  ]
+}
