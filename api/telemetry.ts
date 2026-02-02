@@ -38,6 +38,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json({ success: true });
     } catch (error: any) {
         console.error('Telemetry error:', error);
-        return res.status(500).json({ error: error.message });
+        // Log stack trace if available
+        if (error.stack) {
+            console.error(error.stack);
+        }
+        return res.status(500).json({
+            error: {
+                code: '500',
+                message: error.message || 'A server error has occurred',
+                details: process.env.NODE_ENV === 'development' ? error : undefined
+            }
+        });
     }
 }

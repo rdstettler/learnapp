@@ -5,9 +5,16 @@ let client: ReturnType<typeof createClient> | null = null;
 
 export function getTursoClient() {
     if (!client) {
+        const url = process.env.TURSO_DATABASE_URL;
+        const authToken = process.env.TURSO_AUTH_TOKEN;
+
+        if (!url || !authToken) {
+            throw new Error('Missing Turso credentials. Please set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN environment variables.');
+        }
+
         client = createClient({
-            url: process.env.TURSO_DATABASE_URL!,
-            authToken: process.env.TURSO_AUTH_TOKEN!,
+            url,
+            authToken,
         });
     }
     return client;
