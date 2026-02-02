@@ -1,6 +1,7 @@
 import { Component, signal, computed, inject, ChangeDetectorRef, SecurityContext } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { DataService } from '../../services/data.service';
+import { ApiService } from '../../services/api.service';
 
 interface TextItem {
     id: number;
@@ -22,6 +23,9 @@ export class DasdassComponent {
     private dataService = inject(DataService);
     private sanitizer = inject(DomSanitizer);
     private cdr = inject(ChangeDetectorRef);
+    private apiService = inject(ApiService);
+
+    private quizStartTime = 0;
 
     readonly TEXTS_PER_ROUND = 10;
 
@@ -37,6 +41,9 @@ export class DasdassComponent {
     answered = signal(false);
     showPopup = signal(false);
     currentSlotIndex = signal<number | null>(null);
+
+    // Store all text results for AI analysis
+    allTextResults: { text: string; textId: number; answers: { correct: string; userAnswer: string | null; isCorrect: boolean }[] }[] = [];
 
     progress = computed(() => (this.currentTextIndex() / this.TEXTS_PER_ROUND) * 100);
     percentage = computed(() => {
@@ -73,6 +80,8 @@ export class DasdassComponent {
         this.currentTextIndex.set(0);
         this.totalCorrect.set(0);
         this.totalWrong.set(0);
+        this.allTextResults = [];
+        this.quizStartTime = Date.now();
         this.screen.set('quiz');
         this.showText();
     }
@@ -211,16 +220,35 @@ export class DasdassComponent {
         let correctCount = 0;
         let wrongCount = 0;
 
+        const answers: { correct: string; userAnswer: string | null; isCorrect: boolean }[] = [];
+
         for (const key of Object.keys(this.slotData)) {
             const index = parseInt(key);
             const data = this.slotData[index];
             const userChoice = this.userChoices[index];
+            const isCorrect = userChoice === data.correct;
 
-            if (userChoice === data.correct) {
+            if (isCorrect) {
                 correctCount++;
             } else {
                 wrongCount++;
             }
+
+            answers.push({
+                correct: data.correct,
+                userAnswer: userChoice || null,
+                isCorrect
+            });
+        }
+
+        // Store this text's results for AI analysis
+        const currentText = this.currentText();
+        if (currentText) {
+            this.allTextResults.push({
+                text: currentText.sentences,
+                textId: currentText.id,
+                answers
+            });
         }
 
         this.totalCorrect.update(c => c + correctCount);
@@ -228,8 +256,10 @@ export class DasdassComponent {
         this.answered.set(true);
     }
 
+
     nextText(): void {
         if (this.currentTextIndex() >= this.TEXTS_PER_ROUND - 1) {
+            this.saveResult();
             this.screen.set('results');
         } else {
             this.currentTextIndex.update(i => i + 1);
@@ -237,7 +267,23 @@ export class DasdassComponent {
         }
     }
 
+    private saveResult(): void {
+        const durationSeconds = Math.round((Date.now() - this.quizStartTime) / 1000);
+
+        this.apiService.saveResult({
+            appId: 'dasdass',
+            score: this.totalCorrect(),
+            maxScore: this.totalCorrect() + this.totalWrong(),
+            durationSeconds,
+            details: {
+                textsCompleted: this.TEXTS_PER_ROUND,
+                fullTextResults: this.allTextResults
+            }
+        });
+    }
+
     restartQuiz(): void {
         this.screen.set('welcome');
     }
 }
+
