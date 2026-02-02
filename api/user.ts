@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTursoClient, initSchema } from './_lib/turso';
+import { getTursoClient, initSchema } from './_lib/turso.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Enable CORS
