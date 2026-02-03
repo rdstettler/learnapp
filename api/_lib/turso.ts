@@ -30,7 +30,21 @@ export async function initSchema() {
             email TEXT NOT NULL,
             display_name TEXT,
             photo_url TEXT,
+            avatar_config TEXT,
+            avatar_svg TEXT,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+    await db.execute(`
+        CREATE TABLE IF NOT EXISTS user_metrics (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_uid TEXT NOT NULL,
+            app_id TEXT NOT NULL,
+            open_count INTEGER DEFAULT 0,
+            last_opened DATETIME,
+            UNIQUE(user_uid, app_id),
+            FOREIGN KEY (user_uid) REFERENCES users(uid)
         )
     `);
 
@@ -69,5 +83,8 @@ export async function initSchema() {
     `);
     await db.execute(`
         CREATE INDEX IF NOT EXISTS idx_telemetry_user ON telemetry_events(user_uid)
+    `);
+    await db.execute(`
+        CREATE INDEX IF NOT EXISTS idx_metrics_user ON user_metrics(user_uid)
     `);
 }

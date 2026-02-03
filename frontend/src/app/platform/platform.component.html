@@ -7,12 +7,15 @@
             <span class="auth-loading">Laden...</span>
             } @else if (authService.isAuthenticated()) {
             <div class="user-info">
-                @if (authService.user()?.photoURL) {
+                @if (getSafeAvatarSvg()) {
+                <div class="user-avatar-custom" [innerHTML]="getSafeAvatarSvg()"></div>
+                } @else if (authService.user()?.photoURL) {
                 <img [src]="authService.user()?.photoURL" alt="Avatar" class="user-avatar">
                 } @else {
-                <div class="user-avatar-placeholder">{{ authService.user()?.email?.charAt(0)?.toUpperCase() }}</div>
+                <div class="user-avatar-placeholder">{{ getDisplayName().charAt(0).toUpperCase() }}</div>
                 }
-                <span class="user-name">{{ authService.user()?.displayName || authService.user()?.email }}</span>
+                <span class="user-name">{{ getDisplayName() }}</span>
+                <button class="auth-btn settings-btn" (click)="openSettings()" title="Einstellungen">⚙️</button>
                 <button class="auth-btn logout-btn" (click)="signOut()">Abmelden</button>
             </div>
             } @else {

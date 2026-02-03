@@ -1,10 +1,11 @@
-import { Component, inject, signal, computed, ChangeDetectorRef, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectorRef, OnInit, ViewChild, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { UserService } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
 import { AuthModalComponent } from '../shared';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 export interface AppInfo {
     id: string;
@@ -30,12 +31,24 @@ interface AppsConfig {
 export class PlatformComponent implements OnInit {
     private router = inject(Router);
     private http = inject(HttpClient);
-    private userService = inject(UserService);
+    userService = inject(UserService);
     private cdr = inject(ChangeDetectorRef);
     private apiService = inject(ApiService);
+    private sanitizer = inject(DomSanitizer);
 
     // Auth
     authService = inject(AuthService);
+
+    constructor() {
+        // Load metrics and profile from backend when user logs in
+        effect(() => {
+            const user = this.authService.user();
+            if (user) {
+                this.userService.loadMetricsFromBackend(user.uid);
+                this.userService.loadProfileFromBackend(user.uid);
+            }
+        });
+    }
     @ViewChild(AuthModalComponent) authModal!: AuthModalComponent;
 
 
@@ -89,7 +102,8 @@ export class PlatformComponent implements OnInit {
 
     openApp(app: AppInfo): void {
         console.log('Opening app:', app.id, 'route:', app.route);
-        this.userService.recordAppOpen(app.id);
+        const uid = this.authService.user()?.uid;
+        this.userService.recordAppOpen(app.id, uid);
         this.router.navigateByUrl(app.route).then(
             success => console.log('Navigation success:', success),
             error => console.error('Navigation error:', error)
@@ -98,7 +112,8 @@ export class PlatformComponent implements OnInit {
 
     navigateToApp(app: AppInfo): void {
         console.log('navigateToApp called:', app.id, app.route);
-        this.userService.recordAppOpen(app.id);
+        const uid = this.authService.user()?.uid;
+        this.userService.recordAppOpen(app.id, uid);
 
         // Track in database if user is authenticated
         this.apiService.trackAppOpen(app.id);
@@ -134,6 +149,23 @@ export class PlatformComponent implements OnInit {
 
     signOut(): void {
         this.authService.signOut();
+    }
+
+    openSettings(): void {
+        this.router.navigate(['/settings']);
+    }
+
+    getDisplayName(): string {
+        const profile = this.userService.profile();
+        if (profile?.displayName) {
+            return profile.displayName;
+        }
+        return this.authService.user()?.displayName || this.authService.user()?.email || '';
+    }
+
+    getSafeAvatarSvg(): SafeHtml | null {
+        const svg = this.userService.getAvatarSvg();
+        return svg ? this.sanitizer.bypassSecurityTrustHtml(svg) : null;
     }
 }
 

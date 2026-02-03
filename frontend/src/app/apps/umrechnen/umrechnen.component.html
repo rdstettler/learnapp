@@ -1,0 +1,144 @@
+<div class="bg-animation"></div>
+<div class="app-container">
+    <div class="app-header">
+        <h1>📐 Umrechnen</h1>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+        <!-- Welcome Screen -->
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">📐</div>
+            <h2 style="margin-bottom: 10px;">Einheiten umrechnen</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Wähle die Kategorien, die du üben möchtest:
+            </p>
+
+            <div class="category-selection">
+                @for (category of categories; track category.id) {
+                <div class="category-item" 
+                     [class.selected]="selectedCategories().has(category.id)"
+                     (click)="toggleCategory(category.id)">
+                    <div class="category-checkbox"></div>
+                    <span class="category-icon">{{ category.icon }}</span>
+                    <span class="category-name">{{ category.name }}</span>
+                </div>
+                }
+            </div>
+
+            <button class="btn btn-secondary select-all-btn" (click)="selectAllCategories()">
+                Alle auswählen
+            </button>
+
+            <div class="rule-box">
+                <strong>Tipp:</strong> Achte auf die Einheiten! Bei Flächen (m²) und Volumen (m³) 
+                ändern sich die Faktoren entsprechend.
+            </div>
+
+            <button class="btn btn-primary" style="margin-top: 24px;" 
+                    (click)="startQuiz()" [disabled]="!canStart()">
+                Quiz starten
+            </button>
+        </div>
+        }
+
+        <!-- Quiz Screen -->
+        @if (screen() === 'quiz') {
+        <div class="quiz-content">
+            <div class="round-info">Aufgabe {{ problemIndex() + 1 }} / {{ PROBLEMS_PER_ROUND }}</div>
+
+            @if (currentProblem(); as problem) {
+            <div class="category-badge">
+                <span>{{ problem.category.icon }}</span>
+                <span>{{ problem.category.name }}</span>
+            </div>
+
+            <div class="score-live">
+                <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
+                <div class="score-live-item wrong">✗ {{ totalWrong() }}</div>
+            </div>
+
+            <div class="problem-container">
+                <div class="conversion-display">
+                    <span class="value">{{ formatNumber(problem.value) }}</span>
+                    <span class="unit">{{ problem.fromUnit.symbol }}</span>
+                    <span class="equals">=</span>
+                    <span class="question-mark">?</span>
+                    <span class="unit">{{ problem.toUnit.symbol }}</span>
+                </div>
+            </div>
+
+            <div class="answer-row">
+                <input type="text" 
+                       class="answer-input" 
+                       [class.correct]="answered() && isCorrect()"
+                       [class.incorrect]="answered() && !isCorrect()" 
+                       [value]="userAnswer()"
+                       (input)="updateAnswer($any($event.target).value)" 
+                       (keyup.enter)="!answered() && userAnswer() ? checkAnswer() : nextProblem()"
+                       [disabled]="answered()"
+                       placeholder="Antwort eingeben..." 
+                       autocomplete="off"
+                       inputmode="decimal">
+                <span class="answer-unit">{{ problem.toUnit.symbol }}</span>
+            </div>
+
+            @if (answered() && !isCorrect()) {
+            <div class="correction-hint">
+                <span class="correction-label">Richtige Antwort:</span>
+                <span class="correction-value">{{ formatNumber(problem.correctAnswer) }} {{ problem.toUnit.symbol }}</span>
+            </div>
+            }
+
+            @if (answered() && isCorrect()) {
+            <div class="success-hint">
+                ✓ Richtig!
+            </div>
+            }
+            }
+
+            @if (!answered()) {
+            <button class="btn btn-primary" [disabled]="!userAnswer()" (click)="checkAnswer()">
+                Überprüfen
+            </button>
+            } @else {
+            <button class="btn btn-primary" (click)="nextProblem()">
+                {{ problemIndex() + 1 >= PROBLEMS_PER_ROUND ? 'Ergebnis anzeigen' : 'Weiter' }}
+            </button>
+            }
+        </div>
+        }
+
+        <!-- Results Screen -->
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <p class="score-text">{{ totalCorrect() }} von {{ PROBLEMS_PER_ROUND }} richtig!</p>
+
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ totalCorrect() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ totalWrong() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <button class="btn btn-secondary" (click)="playAgain()">
+                    Nochmal spielen
+                </button>
+                <button class="btn btn-primary" (click)="restartQuiz()">
+                    Kategorien ändern
+                </button>
+            </div>
+        </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,286 @@
+/* Umrechnen-specific styles */
+
+/* Category selection */
+.category-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.category-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.category-item:hover {
+    background: var(--bg-card-active, rgba(255, 255, 255, 0.08));
+    border-color: var(--accent-1);
+}
+
+.category-item.selected {
+    background: rgba(99, 102, 241, 0.15);
+    border-color: var(--accent-1);
+}
+
+.category-checkbox {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 2px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.category-item.selected .category-checkbox {
+    background: var(--accent-1);
+    border-color: var(--accent-1);
+}
+
+.category-item.selected .category-checkbox::after {
+    content: '✓';
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.category-icon {
+    font-size: 1.3rem;
+}
+
+.category-name {
+    font-weight: 500;
+}
+
+.select-all-btn {
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+/* Category badge in quiz */
+.category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+/* Problem display */
+.problem-container {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 32px 24px;
+    margin-bottom: 24px;
+}
+
+.conversion-display {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 1.8rem;
+}
+
+.conversion-display .value {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.conversion-display .unit {
+    color: var(--accent-1);
+    font-weight: 600;
+}
+
+.conversion-display .equals {
+    color: var(--text-secondary);
+    margin: 0 8px;
+}
+
+.conversion-display .question-mark {
+    font-weight: 700;
+    color: var(--warning);
+    background: rgba(245, 158, 11, 0.2);
+    padding: 4px 16px;
+    border-radius: 8px;
+    min-width: 60px;
+    text-align: center;
+}
+
+/* Answer input */
+.answer-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.answer-input {
+    width: 200px;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.answer-input:focus {
+    outline: none;
+    border-color: var(--accent-1);
+}
+
+.answer-input.correct {
+    border-color: var(--success);
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.answer-input.incorrect {
+    border-color: var(--error);
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.answer-unit {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--accent-1);
+    min-width: 50px;
+}
+
+/* Feedback */
+.correction-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 12px 20px;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 12px;
+}
+
+.correction-label {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.correction-value {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--error);
+}
+
+.success-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding: 12px 20px;
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--success);
+}
+
+/* Live score */
+.score-live {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 16px;
+}
+
+.score-live-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+}
+
+.score-live-item.correct {
+    color: var(--success);
+}
+
+.score-live-item.wrong {
+    color: var(--error);
+}
+
+/* Rule box */
+.rule-box {
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 16px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.rule-box strong {
+    color: var(--text-primary);
+}
+
+/* Result actions */
+.result-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn-secondary {
+    padding: 14px 24px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.btn-secondary:hover {
+    background: var(--bg-card-active, rgba(255, 255, 255, 0.08));
+    border-color: var(--accent-1);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .conversion-display {
+        font-size: 1.4rem;
+    }
+    
+    .answer-input {
+        width: 150px;
+        font-size: 1.1rem;
+    }
+}

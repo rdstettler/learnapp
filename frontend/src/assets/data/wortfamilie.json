@@ -1,0 +1,304 @@
+{
+    "items": [
+        {
+            "id": 1,
+            "nomen": "Hilfe",
+            "verb": "helfen",
+            "adjektiv": "hilflos, hilfreich, hilfsbereit, hilfsbedürftig"
+        },
+        {
+            "id": 2,
+            "nomen": "Salz",
+            "verb": "salzen",
+            "adjektiv": "salzig"
+        },
+        {
+            "id": 3,
+            "nomen": "Liebe",
+            "verb": "lieben",
+            "adjektiv": "lieb, liebevoll, lieblich, verliebt"
+        },
+        {
+            "id": 4,
+            "nomen": "Angst",
+            "verb": "ängstigen, verängstigen",
+            "adjektiv": "ängstlich, angstvoll, verängstigt"
+        },
+        {
+            "id": 5,
+            "nomen": "Freude, Freund, Freundschaft",
+            "verb": "freuen, befreunden",
+            "adjektiv": "freudig, freundlich, erfreut"
+        },
+        {
+            "id": 6,
+            "nomen": "Kraft",
+            "verb": "kräftigen",
+            "adjektiv": "kräftig, kraftvoll, kraftlos"
+        },
+        {
+            "id": 7,
+            "nomen": "Schmerz",
+            "verb": "schmerzen",
+            "adjektiv": "schmerzhaft, schmerzlich, schmerzlos, schmerzfrei"
+        },
+        {
+            "id": 8,
+            "nomen": "Ruhe",
+            "verb": "ruhen, ausruhen, beruhigen",
+            "adjektiv": "ruhig"
+        },
+        {
+            "id": 9,
+            "nomen": "Trauer",
+            "verb": "trauern, betrauern",
+            "adjektiv": "traurig"
+        },
+        {
+            "id": 10,
+            "nomen": "Farbe",
+            "verb": "färben",
+            "adjektiv": "farbig, farbenfroh, farblos"
+        },
+        {
+            "id": 11,
+            "nomen": "Hitze, Heizung",
+            "verb": "heizen, erhitzen",
+            "adjektiv": "heiss, erhitzt"
+        },
+        {
+            "id": 12,
+            "nomen": "Kälte",
+            "verb": "kühlen, erkälten",
+            "adjektiv": "kalt, kühl"
+        },
+        {
+            "id": 13,
+            "nomen": "Spiel, Spieler",
+            "verb": "spielen",
+            "adjektiv": "spielerisch, verspielt"
+        },
+        {
+            "id": 14,
+            "nomen": "Lauf, Läufer",
+            "verb": "laufen, rennen",
+            "adjektiv": "läufig, laufend"
+        },
+        {
+            "id": 15,
+            "nomen": "Schlaf",
+            "verb": "schlafen, einschlafen",
+            "adjektiv": "schläfrig, verschlafen"
+        },
+        {
+            "id": 16,
+            "nomen": "Essen, Esser",
+            "verb": "essen",
+            "adjektiv": "essbar"
+        },
+        {
+            "id": 17,
+            "nomen": "Trinken, Getränk",
+            "verb": "trinken",
+            "adjektiv": "trinkbar"
+        },
+        {
+            "id": 18,
+            "nomen": "Wohnung, Wohnort",
+            "verb": "wohnen, bewohnen",
+            "adjektiv": "wohnlich, bewohnbar"
+        },
+        {
+            "id": 19,
+            "nomen": "Licht, Beleuchtung",
+            "verb": "leuchten, beleuchten",
+            "adjektiv": "hell, leuchtend"
+        },
+        {
+            "id": 20,
+            "nomen": "Dunkelheit",
+            "verb": "dunkeln, verdunkeln",
+            "adjektiv": "dunkel"
+        },
+        {
+            "id": 21,
+            "nomen": "Sauberkeit",
+            "verb": "säubern, reinigen",
+            "adjektiv": "sauber, rein"
+        },
+        {
+            "id": 22,
+            "nomen": "Schmutz",
+            "verb": "verschmutzen, beschmutzen",
+            "adjektiv": "schmutzig"
+        },
+        {
+            "id": 23,
+            "nomen": "Glück",
+            "verb": "beglücken",
+            "adjektiv": "glücklich, glückselig"
+        },
+        {
+            "id": 24,
+            "nomen": "Ordnung",
+            "verb": "ordnen, aufräumen",
+            "adjektiv": "ordentlich"
+        },
+        {
+            "id": 25,
+            "nomen": "Zorn, Ärger",
+            "verb": "zürnen, ärgern, verärgern",
+            "adjektiv": "zornig, ärgerlich, verärgert, wütend"
+        },
+        {
+            "id": 26,
+            "nomen": "Gefahr",
+            "verb": "gefährden",
+            "adjektiv": "gefährlich"
+        },
+        {
+            "id": 27,
+            "nomen": "Sicherheit",
+            "verb": "sichern, absichern",
+            "adjektiv": "sicher"
+        },
+        {
+            "id": 28,
+            "nomen": "Hunger",
+            "verb": "hungern",
+            "adjektiv": "hungrig"
+        },
+        {
+            "id": 29,
+            "nomen": "Durst",
+            "verb": "dürsten",
+            "adjektiv": "durstig"
+        },
+        {
+            "id": 30,
+            "nomen": "Mut",
+            "verb": "ermutigen",
+            "adjektiv": "mutig"
+        },
+        {
+            "id": 31,
+            "nomen": "Schönheit",
+            "verb": "verschönern",
+            "adjektiv": "schön"
+        },
+        {
+            "id": 32,
+            "nomen": "Hässlichkeit",
+            "verb": "verunstalen",
+            "adjektiv": "hässlich"
+        },
+        {
+            "id": 33,
+            "nomen": "Krankheit",
+            "verb": "erkranken, kränkeln",
+            "adjektiv": "krank, kränklich"
+        },
+        {
+            "id": 34,
+            "nomen": "Gesundheit",
+            "verb": "gesunden, heilen",
+            "adjektiv": "gesund"
+        },
+        {
+            "id": 35,
+            "nomen": "Länge",
+            "verb": "verlängern",
+            "adjektiv": "lang"
+        },
+        {
+            "id": 36,
+            "nomen": "Kürze",
+            "verb": "kürzen, verkürzen",
+            "adjektiv": "kurz"
+        },
+        {
+            "id": 37,
+            "nomen": "Höhe",
+            "verb": "erhöhen",
+            "adjektiv": "hoch"
+        },
+        {
+            "id": 38,
+            "nomen": "Tiefe",
+            "verb": "vertiefen",
+            "adjektiv": "tief"
+        },
+        {
+            "id": 39,
+            "nomen": "Breite",
+            "verb": "verbreitern",
+            "adjektiv": "breit"
+        },
+        {
+            "id": 40,
+            "nomen": "Enge",
+            "verb": "verengen, einengen",
+            "adjektiv": "eng"
+        },
+        {
+            "id": 41,
+            "nomen": "Stärke",
+            "verb": "stärken, verstärken",
+            "adjektiv": "stark"
+        },
+        {
+            "id": 42,
+            "nomen": "Schwäche",
+            "verb": "schwächen",
+            "adjektiv": "schwach"
+        },
+        {
+            "id": 43,
+            "nomen": "Schnelligkeit, Geschwindigkeit",
+            "verb": "beschleunigen",
+            "adjektiv": "schnell"
+        },
+        {
+            "id": 44,
+            "nomen": "Langsamkeit",
+            "verb": "verlangsamen",
+            "adjektiv": "langsam"
+        },
+        {
+            "id": 45,
+            "nomen": "Wärme",
+            "verb": "wärmen, erwärmen",
+            "adjektiv": "warm"
+        },
+        {
+            "id": 46,
+            "nomen": "Nässe, Feuchtigkeit",
+            "verb": "nässen, befeuchten",
+            "adjektiv": "nass, feucht"
+        },
+        {
+            "id": 47,
+            "nomen": "Trockenheit",
+            "verb": "trocknen",
+            "adjektiv": "trocken"
+        },
+        {
+            "id": 48,
+            "nomen": "Schwere, Gewicht",
+            "verb": "beschweren",
+            "adjektiv": "schwer"
+        },
+        {
+            "id": 49,
+            "nomen": "Leichtigkeit",
+            "verb": "erleichtern",
+            "adjektiv": "leicht"
+        },
+        {
+            "id": 50,
+            "nomen": "Arbeit, Arbeiter",
+            "verb": "arbeiten",
+            "adjektiv": "arbeitsam, fleissig"
+        }
+    ]
+}

@@ -1,0 +1,254 @@
+{
+    "items": [
+        {
+            "id": 1,
+            "words": ["Socken", "Hose", "Jacke", "Mantel", "Rock"],
+            "answers": "Kleider, Kleidung, Kleidungsstücke, Bekleidung"
+        },
+        {
+            "id": 2,
+            "words": ["a", "e", "i", "o", "u"],
+            "answers": "Vokale, Selbstlaute"
+        },
+        {
+            "id": 3,
+            "words": ["Wohnhaus", "Schulhaus", "Halle", "Garage"],
+            "answers": "Gebäude, Bauwerke"
+        },
+        {
+            "id": 4,
+            "words": ["Hammer", "Zange", "Schraubenzieher", "Säge"],
+            "answers": "Werkzeuge, Werkzeug"
+        },
+        {
+            "id": 5,
+            "words": ["Rose", "Tulpe", "Nelke", "Lilie"],
+            "answers": "Blumen, Blume, Pflanzen"
+        },
+        {
+            "id": 6,
+            "words": ["Hund", "Katze", "Hamster", "Meerschweinchen"],
+            "answers": "Haustiere, Tiere"
+        },
+        {
+            "id": 7,
+            "words": ["Tisch", "Stuhl", "Schrank", "Bett"],
+            "answers": "Möbel, Möbelstücke, Einrichtung"
+        },
+        {
+            "id": 8,
+            "words": ["Apfel", "Birne", "Orange", "Banane"],
+            "answers": "Früchte, Obst, Obstsorten"
+        },
+        {
+            "id": 9,
+            "words": ["Karotte", "Gurke", "Tomate", "Salat"],
+            "answers": "Gemüse, Gemüsesorten"
+        },
+        {
+            "id": 10,
+            "words": ["Auto", "Bus", "Zug", "Flugzeug"],
+            "answers": "Fahrzeuge, Verkehrsmittel, Transportmittel"
+        },
+        {
+            "id": 11,
+            "words": ["Löwe", "Tiger", "Elefant", "Giraffe"],
+            "answers": "Wildtiere, Zootiere, Tiere, Säugetiere"
+        },
+        {
+            "id": 12,
+            "words": ["Montag", "Dienstag", "Mittwoch", "Donnerstag"],
+            "answers": "Wochentage, Tage"
+        },
+        {
+            "id": 13,
+            "words": ["Januar", "Februar", "März", "April"],
+            "answers": "Monate, Monatsnamen"
+        },
+        {
+            "id": 14,
+            "words": ["Frühling", "Sommer", "Herbst", "Winter"],
+            "answers": "Jahreszeiten"
+        },
+        {
+            "id": 15,
+            "words": ["Rot", "Blau", "Grün", "Gelb"],
+            "answers": "Farben"
+        },
+        {
+            "id": 16,
+            "words": ["Fussball", "Tennis", "Schwimmen", "Skifahren"],
+            "answers": "Sportarten, Sport"
+        },
+        {
+            "id": 17,
+            "words": ["Geige", "Klavier", "Gitarre", "Trompete"],
+            "answers": "Musikinstrumente, Instrumente"
+        },
+        {
+            "id": 18,
+            "words": ["Arzt", "Lehrer", "Bäcker", "Maler"],
+            "answers": "Berufe"
+        },
+        {
+            "id": 19,
+            "words": ["Schweiz", "Deutschland", "Frankreich", "Italien"],
+            "answers": "Länder, Staaten"
+        },
+        {
+            "id": 20,
+            "words": ["Zürich", "Bern", "Genf", "Basel"],
+            "answers": "Städte, Schweizer Städte"
+        },
+        {
+            "id": 21,
+            "words": ["Eiche", "Buche", "Tanne", "Birke"],
+            "answers": "Bäume, Baumarten"
+        },
+        {
+            "id": 22,
+            "words": ["Adler", "Spatz", "Amsel", "Taube"],
+            "answers": "Vögel, Vogelarten"
+        },
+        {
+            "id": 23,
+            "words": ["Forelle", "Lachs", "Hecht", "Karpfen"],
+            "answers": "Fische, Fischarten"
+        },
+        {
+            "id": 24,
+            "words": ["Brot", "Brötchen", "Croissant", "Zopf"],
+            "answers": "Backwaren, Gebäck, Brot"
+        },
+        {
+            "id": 25,
+            "words": ["Milch", "Käse", "Joghurt", "Butter"],
+            "answers": "Milchprodukte, Molkereiprodukte"
+        },
+        {
+            "id": 26,
+            "words": ["Messer", "Gabel", "Löffel", "Essstäbchen"],
+            "answers": "Besteck, Essbesteck"
+        },
+        {
+            "id": 27,
+            "words": ["Teller", "Tasse", "Glas", "Schüssel"],
+            "answers": "Geschirr"
+        },
+        {
+            "id": 28,
+            "words": ["Kopf", "Arm", "Bein", "Hand"],
+            "answers": "Körperteile"
+        },
+        {
+            "id": 29,
+            "words": ["Auge", "Nase", "Mund", "Ohr"],
+            "answers": "Sinnesorgane, Körperteile, Gesichtsteile"
+        },
+        {
+            "id": 30,
+            "words": ["b", "c", "d", "f", "g"],
+            "answers": "Konsonanten, Mitlaute"
+        },
+        {
+            "id": 31,
+            "words": ["Punkt", "Komma", "Fragezeichen", "Ausrufezeichen"],
+            "answers": "Satzzeichen, Interpunktion"
+        },
+        {
+            "id": 32,
+            "words": ["Nomen", "Verb", "Adjektiv", "Pronomen"],
+            "answers": "Wortarten"
+        },
+        {
+            "id": 33,
+            "words": ["Nominativ", "Akkusativ", "Dativ", "Genitiv"],
+            "answers": "Fälle, Kasus"
+        },
+        {
+            "id": 34,
+            "words": ["Krimi", "Roman", "Märchen", "Gedicht"],
+            "answers": "Textarten, Literaturgattungen, Textsorten"
+        },
+        {
+            "id": 35,
+            "words": ["Zeitung", "Zeitschrift", "Buch", "Comic"],
+            "answers": "Printmedien, Druckerzeugnisse, Lesestoff"
+        },
+        {
+            "id": 36,
+            "words": ["Quadrat", "Rechteck", "Dreieck", "Kreis"],
+            "answers": "Formen, geometrische Formen, Figuren"
+        },
+        {
+            "id": 37,
+            "words": ["Plus", "Minus", "Mal", "Geteilt"],
+            "answers": "Rechenarten, Rechenoperationen, Grundrechenarten"
+        },
+        {
+            "id": 38,
+            "words": ["Meter", "Kilometer", "Zentimeter", "Millimeter"],
+            "answers": "Längenmasse, Masseinheiten, Längeneinheiten"
+        },
+        {
+            "id": 39,
+            "words": ["Stunde", "Minute", "Sekunde", "Tag"],
+            "answers": "Zeiteinheiten, Zeitmasse"
+        },
+        {
+            "id": 40,
+            "words": ["Liter", "Deziliter", "Milliliter", "Hektoliter"],
+            "answers": "Hohlmasse, Volumenmasse"
+        },
+        {
+            "id": 41,
+            "words": ["Kilogramm", "Gramm", "Tonne", "Milligramm"],
+            "answers": "Gewichte, Gewichtseinheiten, Masseinheiten"
+        },
+        {
+            "id": 42,
+            "words": ["Mutter", "Vater", "Schwester", "Bruder"],
+            "answers": "Familie, Familienmitglieder, Verwandte"
+        },
+        {
+            "id": 43,
+            "words": ["Oma", "Opa", "Enkel", "Cousin"],
+            "answers": "Verwandte, Familie, Familienmitglieder"
+        },
+        {
+            "id": 44,
+            "words": ["Freude", "Trauer", "Wut", "Angst"],
+            "answers": "Gefühle, Emotionen"
+        },
+        {
+            "id": 45,
+            "words": ["Spinne", "Ameise", "Biene", "Fliege"],
+            "answers": "Insekten, Krabbeltiere"
+        },
+        {
+            "id": 46,
+            "words": ["Schlange", "Eidechse", "Krokodil", "Schildkröte"],
+            "answers": "Reptilien"
+        },
+        {
+            "id": 47,
+            "words": ["Regen", "Schnee", "Hagel", "Nebel"],
+            "answers": "Wetter, Wettererscheinungen, Niederschlag"
+        },
+        {
+            "id": 48,
+            "words": ["Sonne", "Mond", "Stern", "Planet"],
+            "answers": "Himmelskörper"
+        },
+        {
+            "id": 49,
+            "words": ["Kugelschreiber", "Bleistift", "Filzstift", "Füller"],
+            "answers": "Schreibgeräte, Stifte"
+        },
+        {
+            "id": 50,
+            "words": ["Schere", "Lineal", "Radiergummi", "Spitzer"],
+            "answers": "Schulbedarf, Schulsachen, Schulmaterial, Büromaterial"
+        }
+    ]
+}

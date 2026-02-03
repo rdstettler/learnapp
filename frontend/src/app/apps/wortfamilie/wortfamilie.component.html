@@ -1,0 +1,126 @@
+<div class="bg-animation"></div>
+<div class="app-container">
+    <div class="app-header">
+        <h1>👨‍👩‍👧 Wortfamilie</h1>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+        <!-- Welcome Screen -->
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">👨‍👩‍👧</div>
+            <h2 style="margin-bottom: 10px;">Wortfamilien ergänzen</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Finde zu einem gegebenen Wort die passenden Formen als Nomen, Verb und Adjektiv!
+            </p>
+
+            <div class="example-box">
+                <div class="example-label">Beispiel:</div>
+                <div class="example-grid">
+                    <div class="example-item">
+                        <span class="type-label">📦 Nomen</span>
+                        <span class="type-value">Hilfe</span>
+                    </div>
+                    <div class="example-item given">
+                        <span class="type-label">🏃 Verb</span>
+                        <span class="type-value">helfen</span>
+                    </div>
+                    <div class="example-item">
+                        <span class="type-label">🎨 Adjektiv</span>
+                        <span class="type-value">hilfreich</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="margin-top: 24px;" 
+                    (click)="startQuiz()" [disabled]="!dataLoaded()">
+                Quiz starten
+            </button>
+        </div>
+        }
+
+        <!-- Quiz Screen -->
+        @if (screen() === 'quiz') {
+        <div class="quiz-content">
+            <div class="round-info">Aufgabe {{ currentIndex() + 1 }} / {{ PROBLEMS_PER_ROUND }}</div>
+
+            <div class="score-live">
+                <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
+                <div class="score-live-item wrong">✗ {{ totalWrong() }}</div>
+            </div>
+
+            @if (currentProblem(); as problem) {
+            <div class="family-container">
+                @for (type of ['nomen', 'verb', 'adjektiv']; track type) {
+                <div class="family-item" [class.given]="problem.givenType === type"
+                     [class.correct]="answered() && getResult($any(type)).correct && problem.missingTypes.includes($any(type))"
+                     [class.incorrect]="answered() && !getResult($any(type)).correct && problem.missingTypes.includes($any(type))">
+                    
+                    <div class="type-header">
+                        <span class="type-icon">{{ getTypeIcon($any(type)) }}</span>
+                        <span class="type-name">{{ getTypeLabel($any(type)) }}</span>
+                    </div>
+                    
+                    @if (problem.givenType === type) {
+                    <div class="given-word">{{ problem.givenWord }}</div>
+                    } @else {
+                    <input type="text" 
+                           class="family-input"
+                           [value]="$any(userAnswers())[type]"
+                           (input)="updateAnswer($any(type), $any($event.target).value)"
+                           (keyup.enter)="!answered() && canCheck() ? checkAnswers() : (answered() ? nextProblem() : null)"
+                           [disabled]="answered()"
+                           [placeholder]="getTypeLabel($any(type)) + ' eingeben...'"
+                           autocomplete="off">
+                    
+                    @if (answered() && !getResult($any(type)).correct) {
+                    <div class="correct-answer">→ {{ getResult($any(type)).matched }}</div>
+                    }
+                    }
+                </div>
+                }
+            </div>
+            }
+
+            @if (!answered()) {
+            <button class="btn btn-primary" [disabled]="!canCheck()" (click)="checkAnswers()">
+                Überprüfen
+            </button>
+            } @else {
+            <button class="btn btn-primary" (click)="nextProblem()">
+                {{ currentIndex() + 1 >= PROBLEMS_PER_ROUND ? 'Ergebnis anzeigen' : 'Weiter' }}
+            </button>
+            }
+        </div>
+        }
+
+        <!-- Results Screen -->
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <p class="score-text">{{ totalCorrect() }} von {{ totalCorrect() + totalWrong() }} richtig!</p>
+
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ totalCorrect() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ totalWrong() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <button class="btn btn-primary" (click)="playAgain()">
+                    Nochmal spielen
+                </button>
+            </div>
+        </div>
+        }
+    </div>
+</div>

@@ -2,8 +2,13 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
     { path: '', loadComponent: () => import('./platform/platform.component').then(m => m.PlatformComponent) },
+    { path: 'settings', loadComponent: () => import('./settings/settings.component').then(m => m.SettingsComponent) },
     { path: 'aehnlichewoerter', loadComponent: () => import('./apps/aehnlichewoerter/aehnlichewoerter.component').then(m => m.AehnlichewoerterComponent) },
+    { path: 'oberbegriffe', loadComponent: () => import('./apps/oberbegriffe/oberbegriffe.component').then(m => m.OberbegriffeComponent) },
+    { path: 'wortfamilie', loadComponent: () => import('./apps/wortfamilie/wortfamilie.component').then(m => m.WortfamilieComponent) },
     { path: 'kopfrechnen', loadComponent: () => import('./apps/kopfrechnen/kopfrechnen.component').then(m => m.KopfrechnenComponent) },
+    { path: 'umrechnen', loadComponent: () => import('./apps/umrechnen/umrechnen.component').then(m => m.UmrechnenComponent) },
+    { path: 'zeitrechnen', loadComponent: () => import('./apps/zeitrechnen/zeitrechnen.component').then(m => m.ZeitrechnenComponent) },
     { path: 'symmetry', loadComponent: () => import('./apps/symmetry/symmetry.component').then(m => m.SymmetryComponent) },
     { path: 'wortstaemme', loadComponent: () => import('./apps/wortstaemme/wortstaemme.component').then(m => m.WortstaemmeComponent) },
     { path: 'verben', loadComponent: () => import('./apps/verben/verben.component').then(m => m.VerbenComponent) },

@@ -15,6 +15,34 @@
             ]
         },
         {
+            "id": "oberbegriffe",
+            "name": "Oberbegriffe",
+            "description": "Finde den passenden Oberbegriff für eine Gruppe von Wörtern",
+            "category": "Deutsch",
+            "route": "/oberbegriffe",
+            "icon": "🏷️",
+            "tags": [
+                "deutsch",
+                "wortschatz",
+                "kategorien",
+                "oberbegriffe"
+            ]
+        },
+        {
+            "id": "wortfamilie",
+            "name": "Wortfamilie",
+            "description": "Ergänze die fehlenden Wortarten: Nomen, Verb und Adjektiv einer Wortfamilie",
+            "category": "Deutsch",
+            "route": "/wortfamilie",
+            "icon": "👨‍👩‍👧",
+            "tags": [
+                "deutsch",
+                "grammatik",
+                "wortarten",
+                "wortfamilie"
+            ]
+        },
+        {
             "id": "symmetry",
             "name": "Symmetry Drawing",
             "description": "Kreatives Zeichnen mit rotierender Symmetrie - male Mandalas und mehr!",
@@ -165,6 +193,37 @@
                 "kopfrechnen",
                 "addition",
                 "division"
+            ]
+        },
+        {
+            "id": "umrechnen",
+            "name": "Umrechnen",
+            "description": "Übe das Umrechnen von Einheiten: Längen, Flächen, Volumen, Hohlmasse und Gewicht",
+            "category": "Mathematik",
+            "route": "/umrechnen",
+            "icon": "📐",
+            "tags": [
+                "mathematik",
+                "umrechnen",
+                "einheiten",
+                "masse",
+                "gewicht"
+            ]
+        },
+        {
+            "id": "zeitrechnen",
+            "name": "Zeitrechnen",
+            "description": "Rechne mit Stunden, Minuten und Sekunden - auch als Brüche!",
+            "category": "Mathematik",
+            "route": "/zeitrechnen",
+            "icon": "⏱️",
+            "tags": [
+                "mathematik",
+                "zeit",
+                "umrechnen",
+                "brüche",
+                "stunden",
+                "minuten"
             ]
         },
         {

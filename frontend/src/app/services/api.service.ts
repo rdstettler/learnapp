@@ -45,7 +45,7 @@ export class ApiService {
         if (!user) return false;
 
         try {
-            await firstValueFrom(this.http.post(`${this.API_BASE}/user`, {
+            await firstValueFrom(this.http.post(`${this.API_BASE}/sync_user`, {
                 uid: user.uid,
                 email: user.email,
                 displayName: user.displayName,

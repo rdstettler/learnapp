@@ -28,18 +28,14 @@
 
             @if (getCurrentProblem(); as problem) {
             <div class="problem-container">
-                <p class="problem-text">{{ problem.text }}</p>
-                <p class="problem-question">{{ problem.question }}</p>
+                <p class="problem-text">{{ problem.question }}</p>
             </div>
 
             <div class="answer-row">
                 <input type="text" class="answer-input" [class.correct]="answered() && isCorrect()"
                     [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
                     (input)="updateAnswer($any($event.target).value)" [disabled]="answered()"
-                    placeholder="Antwort eingeben..." autocomplete="off" inputmode="decimal">
-                @if (problem.unit) {
-                <span class="unit">{{ problem.unit }}</span>
-                }
+                    placeholder="Antwort eingeben..." autocomplete="off">
             </div>
             }
 
@@ -47,6 +43,17 @@
             <div class="feedback" [class.correct]="isCorrect()" [class.incorrect]="!isCorrect()">
                 {{ feedbackText() }}
             </div>
+            }
+
+            @if (answered() && getCurrentProblem(); as problem) {
+            <button class="btn btn-secondary explanation-btn" (click)="toggleExplanation()">
+                {{ showExplanation() ? 'Erklärung ausblenden' : 'Erklärung anzeigen' }}
+            </button>
+            @if (showExplanation()) {
+            <div class="explanation-box">
+                {{ problem.explanation }}
+            </div>
+            }
             }
 
             @if (!answered()) {

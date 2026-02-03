@@ -1,0 +1,119 @@
+<div class="bg-animation"></div>
+<div class="app-container">
+    <div class="app-header">
+        <h1>🏷️ Oberbegriffe</h1>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+        <!-- Welcome Screen -->
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">🏷️</div>
+            <h2 style="margin-bottom: 10px;">Oberbegriffe finden</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Du siehst mehrere Wörter – finde den passenden Oberbegriff!
+            </p>
+
+            <div class="example-box">
+                <div class="example-label">Beispiel:</div>
+                <div class="example-words">Socken, Hose, Jacke, Mantel</div>
+                <div class="example-arrow">↓</div>
+                <div class="example-answer">Kleidung</div>
+            </div>
+
+            <button class="btn btn-primary" style="margin-top: 24px;" 
+                    (click)="startQuiz()" [disabled]="!dataLoaded()">
+                Quiz starten
+            </button>
+        </div>
+        }
+
+        <!-- Quiz Screen -->
+        @if (screen() === 'quiz') {
+        <div class="quiz-content">
+            <div class="round-info">Aufgabe {{ currentIndex() + 1 }} / {{ PROBLEMS_PER_ROUND }}</div>
+
+            <div class="score-live">
+                <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
+                <div class="score-live-item wrong">✗ {{ totalWrong() }}</div>
+            </div>
+
+            @if (currentItem(); as item) {
+            <div class="words-container">
+                <div class="words-label">Finde den Oberbegriff für:</div>
+                <div class="words-list">
+                    @for (word of item.words; track word) {
+                    <span class="word-chip">{{ word }}</span>
+                    }
+                </div>
+            </div>
+
+            <div class="answer-row">
+                <input type="text" 
+                       class="answer-input" 
+                       [class.correct]="answered() && isCorrect()"
+                       [class.incorrect]="answered() && !isCorrect()" 
+                       [value]="userAnswer()"
+                       (input)="updateAnswer($any($event.target).value)" 
+                       (keyup.enter)="!answered() && userAnswer() ? checkAnswer() : nextItem()"
+                       [disabled]="answered()"
+                       placeholder="Oberbegriff eingeben..." 
+                       autocomplete="off">
+            </div>
+
+            @if (answered() && !isCorrect()) {
+            <div class="correction-hint">
+                <span class="correction-label">Mögliche Antworten:</span>
+                <span class="correction-value">{{ getPossibleAnswers() }}</span>
+            </div>
+            }
+
+            @if (answered() && isCorrect()) {
+            <div class="success-hint">
+                ✓ Richtig! <span class="matched-answer">{{ matchedAnswer() }}</span>
+            </div>
+            }
+            }
+
+            @if (!answered()) {
+            <button class="btn btn-primary" [disabled]="!userAnswer()" (click)="checkAnswer()">
+                Überprüfen
+            </button>
+            } @else {
+            <button class="btn btn-primary" (click)="nextItem()">
+                {{ currentIndex() + 1 >= PROBLEMS_PER_ROUND ? 'Ergebnis anzeigen' : 'Weiter' }}
+            </button>
+            }
+        </div>
+        }
+
+        <!-- Results Screen -->
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <p class="score-text">{{ totalCorrect() }} von {{ PROBLEMS_PER_ROUND }} richtig!</p>
+
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ totalCorrect() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ totalWrong() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <button class="btn btn-primary" (click)="playAgain()">
+                    Nochmal spielen
+                </button>
+            </div>
+        </div>
+        }
+    </div>
+</div>

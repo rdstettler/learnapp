@@ -2,10 +2,11 @@ import { Component, signal, computed, inject } from '@angular/core';
 import { DataService } from '../../services/data.service';
 
 interface TextaufgabeItem {
-    text: string;
+    id: string;
+    topics: string[];
     question: string;
-    answer: number;
-    unit?: string;
+    answers: string[];
+    explanation: string;
 }
 
 @Component({
@@ -26,6 +27,7 @@ export class TextaufgabenComponent {
     answered = signal(false);
     isCorrect = signal(false);
     feedbackText = signal('');
+    showExplanation = signal(false);
 
     totalCorrect = signal(0);
     totalQuestions = signal(5);
@@ -38,8 +40,8 @@ export class TextaufgabenComponent {
     }
 
     private loadData(): void {
-        this.dataService.loadData<{ problems: TextaufgabeItem[] }>('textaufgaben.json').subscribe({
-            next: (data) => this.items.set(data.problems),
+        this.dataService.loadData<TextaufgabeItem[]>('textaufgaben.json').subscribe({
+            next: (data) => this.items.set(data),
             error: (err) => console.error('Error loading textaufgaben data:', err)
         });
     }
@@ -65,6 +67,7 @@ export class TextaufgabenComponent {
         this.userAnswer.set('');
         this.answered.set(false);
         this.feedbackText.set('');
+        this.showExplanation.set(false);
     }
 
     getCurrentProblem(): TextaufgabeItem | null {
@@ -79,8 +82,10 @@ export class TextaufgabenComponent {
         const problem = this.getCurrentProblem();
         if (!problem) return;
 
-        const userNum = parseFloat(this.userAnswer().replace(',', '.'));
-        const correct = Math.abs(userNum - problem.answer) < 0.01;
+        const userAnswerNormalized = this.userAnswer().trim().toLowerCase().replace(',', '.');
+        const correct = problem.answers.some(ans => 
+            ans.toLowerCase().replace(',', '.') === userAnswerNormalized
+        );
 
         this.isCorrect.set(correct);
         this.answered.set(true);
@@ -89,9 +94,12 @@ export class TextaufgabenComponent {
             this.totalCorrect.update(c => c + 1);
             this.feedbackText.set('✓ Richtig!');
         } else {
-            const unit = problem.unit ? ' ' + problem.unit : '';
-            this.feedbackText.set(`✗ Falsch! Die richtige Antwort ist: ${problem.answer}${unit}`);
+            this.feedbackText.set(`✗ Falsch! Richtige Antwort: ${problem.answers[0]}`);
         }
+    }
+
+    toggleExplanation(): void {
+        this.showExplanation.update(v => !v);
     }
 
     nextRound(): void {

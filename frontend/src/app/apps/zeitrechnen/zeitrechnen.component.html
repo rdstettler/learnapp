@@ -1,0 +1,140 @@
+<div class="bg-animation"></div>
+<div class="app-container">
+    <div class="app-header">
+        <h1>⏱️ Zeitrechnen</h1>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+        <!-- Welcome Screen -->
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">⏱️</div>
+            <h2 style="margin-bottom: 10px;">Zeiteinheiten umrechnen</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Übe das Umrechnen von Stunden, Minuten und Sekunden!
+            </p>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="info-icon">🔄</div>
+                    <div class="info-text">
+                        <strong>Mischrechnung</strong>
+                        <span>2 h 15 min → ? min</span>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">📊</div>
+                    <div class="info-text">
+                        <strong>Aufteilen</strong>
+                        <span>135 min → ? h ? min</span>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🔢</div>
+                    <div class="info-text">
+                        <strong>Brüche</strong>
+                        <span>15 min = 1/4 h</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rule-box">
+                <strong>Zur Erinnerung:</strong><br>
+                1 h = 60 min &nbsp;|&nbsp; 1 min = 60 s &nbsp;|&nbsp; 1 h = 3600 s
+            </div>
+
+            <button class="btn btn-primary" style="margin-top: 24px;" (click)="startQuiz()">
+                Quiz starten
+            </button>
+        </div>
+        }
+
+        <!-- Quiz Screen -->
+        @if (screen() === 'quiz') {
+        <div class="quiz-content">
+            <div class="round-info">Aufgabe {{ problemIndex() + 1 }} / {{ PROBLEMS_PER_ROUND }}</div>
+
+            <div class="score-live">
+                <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
+                <div class="score-live-item wrong">✗ {{ totalWrong() }}</div>
+            </div>
+
+            @if (currentProblem(); as problem) {
+            <div class="problem-container">
+                <div class="time-display">
+                    {{ problem.question }}
+                </div>
+            </div>
+
+            <div class="answer-row">
+                <input type="text" 
+                       class="answer-input" 
+                       [class.correct]="answered() && isCorrect()"
+                       [class.incorrect]="answered() && !isCorrect()" 
+                       [value]="userAnswer()"
+                       (input)="updateAnswer($any($event.target).value)" 
+                       (keyup.enter)="!answered() && userAnswer() ? checkAnswer() : nextProblem()"
+                       [disabled]="answered()"
+                       placeholder="Antwort eingeben..." 
+                       autocomplete="off">
+            </div>
+
+            @if (answered() && !isCorrect()) {
+            <div class="correction-hint">
+                <span class="correction-label">Richtige Antwort:</span>
+                <span class="correction-value">{{ problem.correctAnswer }}</span>
+            </div>
+            <div class="explanation-box">
+                {{ problem.explanation }}
+            </div>
+            }
+
+            @if (answered() && isCorrect()) {
+            <div class="success-hint">
+                ✓ Richtig!
+            </div>
+            }
+            }
+
+            @if (!answered()) {
+            <button class="btn btn-primary" [disabled]="!userAnswer()" (click)="checkAnswer()">
+                Überprüfen
+            </button>
+            } @else {
+            <button class="btn btn-primary" (click)="nextProblem()">
+                {{ problemIndex() + 1 >= PROBLEMS_PER_ROUND ? 'Ergebnis anzeigen' : 'Weiter' }}
+            </button>
+            }
+        </div>
+        }
+
+        <!-- Results Screen -->
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <p class="score-text">{{ totalCorrect() }} von {{ PROBLEMS_PER_ROUND }} richtig!</p>
+
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ totalCorrect() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ totalWrong() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <button class="btn btn-primary" (click)="playAgain()">
+                    Nochmal spielen
+                </button>
+            </div>
+        </div>
+        }
+    </div>
+</div>
