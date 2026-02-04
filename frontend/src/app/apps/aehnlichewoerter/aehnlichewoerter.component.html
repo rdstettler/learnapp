@@ -53,25 +53,28 @@
             </div>
 
             <div class="text-container">
-                @for (part of getProcessedText().parts; track $index) {
+                @for (part of currentParts(); track $index) {
                 @if (part.type === 'text') {
                 <span>{{ part.content }}</span>
                 } @else {
-                <span class="choice-slot" [class]="getSlotClass()">{{ getSlotDisplay() }}</span>
+                <span class="choice-slot" [class]="getSlotClass(part.slotIndex!)" (click)="selectSlot(part.slotIndex!)">
+                    {{ getSlotDisplay(part.slotIndex!) }}
+                </span>
                 }
                 }
             </div>
 
             <div class="word-options">
                 @for (word of currentPair()?.words; track word) {
-                <button class="word-option" [class.selected]="getSlotDisplay().toLowerCase() === word.toLowerCase()"
+                <button class="word-option"
+                    [class.selected]="getSelectedSlotValue().toLowerCase() === word.toLowerCase()"
                     [disabled]="answered()" (click)="selectWord(word)">
                     {{ word }}
                 </button>
                 }
             </div>
 
-            @if (answered() && getSlotClass() === 'incorrect') {
+            @if (answered() && hasErrors()) {
             <div class="correction-hint">
                 <span class="correction-label">Richtig wäre:</span>
                 <span class="correction-word">{{ getCorrectAnswer() }}</span>
@@ -79,7 +82,7 @@
             }
 
             @if (!answered()) {
-            <button class="btn btn-primary" (click)="checkAnswer()" [disabled]="getSlotDisplay() === '?'">
+            <button class="btn btn-primary" (click)="checkAnswer()" [disabled]="!areAllSlotsFilled()">
                 Überprüfen
             </button>
             } @else {

@@ -80,6 +80,11 @@
     border-color: var(--error);
 }
 
+.family-item.partial {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: var(--warning);
+}
+
 .type-header {
     display: flex;
     align-items: center;
@@ -174,7 +179,7 @@
     .example-grid {
         flex-direction: column;
     }
-    
+
     .family-input {
         font-size: 1rem;
     }

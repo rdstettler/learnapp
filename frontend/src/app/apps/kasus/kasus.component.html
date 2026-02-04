@@ -37,7 +37,8 @@
                 @if (part.kasus) {
                 <span class="kasus-word" [class.selected]="part.selected" [class.correct]="answered() && part.isCorrect"
                     [class.incorrect]="answered() && !part.isCorrect"
-                    [class]="part.selected ? getKasusClass(part.selected) : ''" (click)="openPopup($index)">
+                    [class]="part.selected ? getKasusClass(part.selected) : ''"
+                    (click)="openPopup($index); $event.stopPropagation()">
                     {{ part.text }}
                     @if (part.selected) {
                     <span class="kasus-label">{{ part.selected.substring(0, 3) }}</span>

@@ -50,15 +50,21 @@
     border-radius: 8px;
     background: rgba(99, 102, 241, 0.2);
     border: 2px dashed var(--accent-1);
-    cursor: default;
-    transition: all 0.2s ease;
     font-weight: 600;
     text-align: center;
+    cursor: pointer;
 }
 
 .choice-slot.selected {
     border-style: solid;
     background: rgba(99, 102, 241, 0.3);
+}
+
+.choice-slot.selected-active {
+    border-style: solid;
+    background: rgba(99, 102, 241, 0.5);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+    transform: scale(1.05);
 }
 
 .choice-slot.correct {

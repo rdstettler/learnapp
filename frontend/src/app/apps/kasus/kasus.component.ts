@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, HostListener } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DataService } from '../../services/data.service';
 
@@ -187,5 +187,15 @@ export class KasusComponent {
             'Dativ': 'dativ', 'Genitiv': 'genitiv'
         };
         return classes[kasus] || '';
+    }
+    @HostListener('window:keydown.enter', ['$event'])
+    handleEnter(event: Event) {
+        if (this.showPopup()) return; // Don't interfere if popup is open
+
+        if (this.answered()) {
+            this.nextRound();
+        } else if (this.canCheck()) {
+            this.checkAnswers();
+        }
     }
 }

@@ -57,7 +57,8 @@
             <div class="family-container">
                 @for (type of ['nomen', 'verb', 'adjektiv']; track type) {
                 <div class="family-item" [class.given]="problem.givenType === type"
-                    [class.correct]="answered() && getResult($any(type)).correct && problem.missingTypes.includes($any(type))"
+                    [class.correct]="answered() && getResult($any(type)).correct && !getResult($any(type)).partial && problem.missingTypes.includes($any(type))"
+                    [class.partial]="answered() && getResult($any(type)).partial && problem.missingTypes.includes($any(type))"
                     [class.incorrect]="answered() && !getResult($any(type)).correct && problem.missingTypes.includes($any(type))">
 
                     <div class="type-header">
@@ -76,6 +77,12 @@
 
                     @if (answered() && !getResult($any(type)).correct) {
                     <div class="correct-answer">→ {{ getResult($any(type)).matched }}</div>
+                    }
+
+                    @if (answered() && getResult($any(type)).partial) {
+                    <div class="correct-answer" style="color: var(--warning); background: rgba(245, 158, 11, 0.15);">
+                        ⚠️ Groß-/Kleinschreibung beachten!
+                    </div>
                     }
                     }
                 </div>

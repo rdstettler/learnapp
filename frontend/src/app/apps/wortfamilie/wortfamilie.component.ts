@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, HostListener } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DataService } from '../../services/data.service';
 
@@ -42,10 +42,10 @@ export class WortfamilieComponent {
 
     userAnswers = signal<Record<WordType, string>>({ nomen: '', verb: '', adjektiv: '' });
     answered = signal(false);
-    results = signal<Record<WordType, { correct: boolean; matched: string }>>({
-        nomen: { correct: false, matched: '' },
-        verb: { correct: false, matched: '' },
-        adjektiv: { correct: false, matched: '' }
+    results = signal<Record<WordType, { correct: boolean; partial: boolean; matched: string }>>({
+        nomen: { correct: false, partial: false, matched: '' },
+        verb: { correct: false, partial: false, matched: '' },
+        adjektiv: { correct: false, partial: false, matched: '' }
     });
 
     totalCorrect = signal(0);
@@ -110,9 +110,9 @@ export class WortfamilieComponent {
         this.userAnswers.set({ nomen: '', verb: '', adjektiv: '' });
         this.answered.set(false);
         this.results.set({
-            nomen: { correct: false, matched: '' },
-            verb: { correct: false, matched: '' },
-            adjektiv: { correct: false, matched: '' }
+            nomen: { correct: false, partial: false, matched: '' },
+            verb: { correct: false, partial: false, matched: '' },
+            adjektiv: { correct: false, partial: false, matched: '' }
         });
     }
 
@@ -122,7 +122,7 @@ export class WortfamilieComponent {
         this.userAnswers.set(answers);
     }
 
-    getResult(type: WordType): { correct: boolean; matched: string } {
+    getResult(type: WordType): { correct: boolean; partial: boolean; matched: string } {
         return this.results()[type];
     }
 
@@ -146,10 +146,10 @@ export class WortfamilieComponent {
         const problem = this.currentProblem();
         if (!problem) return;
 
-        const newResults: Record<WordType, { correct: boolean; matched: string }> = {
-            nomen: { correct: false, matched: '' },
-            verb: { correct: false, matched: '' },
-            adjektiv: { correct: false, matched: '' }
+        const newResults: Record<WordType, { correct: boolean; partial: boolean; matched: string }> = {
+            nomen: { correct: false, partial: false, matched: '' },
+            verb: { correct: false, partial: false, matched: '' },
+            adjektiv: { correct: false, partial: false, matched: '' }
         };
 
         let correctCount = 0;
@@ -165,10 +165,12 @@ export class WortfamilieComponent {
             );
 
             if (matched) {
-                newResults[type] = { correct: true, matched };
+                // Check if exact match (case-sensitive) or just case-insensitive
+                const isExact = matched === userAnswer.trim();
+                newResults[type] = { correct: true, partial: !isExact, matched };
                 correctCount++;
             } else {
-                newResults[type] = { correct: false, matched: acceptedAnswers[0] };
+                newResults[type] = { correct: false, partial: false, matched: acceptedAnswers[0] };
                 wrongCount++;
             }
         }
@@ -245,5 +247,14 @@ export class WortfamilieComponent {
 
     playAgain(): void {
         this.startQuiz();
+    }
+
+    @HostListener('window:keydown.enter', ['$event'])
+    handleEnter(event: Event) {
+        if (this.answered()) {
+            this.nextProblem();
+        } else if (this.canCheck()) {
+            this.checkAnswers();
+        }
     }
 }
