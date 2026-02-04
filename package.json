@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "cd frontend && npm run start",
     "build": "cd frontend && npm run build",
-    "vercel-build": "cd frontend && npm install && npm run build"
+    "vercel-build": "cd frontend && npm install && npm run build",
+    "migrate-trigger": "node scripts/trigger-migrate.js",
+    "publish": "vercel deploy --prod && npm run migrate-trigger"
   },
   "dependencies": {
     "@libsql/client": "^0.14.0"
