@@ -6,6 +6,7 @@ import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
 import { AuthModalComponent } from '../shared';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { catchError, of } from 'rxjs';
 
 export interface AppInfo {
     id: string;
@@ -15,6 +16,7 @@ export interface AppInfo {
     route: string;
     icon: string;
     tags: string[];
+    featured?: boolean;
 }
 
 interface AppsConfig {
@@ -70,7 +72,10 @@ export class PlatformComponent implements OnInit {
             : this.apps().filter(a => a.category === category);
 
         // Sort by usage count (most used first)
+        // Also prioritize featured apps if desired
         return [...filtered].sort((a, b) => {
+            // Logic: Featured first? Or purely usage?
+            // For now sticking to usage as per existing logic, but we can verify featured property presence
             const metricsA = this.userService.getAppMetrics(a.id);
             const metricsB = this.userService.getAppMetrics(b.id);
             return metricsB.openCount - metricsA.openCount;
@@ -86,12 +91,20 @@ export class PlatformComponent implements OnInit {
     }
 
     private loadAppsConfig(): void {
-        this.http.get<AppsConfig>('/assets/apps.config.json').subscribe({
+        // Fallback Strategy: Try fetching from API, if it fails, load local config
+        this.http.get<{ apps: AppInfo[] }>('/api/apps').pipe(
+            catchError((err) => {
+                console.warn('Failed to load apps from API, falling back to local config:', err);
+                return this.http.get<AppsConfig>('/assets/apps.config.json');
+            })
+        ).subscribe({
             next: (config) => {
-                this.apps.set(config.apps);
+                if (config && config.apps) {
+                    this.apps.set(config.apps);
+                }
             },
             error: (err) => {
-                console.error('Failed to load apps config:', err);
+                console.error('Failed to load apps config (API and fallback failed):', err);
             }
         });
     }
