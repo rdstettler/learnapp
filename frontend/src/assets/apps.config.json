@@ -10,7 +10,7 @@
             "tags": [
                 "deutsch",
                 "rechtschreibung",
-                "homophone",
+                "synonyme",
                 "ähnliche wörter"
             ]
         },
@@ -46,7 +46,7 @@
             "id": "symmetry",
             "name": "Symmetry Drawing",
             "description": "Kreatives Zeichnen mit rotierender Symmetrie - male Mandalas und mehr!",
-            "category": "Geometry",
+            "category": "Geometrie",
             "route": "/symmetry",
             "icon": "✨",
             "tags": [
@@ -60,7 +60,7 @@
             "id": "symmetrien",
             "name": "Symmetrien an Punkt und Strich",
             "description": "Zeichne Polygone und spiegle sie an Punkt und Gerade",
-            "category": "Geometry",
+            "category": "Geometrie",
             "route": "/symmetrien",
             "icon": "🔀",
             "tags": [

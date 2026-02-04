@@ -1,9 +1,10 @@
-import { Component, inject, signal, computed, ChangeDetectorRef, OnInit, ViewChild, effect } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectorRef, OnInit, ViewChild, effect, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { UserService } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
+import { OnboardingService } from '../services/onboarding.service';
 import { AuthModalComponent } from '../shared';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { catchError, of } from 'rxjs';
@@ -30,13 +31,14 @@ interface AppsConfig {
     templateUrl: './platform.component.html',
     styleUrl: './platform.component.css'
 })
-export class PlatformComponent implements OnInit {
+export class PlatformComponent implements OnInit, AfterViewInit {
     private router = inject(Router);
     private http = inject(HttpClient);
     userService = inject(UserService);
     private cdr = inject(ChangeDetectorRef);
     private apiService = inject(ApiService);
     private sanitizer = inject(DomSanitizer);
+    private onboardingService = inject(OnboardingService);
 
     // Auth
     authService = inject(AuthService);
@@ -204,6 +206,14 @@ export class PlatformComponent implements OnInit {
         this.loadAppsConfig();
     }
 
+    ngAfterViewInit(): void {
+        // Start tour after view is initialized so elements exist
+        // Small delay to ensure rendering
+        setTimeout(() => {
+            this.onboardingService.startTour();
+        }, 1000);
+    }
+
     private loadAppsConfig(): void {
         // Fallback Strategy: Try fetching from API, if it fails, load local config
         this.http.get<{ apps: AppInfo[] }>('/api/apps').pipe(
@@ -266,7 +276,7 @@ export class PlatformComponent implements OnInit {
     }
 
     formatDate(isoDate: string | null): string {
-        if (!isoDate) return 'Never';
+        if (!isoDate) return 'Nie';
         return new Date(isoDate).toLocaleDateString();
     }
 

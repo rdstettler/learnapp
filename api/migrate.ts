@@ -95,7 +95,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "tags": [
                         "deutsch",
                         "rechtschreibung",
-                        "homophone",
+                        "synonyme",
                         "ähnliche wörter"
                     ]
                 },
@@ -131,7 +131,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "id": "symmetry",
                     "name": "Symmetry Drawing",
                     "description": "Kreatives Zeichnen mit rotierender Symmetrie - male Mandalas und mehr!",
-                    "category": "Geometry",
+                    "category": "Geometrie",
                     "route": "/symmetry",
                     "icon": "✨",
                     "tags": [
@@ -145,7 +145,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "id": "symmetrien",
                     "name": "Symmetrien an Punkt und Strich",
                     "description": "Zeichne Polygone und spiegle sie an Punkt und Gerade",
-                    "category": "Geometry",
+                    "category": "Geometrie",
                     "route": "/symmetrien",
                     "icon": "🔀",
                     "tags": [

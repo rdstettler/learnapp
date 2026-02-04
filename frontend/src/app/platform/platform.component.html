@@ -15,26 +15,26 @@
                 <div class="user-avatar-placeholder">{{ getDisplayName().charAt(0).toUpperCase() }}</div>
                 }
                 <span class="user-name">{{ getDisplayName() }}</span>
-                <button class="auth-btn settings-btn" (click)="openSettings()" title="Einstellungen"><span
-                        class="settings-icon">⚙️</span></button>
+                <button id="settings-btn" class="auth-btn settings-btn" (click)="openSettings()"
+                    title="Einstellungen"><span class="settings-icon">⚙️</span></button>
                 <button class="auth-btn logout-btn" (click)="signOut()">Abmelden</button>
             </div>
             } @else {
-            <button class="auth-btn login-btn" (click)="openAuthModal()">🔑 Anmelden</button>
+            <button id="auth-btn" class="auth-btn login-btn" (click)="openAuthModal()">🔑 Anmelden</button>
             }
         </div>
 
         <div class="platform-logo">🚀</div>
-        <h1 class="platform-title">LearnApp</h1>
-        <p class="platform-subtitle">Explore interactive learning experiences</p>
+        <h1 class="platform-title">Arnes Lern-Plattform</h1>
+        <p class="platform-subtitle">Entdecke spannende Lern-Apps</p>
     </header>
 
     <div class="controls">
-        <div class="category-filters">
+        <div id="category-filters" class="category-filters">
             @for (category of categories(); track category) {
             <button class="category-chip" [class.active]="currentCategory() === category"
                 (click)="selectCategory(category)">
-                {{ category === 'all' ? 'All' : category }}
+                {{ category === 'all' ? 'Alle' : category }}
             </button>
             }
         </div>
@@ -49,7 +49,7 @@
             <div class="app-meta">
                 <span class="tag-category">📁 {{ app.category }}</span>
                 <div class="app-stats">
-                    <span>🔥 {{ getAppMetrics(app.id).openCount }} uses</span>
+                    <span>🔥 {{ getAppMetrics(app.id).openCount }}</span>
                     <span>🕐 {{ formatDate(getAppMetrics(app.id).lastOpened) }}</span>
                 </div>
             </div>

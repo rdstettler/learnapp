@@ -57,13 +57,50 @@ export class SettingsComponent implements OnInit {
 
     // Avatar customization options
     readonly skinTones = ['#ffdbb4', '#edb98a', '#d08b5b', '#ae5d29', '#614335'];
-    readonly hairStyles = ['short', 'medium', 'long', 'curly', 'bald', 'buzz', 'spiky'];
+    readonly hairStyles = [
+        { id: 'short', text: 'Kurz' },
+        { id: 'medium', text: 'Mittel' },
+        { id: 'long', text: 'Lang' },
+        { id: 'curly', text: 'Lockig' },
+        { id: 'bald', text: 'Glatze' },
+        { id: 'buzz', text: 'Stoppelschnitt' },
+        { id: 'spiky', text: 'Igelfrisur' }
+    ];
     readonly hairColors = ['#4a3728', '#2c1810', '#8b4513', '#d4a574', '#1a1a1a', '#8b0000', '#ffd700', '#c0c0c0'];
-    readonly eyeStyles = ['normal', 'happy', 'wink', 'surprised', 'sleepy'];
-    readonly eyebrowStyles = ['normal', 'raised', 'angry', 'sad', 'unibrow'];
-    readonly mouthStyles = ['smile', 'serious', 'laugh', 'open', 'sad'];
-    readonly accessoryOptions = ['none', 'glasses', 'sunglasses', 'earrings'];
-    readonly facialHairOptions = ['none', 'stubble', 'beard', 'mustache', 'goatee'];
+    readonly eyeStyles = [
+        { id: 'normal', text: 'Normal' },
+        { id: 'happy', text: 'Glücklich' },
+        { id: 'wink', text: 'Zwinkernd' },
+        { id: 'surprised', text: 'Überrascht' },
+        { id: 'sleepy', text: 'Müde' }
+    ];
+    readonly eyebrowStyles = [
+        { id: 'normal', text: 'Normal' },
+        { id: 'raised', text: 'Hochgezogen' },
+        { id: 'angry', text: 'Wütend' },
+        { id: 'sad', text: 'Traurig' },
+        { id: 'unibrow', text: 'Monobraue' }
+    ];
+    readonly mouthStyles = [
+        { id: 'smile', text: 'Lächeln' },
+        { id: 'serious', text: 'Ernst' },
+        { id: 'laugh', text: 'Lachen' },
+        { id: 'open', text: 'Offen' },
+        { id: 'sad', text: 'Traurig' }
+    ];
+    readonly accessoryOptions = [
+        { id: 'none', text: 'Keine' },
+        { id: 'glasses', text: 'Brille' },
+        { id: 'sunglasses', text: 'Sonnenbrille' },
+        { id: 'earrings', text: 'Ohrringe' }
+    ];
+    readonly facialHairOptions = [
+        { id: 'none', text: 'Keiner' },
+        { id: 'stubble', text: 'Stoppeln' },
+        { id: 'beard', text: 'Vollbart' },
+        { id: 'mustache', text: 'Schnurrbart' },
+        { id: 'goatee', text: 'Ziegenbart' }
+    ];
     readonly backgroundColors = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#22c55e', '#14b8a6', '#3b82f6', '#64748b'];
 
     // Current tab
@@ -87,17 +124,22 @@ export class SettingsComponent implements OnInit {
     optedOut = computed(() => this.skillLevel() === -1 || this.learnLevel() === -1);
 
     // Derived UI state for learn level
-    schoolType = signal<string>('Primarschule');
+    schoolType = signal<string>('primary');
     grade = signal<number>(1);
 
-    readonly schoolTypes = ['Kindergarten', 'Primarschule', 'Sekundarschule', 'Gymnasium'];
+    readonly schoolTypes = [
+        { id: 'kindergarten', text: 'Kindergarten' },
+        { id: 'primary', text: 'Primarschule' },
+        { id: 'secondary', text: 'Sekundarschule' },
+        { id: 'gymnasium', text: 'Gymnasium' }
+    ];
 
     get gradesForType(): number[] {
         switch (this.schoolType()) {
-            case 'Kindergarten': return [1, 2];
-            case 'Primarschule': return [1, 2, 3, 4, 5, 6];
-            case 'Sekundarschule': return [1, 2, 3];
-            case 'Gymnasium': return [1, 2, 3, 4, 5, 6];
+            case 'kindergarten': return [1, 2];
+            case 'primary': return [1, 2, 3, 4, 5, 6];
+            case 'secondary': return [1, 2, 3];
+            case 'gymnasium': return [1, 2, 3, 4, 5, 6];
             default: return [];
         }
     }
@@ -128,17 +170,17 @@ export class SettingsComponent implements OnInit {
         if (level === -1) return; // Opted out
 
         if (level <= 2) {
-            this.schoolType.set('Kindergarten');
+            this.schoolType.set('kindergarten');
             this.grade.set(level);
         } else if (level <= 8) {
-            this.schoolType.set('Primarschule');
+            this.schoolType.set('primary');
             this.grade.set(level - 2);
         } else {
             // Level >= 9
             // Distinguish Sek vs Gym based on skill level heuristic or default
             // Sek: 0.3, Gym: 0.8
             const isGym = (skill ?? 0.5) > 0.6;
-            this.schoolType.set(isGym ? 'Gymnasium' : 'Sekundarschule');
+            this.schoolType.set(isGym ? 'gymnasium' : 'secondary');
             this.grade.set(level - 8);
         }
     }
@@ -160,7 +202,7 @@ export class SettingsComponent implements OnInit {
             // Reset to defaults
             this.skillLevel.set(0.5);
             this.learnLevel.set(3); // Primar 1
-            this.schoolType.set('Primarschule');
+            this.schoolType.set('primary');
             this.grade.set(1);
         }
     }
@@ -181,13 +223,13 @@ export class SettingsComponent implements OnInit {
 
         this.avatarConfig.set({
             skinTone: randomPick(this.skinTones),
-            hairStyle: randomPick(this.hairStyles),
+            hairStyle: randomPick(this.hairStyles).id,
             hairColor: randomPick(this.hairColors),
-            eyes: randomPick(this.eyeStyles),
-            eyebrows: randomPick(this.eyebrowStyles),
-            mouth: randomPick(this.mouthStyles),
-            accessories: randomPick(this.accessoryOptions),
-            facialHair: randomPick(this.facialHairOptions),
+            eyes: randomPick(this.eyeStyles).id,
+            eyebrows: randomPick(this.eyebrowStyles).id,
+            mouth: randomPick(this.mouthStyles).id,
+            accessories: randomPick(this.accessoryOptions).id,
+            facialHair: randomPick(this.facialHairOptions).id,
             backgroundColor: randomPick(this.backgroundColors)
         });
     }
@@ -207,10 +249,10 @@ export class SettingsComponent implements OnInit {
                 const grade = this.grade();
 
                 switch (type) {
-                    case 'Kindergarten': finalLearnLevel = grade; break;
-                    case 'Primarschule': finalLearnLevel = grade + 2; break;
-                    case 'Sekundarschule': finalLearnLevel = grade + 8; break;
-                    case 'Gymnasium': finalLearnLevel = grade + 8; break;
+                    case 'kindergarten': finalLearnLevel = grade; break;
+                    case 'primary': finalLearnLevel = grade + 2; break;
+                    case 'secondary': finalLearnLevel = grade + 8; break;
+                    case 'gymnasium': finalLearnLevel = grade + 8; break;
                 }
 
                 // Note: We are NOT auto-adjusting skill level here like in the modal

@@ -339,7 +339,7 @@
 
             document.getElementById('appsGrid').innerHTML = sorted.map(app => {
                 const m = getAppMetrics(app.file);
-                const last = m.lastOpened ? new Date(m.lastOpened).toLocaleDateString() : 'Never';
+                const last = m.lastOpened ? new Date(m.lastOpened).toLocaleDateString() : 'Nie';
                 return `
                     <div class="app-card" data-file="${app.file}">
                         <div class="app-icon">${app.icon}</div>
@@ -348,7 +348,7 @@
                         <div class="app-meta">
                             <span class="app-category">📁 ${app.category}</span>
                             <div class="app-stats">
-                                <span>🔥 ${m.openCount} uses</span>
+                                <span>🔥 ${m.openCount}</span>
                                 <span>🕐 ${last}</span>
                             </div>
                         </div>

@@ -110,10 +110,10 @@
                     <div class="option-group">
                         <label>Frisur</label>
                         <div class="style-options">
-                            @for (style of hairStyles; track style) {
-                            <button class="style-btn" [class.active]="avatarConfig().hairStyle === style"
-                                (click)="updateAvatarPart('hairStyle', style)">
-                                {{ style }}
+                            @for (style of hairStyles; track style.id) {
+                            <button class="style-btn" [class.active]="avatarConfig().hairStyle === style.id"
+                                (click)="updateAvatarPart('hairStyle', style.id)">
+                                {{ style.text }}
                             </button>
                             }
                         </div>
@@ -136,10 +136,10 @@
                     <div class="option-group">
                         <label>Augen</label>
                         <div class="style-options">
-                            @for (style of eyeStyles; track style) {
-                            <button class="style-btn" [class.active]="avatarConfig().eyes === style"
-                                (click)="updateAvatarPart('eyes', style)">
-                                {{ style }}
+                            @for (style of eyeStyles; track style.id) {
+                            <button class="style-btn" [class.active]="avatarConfig().eyes === style.id"
+                                (click)="updateAvatarPart('eyes', style.id)">
+                                {{ style.text }}
                             </button>
                             }
                         </div>
@@ -149,10 +149,10 @@
                     <div class="option-group">
                         <label>Augenbrauen</label>
                         <div class="style-options">
-                            @for (style of eyebrowStyles; track style) {
-                            <button class="style-btn" [class.active]="avatarConfig().eyebrows === style"
-                                (click)="updateAvatarPart('eyebrows', style)">
-                                {{ style }}
+                            @for (style of eyebrowStyles; track style.id) {
+                            <button class="style-btn" [class.active]="avatarConfig().eyebrows === style.id"
+                                (click)="updateAvatarPart('eyebrows', style.id)">
+                                {{ style.text }}
                             </button>
                             }
                         </div>
@@ -162,10 +162,10 @@
                     <div class="option-group">
                         <label>Mund</label>
                         <div class="style-options">
-                            @for (style of mouthStyles; track style) {
-                            <button class="style-btn" [class.active]="avatarConfig().mouth === style"
-                                (click)="updateAvatarPart('mouth', style)">
-                                {{ style }}
+                            @for (style of mouthStyles; track style.id) {
+                            <button class="style-btn" [class.active]="avatarConfig().mouth === style.id"
+                                (click)="updateAvatarPart('mouth', style.id)">
+                                {{ style.text }}
                             </button>
                             }
                         </div>
@@ -175,10 +175,10 @@
                     <div class="option-group">
                         <label>Accessoires</label>
                         <div class="style-options">
-                            @for (option of accessoryOptions; track option) {
-                            <button class="style-btn" [class.active]="avatarConfig().accessories === option"
-                                (click)="updateAvatarPart('accessories', option)">
-                                {{ option === 'none' ? 'Keine' : option }}
+                            @for (option of accessoryOptions; track option.id) {
+                            <button class="style-btn" [class.active]="avatarConfig().accessories === option.id"
+                                (click)="updateAvatarPart('accessories', option.id)">
+                                {{ option.text }}
                             </button>
                             }
                         </div>
@@ -188,10 +188,10 @@
                     <div class="option-group">
                         <label>Bart</label>
                         <div class="style-options">
-                            @for (option of facialHairOptions; track option) {
-                            <button class="style-btn" [class.active]="avatarConfig().facialHair === option"
-                                (click)="updateAvatarPart('facialHair', option)">
-                                {{ option === 'none' ? 'Keiner' : option }}
+                            @for (option of facialHairOptions; track option.id) {
+                            <button class="style-btn" [class.active]="avatarConfig().facialHair === option.id"
+                                (click)="updateAvatarPart('facialHair', option.id)">
+                                {{ option.text }}
                             </button>
                             }
                         </div>
@@ -238,10 +238,10 @@
                 <div class="option-group">
                     <label>Schulstufe</label>
                     <div class="style-options">
-                        @for (type of schoolTypes; track type) {
-                        <button class="style-btn" [class.active]="schoolType() === type"
-                            (click)="updateSchoolType(type)">
-                            {{ type }}
+                        @for (type of schoolTypes; track type.id) {
+                        <button class="style-btn" [class.active]="schoolType() === type.id"
+                            (click)="updateSchoolType(type.id)">
+                            {{ type.text }}
                         </button>
                         }
                     </div>

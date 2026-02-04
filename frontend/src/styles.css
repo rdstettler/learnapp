@@ -6,6 +6,7 @@
 
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import 'driver.js/dist/driver.css';
 
 /* ========================================
    Reset & CSS Variables
@@ -657,4 +658,72 @@ body {
     color: var(--text-primary);
     transform: translateX(-4px);
     border-color: rgba(99, 102, 241, 0.3);
+}
+
+/* ========================================
+   Driver.js Theme Overrides
+   ======================================== */
+
+.driver-popover {
+    background-color: #1a1a2e !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+}
+
+.driver-popover-title {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    color: var(--accent-1) !important;
+    margin-bottom: 8px !important;
+}
+
+.driver-popover-description {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.95rem !important;
+    color: var(--text-secondary) !important;
+    line-height: 1.5 !important;
+}
+
+.driver-popover-footer {
+    margin-top: 15px !important;
+}
+
+.driver-popover-btn {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 6px !important;
+    padding: 6px 12px !important;
+    font-size: 0.85rem !important;
+    font-family: 'Inter', sans-serif !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    text-shadow: none !important;
+}
+
+.driver-popover-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.driver-popover-next-btn {
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2)) !important;
+    border: none !important;
+    color: white !important;
+}
+
+.driver-popover-next-btn:hover {
+    opacity: 0.9 !important;
+    transform: translateY(-1px) !important;
+}
+
+.driver-popover-close-btn {
+    color: var(--text-muted) !important;
+    transition: color 0.2s ease !important;
+}
+
+.driver-popover-close-btn:hover {
+    color: var(--text-primary) !important;
 }
