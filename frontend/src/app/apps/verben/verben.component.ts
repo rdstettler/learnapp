@@ -60,8 +60,8 @@ export class VerbenComponent {
     }
 
     private loadData(): void {
-        this.dataService.loadData<{ verbs: VerbData[] }>('verben.json').subscribe({
-            next: (data) => this.verbs.set(data.verbs),
+        this.dataService.loadAppContent<VerbData>('verben').subscribe({
+            next: (data) => this.verbs.set(data),
             error: (err) => console.error('Error loading verben data:', err)
         });
     }

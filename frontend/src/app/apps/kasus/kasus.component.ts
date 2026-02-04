@@ -57,8 +57,8 @@ export class KasusComponent {
     }
 
     private loadData(): void {
-        this.dataService.loadData<{ exercises: Exercise[] }>('kasus.json').subscribe({
-            next: (data) => this.exercises.set(data.exercises),
+        this.dataService.loadAppContent<Exercise>('kasus').subscribe({
+            next: (data) => this.exercises.set(data),
             error: (err) => console.error('Error loading kasus data:', err)
         });
     }

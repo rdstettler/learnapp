@@ -59,8 +59,8 @@ export class SatzzeichenComponent {
     }
 
     private loadData(): void {
-        this.dataService.loadData<{ texts: string[] }>('satzzeichen.json').subscribe({
-            next: (data) => this.allTexts.set(data.texts),
+        this.dataService.loadAppContent<string>('satzzeichen').subscribe({
+            next: (data) => this.allTexts.set(data),
             error: (err) => console.error('Error loading satzzeichen data:', err)
         });
     }

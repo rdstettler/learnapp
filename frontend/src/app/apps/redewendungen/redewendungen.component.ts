@@ -46,8 +46,8 @@ export class RedewendungenComponent {
     }
 
     private loadData(): void {
-        this.dataService.loadData<{ redewendungen: Redewendung[] }>('redewendungen.json').subscribe({
-            next: (data) => this.redewendungen.set(data.redewendungen),
+        this.dataService.loadAppContent<Redewendung>('redewendungen').subscribe({
+            next: (data) => this.redewendungen.set(data),
             error: (err) => console.error('Error loading redewendungen data:', err)
         });
     }

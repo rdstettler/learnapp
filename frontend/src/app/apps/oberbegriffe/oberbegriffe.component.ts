@@ -51,8 +51,8 @@ export class OberbegriffeComponent {
     }
 
     private loadData(): void {
-        this.dataService.loadData<{ items: OberbegriffItem[] }>('oberbegriffe.json').subscribe({
-            next: (data) => this.allItems.set(data.items),
+        this.dataService.loadAppContent<OberbegriffItem>('oberbegriffe').subscribe({
+            next: (data) => this.allItems.set(data),
             error: (err) => console.error('Error loading oberbegriffe data:', err)
         });
     }

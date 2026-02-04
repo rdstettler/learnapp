@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, tap, shareReplay } from 'rxjs';
+import { Observable, of, tap, shareReplay, map } from 'rxjs'; // Added map
 
 @Injectable({
     providedIn: 'root'
@@ -26,6 +26,23 @@ export class DataService {
         }
 
         return this.cache.get(path) as Observable<T>;
+    }
+
+    /**
+     * Load app content from API
+     */
+    loadAppContent<T>(appId: string): Observable<T[]> {
+        const url = `/api/app_content?app_id=${appId}`;
+
+        if (!this.cache.has(url)) {
+            const request = this.http.get<{ content: any[] }>(url).pipe(
+                map(res => res.content.map(row => row.data)),
+                tap(items => console.log(`Loaded ${items.length} items for ${appId} from API`)),
+                shareReplay(1)
+            );
+            this.cache.set(url, request);
+        }
+        return this.cache.get(url) as Observable<T[]>;
     }
 
     /**

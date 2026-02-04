@@ -46,7 +46,7 @@ export class TextaufgabenComponent {
     }
 
     private loadData(): void {
-        this.dataService.loadData<TextaufgabeItem[]>('textaufgaben.json').subscribe({
+        this.dataService.loadAppContent<TextaufgabeItem>('textaufgaben').subscribe({
             next: (data) => this.items.set(data),
             error: (err) => console.error('Error loading textaufgaben data:', err)
         });

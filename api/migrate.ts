@@ -71,6 +71,42 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(500).json({ error: e.message });
     }
 
+    // Create user_apps table (favorites)
+    try {
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS user_apps (
+                user_uid TEXT NOT NULL,
+                app_id TEXT NOT NULL,
+                is_favorite BOOLEAN DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (user_uid, app_id)
+            )
+        `);
+        console.log("Created user_apps table (if not exists)");
+    } catch (e: any) {
+        console.error("Error creating user_apps table:", e.message);
+    }
+
+    // Create app_content table
+    try {
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS app_content (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                app_id TEXT NOT NULL,
+                data TEXT NOT NULL,
+                level INTEGER,
+                skill_level REAL,
+                ai_generated BOOLEAN DEFAULT 0,
+                human_verified BOOLEAN DEFAULT 0,
+                flag_counter INTEGER DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        console.log("Created app_content table (if not exists)");
+    } catch (e: any) {
+        console.error("Error creating app_content table:", e.message);
+    }
+
     // Seed apps
     try {
         // We import the JSON content. In a Vercel serverless function, reading local files can be tricky.

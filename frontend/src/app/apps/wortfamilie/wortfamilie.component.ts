@@ -65,8 +65,8 @@ export class WortfamilieComponent {
     }
 
     private loadData(): void {
-        this.dataService.loadData<{ items: WortfamilieItem[] }>('wortfamilie.json').subscribe({
-            next: (data) => this.allItems.set(data.items),
+        this.dataService.loadAppContent<WortfamilieItem>('wortfamilie').subscribe({
+            next: (data) => this.allItems.set(data),
             error: (err) => console.error('Error loading wortfamilie data:', err)
         });
     }

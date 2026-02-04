@@ -65,8 +65,8 @@ export class DasdassComponent {
     }
 
     private loadData(): void {
-        this.dataService.loadData<{ texts: TextItem[] }>('dasdass.json').subscribe({
-            next: (data) => this.allTexts.set(data.texts),
+        this.dataService.loadAppContent<TextItem>('dasdass').subscribe({
+            next: (data) => this.allTexts.set(data),
             error: (err) => console.error('Error loading dasdass data:', err)
         });
     }

@@ -94,8 +94,8 @@ export class AehnlichewoerterComponent {
     }
 
     private loadData(): void {
-        this.dataService.loadData<{ pairs: WordPair[] }>('aehnlichewoerter.json').subscribe({
-            next: (data) => this.pairs.set(data.pairs),
+        this.dataService.loadAppContent<WordPair>('aehnlichewoerter').subscribe({
+            next: (data) => this.pairs.set(data),
             error: (err) => console.error('Error loading aehnlichewoerter data:', err)
         });
     }

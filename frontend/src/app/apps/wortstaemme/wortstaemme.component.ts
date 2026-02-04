@@ -65,8 +65,8 @@ export class WortstaemmeComponent {
     }
 
     private loadData(): void {
-        this.dataService.loadData<{ stems: Stem[] }>('wortstaemme.json').subscribe({
-            next: (data) => this.stems.set(data.stems),
+        this.dataService.loadAppContent<Stem>('wortstaemme').subscribe({
+            next: (data) => this.stems.set(data),
             error: (err) => console.error('Error loading wortstaemme data:', err)
         });
     }

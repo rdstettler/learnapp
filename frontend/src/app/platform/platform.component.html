@@ -30,11 +30,25 @@
     </header>
 
     <div class="controls">
+        <!-- View Switcher (Tabs) -->
+        <div class="view-tabs">
+            <button class="view-tab" [class.active]="currentView() === 'all'" (click)="setView('all')">
+                Alle Apps
+            </button>
+            <button class="view-tab" [class.active]="currentView() === 'favorites'" (click)="setView('favorites')">
+                Favoriten
+            </button>
+            <button class="view-tab" [class.active]="currentView() === 'ai'" (click)="setView('ai')">
+                AI Vorschläge ✨
+            </button>
+        </div>
+
+        <!-- Category Filters (only show if not in Favorites/AI view, or always? User didn't specify. Keeping them is nice) -->
         <div id="category-filters" class="category-filters">
             @for (category of categories(); track category) {
             <button class="category-chip" [class.active]="currentCategory() === category"
                 (click)="selectCategory(category)">
-                {{ category === 'all' ? 'Alle' : category }}
+                {{ category === 'all' ? 'Alle Kategorien' : category }}
             </button>
             }
         </div>
@@ -42,22 +56,15 @@
 
     <div class="apps-grid">
         @for (app of filteredApps(); track app.id) {
-        <div class="app-card" (click)="navigateToApp(app)" style="cursor: pointer;">
-            <div class="app-card-icon">{{ app.icon }}</div>
-            <h2 class="app-card-name">{{ app.name }}</h2>
-            <p class="app-card-description">{{ app.description }}</p>
-            <div class="app-meta">
-                <span class="tag-category">📁 {{ app.category }}</span>
-                <div class="app-stats">
-                    <span>🔥 {{ getAppMetrics(app.id).openCount }}</span>
-                    <span>🕐 {{ formatDate(getAppMetrics(app.id).lastOpened) }}</span>
-                </div>
-            </div>
-            <div class="app-tags">
-                @for (tag of app.tags; track tag) {
-                <span class="tag">#{{ tag }}</span>
-                }
-            </div>
+        <app-app-card [app]="app" [metrics]="getAppMetrics(app.id)" [isFavorite]="favorites().has(app.id)"
+            (appClicked)="openApp(app)" (favoriteToggled)="toggleFavorite(app.id)">
+        </app-app-card>
+        } @empty {
+        <div class="empty-state">
+            <p>Keine Apps gefunden.</p>
+            @if (currentView() === 'favorites') {
+            <p class="sub-text">Markiere Apps mit dem Stern, um sie hier zu sehen.</p>
+            }
         </div>
         }
     </div>
@@ -79,14 +86,20 @@
 <!-- Auth Modal -->
 <app-auth-modal></app-auth-modal>
 
+<!-- Properties Modal -->
 @if (showPropertiesModal()) {
 <div class="modal-overlay">
     <div class="modal-content properties-modal">
         @if (propertiesStep() === 1) {
-        <h2>Hallo {{ getDisplayName() }}, möchtest du mir kurz sagen, wer du bist?</h2>
-        <p>Helfe uns, die App besser an dich anzupassen!</p>
+        <h2>Hallo! Möchtest du mir kurz sagen, wie du heisst?</h2>
+        <p>Das macht die App persönlicher.</p>
+        <div class="input-group" style="margin: 1.5rem 0;">
+            <input type="text" [value]="tempDisplayName()" (input)="updateName($event)" placeholder="Dein Name"
+                class="name-input"
+                style="padding: 0.8rem; font-size: 1.1rem; border-radius: 8px; border: 1px solid #ccc; width: 100%; box-sizing: border-box;">
+        </div>
         <div class="modal-actions">
-            <button class="primary-btn" (click)="nextStep()">Ja, gerne!</button>
+            <button class="primary-btn" (click)="saveNameAndNext()">Weiter</button>
             <button class="text-btn" (click)="refuseProperties()">Nein, danke.</button>
         </div>
         }
@@ -125,6 +138,19 @@
                 {{ grade }}
             </button>
             }
+        </div>
+        }
+
+        @else if (propertiesStep() === 5) {
+        <h2>Vielen Dank, {{ getDisplayName() }}!</h2>
+        <p>Dein Profil wurde aktualisiert.</p>
+        <div class="hint-box" style="margin: 2rem 0; padding: 1rem; background: rgba(0,0,0,0.05); border-radius: 8px;">
+            <p>💡 <strong>Tipp:</strong> Du kannst dein Profilbild und deinen Namen jederzeit in den
+                <strong>Einstellungen</strong> ändern.
+            </p>
+        </div>
+        <div class="modal-actions">
+            <button class="primary-btn" (click)="closePropertiesModal()">Fertig</button>
         </div>
         }
     </div>

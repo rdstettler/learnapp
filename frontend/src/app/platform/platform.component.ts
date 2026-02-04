@@ -1,24 +1,14 @@
 import { Component, inject, signal, computed, ChangeDetectorRef, OnInit, ViewChild, effect, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { OnboardingService } from '../services/onboarding.service';
 import { UserService } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
-import { OnboardingService } from '../services/onboarding.service';
-import { AuthModalComponent } from '../shared';
+import { AuthModalComponent, AppCardComponent } from '../shared';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { catchError, of } from 'rxjs';
-
-export interface AppInfo {
-    id: string;
-    name: string;
-    description: string;
-    category: string;
-    route: string;
-    icon: string;
-    tags: string[];
-    featured?: boolean;
-}
+import { AppInfo } from '../shared/components/app-card/app-card.component'; // Import from shared
 
 interface AppsConfig {
     apps: AppInfo[];
@@ -27,7 +17,7 @@ interface AppsConfig {
 @Component({
     selector: 'app-platform',
     standalone: true,
-    imports: [AuthModalComponent],
+    imports: [AuthModalComponent, AppCardComponent],
     templateUrl: './platform.component.html',
     styleUrl: './platform.component.css'
 })
@@ -45,9 +35,10 @@ export class PlatformComponent implements OnInit, AfterViewInit {
 
     // User Properties Modal
     showPropertiesModal = signal(false);
-    propertiesStep = signal<1 | 2 | 3 | 4>(1);
+    propertiesStep = signal<1 | 2 | 3 | 4 | 5>(1);
 
     // Form values
+    tempDisplayName = signal<string>('');
     tempSkillLevel = signal<number>(0.5);
     tempSchoolType = signal<string | null>(null);
     tempLearnLevel = signal<number | null>(null);
@@ -94,10 +85,24 @@ export class PlatformComponent implements OnInit, AfterViewInit {
                     // Use untracked if needed, but here we just check if it's already true
                     if (!this.showPropertiesModal()) {
                         this.showPropertiesModal.set(true);
+                        // Initialize tempDisplayName with current display name if available
+                        const currentName = this.getDisplayName();
+                        this.tempDisplayName.set(currentName);
                     }
                 }
             }
         });
+        // Load favorites if user is logged in
+        effect(() => {
+            const user = this.authService.user();
+            if (user) {
+                // Use untracked if loadFavorites reads other signals to avoid loops, 
+                // but here it just makes an HTTP call.
+                this.loadFavorites(user.uid);
+            } else {
+                this.favorites.set(new Set());
+            }
+        }, { allowSignalWrites: true });
     }
 
     // Modal Actions
@@ -110,7 +115,23 @@ export class PlatformComponent implements OnInit, AfterViewInit {
     }
 
     nextStep(): void {
-        this.propertiesStep.update(s => (s < 4 ? s + 1 : s) as 1 | 2 | 3 | 4);
+        this.propertiesStep.update(s => (s < 5 ? s + 1 : s) as 1 | 2 | 3 | 4 | 5);
+    }
+
+    updateName(event: Event): void {
+        const val = (event.target as HTMLInputElement).value;
+        this.tempDisplayName.set(val);
+    }
+
+    saveNameAndNext(): void {
+        const name = this.tempDisplayName();
+        if (name && name.trim() !== '') {
+            const uid = this.authService.user()?.uid;
+            if (uid) {
+                this.userService.updateProfile({ displayName: name }, uid);
+            }
+        }
+        this.nextStep();
     }
 
     setSkillLevel(event: Event): void {
@@ -164,12 +185,24 @@ export class PlatformComponent implements OnInit, AfterViewInit {
         if (uid) {
             this.userService.updateProfile({ skillLevel: skill, learnLevel: finalLearnLevel }, uid);
         }
+        // Instead of closing, go to next step (Avatar hint)
+        this.nextStep();
+    }
+
+    closePropertiesModal(): void {
         this.showPropertiesModal.set(false);
     }
 
     @ViewChild(AuthModalComponent) authModal!: AuthModalComponent;
 
 
+
+    // View State
+    currentView = signal<'all' | 'favorites' | 'ai'>(
+        (typeof localStorage !== 'undefined' && localStorage.getItem('dashboard_view') as 'all' | 'favorites' | 'ai') || 'all'
+    );
+
+    favorites = signal<Set<string>>(new Set());
 
     // Apps loaded from config
     readonly apps = signal<AppInfo[]>([]);
@@ -182,16 +215,31 @@ export class PlatformComponent implements OnInit, AfterViewInit {
     currentCategory = signal<string>('all');
 
     readonly filteredApps = computed(() => {
+        const view = this.currentView();
         const category = this.currentCategory();
-        const filtered = category === 'all'
-            ? this.apps()
-            : this.apps().filter(a => a.category === category);
+        let apps = this.apps();
 
-        // Sort by usage count (most used first)
-        // Also prioritize featured apps if desired
-        return [...filtered].sort((a, b) => {
-            // Logic: Featured first? Or purely usage?
-            // For now sticking to usage as per existing logic, but we can verify featured property presence
+        // 1. Filter by View
+        if (view === 'favorites') {
+            apps = apps.filter(a => this.favorites().has(a.id));
+        } else if (view === 'ai') {
+            // Filter by skill level compatibility
+            const profile = this.userService.profile();
+            if (profile && profile.skillLevel !== null && profile.skillLevel !== -1) {
+                apps = apps.filter(a => a.featured);
+            } else {
+                // No profile, show featured
+                apps = apps.filter(a => a.featured);
+            }
+        }
+
+        // 2. Filter by Category
+        if (category !== 'all') {
+            apps = apps.filter(a => a.category === category);
+        }
+
+        // 3. Sort
+        return [...apps].sort((a, b) => {
             const metricsA = this.userService.getAppMetrics(a.id);
             const metricsB = this.userService.getAppMetrics(b.id);
             return metricsB.openCount - metricsA.openCount;
@@ -222,9 +270,13 @@ export class PlatformComponent implements OnInit, AfterViewInit {
                 return this.http.get<AppsConfig>('/assets/apps.config.json');
             })
         ).subscribe({
-            next: (config) => {
-                if (config && config.apps) {
-                    this.apps.set(config.apps);
+            next: (data: any) => {
+                // API returns { apps: [...] }
+                const appsList = data.apps || data;
+                if (Array.isArray(appsList)) {
+                    this.apps.set(appsList);
+                } else if (data && data.apps) {
+                    this.apps.set(data.apps);
                 }
             },
             error: (err) => {
@@ -233,18 +285,73 @@ export class PlatformComponent implements OnInit, AfterViewInit {
         });
     }
 
+    private loadFavorites(uid: string): void {
+        console.log('Loading favorites for user:', uid);
+        this.http.get<{ favorites: string[] }>(`/api/favorites?user_uid=${uid}`).subscribe({
+            next: (res) => {
+                console.log('Loaded favorites:', res.favorites);
+                const favSet = new Set(res.favorites);
+                this.favorites.set(favSet);
+
+                // If we have favorites and current view is default 'all', switch to favorites
+                // Only do this on initial load to avoid jumping around if user is browsing
+                if (favSet.size > 0 && this.currentView() === 'all') {
+                    // Check if this is likely the initial load (simple heuristic or just always do it if 'all')
+                    // User requested: "The default dashboard view should be the fav view in case there are any favs"
+                    // UPDATE: Respect localStorage preference if set.
+                    if (typeof localStorage !== 'undefined' && !localStorage.getItem('dashboard_view')) {
+                        this.setView('favorites');
+                    }
+                }
+            },
+            error: (err) => console.error('Error loading favorites:', err)
+        });
+    }
+
+    toggleFavorite(appId: string): void {
+        const user = this.authService.user();
+        if (!user) {
+            this.openAuthModal();
+            return;
+        }
+
+        const isFav = this.favorites().has(appId);
+        // Optimistic update
+        const newFavs = new Set(this.favorites());
+        if (isFav) newFavs.delete(appId);
+        else newFavs.add(appId);
+        this.favorites.set(newFavs);
+
+        this.http.post('/api/favorites', {
+            user_uid: user.uid,
+            app_id: appId,
+            is_favorite: !isFav
+        }).subscribe({
+            error: (err) => {
+                console.error('Error toggling favorite:', err);
+                // Revert on error
+                const revertFavs = new Set(this.favorites());
+                if (isFav) revertFavs.add(appId);
+                else revertFavs.delete(appId);
+                this.favorites.set(revertFavs);
+            }
+        });
+    }
+
+    setView(view: 'all' | 'favorites' | 'ai'): void {
+        this.currentView.set(view);
+        if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('dashboard_view', view);
+        }
+    }
+
     selectCategory(category: string): void {
         this.currentCategory.set(category);
     }
 
     openApp(app: AppInfo): void {
-        console.log('Opening app:', app.id, 'route:', app.route);
-        const uid = this.authService.user()?.uid;
-        this.userService.recordAppOpen(app.id, uid);
-        this.router.navigateByUrl(app.route).then(
-            success => console.log('Navigation success:', success),
-            error => console.error('Navigation error:', error)
-        );
+        // Legacy method, replaced by navigateToApp logic mostly, but used by AppCard output
+        this.navigateToApp(app);
     }
 
     navigateToApp(app: AppInfo): void {

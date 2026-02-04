@@ -66,7 +66,7 @@ export class FehlerComponent {
     }
 
     private loadData(): void {
-        this.dataService.loadData<string[]>('fehler.json').subscribe({
+        this.dataService.loadAppContent<string>('fehler').subscribe({
             next: (data) => this.allTexts.set(data),
             error: (err) => console.error('Error loading fehler data:', err)
         });

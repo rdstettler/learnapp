@@ -6,4 +6,5 @@ export { ProgressBarComponent } from './components/progress-bar/progress-bar.com
 export { ScoreDisplayComponent } from './components/score-display/score-display.component';
 export { WelcomeScreenComponent } from './components/welcome-screen/welcome-screen.component';
 export { AuthModalComponent } from './components/auth-modal/auth-modal.component';
+export { AppCardComponent } from './components/app-card/app-card.component';
 
