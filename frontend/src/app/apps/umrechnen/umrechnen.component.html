@@ -1,6 +1,7 @@
 <div class="bg-animation"></div>
 <div class="app-container">
     <div class="app-header">
+        <a routerLink="/" class="back-button">← Dashboard</a>
         <h1>📐 Umrechnen</h1>
     </div>
 
@@ -20,9 +21,8 @@
 
             <div class="category-selection">
                 @for (category of categories; track category.id) {
-                <div class="category-item" 
-                     [class.selected]="selectedCategories().has(category.id)"
-                     (click)="toggleCategory(category.id)">
+                <div class="category-item" [class.selected]="selectedCategories().has(category.id)"
+                    (click)="toggleCategory(category.id)">
                     <div class="category-checkbox"></div>
                     <span class="category-icon">{{ category.icon }}</span>
                     <span class="category-name">{{ category.name }}</span>
@@ -35,12 +35,11 @@
             </button>
 
             <div class="rule-box">
-                <strong>Tipp:</strong> Achte auf die Einheiten! Bei Flächen (m²) und Volumen (m³) 
+                <strong>Tipp:</strong> Achte auf die Einheiten! Bei Flächen (m²) und Volumen (m³)
                 ändern sich die Faktoren entsprechend.
             </div>
 
-            <button class="btn btn-primary" style="margin-top: 24px;" 
-                    (click)="startQuiz()" [disabled]="!canStart()">
+            <button class="btn btn-primary" style="margin-top: 24px;" (click)="startQuiz()" [disabled]="!canStart()">
                 Quiz starten
             </button>
         </div>
@@ -73,24 +72,19 @@
             </div>
 
             <div class="answer-row">
-                <input type="text" 
-                       class="answer-input" 
-                       [class.correct]="answered() && isCorrect()"
-                       [class.incorrect]="answered() && !isCorrect()" 
-                       [value]="userAnswer()"
-                       (input)="updateAnswer($any($event.target).value)" 
-                       (keyup.enter)="!answered() && userAnswer() ? checkAnswer() : nextProblem()"
-                       [disabled]="answered()"
-                       placeholder="Antwort eingeben..." 
-                       autocomplete="off"
-                       inputmode="decimal">
+                <input type="text" class="answer-input" [class.correct]="answered() && isCorrect()"
+                    [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
+                    (input)="updateAnswer($any($event.target).value)"
+                    (keyup.enter)="!answered() && userAnswer() ? checkAnswer() : nextProblem()" [disabled]="answered()"
+                    placeholder="Antwort eingeben..." autocomplete="off" inputmode="decimal">
                 <span class="answer-unit">{{ problem.toUnit.symbol }}</span>
             </div>
 
             @if (answered() && !isCorrect()) {
             <div class="correction-hint">
                 <span class="correction-label">Richtige Antwort:</span>
-                <span class="correction-value">{{ formatNumber(problem.correctAnswer) }} {{ problem.toUnit.symbol }}</span>
+                <span class="correction-value">{{ formatNumber(problem.correctAnswer) }} {{ problem.toUnit.symbol
+                    }}</span>
             </div>
             }
 

@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AuthService } from '../services/auth.service';
 import { UserService, UserProfile } from '../services/user.service';
 
@@ -31,6 +32,7 @@ interface AvatarConfig {
 })
 export class SettingsComponent implements OnInit {
     private router = inject(Router);
+    private sanitizer = inject(DomSanitizer);
     authService = inject(AuthService);
     userService = inject(UserService);
 
@@ -65,10 +67,40 @@ export class SettingsComponent implements OnInit {
     readonly backgroundColors = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316', '#eab308', '#22c55e', '#14b8a6', '#3b82f6', '#64748b'];
 
     // Current tab
-    activeTab = signal<'profile' | 'avatar'>('profile');
+    activeTab = signal<'profile' | 'avatar' | 'learning'>('profile');
 
     // Computed SVG avatar
     avatarSvg = computed(() => this.generateAvatarSvg(this.avatarConfig()));
+
+    // Safe SVG for template
+    avatarSvgSafe = computed(() => this.sanitizer.bypassSecurityTrustHtml(this.avatarSvg()));
+
+    // Safe Profile SVG
+    profileAvatarSvgSafe = computed(() => {
+        const svg = this.userService.profile()?.avatarSvg;
+        return svg ? this.sanitizer.bypassSecurityTrustHtml(svg) : null;
+    });
+
+    // User Properties
+    skillLevel = signal<number | null>(null);
+    learnLevel = signal<number | null>(null);
+    optedOut = computed(() => this.skillLevel() === -1 || this.learnLevel() === -1);
+
+    // Derived UI state for learn level
+    schoolType = signal<string>('Primarschule');
+    grade = signal<number>(1);
+
+    readonly schoolTypes = ['Kindergarten', 'Primarschule', 'Sekundarschule', 'Gymnasium'];
+
+    get gradesForType(): number[] {
+        switch (this.schoolType()) {
+            case 'Kindergarten': return [1, 2];
+            case 'Primarschule': return [1, 2, 3, 4, 5, 6];
+            case 'Sekundarschule': return [1, 2, 3];
+            case 'Gymnasium': return [1, 2, 3, 4, 5, 6];
+            default: return [];
+        }
+    }
 
     ngOnInit(): void {
         // Load existing profile
@@ -78,12 +110,62 @@ export class SettingsComponent implements OnInit {
             if (profile.avatarConfig) {
                 this.avatarConfig.set(profile.avatarConfig);
             }
+
+            // Load User Properties
+            if (profile.skillLevel !== undefined && profile.skillLevel !== null) {
+                this.skillLevel.set(profile.skillLevel);
+            }
+            if (profile.learnLevel !== undefined && profile.learnLevel !== null) {
+                this.learnLevel.set(profile.learnLevel);
+                this.reverseMapLearnLevel(profile.learnLevel, profile.skillLevel);
+            }
         } else if (this.authService.user()) {
             this.displayName.set(this.authService.user()?.displayName || '');
         }
     }
 
-    setTab(tab: 'profile' | 'avatar'): void {
+    private reverseMapLearnLevel(level: number, skill: number | null | undefined): void {
+        if (level === -1) return; // Opted out
+
+        if (level <= 2) {
+            this.schoolType.set('Kindergarten');
+            this.grade.set(level);
+        } else if (level <= 8) {
+            this.schoolType.set('Primarschule');
+            this.grade.set(level - 2);
+        } else {
+            // Level >= 9
+            // Distinguish Sek vs Gym based on skill level heuristic or default
+            // Sek: 0.3, Gym: 0.8
+            const isGym = (skill ?? 0.5) > 0.6;
+            this.schoolType.set(isGym ? 'Gymnasium' : 'Sekundarschule');
+            this.grade.set(level - 8);
+        }
+    }
+
+    updateSchoolType(type: string): void {
+        this.schoolType.set(type);
+        this.grade.set(1); // Reset grade
+    }
+
+    updateGrade(g: number): void {
+        this.grade.set(g);
+    }
+
+    toggleOptOut(optOut: boolean): void {
+        if (optOut) {
+            this.skillLevel.set(-1);
+            this.learnLevel.set(-1);
+        } else {
+            // Reset to defaults
+            this.skillLevel.set(0.5);
+            this.learnLevel.set(3); // Primar 1
+            this.schoolType.set('Primarschule');
+            this.grade.set(1);
+        }
+    }
+
+    setTab(tab: 'profile' | 'avatar' | 'learning'): void {
         this.activeTab.set(tab);
     }
 
@@ -96,7 +178,7 @@ export class SettingsComponent implements OnInit {
 
     randomizeAvatar(): void {
         const randomPick = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
-        
+
         this.avatarConfig.set({
             skinTone: randomPick(this.skinTones),
             hairStyle: randomPick(this.hairStyles),
@@ -116,11 +198,34 @@ export class SettingsComponent implements OnInit {
         this.saveError.set(null);
 
         try {
+            // Calculate final learn level
+            let finalLearnLevel = this.learnLevel();
+            let finalSkillLevel = this.skillLevel();
+
+            if (!this.optedOut()) {
+                const type = this.schoolType();
+                const grade = this.grade();
+
+                switch (type) {
+                    case 'Kindergarten': finalLearnLevel = grade; break;
+                    case 'Primarschule': finalLearnLevel = grade + 2; break;
+                    case 'Sekundarschule': finalLearnLevel = grade + 8; break;
+                    case 'Gymnasium': finalLearnLevel = grade + 8; break;
+                }
+
+                // Note: We are NOT auto-adjusting skill level here like in the modal
+                // because the user might have manually set the slider in the settings.
+                // We trust the slider value (this.skillLevel()) unless it was never touched?
+                // Actually, let's trust the slider.
+            }
+
             const uid = this.authService.user()?.uid;
             const success = await this.userService.updateProfile({
                 displayName: this.displayName(),
                 avatarConfig: this.avatarConfig(),
-                avatarSvg: this.avatarSvg()
+                avatarSvg: this.avatarSvg(),
+                skillLevel: finalSkillLevel,
+                learnLevel: finalLearnLevel
             }, uid);
 
             if (success) {
@@ -130,6 +235,7 @@ export class SettingsComponent implements OnInit {
                 this.saveError.set('Fehler beim Speichern. Bitte versuche es erneut.');
             }
         } catch (error) {
+            console.error(error);
             this.saveError.set('Ein unerwarteter Fehler ist aufgetreten.');
         } finally {
             this.saving.set(false);
@@ -198,7 +304,7 @@ export class SettingsComponent implements OnInit {
             goatee: `<path d="M44 72 Q50 70 56 72 Q56 82 50 85 Q44 82 44 72" fill="${hairColor}" opacity="0.9"/>`
         };
 
-        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
             <!-- Background -->
             <circle cx="50" cy="50" r="50" fill="${backgroundColor}"/>
             

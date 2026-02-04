@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DataService } from '../../services/data.service';
 
 interface Exercise {
@@ -12,14 +13,19 @@ interface WordPart {
     isCorrect?: boolean;
 }
 
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+
 @Component({
     selector: 'app-kasus',
     standalone: true,
+    imports: [RouterLink],
     templateUrl: './kasus.component.html',
     styleUrl: './kasus.component.css'
 })
 export class KasusComponent {
     private dataService = inject(DataService);
+    private telemetryService = inject(AppTelemetryService);
+    private sessionId = this.telemetryService.generateSessionId();
 
     readonly kasusOptions = ['Nominativ', 'Akkusativ', 'Dativ', 'Genitiv'];
     readonly kasusMap: Record<string, string> = {
@@ -145,6 +151,21 @@ export class KasusComponent {
         this.parts.set(updatedParts);
         this.totalCorrect.update(c => c + correct);
         this.answered.set(true);
+
+        // Telemetry: Track errors
+        const errors = updatedParts.filter(p => p.kasus && !p.isCorrect);
+        if (errors.length > 0) {
+            const content = JSON.stringify({
+                round: this.currentRound(),
+                originalText: this.rounds()[this.currentRound()].text,
+                errors: errors.map(p => ({
+                    text: p.text,
+                    expected: p.kasus,
+                    actual: p.selected
+                }))
+            });
+            this.telemetryService.trackError('kasus', content, this.sessionId);
+        }
     }
 
     nextRound(): void {

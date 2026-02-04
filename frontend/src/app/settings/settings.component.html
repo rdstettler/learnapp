@@ -7,243 +7,278 @@
     </header>
 
     @if (!authService.isAuthenticated()) {
-        <div class="auth-warning">
-            <p>⚠️ Du musst angemeldet sein, um dein Profil zu bearbeiten.</p>
-            <button class="primary-btn" (click)="goBack()">Zur Startseite</button>
-        </div>
+    <div class="auth-warning">
+        <p>⚠️ Du musst angemeldet sein, um dein Profil zu bearbeiten.</p>
+        <button class="primary-btn" (click)="goBack()">Zur Startseite</button>
+    </div>
     } @else {
-        <div class="settings-content">
-            <!-- Tab Navigation -->
-            <div class="tab-nav">
-                <button 
-                    class="tab-btn" 
-                    [class.active]="activeTab() === 'profile'"
-                    (click)="setTab('profile')">
-                    👤 Profil
-                </button>
-                <button 
-                    class="tab-btn" 
-                    [class.active]="activeTab() === 'avatar'"
-                    (click)="setTab('avatar')">
-                    🎨 Avatar
-                </button>
-            </div>
+    <div class="settings-content">
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn" [class.active]="activeTab() === 'profile'" (click)="setTab('profile')">
+                👤 Profil
+            </button>
+            <button class="tab-btn" [class.active]="activeTab() === 'avatar'" (click)="setTab('avatar')">
+                🎨 Avatar
+            </button>
+            <button class="tab-btn" [class.active]="activeTab() === 'learning'" (click)="setTab('learning')">
+                📚 Lernen
+            </button>
+        </div>
 
-            <!-- Profile Tab -->
-            @if (activeTab() === 'profile') {
-                <div class="tab-content">
-                    <div class="profile-section">
-                        <div class="avatar-preview-large">
-                            @if (userService.profile()?.avatarSvg) {
-                                <div class="avatar-image" [innerHTML]="userService.profile()?.avatarSvg"></div>
-                            } @else if (authService.user()?.photoURL) {
-                                <img [src]="authService.user()?.photoURL" alt="Avatar">
-                            } @else {
-                                <div class="avatar-placeholder">
-                                    {{ (displayName() || authService.user()?.email)?.charAt(0)?.toUpperCase() }}
-                                </div>
+        <!-- Profile Tab -->
+        @if (activeTab() === 'profile') {
+        <div class="tab-content">
+            <div class="profile-section">
+                <!-- ... existing profile content ... -->
+                <div class="avatar-preview-large">
+                    @if (profileAvatarSvgSafe()) {
+                    <div class="avatar-image" [innerHTML]="profileAvatarSvgSafe()"></div>
+                    } @else if (authService.user()?.photoURL) {
+                    <img [src]="authService.user()?.photoURL" alt="Avatar">
+                    } @else {
+                    <div class="avatar-placeholder">
+                        {{ (displayName() || authService.user()?.email)?.charAt(0)?.toUpperCase() }}
+                    </div>
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label for="displayName">Anzeigename</label>
+                    <input type="text" id="displayName" [ngModel]="displayName()"
+                        (ngModelChange)="displayName.set($event)" placeholder="Dein Name" maxlength="50">
+                    <span class="hint">Dieser Name wird in der App angezeigt</span>
+                </div>
+
+                <div class="form-group readonly">
+                    <label>E-Mail</label>
+                    <input type="text" [value]="authService.user()?.email" readonly disabled>
+                </div>
+
+                <div class="form-group readonly">
+                    <label>Anmeldemethode</label>
+                    <input type="text" [value]="authService.user()?.provider === 'google' ? 'Google' : 'E-Mail'"
+                        readonly disabled>
+                </div>
+            </div>
+        </div>
+        }
+
+        <!-- Avatar Tab -->
+        @if (activeTab() === 'avatar') {
+        <div class="tab-content">
+            <div class="avatar-editor">
+                <!-- ... existing avatar content ... -->
+                <div class="avatar-preview-section">
+                    <div class="avatar-preview-large">
+                        <div class="avatar-image" [innerHTML]="avatarSvgSafe()"></div>
+                    </div>
+                    <button class="randomize-btn" (click)="randomizeAvatar()">
+                        🎲 Zufällig
+                    </button>
+                </div>
+
+                <!-- Customization Options -->
+                <div class="avatar-options">
+                    <!-- Background Color -->
+                    <div class="option-group">
+                        <label>Hintergrund</label>
+                        <div class="color-options">
+                            @for (color of backgroundColors; track color) {
+                            <button class="color-btn" [style.background]="color"
+                                [class.active]="avatarConfig().backgroundColor === color"
+                                (click)="updateAvatarPart('backgroundColor', color)">
+                            </button>
                             }
                         </div>
-
-                        <div class="form-group">
-                            <label for="displayName">Anzeigename</label>
-                            <input 
-                                type="text" 
-                                id="displayName"
-                                [ngModel]="displayName()"
-                                (ngModelChange)="displayName.set($event)"
-                                placeholder="Dein Name"
-                                maxlength="50">
-                            <span class="hint">Dieser Name wird in der App angezeigt</span>
-                        </div>
-
-                        <div class="form-group readonly">
-                            <label>E-Mail</label>
-                            <input type="text" [value]="authService.user()?.email" readonly disabled>
-                        </div>
-
-                        <div class="form-group readonly">
-                            <label>Anmeldemethode</label>
-                            <input type="text" [value]="authService.user()?.provider === 'google' ? 'Google' : 'E-Mail'" readonly disabled>
-                        </div>
                     </div>
-                </div>
-            }
-
-            <!-- Avatar Tab -->
-            @if (activeTab() === 'avatar') {
-                <div class="tab-content">
-                    <div class="avatar-editor">
-                        <!-- Live Preview -->
-                        <div class="avatar-preview-section">
-                            <div class="avatar-preview-large">
-                                <div class="avatar-image" [innerHTML]="avatarSvg()"></div>
-                            </div>
-                            <button class="randomize-btn" (click)="randomizeAvatar()">
-                                🎲 Zufällig
+                    <!-- ... other avatar options ... -->
+                    <!-- Skin Tone -->
+                    <div class="option-group">
+                        <label>Hautfarbe</label>
+                        <div class="color-options">
+                            @for (tone of skinTones; track tone) {
+                            <button class="color-btn" [style.background]="tone"
+                                [class.active]="avatarConfig().skinTone === tone"
+                                (click)="updateAvatarPart('skinTone', tone)">
                             </button>
+                            }
                         </div>
+                    </div>
 
-                        <!-- Customization Options -->
-                        <div class="avatar-options">
-                            <!-- Background Color -->
-                            <div class="option-group">
-                                <label>Hintergrund</label>
-                                <div class="color-options">
-                                    @for (color of backgroundColors; track color) {
-                                        <button 
-                                            class="color-btn"
-                                            [style.background]="color"
-                                            [class.active]="avatarConfig().backgroundColor === color"
-                                            (click)="updateAvatarPart('backgroundColor', color)">
-                                        </button>
-                                    }
-                                </div>
-                            </div>
+                    <!-- Hair Style -->
+                    <div class="option-group">
+                        <label>Frisur</label>
+                        <div class="style-options">
+                            @for (style of hairStyles; track style) {
+                            <button class="style-btn" [class.active]="avatarConfig().hairStyle === style"
+                                (click)="updateAvatarPart('hairStyle', style)">
+                                {{ style }}
+                            </button>
+                            }
+                        </div>
+                    </div>
 
-                            <!-- Skin Tone -->
-                            <div class="option-group">
-                                <label>Hautfarbe</label>
-                                <div class="color-options">
-                                    @for (tone of skinTones; track tone) {
-                                        <button 
-                                            class="color-btn"
-                                            [style.background]="tone"
-                                            [class.active]="avatarConfig().skinTone === tone"
-                                            (click)="updateAvatarPart('skinTone', tone)">
-                                        </button>
-                                    }
-                                </div>
-                            </div>
+                    <!-- Hair Color -->
+                    <div class="option-group">
+                        <label>Haarfarbe</label>
+                        <div class="color-options">
+                            @for (color of hairColors; track color) {
+                            <button class="color-btn" [style.background]="color"
+                                [class.active]="avatarConfig().hairColor === color"
+                                (click)="updateAvatarPart('hairColor', color)">
+                            </button>
+                            }
+                        </div>
+                    </div>
 
-                            <!-- Hair Style -->
-                            <div class="option-group">
-                                <label>Frisur</label>
-                                <div class="style-options">
-                                    @for (style of hairStyles; track style) {
-                                        <button 
-                                            class="style-btn"
-                                            [class.active]="avatarConfig().hairStyle === style"
-                                            (click)="updateAvatarPart('hairStyle', style)">
-                                            {{ style }}
-                                        </button>
-                                    }
-                                </div>
-                            </div>
+                    <!-- Eyes -->
+                    <div class="option-group">
+                        <label>Augen</label>
+                        <div class="style-options">
+                            @for (style of eyeStyles; track style) {
+                            <button class="style-btn" [class.active]="avatarConfig().eyes === style"
+                                (click)="updateAvatarPart('eyes', style)">
+                                {{ style }}
+                            </button>
+                            }
+                        </div>
+                    </div>
 
-                            <!-- Hair Color -->
-                            <div class="option-group">
-                                <label>Haarfarbe</label>
-                                <div class="color-options">
-                                    @for (color of hairColors; track color) {
-                                        <button 
-                                            class="color-btn"
-                                            [style.background]="color"
-                                            [class.active]="avatarConfig().hairColor === color"
-                                            (click)="updateAvatarPart('hairColor', color)">
-                                        </button>
-                                    }
-                                </div>
-                            </div>
+                    <!-- Eyebrows -->
+                    <div class="option-group">
+                        <label>Augenbrauen</label>
+                        <div class="style-options">
+                            @for (style of eyebrowStyles; track style) {
+                            <button class="style-btn" [class.active]="avatarConfig().eyebrows === style"
+                                (click)="updateAvatarPart('eyebrows', style)">
+                                {{ style }}
+                            </button>
+                            }
+                        </div>
+                    </div>
 
-                            <!-- Eyes -->
-                            <div class="option-group">
-                                <label>Augen</label>
-                                <div class="style-options">
-                                    @for (style of eyeStyles; track style) {
-                                        <button 
-                                            class="style-btn"
-                                            [class.active]="avatarConfig().eyes === style"
-                                            (click)="updateAvatarPart('eyes', style)">
-                                            {{ style }}
-                                        </button>
-                                    }
-                                </div>
-                            </div>
+                    <!-- Mouth -->
+                    <div class="option-group">
+                        <label>Mund</label>
+                        <div class="style-options">
+                            @for (style of mouthStyles; track style) {
+                            <button class="style-btn" [class.active]="avatarConfig().mouth === style"
+                                (click)="updateAvatarPart('mouth', style)">
+                                {{ style }}
+                            </button>
+                            }
+                        </div>
+                    </div>
 
-                            <!-- Eyebrows -->
-                            <div class="option-group">
-                                <label>Augenbrauen</label>
-                                <div class="style-options">
-                                    @for (style of eyebrowStyles; track style) {
-                                        <button 
-                                            class="style-btn"
-                                            [class.active]="avatarConfig().eyebrows === style"
-                                            (click)="updateAvatarPart('eyebrows', style)">
-                                            {{ style }}
-                                        </button>
-                                    }
-                                </div>
-                            </div>
+                    <!-- Accessories -->
+                    <div class="option-group">
+                        <label>Accessoires</label>
+                        <div class="style-options">
+                            @for (option of accessoryOptions; track option) {
+                            <button class="style-btn" [class.active]="avatarConfig().accessories === option"
+                                (click)="updateAvatarPart('accessories', option)">
+                                {{ option === 'none' ? 'Keine' : option }}
+                            </button>
+                            }
+                        </div>
+                    </div>
 
-                            <!-- Mouth -->
-                            <div class="option-group">
-                                <label>Mund</label>
-                                <div class="style-options">
-                                    @for (style of mouthStyles; track style) {
-                                        <button 
-                                            class="style-btn"
-                                            [class.active]="avatarConfig().mouth === style"
-                                            (click)="updateAvatarPart('mouth', style)">
-                                            {{ style }}
-                                        </button>
-                                    }
-                                </div>
-                            </div>
-
-                            <!-- Accessories -->
-                            <div class="option-group">
-                                <label>Accessoires</label>
-                                <div class="style-options">
-                                    @for (option of accessoryOptions; track option) {
-                                        <button 
-                                            class="style-btn"
-                                            [class.active]="avatarConfig().accessories === option"
-                                            (click)="updateAvatarPart('accessories', option)">
-                                            {{ option === 'none' ? 'Keine' : option }}
-                                        </button>
-                                    }
-                                </div>
-                            </div>
-
-                            <!-- Facial Hair -->
-                            <div class="option-group">
-                                <label>Bart</label>
-                                <div class="style-options">
-                                    @for (option of facialHairOptions; track option) {
-                                        <button 
-                                            class="style-btn"
-                                            [class.active]="avatarConfig().facialHair === option"
-                                            (click)="updateAvatarPart('facialHair', option)">
-                                            {{ option === 'none' ? 'Keiner' : option }}
-                                        </button>
-                                    }
-                                </div>
-                            </div>
+                    <!-- Facial Hair -->
+                    <div class="option-group">
+                        <label>Bart</label>
+                        <div class="style-options">
+                            @for (option of facialHairOptions; track option) {
+                            <button class="style-btn" [class.active]="avatarConfig().facialHair === option"
+                                (click)="updateAvatarPart('facialHair', option)">
+                                {{ option === 'none' ? 'Keiner' : option }}
+                            </button>
+                            }
                         </div>
                     </div>
                 </div>
-            }
-
-            <!-- Save Button -->
-            <div class="actions">
-                @if (saveSuccess()) {
-                    <div class="success-message">✅ Profil gespeichert!</div>
-                }
-                @if (saveError()) {
-                    <div class="error-message">❌ {{ saveError() }}</div>
-                }
-                <button 
-                    class="save-btn" 
-                    (click)="saveProfile()"
-                    [disabled]="saving()">
-                    @if (saving()) {
-                        Speichern...
-                    } @else {
-                        💾 Profil speichern
-                    }
-                </button>
             </div>
         </div>
+        }
+
+        <!-- Learning Tab -->
+        @if (activeTab() === 'learning') {
+        <div class="tab-content">
+            @if (optedOut()) {
+            <div class="auth-warning">
+                <p>⚠️ Du hast personifizierte Lernvorschläge deaktiviert.</p>
+                <p style="font-size: 1rem; color: var(--text-secondary);">Aktiviere sie, um Aufgaben zu erhalten, die
+                    genau zu deinem Schulniveau passen.</p>
+                <button class="primary-btn" (click)="toggleOptOut(false)">Einstellungen aktivieren</button>
+            </div>
+            } @else {
+            <div class="learning-options">
+                <div class="section-header">
+                    <h2>Lernniveau</h2>
+                    <button class="text-btn small-btn" (click)="toggleOptOut(true)"
+                        title="Daten löschen und deaktivieren">
+                        🗑️ Deaktivieren
+                    </button>
+                </div>
+
+                <!-- Skill Level -->
+                <div class="option-group">
+                    <label>Deine Einschätzung</label>
+                    <div class="slider-container">
+                        <input type="range" min="0" max="1" step="0.1" [ngModel]="skillLevel()"
+                            (ngModelChange)="skillLevel.set($event)" class="range-slider">
+                        <div class="slider-labels">
+                            <span>Anfänger</span>
+                            <span>Profi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- School Type -->
+                <div class="option-group">
+                    <label>Schulstufe</label>
+                    <div class="style-options">
+                        @for (type of schoolTypes; track type) {
+                        <button class="style-btn" [class.active]="schoolType() === type"
+                            (click)="updateSchoolType(type)">
+                            {{ type }}
+                        </button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Grade -->
+                <div class="option-group">
+                    <label>Klasse / Stufe</label>
+                    <div class="style-options">
+                        @for (g of gradesForType; track g) {
+                        <button class="style-btn" [class.active]="grade() === g" (click)="updateGrade(g)">
+                            {{ g }}
+                        </button>
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+        }
+
+        <!-- Save Button -->
+        <div class="actions">
+            @if (saveSuccess()) {
+            <div class="success-message">✅ Profil gespeichert!</div>
+            }
+            @if (saveError()) {
+            <div class="error-message">❌ {{ saveError() }}</div>
+            }
+            <button class="save-btn" (click)="saveProfile()" [disabled]="saving()">
+                @if (saving()) {
+                Speichern...
+                } @else {
+                💾 Profil speichern
+                }
+            </button>
+        </div>
+    </div>
     }
 </div>

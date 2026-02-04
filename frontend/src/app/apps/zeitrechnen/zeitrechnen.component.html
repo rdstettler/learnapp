@@ -1,6 +1,7 @@
 <div class="bg-animation"></div>
 <div class="app-container">
     <div class="app-header">
+        <a routerLink="/" class="back-button">← Dashboard</a>
         <h1>⏱️ Zeitrechnen</h1>
     </div>
 
@@ -71,16 +72,11 @@
             </div>
 
             <div class="answer-row">
-                <input type="text" 
-                       class="answer-input" 
-                       [class.correct]="answered() && isCorrect()"
-                       [class.incorrect]="answered() && !isCorrect()" 
-                       [value]="userAnswer()"
-                       (input)="updateAnswer($any($event.target).value)" 
-                       (keyup.enter)="!answered() && userAnswer() ? checkAnswer() : nextProblem()"
-                       [disabled]="answered()"
-                       placeholder="Antwort eingeben..." 
-                       autocomplete="off">
+                <input type="text" class="answer-input" [class.correct]="answered() && isCorrect()"
+                    [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
+                    (input)="updateAnswer($any($event.target).value)"
+                    (keyup.enter)="!answered() && userAnswer() ? checkAnswer() : nextProblem()" [disabled]="answered()"
+                    placeholder="Antwort eingeben..." autocomplete="off">
             </div>
 
             @if (answered() && !isCorrect()) {

@@ -1,4 +1,5 @@
 import { Component, signal, computed } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 interface UnitCategory {
     id: string;
@@ -21,27 +22,33 @@ interface Problem {
     correctAnswer: number;
 }
 
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+import { inject } from '@angular/core';
+
 @Component({
     selector: 'app-umrechnen',
     standalone: true,
+    imports: [RouterLink],
     templateUrl: './umrechnen.component.html',
     styleUrl: './umrechnen.component.css'
 })
 export class UmrechnenComponent {
+    private telemetryService = inject(AppTelemetryService);
+    private sessionId = this.telemetryService.generateSessionId();
     readonly PROBLEMS_PER_ROUND = 10;
     readonly MIN_VALUE = 0.0001; // Max 3 Nullen nach Komma
     readonly MAX_VALUE = 9999999; // Unter 10 Millionen
 
     screen = signal<'welcome' | 'quiz' | 'results'>('welcome');
     selectedCategories = signal<Set<string>>(new Set());
-    
+
     currentProblem = signal<Problem | null>(null);
     problemIndex = signal(0);
-    
+
     userAnswer = signal('');
     answered = signal(false);
     isCorrect = signal(false);
-    
+
     totalCorrect = signal(0);
     totalWrong = signal(0);
 
@@ -143,7 +150,7 @@ export class UmrechnenComponent {
     private generateProblem(): void {
         const selectedCats = this.categories.filter(c => this.selectedCategories().has(c.id));
         const category = selectedCats[Math.floor(Math.random() * selectedCats.length)];
-        
+
         // Wähle zwei verschiedene Einheiten
         const units = category.units;
         const fromIndex = Math.floor(Math.random() * units.length);
@@ -151,17 +158,17 @@ export class UmrechnenComponent {
         while (toIndex === fromIndex) {
             toIndex = Math.floor(Math.random() * units.length);
         }
-        
+
         const fromUnit = units[fromIndex];
         const toUnit = units[toIndex];
-        
+
         // Berechne den Umrechnungsfaktor
         const conversionFactor = fromUnit.toBase / toUnit.toBase;
-        
+
         // Generiere einen Wert, der ein "schönes" Ergebnis gibt
         const value = this.generateNiceValue(conversionFactor);
         const correctAnswer = value * conversionFactor;
-        
+
         this.currentProblem.set({
             value,
             fromUnit,
@@ -169,7 +176,7 @@ export class UmrechnenComponent {
             category,
             correctAnswer
         });
-        
+
         this.userAnswer.set('');
         this.answered.set(false);
     }
@@ -186,17 +193,17 @@ export class UmrechnenComponent {
             0.01, 0.02, 0.05,
             0.001, 0.002, 0.005
         ];
-        
+
         // Mische die Zahlen
         const shuffled = [...niceNumbers].sort(() => Math.random() - 0.5);
-        
+
         for (const num of shuffled) {
             const result = num * conversionFactor;
             if (this.isValidResult(result) && this.isValidResult(num)) {
                 return num;
             }
         }
-        
+
         // Fallback: generiere eine passende Zahl
         return this.findValidValue(conversionFactor);
     }
@@ -205,33 +212,33 @@ export class UmrechnenComponent {
         // Berechne einen Bereich basierend auf dem Faktor
         let minInput = this.MIN_VALUE;
         let maxInput = this.MAX_VALUE;
-        
+
         // Stelle sicher, dass das Ergebnis auch gültig ist
         if (conversionFactor > 1) {
             maxInput = Math.min(maxInput, this.MAX_VALUE / conversionFactor);
         } else {
             minInput = Math.max(minInput, this.MIN_VALUE / conversionFactor);
         }
-        
+
         // Generiere eine "runde" Zahl im gültigen Bereich
         const magnitude = Math.floor(Math.log10(maxInput / 2));
         const base = Math.pow(10, Math.max(0, Math.min(magnitude, 4)));
         const multipliers = [1, 2, 2.5, 5];
         const mult = multipliers[Math.floor(Math.random() * multipliers.length)];
-        
+
         return base * mult;
     }
 
     private isValidResult(value: number): boolean {
         if (value > this.MAX_VALUE || value < this.MIN_VALUE) return false;
-        
+
         // Prüfe auf zu viele Nachkommastellen (max 4 signifikante Dezimalstellen nach führenden Nullen)
         if (value < 1 && value > 0) {
             const decimalStr = value.toString();
             const match = decimalStr.match(/0\.(0*)([1-9])/);
             if (match && match[1].length > 3) return false; // Mehr als 3 führende Nullen
         }
-        
+
         return true;
     }
 
@@ -240,11 +247,11 @@ export class UmrechnenComponent {
         if (Number.isInteger(num)) {
             return num.toLocaleString('de-CH');
         }
-        
+
         // Für Dezimalzahlen: entferne unnötige Nullen
         let str = num.toFixed(6);
         str = str.replace(/\.?0+$/, '');
-        
+
         // Schweizer Format mit Apostroph als Tausendertrennzeichen
         const parts = str.split('.');
         parts[0] = parseInt(parts[0]).toLocaleString('de-CH');
@@ -258,37 +265,46 @@ export class UmrechnenComponent {
     checkAnswer(): void {
         const problem = this.currentProblem();
         if (!problem) return;
-        
+
         // Normalisiere die Eingabe (erlaube Komma und Punkt)
         const userStr = this.userAnswer().trim()
             .replace(/[''\s]/g, '') // Entferne Tausendertrennzeichen
             .replace(',', '.');
         const userNum = parseFloat(userStr);
-        
+
         if (isNaN(userNum)) {
             this.isCorrect.set(false);
             this.answered.set(true);
             this.totalWrong.update(w => w + 1);
             return;
         }
-        
+
         // Erlaube kleine Rundungsfehler (0.1% Toleranz)
         const tolerance = Math.abs(problem.correctAnswer * 0.001);
         const correct = Math.abs(userNum - problem.correctAnswer) <= Math.max(tolerance, 0.0001);
-        
+
         this.isCorrect.set(correct);
         this.answered.set(true);
-        
+
         if (correct) {
             this.totalCorrect.update(c => c + 1);
         } else {
             this.totalWrong.update(w => w + 1);
+
+            // Telemetry: Track error
+            const content = JSON.stringify({
+                fromUnit: problem.fromUnit.symbol,
+                toUnit: problem.toUnit.symbol,
+                value: problem.value,
+                actual: userNum
+            });
+            this.telemetryService.trackError('umrechnen', content, this.sessionId);
         }
     }
 
     nextProblem(): void {
         const nextIndex = this.problemIndex() + 1;
-        
+
         if (nextIndex >= this.PROBLEMS_PER_ROUND) {
             this.screen.set('results');
         } else {

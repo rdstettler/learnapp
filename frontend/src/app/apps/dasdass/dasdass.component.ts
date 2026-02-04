@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject, ChangeDetectorRef, SecurityContext } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { DataService } from '../../services/data.service';
 import { ApiService } from '../../services/api.service';
@@ -13,9 +14,12 @@ interface SlotData {
     capitalize: boolean;
 }
 
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+
 @Component({
     selector: 'app-dasdass',
     standalone: true,
+    imports: [RouterLink],
     templateUrl: './dasdass.component.html',
     styleUrl: './dasdass.component.css'
 })
@@ -24,6 +28,8 @@ export class DasdassComponent {
     private sanitizer = inject(DomSanitizer);
     private cdr = inject(ChangeDetectorRef);
     private apiService = inject(ApiService);
+    private telemetryService = inject(AppTelemetryService);
+    private sessionId = this.telemetryService.generateSessionId();
 
     private quizStartTime = 0;
 
@@ -239,6 +245,20 @@ export class DasdassComponent {
                 userAnswer: userChoice || null,
                 isCorrect
             });
+        }
+
+        // Telemetry: Track errors
+        const errors = answers.filter(a => !a.isCorrect);
+        if (errors.length > 0) {
+            const content = JSON.stringify({
+                textId: this.currentText().id,
+                originalText: this.currentText().sentences,
+                errors: errors.map(e => ({
+                    correct: e.correct,
+                    actual: e.userAnswer
+                }))
+            });
+            this.telemetryService.trackError('dasdass', content, this.sessionId);
         }
 
         // Store this text's results for AI analysis

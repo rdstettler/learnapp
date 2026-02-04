@@ -41,6 +41,30 @@ export class PlatformComponent implements OnInit {
     // Auth
     authService = inject(AuthService);
 
+    // User Properties Modal
+    showPropertiesModal = signal(false);
+    propertiesStep = signal<1 | 2 | 3 | 4>(1);
+
+    // Form values
+    tempSkillLevel = signal<number>(0.5);
+    tempSchoolType = signal<string | null>(null);
+    tempLearnLevel = signal<number | null>(null);
+
+    // School types for step 3
+    readonly schoolTypes = ['Kindergarten', 'Primarschule', 'Sekundarschule', 'Gymnasium'];
+
+    // Grades for step 4 based on school type
+    get gradesForType(): number[] {
+        const type = this.tempSchoolType();
+        switch (type) {
+            case 'Kindergarten': return [1, 2];
+            case 'Primarschule': return [1, 2, 3, 4, 5, 6];
+            case 'Sekundarschule': return [1, 2, 3];
+            case 'Gymnasium': return [1, 2, 3, 4, 5, 6];
+            default: return [];
+        }
+    }
+
     constructor() {
         // Load metrics and profile from backend when user logs in
         effect(() => {
@@ -50,7 +74,97 @@ export class PlatformComponent implements OnInit {
                 this.userService.loadProfileFromBackend(user.uid);
             }
         });
+
+        // Check for missing properties
+        effect(() => {
+            const profile = this.userService.profile();
+            if (profile) {
+                // If either is null/undefined (and not -1), show modal
+                const skillMissing = profile.skillLevel === null || profile.skillLevel === undefined;
+                const learnMissing = profile.learnLevel === null || profile.learnLevel === undefined;
+
+                // If set to -1, it means refused, so don't show
+                const skillRefused = profile.skillLevel === -1;
+                const learnRefused = profile.learnLevel === -1;
+
+                if ((skillMissing && !skillRefused) || (learnMissing && !learnRefused)) {
+                    // Only open if not already open/handled to avoid loops or flashing
+                    // Use untracked if needed, but here we just check if it's already true
+                    if (!this.showPropertiesModal()) {
+                        this.showPropertiesModal.set(true);
+                    }
+                }
+            }
+        });
     }
+
+    // Modal Actions
+    refuseProperties(): void {
+        const uid = this.authService.user()?.uid;
+        if (uid) {
+            this.userService.updateProfile({ skillLevel: -1, learnLevel: -1 }, uid);
+        }
+        this.showPropertiesModal.set(false);
+    }
+
+    nextStep(): void {
+        this.propertiesStep.update(s => (s < 4 ? s + 1 : s) as 1 | 2 | 3 | 4);
+    }
+
+    setSkillLevel(event: Event): void {
+        const val = (event.target as HTMLInputElement).value;
+        this.tempSkillLevel.set(parseFloat(val));
+    }
+
+    selectSchoolType(type: string): void {
+        this.tempSchoolType.set(type);
+        this.nextStep();
+    }
+
+    selectGrade(grade: number): void {
+        this.tempLearnLevel.set(grade);
+        this.saveProperties();
+    }
+
+    saveProperties(): void {
+        const type = this.tempSchoolType();
+        let grade = this.tempLearnLevel() || 1;
+        let skill = this.tempSkillLevel();
+
+        // Calculate stored learn level
+        // Kindergarten 1-2 -> 1, 2 is OK? User: "start with 0 for pre-kindergarten, then 1-2 for kindergarten"
+        // Primarschule 1-6 -> 3-8 (So +2)
+        // Sekundarschule 1-3 -> 9-11 (So +8). User said "store 9-12" for 1-3? 1->9. 
+        // Gymnasium 1-6 -> 9-14 (So +8). User said "store 9-15".
+
+        let finalLearnLevel = 0;
+
+        switch (type) {
+            case 'Kindergarten':
+                finalLearnLevel = grade; // 1-2
+                break;
+            case 'Primarschule':
+                finalLearnLevel = grade + 2; // 1->3, 6->8
+                break;
+            case 'Sekundarschule':
+                finalLearnLevel = grade + 8; // 1->9
+                // Adjust skill level if user didn't change it or just based on rule
+                if (skill === 0.5) skill = 0.3;
+                break;
+            case 'Gymnasium':
+                finalLearnLevel = grade + 8; // 1->9
+                // Adjust skill level
+                if (skill === 0.5) skill = 0.8;
+                break;
+        }
+
+        const uid = this.authService.user()?.uid;
+        if (uid) {
+            this.userService.updateProfile({ skillLevel: skill, learnLevel: finalLearnLevel }, uid);
+        }
+        this.showPropertiesModal.set(false);
+    }
+
     @ViewChild(AuthModalComponent) authModal!: AuthModalComponent;
 
 

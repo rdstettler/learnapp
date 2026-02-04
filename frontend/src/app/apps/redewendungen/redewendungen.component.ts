@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DataService } from '../../services/data.service';
 
 interface Redewendung {
@@ -6,14 +7,19 @@ interface Redewendung {
     options: string[];
 }
 
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+
 @Component({
     selector: 'app-redewendungen',
     standalone: true,
+    imports: [RouterLink],
     templateUrl: './redewendungen.component.html',
     styleUrl: './redewendungen.component.css'
 })
 export class RedewendungenComponent {
     private dataService = inject(DataService);
+    private telemetryService = inject(AppTelemetryService);
+    private sessionId = this.telemetryService.generateSessionId();
 
     readonly QUESTIONS_PER_ROUND = 10;
 
@@ -110,6 +116,14 @@ export class RedewendungenComponent {
             this.wrongCount.update(c => c + 1);
             this.feedbackText.set('✗ Leider falsch!');
             this.isCorrect.set(false);
+
+            // Telemetry: Track error
+            const content = JSON.stringify({
+                idiom: this.questions()[this.currentQuestion()].idiom,
+                correct: this.questions()[this.currentQuestion()].options[0],
+                actual: selected.text
+            });
+            this.telemetryService.trackError('redewendungen', content, this.sessionId);
         }
     }
 

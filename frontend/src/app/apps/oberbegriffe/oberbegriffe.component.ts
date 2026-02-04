@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DataService } from '../../services/data.service';
 
 interface OberbegriffItem {
@@ -7,14 +8,19 @@ interface OberbegriffItem {
     answers: string; // Kommagetrennte mögliche Antworten
 }
 
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+
 @Component({
     selector: 'app-oberbegriffe',
     standalone: true,
+    imports: [RouterLink],
     templateUrl: './oberbegriffe.component.html',
     styleUrl: './oberbegriffe.component.css'
 })
 export class OberbegriffeComponent {
     private dataService = inject(DataService);
+    private telemetryService = inject(AppTelemetryService);
+    private sessionId = this.telemetryService.generateSessionId();
 
     readonly PROBLEMS_PER_ROUND = 10;
 
@@ -88,7 +94,7 @@ export class OberbegriffeComponent {
         const acceptedAnswers = item.answers.split(',').map(a => a.trim());
 
         // Finde passende Antwort
-        const matched = acceptedAnswers.find(ans => 
+        const matched = acceptedAnswers.find(ans =>
             this.normalizeAnswer(ans) === userStr
         );
 
@@ -100,6 +106,13 @@ export class OberbegriffeComponent {
             this.isCorrect.set(false);
             this.matchedAnswer.set(acceptedAnswers[0]); // Zeige erste mögliche Antwort
             this.totalWrong.update(w => w + 1);
+
+            // Telemetry: Track error
+            const content = JSON.stringify({
+                item: item,
+                actual: this.userAnswer()
+            });
+            this.telemetryService.trackError('oberbegriffe', content, this.sessionId);
         }
 
         this.answered.set(true);

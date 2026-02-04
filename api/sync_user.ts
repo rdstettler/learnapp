@@ -34,7 +34,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 VALUES (?, ?, ?, ?)
                 ON CONFLICT(uid) DO UPDATE SET
                     email = excluded.email,
-                    display_name = excluded.display_name,
                     photo_url = excluded.photo_url
             `,
             args: [uid, email, displayName || null, photoUrl || null]

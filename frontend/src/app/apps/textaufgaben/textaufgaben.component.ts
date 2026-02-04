@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DataService } from '../../services/data.service';
 
 interface TextaufgabeItem {
@@ -9,14 +10,19 @@ interface TextaufgabeItem {
     explanation: string;
 }
 
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+
 @Component({
     selector: 'app-textaufgaben',
     standalone: true,
+    imports: [RouterLink],
     templateUrl: './textaufgaben.component.html',
     styleUrl: './textaufgaben.component.css'
 })
 export class TextaufgabenComponent {
     private dataService = inject(DataService);
+    private telemetryService = inject(AppTelemetryService);
+    private sessionId = this.telemetryService.generateSessionId();
 
     screen = signal<'welcome' | 'quiz' | 'results'>('welcome');
     items = signal<TextaufgabeItem[]>([]);
@@ -83,7 +89,7 @@ export class TextaufgabenComponent {
         if (!problem) return;
 
         const userAnswerNormalized = this.userAnswer().trim().toLowerCase().replace(',', '.');
-        const correct = problem.answers.some(ans => 
+        const correct = problem.answers.some(ans =>
             ans.toLowerCase().replace(',', '.') === userAnswerNormalized
         );
 
@@ -95,6 +101,14 @@ export class TextaufgabenComponent {
             this.feedbackText.set('✓ Richtig!');
         } else {
             this.feedbackText.set(`✗ Falsch! Richtige Antwort: ${problem.answers[0]}`);
+
+            // Telemetry: Track error
+            const content = JSON.stringify({
+                questionId: problem.id,
+                question: problem.question,
+                actual: this.userAnswer()
+            });
+            this.telemetryService.trackError('textaufgaben', content, this.sessionId);
         }
     }
 

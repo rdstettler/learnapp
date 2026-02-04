@@ -8,6 +8,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const db = getTursoClient();
 
+    // Cache for 1 hour, reuse stale for 10 mins
+    res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=600');
+
     try {
         const result = await db.execute("SELECT * FROM apps");
 

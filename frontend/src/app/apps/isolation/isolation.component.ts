@@ -1,4 +1,5 @@
 import { Component, signal, computed } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 interface Position {
     x: number;
@@ -42,6 +43,7 @@ const DIRECTIONS: Position[] = [
 @Component({
     selector: 'app-isolation',
     standalone: true,
+    imports: [RouterLink],
     templateUrl: './isolation.component.html',
     styleUrl: './isolation.component.css'
 })

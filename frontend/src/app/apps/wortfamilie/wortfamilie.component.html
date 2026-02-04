@@ -1,6 +1,7 @@
 <div class="bg-animation"></div>
 <div class="app-container">
     <div class="app-header">
+        <a routerLink="/" class="back-button">← Dashboard</a>
         <h1>👨‍👩‍👧 Wortfamilie</h1>
     </div>
 
@@ -36,8 +37,7 @@
                 </div>
             </div>
 
-            <button class="btn btn-primary" style="margin-top: 24px;" 
-                    (click)="startQuiz()" [disabled]="!dataLoaded()">
+            <button class="btn btn-primary" style="margin-top: 24px;" (click)="startQuiz()" [disabled]="!dataLoaded()">
                 Quiz starten
             </button>
         </div>
@@ -57,26 +57,23 @@
             <div class="family-container">
                 @for (type of ['nomen', 'verb', 'adjektiv']; track type) {
                 <div class="family-item" [class.given]="problem.givenType === type"
-                     [class.correct]="answered() && getResult($any(type)).correct && problem.missingTypes.includes($any(type))"
-                     [class.incorrect]="answered() && !getResult($any(type)).correct && problem.missingTypes.includes($any(type))">
-                    
+                    [class.correct]="answered() && getResult($any(type)).correct && problem.missingTypes.includes($any(type))"
+                    [class.incorrect]="answered() && !getResult($any(type)).correct && problem.missingTypes.includes($any(type))">
+
                     <div class="type-header">
                         <span class="type-icon">{{ getTypeIcon($any(type)) }}</span>
                         <span class="type-name">{{ getTypeLabel($any(type)) }}</span>
                     </div>
-                    
+
                     @if (problem.givenType === type) {
                     <div class="given-word">{{ problem.givenWord }}</div>
                     } @else {
-                    <input type="text" 
-                           class="family-input"
-                           [value]="$any(userAnswers())[type]"
-                           (input)="updateAnswer($any(type), $any($event.target).value)"
-                           (keyup.enter)="!answered() && canCheck() ? checkAnswers() : (answered() ? nextProblem() : null)"
-                           [disabled]="answered()"
-                           [placeholder]="getTypeLabel($any(type)) + ' eingeben...'"
-                           autocomplete="off">
-                    
+                    <input type="text" class="family-input" [value]="$any(userAnswers())[type]"
+                        (input)="updateAnswer($any(type), $any($event.target).value)"
+                        (keyup.enter)="!answered() && canCheck() ? checkAnswers() : (answered() ? nextProblem() : null)"
+                        [disabled]="answered()" [placeholder]="getTypeLabel($any(type)) + ' eingeben...'"
+                        autocomplete="off">
+
                     @if (answered() && !getResult($any(type)).correct) {
                     <div class="correct-answer">→ {{ getResult($any(type)).matched }}</div>
                     }

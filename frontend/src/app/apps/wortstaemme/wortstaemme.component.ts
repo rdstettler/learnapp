@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DataService } from '../../services/data.service';
 
 interface Composite {
@@ -17,14 +18,19 @@ interface Stem {
     meanings: Record<string, MeaningOption[]>;
 }
 
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+
 @Component({
     selector: 'app-wortstaemme',
     standalone: true,
+    imports: [RouterLink],
     templateUrl: './wortstaemme.component.html',
     styleUrl: './wortstaemme.component.css'
 })
 export class WortstaemmeComponent {
     private dataService = inject(DataService);
+    private telemetryService = inject(AppTelemetryService);
+    private sessionId = this.telemetryService.generateSessionId();
 
     screen = signal<'welcome' | 'stage1' | 'results1' | 'stage2' | 'results2' | 'final'>('welcome');
     stems = signal<Stem[]>([]);
@@ -121,6 +127,17 @@ export class WortstaemmeComponent {
         this.totalCorrect.update(c => c + correct);
         this.totalQuestions.update(t => t + stem.composites.length);
 
+        // Telemetry: Track errors (Stage 1)
+        const errors = results.filter(r => r.type === 'false-positive' || r.type === 'false-negative');
+        if (errors.length > 0) {
+            const content = JSON.stringify({
+                stage: 1,
+                stem: stem.stem,
+                errors: errors
+            });
+            this.telemetryService.trackError('wortstaemme', content, this.sessionId);
+        }
+
         // Find existing words that have meanings
         const existing = stem.composites
             .filter(c => c.exists)
@@ -175,6 +192,18 @@ export class WortstaemmeComponent {
         this.stage2Results.set(results);
         this.totalCorrect.update(c => c + correct);
         this.totalQuestions.update(t => t + meanings.length);
+
+        // Telemetry: Track errors (Stage 2)
+        const errors = results.filter(r => r.type === 'false-positive' || r.type === 'false-negative');
+        if (errors.length > 0) {
+            const content = JSON.stringify({
+                stage: 2,
+                stem: this.currentStem()?.stem,
+                word: this.currentMeaningWord(),
+                errors: errors
+            });
+            this.telemetryService.trackError('wortstaemme', content, this.sessionId);
+        }
         this.screen.set('results2');
     }
 

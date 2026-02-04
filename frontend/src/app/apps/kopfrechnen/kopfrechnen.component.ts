@@ -1,4 +1,5 @@
 import { Component, signal, computed, HostListener } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 interface DifficultySettings {
     addMax: number;
@@ -14,13 +15,19 @@ interface Question {
     blankPosition: 0 | 1 | 2;
 }
 
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+import { inject } from '@angular/core';
+
 @Component({
     selector: 'app-kopfrechnen',
     standalone: true,
+    imports: [RouterLink],
     templateUrl: './kopfrechnen.component.html',
     styleUrl: './kopfrechnen.component.css'
 })
 export class KopfrechnenComponent {
+    private telemetryService = inject(AppTelemetryService);
+    private sessionId = this.telemetryService.generateSessionId();
     readonly QUESTIONS_PER_ROUND = 10;
 
     readonly difficultySettings: Record<string, DifficultySettings> = {
@@ -150,6 +157,13 @@ export class KopfrechnenComponent {
             this.feedbackText.set(`✗ Falsch. Die Antwort war: ${this.correctAnswer()}`);
             this.wrongCount.update(w => w + 1);
             this.streak.set(0);
+
+            // Telemetry: Track error
+            const content = JSON.stringify({
+                question: this.question(),
+                actual: userNum
+            });
+            this.telemetryService.trackError('kopfrechnen', content, this.sessionId);
         }
 
         this.answered.set(true);

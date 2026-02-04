@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject, ChangeDetectorRef } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../../services/data.service';
 
@@ -17,16 +18,20 @@ interface ErrorItem {
     wordIndex: number;
 }
 
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+
 @Component({
     selector: 'app-fehler',
     standalone: true,
-    imports: [FormsModule],
+    imports: [FormsModule, RouterLink],
     templateUrl: './fehler.component.html',
     styleUrl: './fehler.component.css'
 })
 export class FehlerComponent {
     private dataService = inject(DataService);
     private cdr = inject(ChangeDetectorRef);
+    private telemetryService = inject(AppTelemetryService);
+    private sessionId = this.telemetryService.generateSessionId();
 
     screen = signal<'welcome' | 'quiz' | 'results'>('welcome');
     texts = signal<string[]>([]);
@@ -286,6 +291,26 @@ export class FehlerComponent {
         this.totalFound.update(f => f + foundCorrect);
         this.totalMissed.update(m => m + missed);
         this.checked.set(true);
+
+        // Telemetry: Track errors
+        const errors = this.currentTextErrors.filter(e => {
+            // An error is missed if no correction, or correction is wrong
+            return !e.userCorrection || e.userCorrection.toLowerCase() !== e.correctWord.toLowerCase();
+        });
+
+        if (errors.length > 0) {
+            const content = JSON.stringify({
+                textIndex: this.currentTextIndex(),
+                originalText: this.texts()[this.currentTextIndex()], // Send full text as context is important
+                errors: errors.map(e => ({
+                    wrongWord: e.wrongWord,
+                    correctWord: e.correctWord,
+                    userCorrection: e.userCorrection
+                }))
+            });
+
+            this.telemetryService.trackError('fehler', content, this.sessionId);
+        }
     }
 
     nextText(): void {

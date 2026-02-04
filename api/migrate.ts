@@ -18,6 +18,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // console.log("avatar_svg error (likely exists):", e.message);
     }
 
+    try {
+        await db.execute("ALTER TABLE users ADD COLUMN skill_level REAL");
+        console.log("Added skill_level column");
+    } catch (e: any) {
+        // console.log("skill_level error (likely exists):", e.message);
+    }
+
+    try {
+        await db.execute("ALTER TABLE users ADD COLUMN learn_level INTEGER");
+        console.log("Added learn_level column");
+    } catch (e: any) {
+        // console.log("learn_level error (likely exists):", e.message);
+    }
+
+    try {
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS app_results (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                app_id TEXT NOT NULL,
+                user_uid TEXT NOT NULL,
+                session_id TEXT,
+                content TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        console.log("Created app_results table (if not exists)");
+    } catch (e: any) {
+        console.error("Error creating app_results table:", e.message);
+    }
+
     // Create apps table
     try {
         await db.execute(`

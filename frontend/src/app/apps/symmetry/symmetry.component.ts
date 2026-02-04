@@ -1,13 +1,15 @@
-import { Component, signal, ElementRef, viewChild, AfterViewInit, PLATFORM_ID, inject } from '@angular/core';
+import { Component, signal, ElementRef, viewChild, AfterViewInit, OnDestroy, PLATFORM_ID, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 
 @Component({
     selector: 'app-symmetry',
     standalone: true,
+    imports: [RouterLink],
     templateUrl: './symmetry.component.html',
     styleUrl: './symmetry.component.css'
 })
-export class SymmetryComponent implements AfterViewInit {
+export class SymmetryComponent implements AfterViewInit, OnDestroy {
     private platformId = inject(PLATFORM_ID);
 
     canvas = viewChild<ElementRef<HTMLCanvasElement>>('canvas');
@@ -27,25 +29,69 @@ export class SymmetryComponent implements AfterViewInit {
         '#06b6d4', '#3b82f6', '#ffffff', '#000000'
     ];
 
+    private resizeObserver: ResizeObserver | null = null;
+
     ngAfterViewInit(): void {
         if (!isPlatformBrowser(this.platformId)) return;
-        setTimeout(() => this.initCanvas(), 0);
-    }
 
-    private initCanvas(): void {
         const canvasEl = this.canvas()?.nativeElement;
         if (!canvasEl) return;
 
+        this.ctx = canvasEl.getContext('2d', { willReadFrequently: true });
+        if (this.ctx) {
+            this.ctx.lineCap = 'round';
+            this.ctx.lineJoin = 'round';
+        }
+
+        this.resizeObserver = new ResizeObserver(() => {
+            this.handleResize();
+        });
+
+        this.resizeObserver.observe(canvasEl);
+    }
+
+    ngOnDestroy(): void {
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+        }
+    }
+
+    private handleResize(): void {
+        const canvasEl = this.canvas()?.nativeElement;
+        if (!canvasEl || !this.ctx) return;
+
+        // Save current content
+        let imageData: ImageData | null = null;
+        if (canvasEl.width > 0 && canvasEl.height > 0) {
+            try {
+                imageData = this.ctx.getImageData(0, 0, canvasEl.width, canvasEl.height);
+            } catch (e) {
+                console.warn('Could not save canvas content', e);
+            }
+        }
+
+        // Update size to match display size
         const rect = canvasEl.getBoundingClientRect();
         canvasEl.width = rect.width;
         canvasEl.height = rect.height;
 
-        this.ctx = canvasEl.getContext('2d');
-        if (this.ctx) {
-            this.ctx.lineCap = 'round';
-            this.ctx.lineJoin = 'round';
-            this.drawGuides();
+        // Restore context settings lost on resize
+        this.ctx.lineCap = 'round';
+        this.ctx.lineJoin = 'round';
+        this.ctx.strokeStyle = this.brushColor();
+        this.ctx.lineWidth = this.brushSize();
+
+        // Draw guides first (background)
+        this.drawGuides();
+
+        // Restore content
+        if (imageData) {
+            this.ctx.putImageData(imageData, 0, 0);
         }
+    }
+
+    private initCanvas(): void {
+        // Deprecated, logic moved to handleResize via Observer
     }
 
     private drawGuides(): void {

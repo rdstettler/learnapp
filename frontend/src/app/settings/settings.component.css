@@ -3,8 +3,6 @@
     padding: 24px;
     max-width: 900px;
     margin: 0 auto;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
 }
 
 .settings-header {
@@ -113,7 +111,6 @@
     border: 1px solid var(--border-color);
     padding: 32px;
     margin-bottom: 24px;
-    overflow-y: auto;
     max-height: none;
 }
 
@@ -148,7 +145,7 @@
     height: 100%;
 }
 
-.avatar-preview-large .avatar-image :deep(svg) {
+.avatar-preview-large .avatar-image ::ng-deep svg {
     width: 100%;
     height: 100%;
 }
@@ -440,4 +437,64 @@
     .actions {
         padding: 0 16px;
     }
+}
+
+/* Learning Options */
+.learning-options {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.section-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+}
+
+.small-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 8px;
+}
+
+/* Slider (Duplicated from Platform, should be shared) */
+.slider-container {
+    margin: 10px 0;
+    padding: 0 10px;
+}
+
+.range-slider {
+    width: 100%;
+    margin-bottom: 10px;
+    height: 6px;
+    background: var(--glass-border);
+    border-radius: 3px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--accent-1);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--accent-1);
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-muted);
 }

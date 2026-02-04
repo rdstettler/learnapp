@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DataService } from '../../services/data.service';
 
 interface VerbData {
@@ -17,14 +18,19 @@ interface Question {
     isCorrect?: boolean;
 }
 
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+
 @Component({
     selector: 'app-verben',
     standalone: true,
+    imports: [RouterLink],
     templateUrl: './verben.component.html',
     styleUrl: './verben.component.css'
 })
 export class VerbenComponent {
     private dataService = inject(DataService);
+    private telemetryService = inject(AppTelemetryService);
+    private sessionId = this.telemetryService.generateSessionId();
 
     readonly tenseNames: Record<string, string> = {
         praeteritum: 'Präteritum',
@@ -139,6 +145,22 @@ export class VerbenComponent {
         this.rounds.set(rounds);
         this.totalCorrect.update(c => c + correct);
         this.answered.set(true);
+
+        // Telemetry: Track errors
+        const errors = updatedRound.filter(q => !q.isCorrect);
+        if (errors.length > 0) {
+            const content = JSON.stringify({
+                round: this.currentRoundIndex(),
+                errors: errors.map(q => ({
+                    verb: q.verb,
+                    person: q.person,
+                    tense: q.tense,
+                    expected: q.answer,
+                    actual: q.userAnswer
+                }))
+            });
+            this.telemetryService.trackError('verben', content, this.sessionId);
+        }
     }
 
     nextRound(): void {

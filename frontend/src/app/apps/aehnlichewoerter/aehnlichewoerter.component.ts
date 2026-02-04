@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DataService } from '../../services/data.service';
 
 interface Sentence {
@@ -14,14 +15,21 @@ interface WordPair {
     sentences: Sentence[];
 }
 
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+
 @Component({
     selector: 'app-aehnlichewoerter',
     standalone: true,
+    imports: [RouterLink],
     templateUrl: './aehnlichewoerter.component.html',
     styleUrl: './aehnlichewoerter.component.css'
 })
 export class AehnlichewoerterComponent {
     private dataService = inject(DataService);
+    private telemetryService = inject(AppTelemetryService);
+
+    // Session ID for telemetry
+    private sessionId = this.telemetryService.generateSessionId();
 
     readonly SENTENCES_PER_ROUND = 10;
 
@@ -29,24 +37,24 @@ export class AehnlichewoerterComponent {
     pairs = signal<WordPair[]>([]);
     currentPair = signal<WordPair | null>(null);
     selectedPairId = signal('');
-    
+
     sentences = signal<Sentence[]>([]);
     currentSentenceIndex = signal(0);
     userAnswers = signal<Map<number, string>>(new Map());
     answered = signal(false);
-    
+
     totalCorrect = signal(0);
     totalWrong = signal(0);
 
     progress = computed(() => (this.currentSentenceIndex() / this.SENTENCES_PER_ROUND) * 100);
-    
+
     percentage = computed(() => {
         const total = this.totalCorrect() + this.totalWrong();
         return total > 0 ? Math.round((this.totalCorrect() / total) * 100) : 0;
     });
 
     currentSentence = computed(() => this.sentences()[this.currentSentenceIndex()]);
-    
+
     dataLoaded = computed(() => this.pairs().length > 0);
 
     constructor() {
@@ -115,7 +123,7 @@ export class AehnlichewoerterComponent {
     getSlotDisplay(): string {
         const sentence = this.currentSentence();
         if (!sentence) return '?';
-        
+
         const answers = this.userAnswers();
         const answer = answers.get(sentence.id);
         return answer || '?';
@@ -124,36 +132,36 @@ export class AehnlichewoerterComponent {
     getSlotClass(): string {
         const sentence = this.currentSentence();
         if (!sentence) return '';
-        
+
         const answers = this.userAnswers();
         const answer = answers.get(sentence.id);
-        
+
         if (!answer) return '';
         if (!this.answered()) return 'selected';
-        
+
         // Normalize for comparison (case-insensitive)
         const normalizedAnswer = answer.toLowerCase();
         const normalizedCorrect = sentence.correct.toLowerCase();
-        
+
         return normalizedAnswer === normalizedCorrect ? 'correct' : 'incorrect';
     }
 
     selectWord(word: string): void {
         if (this.answered()) return;
-        
+
         const sentence = this.currentSentence();
         if (!sentence) return;
-        
+
         // Preserve capitalization from correct answer if selecting the right word
         // Check if sentence starts with the slot (needs capital)
         const text = sentence.text;
         const startsWithSlot = text.startsWith('[');
-        
+
         let selectedWord = word;
         if (startsWithSlot) {
             selectedWord = word.charAt(0).toUpperCase() + word.slice(1);
         }
-        
+
         const answers = new Map(this.userAnswers());
         answers.set(sentence.id, selectedWord);
         this.userAnswers.set(answers);
@@ -162,21 +170,31 @@ export class AehnlichewoerterComponent {
     checkAnswer(): void {
         const sentence = this.currentSentence();
         if (!sentence) return;
-        
+
         const answers = this.userAnswers();
         const answer = answers.get(sentence.id);
-        
+
         if (!answer) return;
-        
+
         const normalizedAnswer = answer.toLowerCase();
         const normalizedCorrect = sentence.correct.toLowerCase();
-        
+
         if (normalizedAnswer === normalizedCorrect) {
             this.totalCorrect.update(c => c + 1);
         } else {
             this.totalWrong.update(c => c + 1);
+
+            // Telemetry: Track error
+            const content = JSON.stringify({
+                sentenceId: sentence.id,
+                originalText: sentence.text,
+                correct: sentence.correct,
+                actual: answer
+            });
+
+            this.telemetryService.trackError('aehnlichewoerter', content, this.sessionId);
         }
-        
+
         this.answered.set(true);
     }
 
@@ -187,7 +205,7 @@ export class AehnlichewoerterComponent {
 
     nextSentence(): void {
         const nextIndex = this.currentSentenceIndex() + 1;
-        
+
         if (nextIndex >= this.SENTENCES_PER_ROUND) {
             this.screen.set('results');
         } else {

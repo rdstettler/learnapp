@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject, ChangeDetectorRef } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DataService } from '../../services/data.service';
 
 interface WordSlot {
@@ -8,15 +9,22 @@ interface WordSlot {
     checked: boolean;
 }
 
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+
 @Component({
     selector: 'app-satzzeichen',
     standalone: true,
+    imports: [RouterLink],
     templateUrl: './satzzeichen.component.html',
     styleUrl: './satzzeichen.component.css'
 })
 export class SatzzeichenComponent {
     private dataService = inject(DataService);
+    private telemetryService = inject(AppTelemetryService);
     private cdr = inject(ChangeDetectorRef);
+
+    // Session ID for telemetry
+    private sessionId = this.telemetryService.generateSessionId();
 
     // Punctuation characters to detect (including German quotes)
     readonly punctSet = new Set(['.', ',', '?', ':', '\u201E', '\u201C']);
@@ -206,6 +214,26 @@ export class SatzzeichenComponent {
         this.totalCorrect.update(c => c + roundCorrect);
         this.totalSlots.update(t => t + roundTotal);
         this.answered.set(true);
+
+        // Telemetry: Track errors
+        const errors = checked.filter(s => (s.expected || s.selected) && s.expected !== s.selected);
+        if (errors.length > 0) {
+            const errorDetails = errors.map(e => ({
+                word: e.word,
+                expected: e.expected,
+                actual: e.selected
+            }));
+
+            // Context could be the full sentence or just the error details
+            // For now, let's send the sentence index and the error details
+            const content = JSON.stringify({
+                textIndex: this.currentTextIndex(),
+                originalText: this.texts()[this.currentTextIndex()],
+                errors: errorDetails
+            });
+
+            this.telemetryService.trackError('satzzeichen', content, this.sessionId);
+        }
     }
 
     nextText(): void {

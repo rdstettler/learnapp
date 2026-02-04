@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
     { path: '', loadComponent: () => import('./platform/platform.component').then(m => m.PlatformComponent) },
     { path: 'settings', loadComponent: () => import('./settings/settings.component').then(m => m.SettingsComponent) },
+    { path: 'about', loadComponent: () => import('./about/about.component').then(m => m.AboutComponent) },
     { path: 'aehnlichewoerter', loadComponent: () => import('./apps/aehnlichewoerter/aehnlichewoerter.component').then(m => m.AehnlichewoerterComponent) },
     { path: 'oberbegriffe', loadComponent: () => import('./apps/oberbegriffe/oberbegriffe.component').then(m => m.OberbegriffeComponent) },
     { path: 'wortfamilie', loadComponent: () => import('./apps/wortfamilie/wortfamilie.component').then(m => m.WortfamilieComponent) },

@@ -44,7 +44,8 @@
 html,
 body {
     height: 100%;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 body {
@@ -143,6 +144,7 @@ body {
     font-weight: 700;
     background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -628,4 +630,31 @@ body {
     .platform-container {
         padding: 20px 16px;
     }
+}
+
+/* ========================================
+   Back Button
+   ======================================== */
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    margin-bottom: 20px;
+}
+
+.back-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    transform: translateX(-4px);
+    border-color: rgba(99, 102, 241, 0.3);
 }

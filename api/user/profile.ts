@@ -24,7 +24,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
 
             const result = await db.execute({
-                sql: `SELECT display_name, avatar_config, avatar_svg FROM users WHERE uid = ?`,
+                sql: `SELECT display_name, avatar_config, avatar_svg, skill_level, learn_level FROM users WHERE uid = ?`,
                 args: [uid]
             });
 
@@ -36,7 +36,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const profile = {
                 displayName: row.display_name as string | null,
                 avatarConfig: row.avatar_config ? JSON.parse(row.avatar_config as string) : null,
-                avatarSvg: row.avatar_svg as string | null
+                avatarSvg: row.avatar_svg as string | null,
+                skillLevel: row.skill_level as number | null,
+                learnLevel: row.learn_level as number | null
             };
 
             return res.status(200).json({ profile });
@@ -54,7 +56,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 return res.status(400).json({ error: 'profile is required' });
             }
 
-            const { displayName, avatarConfig, avatarSvg } = profile;
+            const { displayName, avatarConfig, avatarSvg, skillLevel, learnLevel } = profile;
 
             // Update user profile fields
             await db.execute({
@@ -62,13 +64,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     UPDATE users 
                     SET display_name = ?,
                         avatar_config = ?,
-                        avatar_svg = ?
+                        avatar_svg = ?,
+                        skill_level = ?,
+                        learn_level = ?
                     WHERE uid = ?
                 `,
                 args: [
                     displayName || null,
                     avatarConfig ? JSON.stringify(avatarConfig) : null,
                     avatarSvg || null,
+                    skillLevel !== undefined ? skillLevel : null,
+                    learnLevel !== undefined ? learnLevel : null,
                     uid
                 ]
             });

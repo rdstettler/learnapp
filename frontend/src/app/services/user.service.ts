@@ -27,6 +27,8 @@ export interface UserProfile {
     displayName: string | null;
     avatarConfig: AvatarConfig | null;
     avatarSvg: string | null;
+    skillLevel?: number | null;
+    learnLevel?: number | null;
 }
 
 @Injectable({
@@ -34,7 +36,7 @@ export interface UserProfile {
 })
 export class UserService {
     private http = inject(HttpClient);
-    
+
     private readonly STORAGE_KEY_USER_ID = 'learnapp_user_id';
     private readonly STORAGE_KEY_METRICS = 'learnapp_metrics';
     private readonly STORAGE_KEY_PROFILE = 'learnapp_profile';
@@ -49,6 +51,16 @@ export class UserService {
     readonly metrics = this._metrics.asReadonly();
     readonly profile = this._profile.asReadonly();
     readonly metricsLoaded = this._metricsLoaded.asReadonly();
+
+    readonly appTelemetry = computed(() => {
+        const profile = this._profile();
+        if (!profile || profile.learnLevel === undefined || profile.learnLevel === null) {
+            return false;
+        }
+        return profile.learnLevel > 0;
+    });
+
+
 
     private loadOrCreateUserId(): string {
         let id = localStorage.getItem(this.STORAGE_KEY_USER_ID);
@@ -167,7 +179,7 @@ export class UserService {
     async updateProfile(profile: Partial<UserProfile>, uid?: string): Promise<boolean> {
         const currentProfile = this._profile() || { displayName: null, avatarConfig: null, avatarSvg: null };
         const newProfile = { ...currentProfile, ...profile };
-        
+
         this._profile.set(newProfile);
         this.saveProfileLocal();
 
@@ -183,7 +195,7 @@ export class UserService {
                 return false;
             }
         }
-        
+
         return true;
     }
 

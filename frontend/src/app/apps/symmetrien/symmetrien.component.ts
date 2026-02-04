@@ -1,4 +1,5 @@
 import { Component, signal, ElementRef, viewChild, AfterViewInit, PLATFORM_ID, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 
 interface Point {
@@ -19,6 +20,7 @@ interface MirrorLine {
 @Component({
     selector: 'app-symmetrien',
     standalone: true,
+    imports: [RouterLink],
     templateUrl: './symmetrien.component.html',
     styleUrl: './symmetrien.component.css'
 })

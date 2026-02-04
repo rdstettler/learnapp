@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { DataService } from '../../services/data.service';
 
 interface WortfamilieItem {
@@ -17,14 +18,19 @@ interface Problem {
     missingTypes: WordType[];
 }
 
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+
 @Component({
     selector: 'app-wortfamilie',
     standalone: true,
+    imports: [RouterLink],
     templateUrl: './wortfamilie.component.html',
     styleUrl: './wortfamilie.component.css'
 })
 export class WortfamilieComponent {
     private dataService = inject(DataService);
+    private telemetryService = inject(AppTelemetryService);
+    private sessionId = this.telemetryService.generateSessionId();
 
     readonly PROBLEMS_PER_ROUND = 10;
     readonly ARTICLES = ['der', 'die', 'das', 'den', 'dem', 'des', 'ein', 'eine', 'einer', 'einem', 'einen', 'eines'];
@@ -77,21 +83,21 @@ export class WortfamilieComponent {
     startQuiz(): void {
         const shuffled = this.shuffle(this.allItems());
         const selected = shuffled.slice(0, this.PROBLEMS_PER_ROUND);
-        
+
         // Erstelle Probleme mit zufällig gegebenem Worttyp
         const problems: Problem[] = selected.map(item => {
             const types: WordType[] = ['nomen', 'verb', 'adjektiv'];
             const givenType = types[Math.floor(Math.random() * types.length)];
-            
+
             // Wähle ein zufälliges Wort aus dem gegebenen Typ
             const words = item[givenType].split(',').map(w => w.trim());
             const givenWord = words[Math.floor(Math.random() * words.length)];
-            
+
             const missingTypes = types.filter(t => t !== givenType);
-            
+
             return { item, givenType, givenWord, missingTypes };
         });
-        
+
         this.problems.set(problems);
         this.currentIndex.set(0);
         this.totalCorrect.set(0);
@@ -145,19 +151,19 @@ export class WortfamilieComponent {
             verb: { correct: false, matched: '' },
             adjektiv: { correct: false, matched: '' }
         };
-        
+
         let correctCount = 0;
         let wrongCount = 0;
 
         for (const type of problem.missingTypes) {
             const userAnswer = this.userAnswers()[type];
             const acceptedAnswers = problem.item[type].split(',').map(a => a.trim());
-            
+
             // Prüfe Antwort (ohne Artikel)
-            const matched = acceptedAnswers.find(ans => 
+            const matched = acceptedAnswers.find(ans =>
                 this.normalizeAnswer(ans) === this.normalizeAnswer(userAnswer)
             );
-            
+
             if (matched) {
                 newResults[type] = { correct: true, matched };
                 correctCount++;
@@ -171,11 +177,32 @@ export class WortfamilieComponent {
         this.totalCorrect.update(c => c + correctCount);
         this.totalWrong.update(w => w + wrongCount);
         this.answered.set(true);
+
+        // Telemetry: Track errors
+        const errors = Object.keys(newResults).filter(type => {
+            const t = type as WordType;
+            return !newResults[t].correct && problem.missingTypes.includes(t);
+        }).map(type => {
+            const t = type as WordType;
+            return {
+                type: t,
+                expected: newResults[t].matched, // This holds the expected word for wrong answers
+                actual: this.userAnswers()[t]
+            };
+        });
+
+        if (errors.length > 0) {
+            const content = JSON.stringify({
+                itemId: problem.item.id,
+                errors: errors
+            });
+            this.telemetryService.trackError('wortfamilie', content, this.sessionId);
+        }
     }
 
     private normalizeAnswer(answer: string): string {
         let normalized = answer.toLowerCase().trim();
-        
+
         // Entferne Artikel am Anfang
         for (const article of this.ARTICLES) {
             if (normalized.startsWith(article + ' ')) {
@@ -183,7 +210,7 @@ export class WortfamilieComponent {
                 break;
             }
         }
-        
+
         // Normalisiere Umlaute
         return normalized
             .replace(/ä/g, 'ae')
@@ -195,8 +222,8 @@ export class WortfamilieComponent {
     canCheck(): boolean {
         const problem = this.currentProblem();
         if (!problem) return false;
-        
-        return problem.missingTypes.every(type => 
+
+        return problem.missingTypes.every(type =>
             this.userAnswers()[type].trim().length > 0
         );
     }
