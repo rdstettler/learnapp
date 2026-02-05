@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, HostListener } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { DataService } from '../../services/data.service';
 import { ApiService } from '../../services/api.service';
@@ -22,7 +22,10 @@ import { LearningAppLayoutComponent } from '../../shared/components/learning-app
     standalone: true,
     imports: [RouterLink, LearningAppLayoutComponent],
     templateUrl: './kasus.component.html',
-    styleUrl: './kasus.component.css'
+    styleUrl: './kasus.component.css',
+    host: {
+        '(window:keydown.enter)': 'handleEnter($event)'
+    }
 })
 export class KasusComponent {
     private dataService = inject(DataService);
@@ -256,7 +259,6 @@ export class KasusComponent {
         };
         return classes[kasus] || '';
     }
-    @HostListener('window:keydown.enter', ['$event'])
     handleEnter(event: Event) {
         if (this.showPopup()) return; // Don't interfere if popup is open
 

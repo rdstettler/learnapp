@@ -1,5 +1,5 @@
 
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface AppInfo {
@@ -27,15 +27,15 @@ export interface AppMetrics {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppCardComponent {
-    @Input({ required: true }) app!: AppInfo;
-    @Input() metrics: AppMetrics = { openCount: 0, lastOpened: null };
-    @Input() isFavorite = false;
-    @Input() allowRemove = false;
-    @Input() showFavorite = true;
+    app = input.required<AppInfo>();
+    metrics = input<AppMetrics>({ openCount: 0, lastOpened: null });
+    isFavorite = input(false);
+    allowRemove = input(false);
+    showFavorite = input(true);
 
-    @Output() appClicked = new EventEmitter<void>();
-    @Output() favoriteToggled = new EventEmitter<boolean>();
-    @Output() removeClicked = new EventEmitter<void>();
+    appClicked = output<void>();
+    favoriteToggled = output<boolean>();
+    removeClicked = output<void>();
 
     onCardClick(event: Event): void {
         this.appClicked.emit();
@@ -43,7 +43,7 @@ export class AppCardComponent {
 
     onFavoriteClick(event: Event): void {
         event.stopPropagation(); // Prevent card click
-        this.favoriteToggled.emit(!this.isFavorite);
+        this.favoriteToggled.emit(!this.isFavorite());
     }
 
     onRemoveClick(event: Event): void {

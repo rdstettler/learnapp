@@ -1,5 +1,4 @@
-import { Component, signal, computed, HostListener } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, signal, computed } from '@angular/core';
 
 interface DifficultySettings {
     addMax: number;
@@ -18,12 +17,17 @@ interface Question {
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { inject } from '@angular/core';
 
+import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+
 @Component({
     selector: 'app-kopfrechnen',
     standalone: true,
-    imports: [RouterLink],
+    imports: [LearningAppLayoutComponent],
     templateUrl: './kopfrechnen.component.html',
-    styleUrl: './kopfrechnen.component.css'
+    styleUrl: './kopfrechnen.component.css',
+    host: {
+        '(document:keydown.enter)': 'onEnterKey()'
+    }
 })
 export class KopfrechnenComponent {
     private telemetryService = inject(AppTelemetryService);
@@ -190,7 +194,6 @@ export class KopfrechnenComponent {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    @HostListener('document:keydown.enter')
     onEnterKey(): void {
         if (this.screen() === 'quiz') {
             this.checkAnswer();

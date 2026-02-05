@@ -1,6 +1,8 @@
-import { Component, signal, computed, inject, HostListener } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, signal, computed, inject } from '@angular/core';
 import { DataService } from '../../services/data.service';
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+
 
 interface WortfamilieItem {
     id: number;
@@ -18,14 +20,15 @@ interface Problem {
     missingTypes: WordType[];
 }
 
-import { AppTelemetryService } from '../../services/app-telemetry.service';
-
 @Component({
     selector: 'app-wortfamilie',
     standalone: true,
-    imports: [RouterLink],
+    imports: [LearningAppLayoutComponent],
     templateUrl: './wortfamilie.component.html',
-    styleUrl: './wortfamilie.component.css'
+    styleUrl: './wortfamilie.component.css',
+    host: {
+        '(window:keydown.enter)': 'handleEnter($event)'
+    }
 })
 export class WortfamilieComponent {
     private dataService = inject(DataService);
@@ -249,7 +252,6 @@ export class WortfamilieComponent {
         this.startQuiz();
     }
 
-    @HostListener('window:keydown.enter', ['$event'])
     handleEnter(event: Event) {
         if (this.answered()) {
             this.nextProblem();

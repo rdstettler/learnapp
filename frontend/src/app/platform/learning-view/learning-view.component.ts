@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { AppCardComponent, AppInfo } from '../../shared/components/app-card/app-card.component';
 import { Router } from '@angular/router';
+import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
 
 @Component({
   selector: 'app-learning-view',
   standalone: true,
-  imports: [CommonModule, AppCardComponent],
+  imports: [CommonModule, AppCardComponent, MarkdownPipe],
   template: `
     <div class="learning-container">
       @if (loading()) {
@@ -40,7 +41,7 @@ import { Router } from '@angular/router';
                     @for (card of session().theory; track $index) {
                         <div class="theory-card">
                             <h4>{{ card.title }}</h4>
-                            <p>{{ card.content }}</p>
+                            <div [innerHTML]="card.content | markdown"></div>
                         </div>
                     }
                 </div>
@@ -196,7 +197,7 @@ import { Router } from '@angular/router';
     .task-info-badge {
         position: absolute;
         top: 10px;
-        right: 10px;
+        left: 10px;
         background: #6e8efb;
         color: white;
         padding: 4px 8px;
@@ -267,6 +268,7 @@ import { Router } from '@angular/router';
     }
     .theory-card {
         background: white;
+        color: #2c3e50;
         padding: 1.2rem;
         border-radius: 12px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.05);
@@ -278,12 +280,10 @@ import { Router } from '@angular/router';
     }
     .theory-card h4 {
         margin: 0 0 0.5rem 0;
-        color: #2c3e50;
         font-size: 1.1rem;
     }
     .theory-card p {
         margin: 0;
-        color: #555;
         font-size: 0.95rem;
         line-height: 1.5;
     }

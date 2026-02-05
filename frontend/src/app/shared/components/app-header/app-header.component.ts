@@ -1,11 +1,11 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
     selector: 'app-header',
     standalone: true,
     template: `
         <div class="app-header">
-            <h1>{{ icon }} {{ title }}</h1>
+            <h1>{{ icon() }} {{ title() }}</h1>
         </div>
     `,
     styles: [`
@@ -25,6 +25,6 @@ import { Component, Input } from '@angular/core';
     `]
 })
 export class AppHeaderComponent {
-    @Input({ required: true }) title!: string;
-    @Input() icon: string = '';
+    title = input.required<string>();
+    icon = input('');
 }

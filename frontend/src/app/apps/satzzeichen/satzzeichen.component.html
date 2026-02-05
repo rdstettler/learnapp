@@ -1,10 +1,4 @@
-<div class="bg-animation"></div>
-<div class="app-container satzzeichen-app">
-    <div class="app-header">
-        <a routerLink="/" class="back-button">← Dashboard</a>
-        <h1>✏️ Satzzeichen-Quiz</h1>
-    </div>
-
+<app-learning-app-layout title="✏️ Satzzeichen-Quiz" appId="satzzeichen" [content]="texts()[currentTextIndex()]">
     <div class="progress-bar">
         <div class="progress-fill" [style.width.%]="progress()"></div>
     </div>
@@ -91,4 +85,4 @@
         </div>
     </div>
     }
-</div>
+</app-learning-app-layout>

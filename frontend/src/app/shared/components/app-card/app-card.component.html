@@ -1,26 +1,27 @@
 <div class="app-card" (click)="onCardClick($event)">
-    @if (showFavorite) {
-    <div class="favorite-icon" (click)="onFavoriteClick($event)" [class.active]="isFavorite" title="Favorit umschalten">
-        {{ isFavorite ? '★' : '☆' }}
+    @if (showFavorite()) {
+    <div class="favorite-icon" (click)="onFavoriteClick($event)" [class.active]="isFavorite()"
+        title="Favorit umschalten">
+        {{ isFavorite() ? '★' : '☆' }}
     </div>
     }
-    @if (allowRemove) {
+    @if (allowRemove()) {
     <div class="remove-icon" (click)="onRemoveClick($event)" title="Ausblenden">
         ✕
     </div>
     }
-    <div class="app-card-icon">{{ app.icon }}</div>
-    <h2 class="app-card-name">{{ app.name }}</h2>
-    <p class="app-card-description">{{ app.description }}</p>
+    <div class="app-card-icon">{{ app().icon }}</div>
+    <h2 class="app-card-name">{{ app().name }}</h2>
+    <p class="app-card-description">{{ app().description }}</p>
     <div class="app-meta">
-        <span class="tag-category">📁 {{ app.category }}</span>
+        <span class="tag-category">📁 {{ app().category }}</span>
         <div class="app-stats">
-            <span>🔥 {{ metrics.openCount }}</span>
-            <span>🕐 {{ formatDate(metrics.lastOpened) }}</span>
+            <span>🔥 {{ metrics().openCount }}</span>
+            <span>🕐 {{ formatDate(metrics().lastOpened) }}</span>
         </div>
     </div>
     <div class="app-tags">
-        @for (tag of app.tags; track tag) {
+        @for (tag of app().tags; track tag) {
         <span class="tag">#{{ tag }}</span>
         }
     </div>

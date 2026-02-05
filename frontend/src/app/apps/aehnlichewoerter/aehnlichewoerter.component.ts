@@ -1,6 +1,8 @@
 import { Component, signal, computed, inject, HostListener } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { DataService } from '../../services/data.service';
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+
 
 interface Sentence {
     id: number;
@@ -15,12 +17,10 @@ interface WordPair {
     sentences: Sentence[];
 }
 
-import { AppTelemetryService } from '../../services/app-telemetry.service';
-
 @Component({
     selector: 'app-aehnlichewoerter',
     standalone: true,
-    imports: [RouterLink],
+    imports: [LearningAppLayoutComponent],
     templateUrl: './aehnlichewoerter.component.html',
     styleUrl: './aehnlichewoerter.component.css'
 })

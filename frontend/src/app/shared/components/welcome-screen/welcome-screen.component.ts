@@ -1,18 +1,18 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 
 @Component({
     selector: 'app-welcome-screen',
     standalone: true,
     template: `
         <div class="welcome-container">
-            <div class="welcome-emoji">{{ emoji }}</div>
-            <h2 style="margin-bottom: 12px;">{{ title }}</h2>
+            <div class="welcome-emoji">{{ emoji() }}</div>
+            <h2 style="margin-bottom: 12px;">{{ title() }}</h2>
             <p class="text-secondary" style="margin-bottom: 20px; max-width: 300px;">
-                {{ description }}
+                {{ description() }}
             </p>
             <ng-content></ng-content>
-            <button class="btn btn-primary" style="margin-top: 24px;" (click)="start.emit()" [disabled]="disabled">
-                {{ buttonText }}
+            <button class="btn btn-primary" style="margin-top: 24px;" (click)="start.emit()" [disabled]="disabled()">
+                {{ buttonText() }}
             </button>
         </div>
     `,
@@ -75,11 +75,11 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
     `]
 })
 export class WelcomeScreenComponent {
-    @Input() emoji: string = '🎮';
-    @Input() title: string = 'Welcome';
-    @Input() description: string = '';
-    @Input() buttonText: string = 'Starten';
-    @Input() disabled: boolean = false;
+    emoji = input('🎮');
+    title = input('Welcome');
+    description = input('');
+    buttonText = input('Starten');
+    disabled = input(false);
 
-    @Output() start = new EventEmitter<void>();
+    start = output<void>();
 }

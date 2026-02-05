@@ -3,6 +3,7 @@ import { RouterLink, Router } from '@angular/router';
 import { DataService } from '../../services/data.service';
 import { ApiService } from '../../services/api.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
+import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 
 interface TextaufgabeItem {
     id: string;
@@ -12,10 +13,11 @@ interface TextaufgabeItem {
     explanation: string;
 }
 
+
 @Component({
     selector: 'app-textaufgaben',
     standalone: true,
-    imports: [RouterLink],
+    imports: [RouterLink, LearningAppLayoutComponent],
     templateUrl: './textaufgaben.component.html',
     styleUrl: './textaufgaben.component.css'
 })

@@ -1,6 +1,8 @@
 import { Component, signal, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { DataService } from '../../services/data.service';
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+
 
 interface Composite {
     word: string;
@@ -18,12 +20,10 @@ interface Stem {
     meanings: Record<string, MeaningOption[]>;
 }
 
-import { AppTelemetryService } from '../../services/app-telemetry.service';
-
 @Component({
     selector: 'app-wortstaemme',
     standalone: true,
-    imports: [RouterLink],
+    imports: [LearningAppLayoutComponent],
     templateUrl: './wortstaemme.component.html',
     styleUrl: './wortstaemme.component.css'
 })

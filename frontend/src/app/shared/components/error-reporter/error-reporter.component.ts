@@ -1,5 +1,5 @@
 
-import { Component, Input, inject, signal } from '@angular/core';
+import { Component, input, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../services/api.service';
@@ -66,8 +66,8 @@ import { ApiService } from '../../../services/api.service';
     styleUrls: ['./error-reporter.component.css']
 })
 export class ErrorReporterComponent {
-    @Input({ required: true }) appId!: string;
-    @Input() content: any;
+    appId = input.required<string>();
+    content = input<any>();
 
     apiService = inject(ApiService);
 
@@ -96,8 +96,8 @@ export class ErrorReporterComponent {
         this.submitting.set(true);
 
         const success = await this.apiService.submitFeedback({
-            appId: this.appId,
-            content: this.content,
+            appId: this.appId(),
+            content: this.content(),
             comment: this.comment,
             errorType: this.errorType
         });

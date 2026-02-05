@@ -1,11 +1,11 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
     selector: 'app-progress-bar',
     standalone: true,
     template: `
         <div class="progress-bar">
-            <div class="progress-fill" [style.width.%]="progress"></div>
+            <div class="progress-fill" [style.width.%]="progress()"></div>
         </div>
     `,
     styles: [`
@@ -26,5 +26,5 @@ import { Component, Input } from '@angular/core';
     `]
 })
 export class ProgressBarComponent {
-    @Input() progress: number = 0;
+    progress = input(0);
 }

@@ -307,12 +307,7 @@ export class PlatformComponent implements OnInit, AfterViewInit {
                 // If we have favorites and current view is default 'all', switch to favorites
                 // Only do this on initial load to avoid jumping around if user is browsing
                 if (favSet.size > 0 && this.currentView() === 'all') {
-                    // Check if this is likely the initial load (simple heuristic or just always do it if 'all')
-                    // User requested: "The default dashboard view should be the fav view in case there are any favs"
-                    // UPDATE: Respect localStorage preference if set.
-                    if (typeof localStorage !== 'undefined' && !localStorage.getItem('dashboard_view')) {
-                        this.setView('favorites');
-                    }
+                    this.setView('favorites');
                 }
             },
             error: (err) => console.error('Error loading favorites:', err)

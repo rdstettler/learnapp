@@ -1,5 +1,4 @@
 import { Component, signal, computed, inject, ChangeDetectorRef } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { DataService } from '../../services/data.service';
 
 interface WordSlot {
@@ -10,11 +9,12 @@ interface WordSlot {
 }
 
 import { AppTelemetryService } from '../../services/app-telemetry.service';
+import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 
 @Component({
     selector: 'app-satzzeichen',
     standalone: true,
-    imports: [RouterLink],
+    imports: [LearningAppLayoutComponent],
     templateUrl: './satzzeichen.component.html',
     styleUrl: './satzzeichen.component.css'
 })

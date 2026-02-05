@@ -1,7 +1,9 @@
 import { Component, signal, computed, inject, ChangeDetectorRef } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../../services/data.service';
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+
 
 interface DisplayWord {
     text: string;
@@ -18,12 +20,10 @@ interface ErrorItem {
     wordIndex: number;
 }
 
-import { AppTelemetryService } from '../../services/app-telemetry.service';
-
 @Component({
     selector: 'app-fehler',
     standalone: true,
-    imports: [FormsModule, RouterLink],
+    imports: [FormsModule, LearningAppLayoutComponent],
     templateUrl: './fehler.component.html',
     styleUrl: './fehler.component.css'
 })

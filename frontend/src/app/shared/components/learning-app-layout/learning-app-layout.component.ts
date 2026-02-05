@@ -1,5 +1,5 @@
 
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ErrorReporterComponent } from '../error-reporter/error-reporter.component';
@@ -12,13 +12,13 @@ import { ErrorReporterComponent } from '../error-reporter/error-reporter.compone
     <div class="bg-animation"></div>
     <div class="app-container">
         <div class="app-header">
-            <a [routerLink]="backLink" class="back-button">← Dashboard</a>
-            <h1>{{ title }}</h1>
+            <a [routerLink]="backLink()" class="back-button">← Dashboard</a>
+            <h1>{{ title() }}</h1>
         </div>
 
         <ng-content></ng-content>
         
-        <app-error-reporter [appId]="appId" [content]="content"></app-error-reporter>
+        <app-error-reporter [appId]="appId()" [content]="content()"></app-error-reporter>
     </div>
   `,
     styles: [`
@@ -33,8 +33,8 @@ import { ErrorReporterComponent } from '../error-reporter/error-reporter.compone
   `]
 })
 export class LearningAppLayoutComponent {
-    @Input({ required: true }) title!: string;
-    @Input({ required: true }) appId!: string;
-    @Input() content: any;
-    @Input() backLink: any[] | string = '/';
+    title = input.required<string>();
+    appId = input.required<string>();
+    content = input<any>();
+    backLink = input<any[] | string>('/');
 }

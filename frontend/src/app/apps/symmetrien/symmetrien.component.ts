@@ -1,6 +1,6 @@
 import { Component, signal, ElementRef, viewChild, AfterViewInit, PLATFORM_ID, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
+import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 
 interface Point {
     x: number;
@@ -17,10 +17,11 @@ interface MirrorLine {
     end: Point;
 }
 
+
 @Component({
     selector: 'app-symmetrien',
     standalone: true,
-    imports: [RouterLink],
+    imports: [LearningAppLayoutComponent],
     templateUrl: './symmetrien.component.html',
     styleUrl: './symmetrien.component.css'
 })
@@ -33,7 +34,7 @@ export class SymmetrienComponent implements AfterViewInit {
     currentTool = signal<'polygon' | 'line' | 'point' | null>(null);
     status = signal('Select a tool to start drawing');
 
-    private polygon: Polygon | null = null;
+    public polygon: Polygon | null = null;
     private mirrorLine: MirrorLine | null = null;
     private mirrorPoint: Point | null = null;
 

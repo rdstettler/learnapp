@@ -1,5 +1,7 @@
 import { Component, signal, computed } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { AppTelemetryService } from '../../services/app-telemetry.service';
+import { inject } from '@angular/core';
+import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 
 interface UnitCategory {
     id: string;
@@ -22,13 +24,10 @@ interface Problem {
     correctAnswer: number;
 }
 
-import { AppTelemetryService } from '../../services/app-telemetry.service';
-import { inject } from '@angular/core';
-
 @Component({
     selector: 'app-umrechnen',
     standalone: true,
-    imports: [RouterLink],
+    imports: [LearningAppLayoutComponent],
     templateUrl: './umrechnen.component.html',
     styleUrl: './umrechnen.component.css'
 })

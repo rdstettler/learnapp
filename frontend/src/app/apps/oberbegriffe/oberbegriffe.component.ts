@@ -1,5 +1,4 @@
 import { Component, signal, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { DataService } from '../../services/data.service';
 
 interface OberbegriffItem {
@@ -9,13 +8,17 @@ interface OberbegriffItem {
 }
 
 import { AppTelemetryService } from '../../services/app-telemetry.service';
+import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 
 @Component({
     selector: 'app-oberbegriffe',
     standalone: true,
-    imports: [RouterLink],
+    imports: [LearningAppLayoutComponent],
     templateUrl: './oberbegriffe.component.html',
-    styleUrl: './oberbegriffe.component.css'
+    styleUrl: './oberbegriffe.component.css',
+    host: {
+        '(window:keydown.enter)': 'handleEnter()'
+    }
 })
 export class OberbegriffeComponent {
     private dataService = inject(DataService);
@@ -151,5 +154,13 @@ export class OberbegriffeComponent {
 
     playAgain(): void {
         this.startQuiz();
+    }
+
+    handleEnter(): void {
+        if (this.answered()) {
+            this.nextItem();
+        } else if (this.userAnswer().trim().length > 0) {
+            this.checkAnswer();
+        }
     }
 }

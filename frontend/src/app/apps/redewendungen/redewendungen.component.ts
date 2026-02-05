@@ -1,5 +1,4 @@
 import { Component, signal, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { DataService } from '../../services/data.service';
 
 interface Redewendung {
@@ -9,10 +8,12 @@ interface Redewendung {
 
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 
+import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+
 @Component({
     selector: 'app-redewendungen',
     standalone: true,
-    imports: [RouterLink],
+    imports: [LearningAppLayoutComponent],
     templateUrl: './redewendungen.component.html',
     styleUrl: './redewendungen.component.css'
 })

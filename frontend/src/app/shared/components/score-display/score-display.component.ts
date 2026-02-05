@@ -1,20 +1,20 @@
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
     selector: 'app-score-display',
     standalone: true,
     template: `
         <div class="score-display">
-            <div class="score-circle">{{ percentage }}%</div>
-            <div class="score-text">{{ text }}</div>
+            <div class="score-circle">{{ percentage() }}%</div>
+            <div class="score-text">{{ text() }}</div>
             <div class="score-breakdown">
                 <div class="score-item correct">
-                    <div class="score-item-number">{{ correct }}</div>
-                    <div class="score-item-label">{{ correctLabel }}</div>
+                    <div class="score-item-number">{{ correct() }}</div>
+                    <div class="score-item-label">{{ correctLabel() }}</div>
                 </div>
                 <div class="score-item wrong">
-                    <div class="score-item-number">{{ wrong }}</div>
-                    <div class="score-item-label">{{ wrongLabel }}</div>
+                    <div class="score-item-number">{{ wrong() }}</div>
+                    <div class="score-item-label">{{ wrongLabel() }}</div>
                 </div>
             </div>
             <ng-content></ng-content>
@@ -79,10 +79,10 @@ import { Component, Input } from '@angular/core';
     `]
 })
 export class ScoreDisplayComponent {
-    @Input() percentage: number = 0;
-    @Input() text: string = 'Richtig beantwortet';
-    @Input() correct: number = 0;
-    @Input() wrong: number = 0;
-    @Input() correctLabel: string = 'Richtig';
-    @Input() wrongLabel: string = 'Falsch';
+    percentage = input(0);
+    text = input('Richtig beantwortet');
+    correct = input(0);
+    wrong = input(0);
+    correctLabel = input('Richtig');
+    wrongLabel = input('Falsch');
 }

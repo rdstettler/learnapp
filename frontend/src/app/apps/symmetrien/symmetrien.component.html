@@ -1,10 +1,4 @@
-<div class="bg-animation"></div>
-<div class="symmetrien-app">
-    <div class="app-header">
-        <a routerLink="/" class="back-button">← Dashboard</a>
-        <h1>🔀 Symmetrien an Punkt und Strich</h1>
-    </div>
-
+<app-learning-app-layout title="🔀 Symmetrien an Punkt und Strich" appId="symmetrien" [content]="polygon">
     <div class="controls">
         <button class="btn btn-tool btn-polygon" [class.active]="currentTool() === 'polygon'"
             (click)="setTool('polygon')">
@@ -25,7 +19,9 @@
 
     <div class="canvas-container">
         <canvas #canvas (pointerdown)="onPointerDown($event)" (pointermove)="onPointerMove($event)"
-            (pointerup)="onPointerUp()" (pointerleave)="onPointerUp()" (dblclick)="onDoubleClick($event)">
+            (pointerup)="onPointerUp()" (pointerleave)="onPointerUp()" (dblclick)="onDoubleClick($event)" role="img"
+            aria-label="Zeichenfläche für Symmetrien: Zeichne Polygone, Spiegelachsen und Spiegelpunkte">
+            Dein Browser unterstützt kein Canvas.
         </canvas>
     </div>
 
@@ -53,4 +49,4 @@
             </div>
         </div>
     </div>
-</div>
+</app-learning-app-layout>
