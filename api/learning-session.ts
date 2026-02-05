@@ -187,7 +187,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 });
                 text = aiRes.text;
             } catch (aiError: any) {
-                console.error("AI Generation Failed:", aiError);
+                console.error("AI Generation Failed:", aiError, "First 5 letters of key", process.env.XAI_API_KEY?.substring(0, 5), "prompt", prompt);
                 // Extract API error message if possible
                 const msg = aiError.message || aiError.toString();
                 return res.status(500).json({ error: `AI Provider Error: ${msg}` });
