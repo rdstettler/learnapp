@@ -190,7 +190,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 console.error("AI Generation Failed:", aiError, "First 5 letters of key", process.env.XAI_API_KEY?.substring(0, 5), "prompt", prompt);
                 // Extract API error message if possible
                 const msg = aiError.message || aiError.toString();
-                return res.status(500).json({ error: `AI Provider Error: ${msg}` });
+                return res.status(500).json({ error: `AI Provider Error: ${msg}, First 5 letters of key: ${process.env.XAI_API_KEY?.substring(0, 5)}, prompt: ${prompt}` });
             }
 
             // 5. Parse JSON
