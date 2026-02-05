@@ -15,11 +15,12 @@ interface SlotData {
 }
 
 import { AppTelemetryService } from '../../services/app-telemetry.service';
+import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 
 @Component({
     selector: 'app-dasdass',
     standalone: true,
-    imports: [RouterLink],
+    imports: [RouterLink, LearningAppLayoutComponent],
     templateUrl: './dasdass.component.html',
     styleUrl: './dasdass.component.css'
 })

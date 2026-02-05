@@ -48,6 +48,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     session_id: sessionId,
                     topic: firstRow.topic,
                     text: firstRow.text,
+                    theory: firstRow.theory ? JSON.parse(firstRow.theory as string) : [],
                     created_at: firstRow.created_at,
                     tasks: sessionRows.rows.map(row => ({
                         id: row.id, // ID needed for completion
@@ -161,6 +162,12 @@ IMPORTANT: Return ONLY valid JSON matching the following structure. Do not inclu
 {
     "topic": "string",
     "text": "string",
+    "theory": [
+        {
+            "title": "string",
+            "content": "string (markdown allowed)"
+        }
+    ],
     "tasks": [
         {
             "app_id": "string (must be one of the IDs above)",
@@ -175,7 +182,8 @@ ${userResults}
 Based on this analysis, create a personalized learning session with 3 to 5 tasks.
 Choose the most appropriate apps from the available list.
 For each task, generate SPECIFIC content that follows the app's Target Structure JSON Schema exactly.
-Create a motivating header (topic) and a short explanation (text).`;
+Create a motivating header (topic) and a short explanation (text).
+ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in the tasks. These should be short, helpful explanations or rules.`;
 
             // 4. Call AI (xAI Grok)
             if (!process.env.XAI_API_KEY) {
@@ -247,8 +255,8 @@ Create a motivating header (topic) and a short explanation (text).`;
                 }
 
                 await db.execute({
-                    sql: `INSERT INTO learning_session (user_uid, session_id, app_id, content, order_index, pristine, topic, text)
-                          VALUES (?, ?, ?, ?, ?, 1, ?, ?)`,
+                    sql: `INSERT INTO learning_session (user_uid, session_id, app_id, content, order_index, pristine, topic, text, theory)
+                          VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?)`,
                     args: [
                         user_uid,
                         sessionId,
@@ -256,7 +264,8 @@ Create a motivating header (topic) and a short explanation (text).`;
                         JSON.stringify(task.content),
                         i + 1,
                         object.topic,
-                        object.text
+                        object.text,
+                        JSON.stringify(object.theory || [])
                     ]
                 });
             }
@@ -297,6 +306,7 @@ Create a motivating header (topic) and a short explanation (text).`;
                 session_id: sessionId,
                 topic: firstRow.topic,
                 text: firstRow.text,
+                theory: firstRow.theory ? JSON.parse(firstRow.theory as string) : [],
                 created_at: firstRow.created_at,
                 tasks: refetchedSession.rows.map(row => ({
                     id: row.id,

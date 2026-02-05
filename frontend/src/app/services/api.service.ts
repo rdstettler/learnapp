@@ -163,4 +163,34 @@ export class ApiService {
             return false;
         }
     }
+    /**
+     * Submit feedback/error report
+     */
+    async submitFeedback(feedback: {
+        appId: string;
+        content?: any;
+        comment: string;
+        errorType: string;
+        sessionId?: string;
+    }): Promise<boolean> {
+        const user = this.authService.user();
+        // Allow anonymous feedback if needed, but for now fallback to user check or specific handling?
+        // Let's allow generic feedback but require user_uid if logged in.
+        const uid = user ? user.uid : 'anonymous';
+
+        try {
+            await firstValueFrom(this.http.post(`${this.API_BASE}/feedback`, {
+                user_uid: uid,
+                app_id: feedback.appId,
+                session_id: feedback.sessionId || this.activeSession()?.session_id,
+                content: feedback.content,
+                comment: feedback.comment,
+                error_type: feedback.errorType
+            }));
+            return true;
+        } catch (error) {
+            console.error('Failed to submit feedback:', error);
+            return false;
+        }
+    }
 }

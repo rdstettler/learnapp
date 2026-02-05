@@ -85,12 +85,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 pristine BOOLEAN DEFAULT 1,
                 topic TEXT,
                 text TEXT,
+                theory TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
         console.log("Created learning_session table (if not exists)");
     } catch (e: any) {
         console.error("Error creating learning_session table:", e.message);
+    }
+
+    /* Add theory column if missing */
+    try {
+        await db.execute("ALTER TABLE learning_session ADD COLUMN theory TEXT");
+        console.log("Added learning_session.theory column");
+    } catch (e: any) {
+        // ignore
     }
 
     // Create apps table
@@ -172,6 +181,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log("Created ai_logs table (if not exists)");
     } catch (e: any) {
         console.error("Error creating ai_logs table:", e.message);
+    }
+
+    // Create feedback table
+    try {
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS feedback (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_uid TEXT,
+                app_id TEXT NOT NULL,
+                session_id TEXT,
+                content TEXT,
+                comment TEXT,
+                error_type TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        console.log("Created feedback table (if not exists)");
+    } catch (e: any) {
+        console.error("Error creating feedback table:", e.message);
     }
 
     // Seed apps

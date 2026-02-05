@@ -32,6 +32,20 @@ import { Router } from '@angular/router';
                 </div>
             </div>
           </div>
+
+          @if (session().theory && session().theory.length > 0) {
+            <div class="theory-section fade-in">
+                <h3>💡 Gut zu wissen</h3>
+                <div class="theory-grid">
+                    @for (card of session().theory; track $index) {
+                        <div class="theory-card">
+                            <h4>{{ card.title }}</h4>
+                            <p>{{ card.content }}</p>
+                        </div>
+                    }
+                </div>
+            </div>
+          }
           
           <div class="tasks-list">
             @for (group of groupedTasks(); track group.id) {
@@ -235,6 +249,43 @@ import { Router } from '@angular/router';
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
+    }
+    .theory-section {
+        width: 100%;
+        margin-top: 2rem;
+        text-align: left;
+    }
+    .theory-section h3 {
+        margin-left: 0.5rem;
+        margin-bottom: 1rem;
+        color: #555;
+    }
+    .theory-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+    }
+    .theory-card {
+        background: white;
+        padding: 1.2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        border-left: 4px solid #a777e3;
+        transition: transform 0.2s;
+    }
+    .theory-card:hover {
+        transform: translateY(-2px);
+    }
+    .theory-card h4 {
+        margin: 0 0 0.5rem 0;
+        color: #2c3e50;
+        font-size: 1.1rem;
+    }
+    .theory-card p {
+        margin: 0;
+        color: #555;
+        font-size: 0.95rem;
+        line-height: 1.5;
     }
   `]
 })

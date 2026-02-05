@@ -1,10 +1,4 @@
-<div class="bg-animation"></div>
-<div class="app-container">
-    <div class="app-header">
-        <a routerLink="/" class="back-button">← Dashboard</a>
-        <h1>📖 Kasus-Quiz</h1>
-    </div>
-
+<app-learning-app-layout title="📖 Kasus-Quiz" appId="kasus" [content]="rounds()[currentRound()]">
     <div class="progress-bar">
         <div class="progress-fill" [style.width.%]="progress()"></div>
     </div>
@@ -87,20 +81,21 @@
         </div>
         }
     </div>
-</div>
 
-<!-- Popup -->
-@if (showPopup()) {
-<div class="popup-overlay" (click)="closePopup()">
-    <div class="popup" (click)="$event.stopPropagation()">
-        <div class="popup-title">Welcher Kasus?</div>
-        <div class="popup-word">{{ popupWord() }}</div>
-        <div class="popup-options">
-            @for (kasus of kasusOptions; track kasus) {
-            <button class="popup-option" [class]="getKasusClass(kasus).substring(0,3)" (click)="selectKasus(kasus)">{{
-                kasus }}</button>
-            }
+    <!-- Popup -->
+    @if (showPopup()) {
+    <div class="popup-overlay" (click)="closePopup()">
+        <div class="popup" (click)="$event.stopPropagation()">
+            <div class="popup-title">Welcher Kasus?</div>
+            <div class="popup-word">{{ popupWord() }}</div>
+            <div class="popup-options">
+                @for (kasus of kasusOptions; track kasus) {
+                <button class="popup-option" [class]="getKasusClass(kasus).substring(0,3)"
+                    (click)="selectKasus(kasus)">{{
+                    kasus }}</button>
+                }
+            </div>
         </div>
     </div>
-</div>
-}
+    }
+</app-learning-app-layout>
