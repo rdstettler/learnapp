@@ -144,32 +144,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 `- ID: ${a.id}, Name: ${a.name}, Description: ${a.description}, Target Structure JSON Schema: ${a.data_structure || '{}'}`
             ).join("\n");
 
-            const prompt = `
-                You are an educational AI assistant.
-                Analyze the following user learning results (mistakes, successes, patterns):
-                ${userResults}
+            const systemPrompt = `You are an educational AI assistant.
+Available Apps:
+${availableApps}
 
-                Based on this analysis, create a personalized learning session with 3 to 5 tasks.
-                Choose the most appropriate apps from the following list to address the user's needs.
-                For each task, generate SPECIFIC content that follows the app's Target Structure JSON Schema exactly.
+IMPORTANT: Return ONLY valid JSON matching the following structure. Do not include markdown formatting or other text.
+{
+    "topic": "string",
+    "text": "string",
+    "tasks": [
+        {
+            "app_id": "string (must be one of the IDs above)",
+            "content": { ... object matching the apps data_structure ... }
+        }
+    ]
+}`;
 
-                Available Apps:
-                ${availableApps}
+            const userPrompt = `Analyze the following user learning results:
+${userResults}
 
-                Create a motivating header (topic) and a short explanation (text) for why this session was created.
-
-                IMPORTANT: Return ONLY valid JSON mathing the following structure. Do not include markdown formatting or other text.
-                {
-                    "topic": "string",
-                    "text": "string",
-                    "tasks": [
-                        {
-                            "app_id": "string (must be one of the IDs above)",
-                            "content": { ... object matching the apps data_structure ... }
-                        }
-                    ]
-                }
-            `;
+Based on this analysis, create a personalized learning session with 3 to 5 tasks.
+Choose the most appropriate apps from the available list.
+For each task, generate SPECIFIC content that follows the app's Target Structure JSON Schema exactly.
+Create a motivating header (topic) and a short explanation (text).`;
 
             // 4. Call AI (xAI Grok)
             if (!process.env.XAI_API_KEY) {
@@ -178,19 +175,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
 
             let text = "";
+            let aiErrorFull = null;
+
             try {
+                // Using 'grok-2-1212' as a stable, known model.
+                // 'grok-4-1-fast-reasoning' is not a standard public model name for xAI currently.
                 const aiRes = await generateText({
-                    // User previously had 'grok-4-1-fast-reasoning' which might be invalid.
-                    // Using 'grok-beta' as a safe default for xAI.
-                    model: xai('grok-4-1-fast-reasoning'),
-                    prompt: prompt,
+                    model: xai('grok-2-1212'),
+                    system: systemPrompt,
+                    prompt: userPrompt,
                 });
                 text = aiRes.text;
             } catch (aiError: any) {
-                console.error("AI Generation Failed:", aiError, "First 5 letters of key", process.env.XAI_API_KEY?.substring(0, 5), "prompt", prompt);
-                // Extract API error message if possible
+                // Log failed attempt as well for debugging
+                try {
+                    await db.execute({
+                        sql: `INSERT INTO ai_logs (user_uid, session_id, prompt, system_prompt, response, provider, model)
+                              VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                        args: [
+                            user_uid,
+                            'FAILED_' + new Date().getTime(),
+                            userPrompt,
+                            systemPrompt,
+                            "ERROR: " + JSON.stringify(aiError),
+                            'xai',
+                            'grok-2-1212'
+                        ]
+                    });
+                } catch (e) { /* ignore */ }
+
+                console.error("AI Generation Failed. Full Error:", JSON.stringify(aiError, null, 2));
                 const msg = aiError.message || aiError.toString();
-                return res.status(500).json({ error: `AI Provider Error: ${msg}, First 5 letters of key: ${process.env.XAI_API_KEY?.substring(0, 5)}, prompt: ${prompt}` });
+                return res.status(500).json({ error: `AI Provider Error: ${msg}` });
             }
 
             // 5. Parse JSON
@@ -229,19 +245,52 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 });
             }
 
-            // 6. Mark results as processed
+            // 6. Log to ai_logs
+            try {
+                await db.execute({
+                    sql: `INSERT INTO ai_logs (user_uid, session_id, prompt, system_prompt, response, provider, model)
+                          VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                    args: [
+                        user_uid,
+                        sessionId,
+                        userPrompt,
+                        systemPrompt,
+                        text,
+                        'xai',
+                        'grok-2-1212'
+                    ]
+                });
+            } catch (logError) {
+                console.error("Failed to log AI interaction:", logError);
+                // Don't fail the request just because logging failed
+            }
+
+            // 7. Mark results as processed
             const resultIds = results.rows.map(r => r.id).join(',');
             await db.execute(`UPDATE app_results SET processed = 1 WHERE id IN (${resultIds})`);
 
-            const sessionData = {
+            // 8. Return Session Data
+            // Fix: Refetch session from DB to ensure 'pristine: 1' and 'id' are correct.
+            const refetchedSession = await db.execute({
+                sql: "SELECT * FROM learning_session WHERE session_id = ? ORDER BY order_index ASC",
+                args: [sessionId]
+            });
+
+            const firstRow = refetchedSession.rows[0];
+            const cleanSessionData = {
                 session_id: sessionId,
-                topic: object.topic,
-                text: object.text,
-                created_at: timestamp,
-                tasks: object.tasks
+                topic: firstRow.topic,
+                text: firstRow.text,
+                created_at: firstRow.created_at,
+                tasks: refetchedSession.rows.map(row => ({
+                    id: row.id,
+                    app_id: row.app_id,
+                    pristine: row.pristine,
+                    content: JSON.parse(row.content as string)
+                }))
             };
 
-            return res.status(200).json(sessionData);
+            return res.status(200).json(cleanSessionData);
 
         } catch (e: any) {
             console.error("Error generating session:", e);

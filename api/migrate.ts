@@ -154,6 +154,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.error("Error creating app_content table:", e.message);
     }
 
+    // Create ai_logs table
+    try {
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS ai_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_uid TEXT,
+                session_id TEXT,
+                prompt TEXT,
+                system_prompt TEXT,
+                response TEXT,
+                provider TEXT,
+                model TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        console.log("Created ai_logs table (if not exists)");
+    } catch (e: any) {
+        console.error("Error creating ai_logs table:", e.message);
+    }
+
     // Seed apps
     try {
         const appsConfig = {

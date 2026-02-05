@@ -250,6 +250,10 @@ export class LearningViewComponent implements OnInit {
     if (sec < 10) return "Suche passende Übungen...";
     if (sec < 20) return "Erstelle persönliche Aufgaben...";
     if (sec < 25) return "Formuliere Erklärungen...";
+    if (sec < 30) return "Überprüfe Rechtschreibung...";
+    if (sec < 35) return "Konsultiere andere KI...";
+    if (sec < 40) return "Moment, ich brauche mehr Strom...";
+    if (sec < 45) return "Ich denke noch etwas weiter über tolle Übungen nach...";
     return "Fast fertig...";
   });
 
