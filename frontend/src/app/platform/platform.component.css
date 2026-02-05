@@ -75,9 +75,11 @@ a.app-card {
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
+    /* Reduced margin */
     position: relative;
     z-index: 5;
+    padding: 0 20px;
 }
 
 /* Category Filters */
@@ -173,10 +175,10 @@ a.app-card {
 
 /* Auth Controls */
 .auth-controls {
-    position: absolute;
-    top: 20px;
-    right: 24px;
+    position: relative;
+    /* Changed from absolute */
     z-index: 10;
+    flex: 0 0 auto;
 }
 
 
@@ -286,19 +288,105 @@ a.app-card {
     white-space: nowrap;
 }
 
-/* Make header relative for auth controls positioning */
+/* Make header flex for layout */
 .platform-header {
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 40px;
+    background: rgba(0, 0, 0, 0.2);
+    /* Optional: distinct header area */
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 30px;
+}
+
+.branding {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 0 0 auto;
+}
+
+.title-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.platform-title {
+    margin: 0;
+    font-size: 1.8rem;
+    line-height: 1.2;
+}
+
+.platform-subtitle {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.platform-logo {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+/* Override view-tabs for header placement */
+.view-tabs {
+    margin-bottom: 0;
+}
+
+@media (max-width: 1100px) {
+    .platform-header {
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .header-center {
+        width: 100%;
+        order: 3;
+        /* Move tabs to bottom of header on mobile? Or keep in middle? */
+    }
+
+    .auth-controls {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        order: 2;
+        /* Auth under branding */
+    }
+
+    .branding {
+        justify-content: center;
+        width: 100%;
+        text-align: center;
+    }
+
+    .title-container {
+        align-items: center;
+    }
 }
 
 @media (max-width: 768px) {
-    .auth-controls {
-        position: static;
-        margin-bottom: 20px;
-        display: flex;
-        justify-content: center;
+    .view-tabs {
+        width: 100%;
+        overflow-x: auto;
     }
 
+    .platform-title {
+        font-size: 1.5rem;
+    }
+
+    /* Remove old auth-controls styles that might conflict */
     .user-info {
         flex-wrap: wrap;
         justify-content: center;

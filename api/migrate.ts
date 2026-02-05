@@ -32,6 +32,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // console.log("learn_level error (likely exists):", e.message);
     }
 
+    /* New columns for AI Logic */
+    try {
+        await db.execute("ALTER TABLE apps ADD COLUMN type TEXT DEFAULT 'tool'");
+        console.log("Added apps.type column");
+    } catch (e: any) {
+        // console.log("apps.type error (likely exists):", e.message);
+    }
+
+    try {
+        await db.execute("ALTER TABLE apps ADD COLUMN data_structure TEXT");
+        console.log("Added apps.data_structure column");
+    } catch (e: any) {
+        // console.log("apps.data_structure error (likely exists):", e.message);
+    }
+
+    try {
+        await db.execute("ALTER TABLE app_results ADD COLUMN processed BOOLEAN DEFAULT 0");
+        console.log("Added app_results.processed column");
+    } catch (e: any) {
+        // console.log("app_results.processed error (likely exists):", e.message);
+    }
+
+
     try {
         await db.execute(`
             CREATE TABLE IF NOT EXISTS app_results (
@@ -40,12 +63,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 user_uid TEXT NOT NULL,
                 session_id TEXT,
                 content TEXT,
+                processed BOOLEAN DEFAULT 0,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
         console.log("Created app_results table (if not exists)");
     } catch (e: any) {
         console.error("Error creating app_results table:", e.message);
+    }
+
+    /* Learning Session Table */
+    try {
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS learning_session (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_uid TEXT NOT NULL,
+                session_id TEXT NOT NULL,
+                app_id TEXT NOT NULL,
+                content TEXT,
+                order_index INTEGER,
+                pristine BOOLEAN DEFAULT 1,
+                topic TEXT,
+                text TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        console.log("Created learning_session table (if not exists)");
+    } catch (e: any) {
+        console.error("Error creating learning_session table:", e.message);
     }
 
     // Create apps table
@@ -62,6 +107,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 featured BOOLEAN DEFAULT 0,
                 min_age INTEGER,
                 min_skill_level INTEGER,
+                type TEXT DEFAULT 'tool',
+                data_structure TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
@@ -109,16 +156,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Seed apps
     try {
-        // We import the JSON content. In a Vercel serverless function, reading local files can be tricky.
-        // For now, we will assume this runs in a context where we can perform the migration,
-        // or we hardcode the initial data if import fails.
-        // However, to keep it clean, let's try to fetch it or read it if we are local.
-        // Since we are in the 'api' folder and assets are in 'frontend/src/assets',
-        // let's try to dynamic import or rely on a hardcoded list for the FIRST migration if file access is tough.
-        // Actually, for this specific task, I'll read the file content using fs since I am the agent and I can see it,
-        // but the RUNNING script needs access.
-        // Let's assume for now we hardcode the data from the known config to ensure it works reliably in the migration script without complex file path resolution in Vercel.
-
         const appsConfig = {
             "apps": [
                 {
@@ -128,12 +165,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Deutsch",
                     "route": "/aehnlichewoerter",
                     "icon": "🔤",
-                    "tags": [
-                        "deutsch",
-                        "rechtschreibung",
-                        "synonyme",
-                        "ähnliche wörter"
-                    ]
+                    "type": "learning",
+                    "tags": ["deutsch", "rechtschreibung", "synonyme", "ähnliche wörter"],
+                    "data_structure": "{ \"pairs\": [{\"word1\": \"string\", \"word2\": \"string\", \"explanation\": \"string\"}] }"
                 },
                 {
                     "id": "oberbegriffe",
@@ -142,12 +176,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Deutsch",
                     "route": "/oberbegriffe",
                     "icon": "🏷️",
-                    "tags": [
-                        "deutsch",
-                        "wortschatz",
-                        "kategorien",
-                        "oberbegriffe"
-                    ]
+                    "type": "learning",
+                    "tags": ["deutsch", "wortschatz", "kategorien", "oberbegriffe"],
+                    "data_structure": "{ \"question\": \"string\", \"options\": [\"string\"], \"answer\": \"string\" }"
                 },
                 {
                     "id": "wortfamilie",
@@ -156,12 +187,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Deutsch",
                     "route": "/wortfamilie",
                     "icon": "👨‍👩‍👧",
-                    "tags": [
-                        "deutsch",
-                        "grammatik",
-                        "wortarten",
-                        "wortfamilie"
-                    ]
+                    "type": "learning",
+                    "tags": ["deutsch", "grammatik", "wortarten", "wortfamilie"],
+                    "data_structure": "{ \"nomen\": \"string\", \"verb\": \"string\", \"adjektiv\": \"string\" }"
                 },
                 {
                     "id": "symmetry",
@@ -170,12 +198,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Geometrie",
                     "route": "/symmetry",
                     "icon": "✨",
-                    "tags": [
-                        "drawing",
-                        "geometry",
-                        "symmetry",
-                        "creative"
-                    ]
+                    "type": "tool",
+                    "tags": ["drawing", "geometry", "symmetry", "creative"]
                 },
                 {
                     "id": "symmetrien",
@@ -184,12 +208,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Geometrie",
                     "route": "/symmetrien",
                     "icon": "🔀",
-                    "tags": [
-                        "geometry",
-                        "symmetry",
-                        "mirroring",
-                        "polygon"
-                    ]
+                    "type": "learning",
+                    "tags": ["geometry", "symmetry", "mirroring", "polygon"]
                 },
                 {
                     "id": "wortstaemme",
@@ -198,11 +218,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Deutsch",
                     "route": "/wortstaemme",
                     "icon": "📝",
-                    "tags": [
-                        "deutsch",
-                        "sprache",
-                        "quiz"
-                    ]
+                    "type": "learning",
+                    "tags": ["deutsch", "sprache", "quiz"]
                 },
                 {
                     "id": "verben",
@@ -211,11 +228,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Deutsch",
                     "route": "/verben",
                     "icon": "✍️",
-                    "tags": [
-                        "deutsch",
-                        "grammatik",
-                        "verben"
-                    ]
+                    "type": "learning",
+                    "tags": ["deutsch", "grammatik", "verben"]
                 },
                 {
                     "id": "kasus",
@@ -224,12 +238,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Deutsch",
                     "route": "/kasus",
                     "icon": "📖",
-                    "tags": [
-                        "deutsch",
-                        "grammatik",
-                        "kasus",
-                        "fälle"
-                    ]
+                    "type": "learning",
+                    "tags": ["deutsch", "grammatik", "kasus", "fälle"],
+                    "data_structure": "{ \"sentences\": [\"string\"] }"
                 },
                 {
                     "id": "redewendungen",
@@ -238,12 +249,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Deutsch",
                     "route": "/redewendungen",
                     "icon": "🎭",
-                    "tags": [
-                        "deutsch",
-                        "redewendungen",
-                        "idiome",
-                        "sprache"
-                    ]
+                    "type": "learning",
+                    "tags": ["deutsch", "redewendungen", "idiome", "sprache"]
                 },
                 {
                     "id": "satzzeichen",
@@ -252,12 +259,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Deutsch",
                     "route": "/satzzeichen",
                     "icon": "✏️",
-                    "tags": [
-                        "deutsch",
-                        "grammatik",
-                        "satzzeichen",
-                        "zeichensetzung"
-                    ]
+                    "type": "learning",
+                    "tags": ["deutsch", "grammatik", "satzzeichen", "zeichensetzung"]
                 },
                 {
                     "id": "fehler",
@@ -266,12 +269,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Deutsch",
                     "route": "/fehler",
                     "icon": "🔍",
-                    "tags": [
-                        "deutsch",
-                        "rechtschreibung",
-                        "grammatik",
-                        "korrektur"
-                    ]
+                    "type": "learning",
+                    "tags": ["deutsch", "rechtschreibung", "grammatik", "korrektur"]
                 },
                 {
                     "id": "dasdass",
@@ -280,13 +279,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Deutsch",
                     "route": "/dasdass",
                     "icon": "🎯",
-                    "tags": [
-                        "deutsch",
-                        "grammatik",
-                        "rechtschreibung",
-                        "das",
-                        "dass"
-                    ]
+                    "type": "learning",
+                    "tags": ["deutsch", "grammatik", "rechtschreibung", "das", "dass"],
+                    "data_structure": "{ \"sentences\": [\"string\"] }"
                 },
                 {
                     "id": "textaufgaben",
@@ -295,12 +290,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Mathematik",
                     "route": "/textaufgaben",
                     "icon": "🧮",
-                    "tags": [
-                        "mathematik",
-                        "textaufgaben",
-                        "proportionalität",
-                        "rechnen"
-                    ]
+                    "type": "learning",
+                    "tags": ["mathematik", "textaufgaben", "proportionalität", "rechnen"],
+                    "data_structure": "{ \"question\": \"string\", \"answers\": [\"string\"], \"explanation\": \"string\" }"
                 },
                 {
                     "id": "kopfrechnen",
@@ -309,12 +301,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Mathematik",
                     "route": "/kopfrechnen",
                     "icon": "🧠",
-                    "tags": [
-                        "mathematik",
-                        "kopfrechnen",
-                        "addition",
-                        "division"
-                    ]
+                    "type": "learning",
+                    "tags": ["mathematik", "kopfrechnen", "addition", "division"]
                 },
                 {
                     "id": "umrechnen",
@@ -323,13 +311,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Mathematik",
                     "route": "/umrechnen",
                     "icon": "📐",
-                    "tags": [
-                        "mathematik",
-                        "umrechnen",
-                        "einheiten",
-                        "masse",
-                        "gewicht"
-                    ]
+                    "type": "learning",
+                    "tags": ["mathematik", "umrechnen", "einheiten", "masse", "gewicht"]
                 },
                 {
                     "id": "zeitrechnen",
@@ -338,14 +321,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Mathematik",
                     "route": "/zeitrechnen",
                     "icon": "⏱️",
-                    "tags": [
-                        "mathematik",
-                        "zeit",
-                        "umrechnen",
-                        "brüche",
-                        "stunden",
-                        "minuten"
-                    ]
+                    "type": "learning",
+                    "tags": ["mathematik", "zeit", "umrechnen", "brüche", "stunden", "minuten"]
                 },
                 {
                     "id": "isolation",
@@ -354,12 +331,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Spiele",
                     "route": "/isolation",
                     "icon": "♟️",
-                    "tags": [
-                        "spiel",
-                        "strategie",
-                        "brettspiel",
-                        "multiplayer"
-                    ]
+                    "type": "game",
+                    "tags": ["spiel", "strategie", "brettspiel", "multiplayer"]
                 },
                 {
                     "id": "quarto",
@@ -368,24 +341,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     "category": "Spiele",
                     "route": "/quarto",
                     "icon": "🎲",
-                    "tags": [
-                        "spiel",
-                        "strategie",
-                        "brettspiel",
-                        "3d",
-                        "quarto"
-                    ]
+                    "type": "game",
+                    "tags": ["spiel", "strategie", "brettspiel", "3d", "quarto"]
                 }
             ]
         };
 
         for (const app of appsConfig.apps) {
             await db.execute({
-                sql: `INSERT INTO apps (id, name, description, category, route, icon, tags) 
-                      VALUES (?, ?, ?, ?, ?, ?, ?)
+                sql: `INSERT INTO apps (id, name, description, category, route, icon, tags, type, data_structure) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                       ON CONFLICT(id) DO UPDATE SET
                       name=excluded.name, description=excluded.description, category=excluded.category,
-                      route=excluded.route, icon=excluded.icon, tags=excluded.tags`,
+                      route=excluded.route, icon=excluded.icon, tags=excluded.tags, type=excluded.type, data_structure=excluded.data_structure`,
                 args: [
                     app.id,
                     app.name,
@@ -393,7 +361,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     app.category,
                     app.route,
                     app.icon,
-                    JSON.stringify(app.tags)
+                    JSON.stringify(app.tags),
+                    app.type || 'tool',
+                    app.data_structure || null
                 ]
             });
         }
@@ -401,8 +371,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     } catch (e: any) {
         console.error("Error seeding apps:", e.message);
-        // Continue, don't break strict migration? 
-        // Better to report error
     }
 
     res.status(200).json({ message: "Migration attempted. Check logs for details." });

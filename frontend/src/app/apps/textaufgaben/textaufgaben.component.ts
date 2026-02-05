@@ -1,6 +1,8 @@
 import { Component, signal, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { DataService } from '../../services/data.service';
+import { ApiService } from '../../services/api.service';
+import { AppTelemetryService } from '../../services/app-telemetry.service';
 
 interface TextaufgabeItem {
     id: string;
@@ -9,8 +11,6 @@ interface TextaufgabeItem {
     answers: string[];
     explanation: string;
 }
-
-import { AppTelemetryService } from '../../services/app-telemetry.service';
 
 @Component({
     selector: 'app-textaufgaben',
@@ -21,6 +21,8 @@ import { AppTelemetryService } from '../../services/app-telemetry.service';
 })
 export class TextaufgabenComponent {
     private dataService = inject(DataService);
+    private apiService = inject(ApiService);
+    private router = inject(Router);
     private telemetryService = inject(AppTelemetryService);
     private sessionId = this.telemetryService.generateSessionId();
 
@@ -28,6 +30,11 @@ export class TextaufgabenComponent {
     items = signal<TextaufgabeItem[]>([]);
     rounds = signal<TextaufgabeItem[]>([]);
     currentRound = signal(0);
+
+    // AI Session
+    isSessionMode = false;
+    sessionTaskId: number | null = null;
+    sessionTaskIds: number[] | null = null;
 
     userAnswer = signal('');
     answered = signal(false);
@@ -38,16 +45,94 @@ export class TextaufgabenComponent {
     totalCorrect = signal(0);
     totalQuestions = signal(5);
 
-    progress = computed(() => (this.currentRound() / 5) * 100);
-    percentage = computed(() => Math.round((this.totalCorrect() / this.totalQuestions()) * 100));
+    progress = computed(() => (this.currentRound() / this.totalQuestions()) * 100);
+    percentage = computed(() => {
+        const total = this.totalQuestions();
+        return total > 0 ? Math.round((this.totalCorrect() / total) * 100) : 0;
+    });
 
     constructor() {
         this.loadData();
     }
 
     private loadData(): void {
+        console.log('Textaufgaben loadData: Checking for session content...');
+        const state = window.history.state;
+        if (state && state.learningContent && state.sessionId) {
+            console.log("Loading AI Session Content from Router State", state.learningContent);
+            this.isSessionMode = true;
+            this.sessionTaskId = state.taskId;
+            this.sessionTaskIds = state.taskIds;
+
+            // Map content. 
+            // Determine if content is array or single item?
+            // If AI returns tasks: [ { content: { ... } } ], then content is single object.
+            // But Textaufgaben usually runs 5 rounds.
+            // Did we ask AI for 5 tasks in the array?
+            // In learning-session.ts we ask for 3-5 tasks total session.
+            // A single TASK in the session might contain multiple questions? 
+            // "For each task, generate SPECIFIC content that follows ... JSON Schema"
+            // If schema is Object, we get 1 Object.
+            // If Schema is Array, we get Array.
+            // The schema I just added is OBJECT. "{ ... }"
+            // So we get 1 question per task?
+            // If so, `rounds` should have 1 item.
+
+            let loadedItems: TextaufgabeItem[] = [];
+
+            if (Array.isArray(state.learningContent)) {
+                loadedItems = state.learningContent;
+            } else if (state.learningContent.question) {
+                // Single object
+                loadedItems = [{
+                    id: 'ai-gen',
+                    topics: ['ai'],
+                    question: state.learningContent.question,
+                    answers: state.learningContent.answers || [],
+                    explanation: state.learningContent.explanation || ''
+                }];
+            }
+
+            if (loadedItems.length > 0) {
+                this.items.set(loadedItems);
+                this.totalQuestions.set(loadedItems.length); // Dynamic
+                this.screen.set('welcome');
+                return;
+            }
+        }
+
+        // Fallback ApiService check
+        const sessionTask = this.apiService.getSessionTask('textaufgaben');
+        if (sessionTask) {
+            console.log("Loading AI Session Content from ApiService", sessionTask);
+            this.isSessionMode = true;
+            this.sessionTaskId = sessionTask.id;
+            // Assume sessionTask content can be array or single
+            let loadedItems: TextaufgabeItem[] = [];
+            if (Array.isArray(sessionTask.content)) {
+                loadedItems = sessionTask.content;
+            } else if (sessionTask.content && sessionTask.content.question) {
+                loadedItems = [{
+                    id: 'ai-gen',
+                    topics: ['ai'],
+                    question: sessionTask.content.question,
+                    answers: sessionTask.content.answers || [],
+                    explanation: sessionTask.content.explanation || ''
+                }];
+            }
+            if (loadedItems.length > 0) {
+                this.items.set(loadedItems);
+                this.totalQuestions.set(loadedItems.length);
+                return;
+            }
+        }
+
+        // Default
         this.dataService.loadAppContent<TextaufgabeItem>('textaufgaben').subscribe({
-            next: (data) => this.items.set(data),
+            next: (data) => {
+                this.items.set(data);
+                this.totalQuestions.set(5);
+            },
             error: (err) => console.error('Error loading textaufgaben data:', err)
         });
     }
@@ -62,13 +147,24 @@ export class TextaufgabenComponent {
     }
 
     startQuiz(): void {
-        this.rounds.set(this.shuffle(this.items()).slice(0, 5));
+        let quizRounds: TextaufgabeItem[];
+        if (this.isSessionMode) {
+            quizRounds = [...this.items()];
+        } else {
+            quizRounds = this.shuffle(this.items()).slice(0, 5);
+        }
+
+        this.rounds.set(quizRounds);
         this.currentRound.set(0);
         this.totalCorrect.set(0);
+        // Ensure totalQuestions is synced with actual rounds
+        this.totalQuestions.set(quizRounds.length);
+
         this.screen.set('quiz');
         this.showRound();
     }
 
+    // ... showRound/getCurrentProblem/updateAnswer/checkAnswer/toggleExplanation ...
     private showRound(): void {
         this.userAnswer.set('');
         this.answered.set(false);
@@ -117,7 +213,14 @@ export class TextaufgabenComponent {
     }
 
     nextRound(): void {
-        if (this.currentRound() >= 4) {
+        if (this.currentRound() >= this.rounds().length - 1) {
+            if (this.isSessionMode) {
+                if (this.sessionTaskIds && this.sessionTaskIds.length > 0) {
+                    this.apiService.completeTask(this.sessionTaskIds);
+                } else if (this.sessionTaskId) {
+                    this.apiService.completeTask(this.sessionTaskId);
+                }
+            }
             this.screen.set('results');
         } else {
             this.currentRound.update(r => r + 1);

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { firstValueFrom } from 'rxjs';
@@ -86,50 +86,85 @@ export class ApiService {
         return this.trackEvent({ appId, eventType: 'app_open' });
     }
 
+    // State for the active learning session
+    activeSession = signal<any | null>(null);
+
     /**
-     * Save quiz result
+     * Get current learning session
+     * Returns:
+     * - Session object if exists
+     * - null if ready to generate (enough data but no active session)
+     * - 404 object { message: "Not enough data", suggestedApps: [...] } if not enough data
      */
-    async saveResult(result: Omit<LearnResult, 'id' | 'completedAt'>): Promise<number | null> {
+    async getLearningSession(): Promise<any> {
         const user = this.authService.user();
         if (!user) return null;
 
         try {
-            const response = await firstValueFrom(this.http.post<{ success: boolean; id: number }>(
-                `${this.API_BASE}/results`,
-                {
-                    uid: user.uid,
-                    appId: result.appId,
-                    score: result.score,
-                    maxScore: result.maxScore,
-                    durationSeconds: result.durationSeconds,
-                    details: result.details
-                }
-            ));
-            return response.id;
-        } catch (error) {
-            console.error('Failed to save result:', error);
-            return null;
+            const session = await firstValueFrom(this.http.get(`${this.API_BASE}/learning-session?user_uid=${user.uid}`));
+            this.activeSession.set(session);
+            return session;
+        } catch (error: any) {
+            if (error.status === 404) {
+                return error.error; // Return the body which contains suggestedApps
+            }
+            console.error('Failed to get learning session:', error);
+            throw error;
         }
     }
 
     /**
-     * Get user's results
+     * Generate a new learning session
      */
-    async getResults(appId?: string, limit: number = 10): Promise<LearnResult[]> {
+    async generateLearningSession(): Promise<any> {
         const user = this.authService.user();
-        if (!user) return [];
+        if (!user) throw new Error("User not logged in");
+
+        const session = await firstValueFrom(this.http.post(`${this.API_BASE}/learning-session`, {
+            user_uid: user.uid
+        }));
+
+        // Refresh session after generation
+        await this.getLearningSession();
+
+        return session;
+    }
+
+    /**
+     * Get a task from the active session for a specific app
+     */
+    getSessionTask(appId: string): any | null {
+        const session = this.activeSession();
+        if (!session || !session.tasks) return null;
+
+        // Find the first pristine (not completed) task for this app
+        return session.tasks.find((t: any) => t.app_id === appId && t.pristine);
+    }
+
+    /**
+     * Mark a session task as completed
+     */
+    async completeTask(taskId: number | number[]): Promise<boolean> {
+        const user = this.authService.user();
+        if (!user) return false;
+
+        const ids = Array.isArray(taskId) ? taskId : [taskId];
 
         try {
-            let url = `${this.API_BASE}/results?uid=${user.uid}&limit=${limit}`;
-            if (appId) {
-                url += `&appId=${appId}`;
-            }
+            // Execute all completions in parallel or sequence
+            await Promise.all(ids.map(id =>
+                firstValueFrom(this.http.put(`${this.API_BASE}/learning-session`, {
+                    user_uid: user.uid,
+                    taskId: id
+                }))
+            ));
 
-            const response = await firstValueFrom(this.http.get<{ results: LearnResult[] }>(url));
-            return response.results;
+            // Refresh session to update UI
+            await this.getLearningSession();
+            return true;
         } catch (error) {
-            console.error('Failed to get results:', error);
-            return [];
+            console.error('Failed to complete task(s):', error);
+            return false;
         }
     }
 }

@@ -1,6 +1,7 @@
 import { Component, signal, computed, inject, HostListener } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { DataService } from '../../services/data.service';
+import { ApiService } from '../../services/api.service';
 
 interface Exercise {
     text: string;
@@ -24,6 +25,8 @@ import { AppTelemetryService } from '../../services/app-telemetry.service';
 })
 export class KasusComponent {
     private dataService = inject(DataService);
+    private apiService = inject(ApiService);
+    private router = inject(Router);
     private telemetryService = inject(AppTelemetryService);
     private sessionId = this.telemetryService.generateSessionId();
 
@@ -37,6 +40,11 @@ export class KasusComponent {
     rounds = signal<Exercise[]>([]);
     currentRound = signal(0);
 
+    // AI Session State
+    isSessionMode = false;
+    sessionTaskId: number | null = null;
+    sessionTaskIds: number[] | null = null;
+
     parts = signal<WordPart[]>([]);
     showPopup = signal(false);
     popupWord = signal('');
@@ -46,7 +54,7 @@ export class KasusComponent {
     totalCorrect = signal(0);
     totalQuestions = signal(0);
 
-    progress = computed(() => (this.currentRound() / 5) * 100);
+    progress = computed(() => (this.currentRound() / this.rounds().length) * 100);
     percentage = computed(() => {
         const total = this.totalQuestions();
         return total > 0 ? Math.round((this.totalCorrect() / total) * 100) : 0;
@@ -56,13 +64,59 @@ export class KasusComponent {
         this.loadData();
     }
 
+    // ...
+
     private loadData(): void {
+        console.log('Kasus loadData: Checking for session content...');
+        // 1. Check Router State
+        const state = window.history.state as any;
+        if (state && state.learningContent && state.sessionId) {
+            console.log("Loading AI Session Content from Router State", state.learningContent);
+            this.isSessionMode = true;
+            this.sessionTaskId = state.taskId;
+            this.sessionTaskIds = state.taskIds;
+
+            // ...
+
+            let content: Exercise[] = [];
+            if (Array.isArray(state.learningContent.sentences)) {
+                content = state.learningContent.sentences.map((s: string) => ({ text: s }));
+            } else if (typeof state.learningContent.originalText === 'string') {
+                content = [{ text: state.learningContent.originalText }];
+            }
+
+            if (content.length > 0) {
+                this.exercises.set(content);
+                // Auto-start or wait? Let's verify data loaded
+                return;
+            }
+        }
+
+        // 2. Fallback ApiService
+        const sessionTask = this.apiService.getSessionTask('kasus');
+        if (sessionTask) {
+            console.log("Loading AI Session Content from ApiService", sessionTask);
+            this.isSessionMode = true;
+            this.sessionTaskId = sessionTask.id;
+
+            let content: Exercise[] = [];
+            if (sessionTask.content && Array.isArray(sessionTask.content.sentences)) {
+                content = sessionTask.content.sentences.map((s: string) => ({ text: s }));
+            }
+            if (content.length > 0) {
+                this.exercises.set(content);
+                return;
+            }
+        }
+
+        // 3. Default
         this.dataService.loadAppContent<Exercise>('kasus').subscribe({
             next: (data) => this.exercises.set(data),
             error: (err) => console.error('Error loading kasus data:', err)
         });
     }
 
+    // ... shuffle ...
     private shuffle<T>(array: T[]): T[] {
         const arr = [...array];
         for (let i = arr.length - 1; i > 0; i--) {
@@ -94,7 +148,13 @@ export class KasusComponent {
     }
 
     startQuiz(): void {
-        this.rounds.set(this.shuffle(this.exercises()).slice(0, 5));
+        let quizRounds: Exercise[];
+        if (this.isSessionMode) {
+            quizRounds = [...this.exercises()];
+        } else {
+            quizRounds = this.shuffle(this.exercises()).slice(0, 5);
+        }
+        this.rounds.set(quizRounds);
         this.currentRound.set(0);
         this.totalCorrect.set(0);
         this.totalQuestions.set(0);
@@ -169,7 +229,14 @@ export class KasusComponent {
     }
 
     nextRound(): void {
-        if (this.currentRound() >= 4) {
+        if (this.currentRound() >= this.rounds().length - 1) {
+            if (this.isSessionMode) {
+                if (this.sessionTaskIds && this.sessionTaskIds.length > 0) {
+                    this.apiService.completeTask(this.sessionTaskIds);
+                } else if (this.sessionTaskId) {
+                    this.apiService.completeTask(this.sessionTaskId);
+                }
+            }
             this.screen.set('results');
         } else {
             this.currentRound.update(r => r + 1);

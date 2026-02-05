@@ -6,6 +6,7 @@ import { UserService } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
 import { AuthModalComponent, AppCardComponent } from '../shared';
+import { LearningViewComponent } from './learning-view/learning-view.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { catchError, of } from 'rxjs';
 import { AppInfo } from '../shared/components/app-card/app-card.component'; // Import from shared
@@ -17,7 +18,7 @@ interface AppsConfig {
 @Component({
     selector: 'app-platform',
     standalone: true,
-    imports: [AuthModalComponent, AppCardComponent],
+    imports: [AuthModalComponent, AppCardComponent, LearningViewComponent],
     templateUrl: './platform.component.html',
     styleUrl: './platform.component.css'
 })
@@ -92,6 +93,16 @@ export class PlatformComponent implements OnInit, AfterViewInit {
                 }
             }
         });
+        // Check view access on auth change
+        effect(() => {
+            const user = this.authService.user();
+            const view = this.currentView();
+            // If logged out and on a protected view, switch to 'all'
+            if (!user && (view === 'favorites' || view === 'ai')) {
+                this.setView('all');
+            }
+        }, { allowSignalWrites: true });
+
         // Load favorites if user is logged in
         effect(() => {
             const user = this.authService.user();

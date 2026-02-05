@@ -1,6 +1,31 @@
 <div class="bg-animation"></div>
 <div class="platform-container">
     <header class="platform-header">
+        <div class="header-left branding">
+            <div class="platform-logo">🚀</div>
+            <div class="title-container">
+                <h1 class="platform-title">Arnes Lern-Plattform</h1>
+                <p class="platform-subtitle">Entdecke spannende Lern-Apps</p>
+            </div>
+        </div>
+
+        <div class="header-center view-tabs-container">
+            <!-- View Switcher (Tabs) -->
+            <div class="view-tabs">
+                <button class="view-tab" [class.active]="currentView() === 'all'" (click)="setView('all')">
+                    Alle Apps
+                </button>
+                @if (authService.isAuthenticated()) {
+                <button class="view-tab" [class.active]="currentView() === 'favorites'" (click)="setView('favorites')">
+                    Favoriten
+                </button>
+                <button class="view-tab" [class.active]="currentView() === 'ai'" (click)="setView('ai')">
+                    KI Vorschläge ✨
+                </button>
+                }
+            </div>
+        </div>
+
         <!-- Auth Controls -->
         <div class="auth-controls">
             @if (authService.loading()) {
@@ -23,27 +48,10 @@
             <button id="auth-btn" class="auth-btn login-btn" (click)="openAuthModal()">🔑 Anmelden</button>
             }
         </div>
-
-        <div class="platform-logo">🚀</div>
-        <h1 class="platform-title">Arnes Lern-Plattform</h1>
-        <p class="platform-subtitle">Entdecke spannende Lern-Apps</p>
     </header>
 
     <div class="controls">
-        <!-- View Switcher (Tabs) -->
-        <div class="view-tabs">
-            <button class="view-tab" [class.active]="currentView() === 'all'" (click)="setView('all')">
-                Alle Apps
-            </button>
-            <button class="view-tab" [class.active]="currentView() === 'favorites'" (click)="setView('favorites')">
-                Favoriten
-            </button>
-            <button class="view-tab" [class.active]="currentView() === 'ai'" (click)="setView('ai')">
-                AI Vorschläge ✨
-            </button>
-        </div>
-
-        <!-- Category Filters (only show if not in Favorites/AI view, or always? User didn't specify. Keeping them is nice) -->
+        <!-- Category Filters -->
         <div id="category-filters" class="category-filters">
             @for (category of categories(); track category) {
             <button class="category-chip" [class.active]="currentCategory() === category"
@@ -54,6 +62,9 @@
         </div>
     </div>
 
+    @if (currentView() === 'ai') {
+    <app-learning-view></app-learning-view>
+    } @else {
     <div class="apps-grid">
         @for (app of filteredApps(); track app.id) {
         <app-app-card [app]="app" [metrics]="getAppMetrics(app.id)" [isFavorite]="favorites().has(app.id)"
@@ -68,6 +79,7 @@
         </div>
         }
     </div>
+    }
 
     <footer class="platform-footer">
         @if (authService.isAuthenticated()) {

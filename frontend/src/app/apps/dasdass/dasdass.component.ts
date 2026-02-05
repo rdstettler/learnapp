@@ -1,5 +1,5 @@
 import { Component, signal, computed, inject, ChangeDetectorRef, SecurityContext } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { DataService } from '../../services/data.service';
 import { ApiService } from '../../services/api.service';
@@ -27,13 +27,15 @@ export class DasdassComponent {
     private dataService = inject(DataService);
     private sanitizer = inject(DomSanitizer);
     private cdr = inject(ChangeDetectorRef);
-    private apiService = inject(ApiService);
+    private apiService = inject(ApiService); // Public so we can bind to it if needed
+    private router = inject(Router);
     private telemetryService = inject(AppTelemetryService);
     private sessionId = this.telemetryService.generateSessionId();
 
     private quizStartTime = 0;
 
-    readonly TEXTS_PER_ROUND = 10;
+    readonly DEFAULT_TEXTS_PER_ROUND = 10;
+    textsPerRound = this.DEFAULT_TEXTS_PER_ROUND;
 
     screen = signal<'welcome' | 'quiz' | 'results'>('welcome');
     texts = signal<TextItem[]>([]);
@@ -48,10 +50,15 @@ export class DasdassComponent {
     showPopup = signal(false);
     currentSlotIndex = signal<number | null>(null);
 
+    // AI Session State
+    isSessionMode = false;
+    sessionTaskId: number | null = null;
+    sessionTaskIds: number[] | null = null;
+
     // Store all text results for AI analysis
     allTextResults: { text: string; textId: number; answers: { correct: string; userAnswer: string | null; isCorrect: boolean }[] }[] = [];
 
-    progress = computed(() => (this.currentTextIndex() / this.TEXTS_PER_ROUND) * 100);
+    progress = computed(() => (this.currentTextIndex() / this.textsPerRound) * 100);
     percentage = computed(() => {
         const total = this.totalCorrect() + this.totalWrong();
         return total > 0 ? Math.round((this.totalCorrect() / total) * 100) : 0;
@@ -65,9 +72,76 @@ export class DasdassComponent {
     }
 
     private loadData(): void {
-        this.dataService.loadAppContent<TextItem>('dasdass').subscribe({
-            next: (data) => this.allTexts.set(data),
-            error: (err) => console.error('Error loading dasdass data:', err)
+        console.log('DasDass loadData: Checking for session content...');
+        const state = window.history.state as any;
+        console.log('Router State:', state);
+
+        // 1. Check Router State
+        if (state && state.learningContent && state.sessionId) {
+            console.log("Loading AI Session Content from Router State", state.learningContent);
+            this.isSessionMode = true;
+            this.sessionTaskId = state.taskId;
+            this.sessionTaskIds = state.taskIds; // Capture grouped IDs
+
+            if (state.learningContent && Array.isArray(state.learningContent.sentences)) {
+                const aiTexts: TextItem[] = state.learningContent.sentences.map((s: string, index: number) => ({
+                    id: 1000 + index,
+                    sentences: s
+                }));
+                this.allTexts.set(aiTexts);
+                this.textsPerRound = aiTexts.length;
+                this.startQuiz();
+                return;
+            } else if (state.learningContent && typeof state.learningContent.originalText === 'string') {
+                const aiTexts: TextItem[] = [{
+                    id: 1000,
+                    sentences: state.learningContent.originalText
+                }];
+                this.allTexts.set(aiTexts);
+                this.textsPerRound = aiTexts.length;
+                this.startQuiz();
+                return;
+            }
+        }
+
+        // 2. Check for active AI session task via Service
+        const sessionTask = this.apiService.getSessionTask('dasdass');
+
+        if (sessionTask) {
+            console.log("Loading AI Session Content from ApiService", sessionTask);
+            this.isSessionMode = true;
+            this.sessionTaskId = sessionTask.id;
+            // Note: taskIds usually come from router state, but if we loaded from service, we might rely on single ID.
+
+            let aiTexts: TextItem[] = [];
+
+            // Case A: AI returned 'sentences' array
+            if (sessionTask.content && Array.isArray(sessionTask.content.sentences)) {
+                aiTexts = sessionTask.content.sentences.map((s: string, index: number) => ({
+                    id: 1000 + index,
+                    sentences: s
+                }));
+            }
+            // Case B: AI returned 'originalText'
+            else if (sessionTask.content && typeof sessionTask.content.originalText === 'string') {
+                aiTexts = [{
+                    id: 1000,
+                    sentences: sessionTask.content.originalText
+                }];
+            }
+
+            if (aiTexts.length > 0) {
+                this.allTexts.set(aiTexts);
+                this.textsPerRound = aiTexts.length;
+                this.startQuiz();
+                return;
+            }
+        }
+
+        // 3. Fallback to Default Data
+        this.dataService.loadAppContent<TextItem>('dasdass').subscribe(data => {
+            this.allTexts.set(data);
+            this.startQuiz();
         });
     }
 
@@ -81,8 +155,21 @@ export class DasdassComponent {
     }
 
     startQuiz(): void {
-        const shuffled = this.shuffle(this.allTexts());
-        this.texts.set(shuffled.slice(0, this.TEXTS_PER_ROUND));
+        let quizTexts: TextItem[];
+
+        if (this.isSessionMode) {
+            // In session mode, use texts exactly as given (no shuffle, no slice if exact match desired)
+            // But maybe shuffle is fine? User said "load the questions from the session".
+            // Let's keep them in order provided by AI just to be safe, or shuffle?
+            // "not arbitrary ones" implies the set is fixed. Order matters less.
+            // But let's just use all of them.
+            quizTexts = [...this.allTexts()];
+        } else {
+            const shuffled = this.shuffle(this.allTexts());
+            quizTexts = shuffled.slice(0, this.textsPerRound);
+        }
+
+        this.texts.set(quizTexts);
         this.currentTextIndex.set(0);
         this.totalCorrect.set(0);
         this.totalWrong.set(0);
@@ -278,28 +365,16 @@ export class DasdassComponent {
 
 
     nextText(): void {
-        if (this.currentTextIndex() >= this.TEXTS_PER_ROUND - 1) {
-            this.saveResult();
+        if (this.currentTextIndex() >= this.textsPerRound - 1) {
+            // If in session mode, mark task as completed
+            if (this.isSessionMode && this.sessionTaskId) {
+                this.apiService.completeTask(this.sessionTaskId);
+            }
             this.screen.set('results');
         } else {
             this.currentTextIndex.update(i => i + 1);
             this.showText();
         }
-    }
-
-    private saveResult(): void {
-        const durationSeconds = Math.round((Date.now() - this.quizStartTime) / 1000);
-
-        this.apiService.saveResult({
-            appId: 'dasdass',
-            score: this.totalCorrect(),
-            maxScore: this.totalCorrect() + this.totalWrong(),
-            durationSeconds,
-            details: {
-                textsCompleted: this.TEXTS_PER_ROUND,
-                fullTextResults: this.allTextResults
-            }
-        });
     }
 
     restartQuiz(): void {

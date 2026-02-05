@@ -32,7 +32,7 @@
         <!-- Quiz Screen -->
         @if (screen() === 'quiz') {
         <div class="quiz-content">
-            <div class="round-info">Text {{ currentTextIndex() + 1 }} / {{ TEXTS_PER_ROUND }}</div>
+            <div class="round-info">Text {{ currentTextIndex() + 1 }} / {{ textsPerRound }}</div>
 
             <div class="score-live">
                 <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
@@ -76,6 +76,10 @@
             <button class="btn btn-primary" style="margin-top: 30px;" (click)="restartQuiz()">
                 Nochmal spielen
             </button>
+            <a routerLink="/" class="btn btn-secondary"
+                style="margin-top: 10px; display: block; text-align: center; text-decoration: none;">
+                Zurück zur Übersicht
+            </a>
         </div>
         }
     </div>
