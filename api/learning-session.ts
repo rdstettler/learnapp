@@ -182,7 +182,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 const aiRes = await generateText({
                     // User previously had 'grok-4-1-fast-reasoning' which might be invalid.
                     // Using 'grok-beta' as a safe default for xAI.
-                    model: xai('grok-beta'),
+                    model: xai('grok-4-1-fast-reasoning'),
                     prompt: prompt,
                 });
                 text = aiRes.text;
