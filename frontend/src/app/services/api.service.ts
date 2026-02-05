@@ -148,16 +148,12 @@ export class ApiService {
         const user = this.authService.user();
         if (!user) return false;
 
-        const ids = Array.isArray(taskId) ? taskId : [taskId];
+        const payload = Array.isArray(taskId)
+            ? { user_uid: user.uid, taskIds: taskId }
+            : { user_uid: user.uid, taskId: taskId };
 
         try {
-            // Execute all completions in parallel or sequence
-            await Promise.all(ids.map(id =>
-                firstValueFrom(this.http.put(`${this.API_BASE}/learning-session`, {
-                    user_uid: user.uid,
-                    taskId: id
-                }))
-            ));
+            await firstValueFrom(this.http.put(`${this.API_BASE}/learning-session`, payload));
 
             // Refresh session to update UI
             await this.getLearningSession();

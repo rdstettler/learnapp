@@ -57,6 +57,7 @@
     margin-bottom: 12px;
     color: var(--text-primary);
     background: linear-gradient(90deg, var(--text-primary), var(--text-secondary));
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -133,6 +134,31 @@
 .favorite-icon:hover {
     transform: scale(1.2);
     background: rgba(255, 255, 255, 0.1);
+}
+
+
+.remove-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 5;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.remove-icon:hover {
+    transform: scale(1.2);
+    background: rgba(255, 50, 50, 0.2);
+    color: #ff4d4d;
 }
 
 .favorite-icon.active {

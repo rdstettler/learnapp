@@ -100,17 +100,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === 'PUT') {
-        const { taskId } = req.body;
+        const { taskId, taskIds } = req.body;
 
-        if (!taskId) {
-            return res.status(400).json({ error: "Missing taskId" });
+        if (!taskId && (!taskIds || !Array.isArray(taskIds) || taskIds.length === 0)) {
+            return res.status(400).json({ error: "Missing taskId or taskIds" });
         }
 
         try {
-            await db.execute({
-                sql: "UPDATE learning_session SET pristine = 0 WHERE id = ? AND user_uid = ?",
-                args: [taskId, user_uid as string]
-            });
+            if (taskIds && Array.isArray(taskIds) && taskIds.length > 0) {
+                const placeholders = taskIds.map(() => '?').join(',');
+                await db.execute({
+                    sql: `UPDATE learning_session SET pristine = 0 WHERE id IN (${placeholders}) AND user_uid = ?`,
+                    args: [...taskIds, user_uid as string]
+                });
+            } else {
+                await db.execute({
+                    sql: "UPDATE learning_session SET pristine = 0 WHERE id = ? AND user_uid = ?",
+                    args: [taskId, user_uid as string]
+                });
+            }
+
             return res.status(200).json({ success: true });
         } catch (e: any) {
             console.error("Error in PUT /api/learning-session:", e.message);
@@ -181,7 +190,8 @@ Create a motivating header (topic) and a short explanation (text).`;
                 // Using 'grok-2-1212' as a stable, known model.
                 // 'grok-4-1-fast-reasoning' is not a standard public model name for xAI currently.
                 const aiRes = await generateText({
-                    model: xai('grok-2-1212'),
+                    // DO NOT CHANGE THE MODEL!!!!!
+                    model: xai('grok-4-1-fast-reasoning'),
                     system: systemPrompt,
                     prompt: userPrompt,
                 });
@@ -230,6 +240,12 @@ Create a motivating header (topic) and a short explanation (text).`;
 
             for (let i = 0; i < object.tasks.length; i++) {
                 const task = object.tasks[i];
+
+                // Skip empty content
+                if (!task.content || (typeof task.content === 'object' && Object.keys(task.content).length === 0) || (typeof task.content === 'string' && task.content.trim() === '')) {
+                    continue;
+                }
+
                 await db.execute({
                     sql: `INSERT INTO learning_session (user_uid, session_id, app_id, content, order_index, pristine, topic, text)
                           VALUES (?, ?, ?, ?, ?, 1, ?, ?)`,

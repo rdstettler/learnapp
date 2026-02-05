@@ -30,9 +30,12 @@ export class AppCardComponent {
     @Input({ required: true }) app!: AppInfo;
     @Input() metrics: AppMetrics = { openCount: 0, lastOpened: null };
     @Input() isFavorite = false;
+    @Input() allowRemove = false;
+    @Input() showFavorite = true;
 
     @Output() appClicked = new EventEmitter<void>();
     @Output() favoriteToggled = new EventEmitter<boolean>();
+    @Output() removeClicked = new EventEmitter<void>();
 
     onCardClick(event: Event): void {
         this.appClicked.emit();
@@ -41,6 +44,11 @@ export class AppCardComponent {
     onFavoriteClick(event: Event): void {
         event.stopPropagation(); // Prevent card click
         this.favoriteToggled.emit(!this.isFavorite);
+    }
+
+    onRemoveClick(event: Event): void {
+        event.stopPropagation();
+        this.removeClicked.emit();
     }
 
     formatDate(isoDate: string | null): string {

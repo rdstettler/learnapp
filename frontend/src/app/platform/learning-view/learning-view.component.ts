@@ -40,6 +40,9 @@ import { Router } from '@angular/router';
                     <app-app-card 
                         [app]="app" 
                         [isFavorite]="false"
+                        [showFavorite]="false"
+                        [allowRemove]="true"
+                        (removeClicked)="removeGroup(group)"
                         (appClicked)="group.pristine ? startTask(group, app) : null"
                     ></app-app-card>
                     
@@ -381,6 +384,28 @@ export class LearningViewComponent implements OnInit {
 
   openApp(app: AppInfo) {
     this.router.navigate([app.route]);
+  }
+
+  async removeGroup(group: any) {
+    if (!confirm('Möchtest du diese Aufgaben wirklich aus der Sitzung entfernen?')) return;
+
+    // Optimistic update
+    this.session.update(current => {
+      if (!current) return null;
+      // Filter out tasks that belong to this group
+      const newTasks = current.tasks.filter((t: any) => !group.ids.includes(t.id));
+      return {
+        ...current,
+        tasks: newTasks
+      };
+    });
+
+    const success = await this.apiService.completeTask(group.ids);
+    if (!success) {
+      alert('Fehler beim Entfernen der Aufgaben.');
+      // Revert if needed, but for now we assume success or reload on error
+      this.loadSession();
+    }
   }
 
   startTask(group: any, app: AppInfo) {

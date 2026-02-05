@@ -1,7 +1,14 @@
 <div class="app-card" (click)="onCardClick($event)">
+    @if (showFavorite) {
     <div class="favorite-icon" (click)="onFavoriteClick($event)" [class.active]="isFavorite" title="Favorit umschalten">
         {{ isFavorite ? '★' : '☆' }}
     </div>
+    }
+    @if (allowRemove) {
+    <div class="remove-icon" (click)="onRemoveClick($event)" title="Ausblenden">
+        ✕
+    </div>
+    }
     <div class="app-card-icon">{{ app.icon }}</div>
     <h2 class="app-card-name">{{ app.name }}</h2>
     <p class="app-card-description">{{ app.description }}</p>
