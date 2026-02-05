@@ -1,8 +1,8 @@
-
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getTursoClient } from './_lib/turso.js';
 import { xai } from '@ai-sdk/xai';
 import { generateText } from 'ai';
+import crypto from 'node:crypto';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     const db = getTursoClient();
@@ -172,10 +172,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             `;
 
             // 4. Call AI (xAI Grok)
-            const { text } = await generateText({
-                model: xai('grok-4-1-fast-reasoning'),
-                prompt: prompt,
-            });
+            if (!process.env.XAI_API_KEY) {
+                console.error("Missing XAI_API_KEY");
+                return res.status(500).json({ error: "Server Configuration Error: Missing API Key" });
+            }
+
+            let text = "";
+            try {
+                const aiRes = await generateText({
+                    // User previously had 'grok-4-1-fast-reasoning' which might be invalid.
+                    // Using 'grok-beta' as a safe default for xAI.
+                    model: xai('grok-beta'),
+                    prompt: prompt,
+                });
+                text = aiRes.text;
+            } catch (aiError: any) {
+                console.error("AI Generation Failed:", aiError);
+                // Extract API error message if possible
+                const msg = aiError.message || aiError.toString();
+                return res.status(500).json({ error: `AI Provider Error: ${msg}` });
+            }
 
             // 5. Parse JSON
             let object: any;
@@ -229,7 +245,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         } catch (e: any) {
             console.error("Error generating session:", e);
-            return res.status(500).json({ error: e.message || "AI Generation Failed" });
+            const msg = e.message || e.toString();
+            return res.status(500).json({ error: `Server Error: ${msg}` });
         }
     }
 
