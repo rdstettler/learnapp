@@ -113,6 +113,8 @@
 
 /* Favorite Icon */
 .favorite-icon {
+    padding-bottom: 3px;
+    /* to really center the star symbol */
     position: absolute;
     top: 20px;
     right: 20px;

@@ -71,12 +71,18 @@
             (appClicked)="openApp(app)" (favoriteToggled)="toggleFavorite(app.id)">
         </app-app-card>
         } @empty {
+        @if (favoritesLoading() && currentView() === 'favorites') {
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        } @else {
         <div class="empty-state">
             <p>Keine Apps gefunden.</p>
             @if (currentView() === 'favorites') {
             <p class="sub-text">Markiere Apps mit dem Stern, um sie hier zu sehen.</p>
             }
         </div>
+        }
         }
     </div>
     }

@@ -296,8 +296,11 @@ export class PlatformComponent implements OnInit, AfterViewInit {
         });
     }
 
+    favoritesLoading = signal(false);
+
     private loadFavorites(uid: string): void {
         console.log('Loading favorites for user:', uid);
+        this.favoritesLoading.set(true);
         this.http.get<{ favorites: string[] }>(`/api/favorites?user_uid=${uid}`).subscribe({
             next: (res) => {
                 console.log('Loaded favorites:', res.favorites);
@@ -309,8 +312,12 @@ export class PlatformComponent implements OnInit, AfterViewInit {
                 if (favSet.size > 0 && this.currentView() === 'all') {
                     this.setView('favorites');
                 }
+                this.favoritesLoading.set(false);
             },
-            error: (err) => console.error('Error loading favorites:', err)
+            error: (err) => {
+                console.error('Error loading favorites:', err);
+                this.favoritesLoading.set(false);
+            }
         });
     }
 

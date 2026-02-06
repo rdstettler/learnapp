@@ -26,7 +26,11 @@ import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
             
             <div class="progress-bar-container">
                 <div class="progress-text">
-                    {{ completedTasks() }} von {{ totalTasks() }} Aufgaben erledigt
+                    @if (totalTasks() > 0) {
+                        {{ completedTasks() }} von {{ totalTasks() }} Aufgaben erledigt
+                    } @else {
+                        Du hast alle Aufgaben gelöst, kehre zu deinen Favoriten zurück und lerne weiter
+                    }
                 </div>
                 <div class="progress-bar">
                     <div class="progress-fill" [style.width.%]="sessionProgress()"></div>
