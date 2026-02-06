@@ -144,22 +144,42 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const apps = await db.execute("SELECT id, name, description, data_structure FROM apps WHERE type = 'learning'");
             const appsMap = new Map(apps.rows.map(a => [a.id, a]));
 
-            // 3. Prepare Prompt
+            // 3. Prepare Prompt for Analysis AND Generation
             const userResults = results.rows.map(r => {
                 const app = appsMap.get(r.app_id);
-                return `App: ${app ? app.name : r.app_id}\nResult Content: ${r.content}`;
+                return `Result ID: ${r.id}\nApp: ${app ? app.name : r.app_id}\nResult Content: ${r.content}`;
             }).join("\n\n");
 
             const availableApps = apps.rows.map(a =>
                 `- ID: ${a.id}, Name: ${a.name}, Description: ${a.description}, Target Structure JSON Schema: ${a.data_structure || '{}'}`
             ).join("\n");
 
+            // 2b. Fetch User Language Preference
+            let languageInstruction = "IMPORTANT: Use Swiss German spelling conventions (e.g., 'ss' instead of 'ß').";
+            try {
+                const userRes = await db.execute({
+                    sql: "SELECT language_variant FROM users WHERE uid = ?",
+                    args: [user_uid]
+                });
+                if (userRes.rows.length > 0 && userRes.rows[0].language_variant === 'standard') {
+                    languageInstruction = "IMPORTANT: Use Standard German spelling conventions (e.g., use 'ß' where appropriate).";
+                }
+            } catch (e) { console.warn("Failed to fetch user language preference", e); }
+
             const systemPrompt = `You are an educational AI assistant.
+${languageInstruction}
 Available Apps:
 ${availableApps}
 
-IMPORTANT: Return ONLY valid JSON matching the following structure. Do not include markdown formatting or other text.
+IMPORTANT: Return ONLY valid JSON matching the following structure.
 {
+    "result_analysis": [
+        {
+            "result_id": "integer (match from input)",
+            "is_correct": "boolean (true if the user answered correctly/mastered this specific question)",
+            "question_hash_content": "string (the exact unique identifier content of the question, e.g. the specific sentence or math problem, so we can hash it)"
+        }
+    ],
     "topic": "string",
     "text": "string",
     "theory": [
@@ -176,14 +196,14 @@ IMPORTANT: Return ONLY valid JSON matching the following structure. Do not inclu
     ]
 }`;
 
-            const userPrompt = `Analyze the following user learning results:
+            const userPrompt = `Step 1: Analyze the following user learning results. determine if they answered correctly.
 ${userResults}
 
-Based on this analysis, create a personalized learning session with 3 to 5 tasks.
+Step 2: Create a personalized learning session with 3 to 5 tasks.
 Choose the most appropriate apps from the available list.
 For each task, generate SPECIFIC content that follows the app's Target Structure JSON Schema exactly.
 Create a motivating header (topic) and a short explanation (text).
-ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in the tasks. These should be short, helpful explanations or rules.`;
+ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in the tasks.`;
 
             // 4. Call AI (xAI Grok)
             if (!process.env.XAI_API_KEY) {
@@ -192,11 +212,7 @@ ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in
             }
 
             let text = "";
-            let aiErrorFull = null;
-
             try {
-                // Using 'grok-2-1212' as a stable, known model.
-                // 'grok-4-1-fast-reasoning' is not a standard public model name for xAI currently.
                 const aiRes = await generateText({
                     // DO NOT CHANGE THE MODEL!!!!!
                     model: xai('grok-4-1-fast-reasoning'),
@@ -205,32 +221,13 @@ ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in
                 });
                 text = aiRes.text;
             } catch (aiError: any) {
-                // Log failed attempt as well for debugging
-                try {
-                    await db.execute({
-                        sql: `INSERT INTO ai_logs (user_uid, session_id, prompt, system_prompt, response, provider, model)
-                              VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                        args: [
-                            user_uid,
-                            'FAILED_' + new Date().getTime(),
-                            userPrompt,
-                            systemPrompt,
-                            "ERROR: " + JSON.stringify(aiError),
-                            'xai',
-                            'grok-2-1212'
-                        ]
-                    });
-                } catch (e) { /* ignore */ }
-
-                console.error("AI Generation Failed. Full Error:", JSON.stringify(aiError, null, 2));
-                const msg = aiError.message || aiError.toString();
-                return res.status(500).json({ error: `AI Provider Error: ${msg}` });
+                console.error("AI Generation Failed:", aiError);
+                return res.status(500).json({ error: `AI Provider Error: ${aiError.message}` });
             }
 
             // 5. Parse JSON
             let object: any;
             try {
-                // Strip markdown code blocks if present
                 const cleanText = text.replace(/```json\n?|```/g, '').trim();
                 object = JSON.parse(cleanText);
             } catch (parseError) {
@@ -238,39 +235,73 @@ ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in
                 return res.status(500).json({ error: "Failed to parse AI response" });
             }
 
-            if (!object || !object.tasks || !Array.isArray(object.tasks)) {
-                return res.status(500).json({ error: "AI response missing tasks structure" });
-            }
+            // 6. Process Analysis & Update Progress
+            if (object.result_analysis && Array.isArray(object.result_analysis)) {
+                for (const analysis of object.result_analysis) {
+                    if (!analysis.question_hash_content) continue;
 
-            // 5. Save into DB
-            const sessionId = crypto.randomUUID();
-            const timestamp = new Date().toISOString();
+                    // Create a simple hash of the content to identify the question consistently
+                    const hash = crypto.createHash('md5').update(analysis.question_hash_content.trim()).digest('hex');
+                    const isSuccess = analysis.is_correct;
 
-            for (let i = 0; i < object.tasks.length; i++) {
-                const task = object.tasks[i];
-
-                // Skip empty content
-                if (!task.content || (typeof task.content === 'object' && Object.keys(task.content).length === 0) || (typeof task.content === 'string' && task.content.trim() === '')) {
-                    continue;
+                    try {
+                        const col = isSuccess ? 'success_count' : 'failure_count';
+                        await db.execute({
+                            sql: `INSERT INTO user_question_progress (user_uid, app_id, question_hash, success_count, failure_count, last_attempt_at)
+                                  VALUES (?, 'unknown', ?, ?, ?, CURRENT_TIMESTAMP)
+                                  ON CONFLICT(user_uid, question_hash) DO UPDATE SET
+                                  ${col} = ${col} + 1,
+                                  last_attempt_at = CURRENT_TIMESTAMP`,
+                            args: [user_uid, hash, isSuccess ? 1 : 0, isSuccess ? 0 : 1]
+                        });
+                    } catch (e: any) {
+                        console.error("Error updating question progress:", e.message);
+                    }
                 }
-
-                await db.execute({
-                    sql: `INSERT INTO learning_session (user_uid, session_id, app_id, content, order_index, pristine, topic, text, theory)
-                          VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?)`,
-                    args: [
-                        user_uid,
-                        sessionId,
-                        task.app_id,
-                        JSON.stringify(task.content),
-                        i + 1,
-                        object.topic,
-                        object.text,
-                        JSON.stringify(object.theory || [])
-                    ]
-                });
             }
 
-            // 6. Log to ai_logs
+            // 7. Filter & Save Tasks
+            const sessionId = crypto.randomUUID();
+            let taskOrder = 1;
+
+            if (object.tasks && Array.isArray(object.tasks)) {
+                for (const task of object.tasks) {
+                    // Skip empty
+                    if (!task.content) continue;
+
+                    // Check Mastery
+                    const contentStr = JSON.stringify(task.content);
+                    const taskHash = crypto.createHash('md5').update(contentStr).digest('hex');
+
+                    // Check if mastered
+                    const progress = await db.execute({
+                        sql: "SELECT success_count FROM user_question_progress WHERE user_uid = ? AND question_hash = ?",
+                        args: [user_uid as string, taskHash]
+                    });
+
+                    if (progress.rows.length > 0 && (progress.rows[0].success_count as number) >= 3) {
+                        console.log(`Skipping mastered task: ${taskHash}`);
+                        continue; // SKIP this task
+                    }
+
+                    await db.execute({
+                        sql: `INSERT INTO learning_session (user_uid, session_id, app_id, content, order_index, pristine, topic, text, theory)
+                              VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?)`,
+                        args: [
+                            user_uid,
+                            sessionId,
+                            task.app_id,
+                            contentStr,
+                            taskOrder++,
+                            object.topic,
+                            object.text,
+                            JSON.stringify(object.theory || [])
+                        ]
+                    });
+                }
+            }
+
+            // 8. Log to ai_logs
             try {
                 await db.execute({
                     sql: `INSERT INTO ai_logs (user_uid, session_id, prompt, system_prompt, response, provider, model)
@@ -282,7 +313,7 @@ ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in
                         systemPrompt,
                         text,
                         'xai',
-                        'grok-2-1212'
+                        'grok-4-1-fast-reasoning'
                     ]
                 });
             } catch (logError) {
@@ -290,19 +321,27 @@ ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in
                 // Don't fail the request just because logging failed
             }
 
-            // 7. Mark results as processed
+            // 9. Mark results processed
             const resultIds = results.rows.map(r => r.id).join(',');
             await db.execute(`UPDATE app_results SET processed = 1 WHERE id IN (${resultIds})`);
 
-            // 8. Return Session Data
-            // Fix: Refetch session from DB to ensure 'pristine: 1' and 'id' are correct.
+            // 10. Return 
             const refetchedSession = await db.execute({
                 sql: "SELECT * FROM learning_session WHERE session_id = ? ORDER BY order_index ASC",
                 args: [sessionId]
             });
 
+            if (refetchedSession.rows.length === 0) {
+                return res.status(200).json({
+                    session_id: sessionId,
+                    tasks: [],
+                    topic: "No new tasks",
+                    text: "You have mastered all proposed topics! Great job."
+                });
+            }
+
             const firstRow = refetchedSession.rows[0];
-            const cleanSessionData = {
+            return res.status(200).json({
                 session_id: sessionId,
                 topic: firstRow.topic,
                 text: firstRow.text,
@@ -314,9 +353,7 @@ ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in
                     pristine: row.pristine,
                     content: JSON.parse(row.content as string)
                 }))
-            };
-
-            return res.status(200).json(cleanSessionData);
+            });
 
         } catch (e: any) {
             console.error("Error generating session:", e);

@@ -50,6 +50,16 @@
                     <span class="hint">Dieser Name wird in der App angezeigt</span>
                 </div>
 
+                <div class="form-group">
+                    <label for="language">Sprache</label>
+                    <select id="language" [ngModel]="languageVariant()" (ngModelChange)="languageVariant.set($event)"
+                        style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--surface-border); background: var(--surface-card); color: var(--text-color); font-size: 1rem;">
+                        <option value="swiss">Schweizerdeutsch 🇨🇭</option>
+                        <option value="standard">Hochdeutsch 🇩🇪</option>
+                    </select>
+                    <span class="hint">Bevorzugte Sprache für KI-Aufgaben</span>
+                </div>
+
                 <div class="form-group readonly">
                     <label>E-Mail</label>
                     <input type="text" [value]="authService.user()?.email" readonly disabled>

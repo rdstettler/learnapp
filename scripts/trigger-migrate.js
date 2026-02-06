@@ -26,7 +26,7 @@ async function triggerMigration() {
     // Since we are in an ESM project ('type': 'module' in package.json), we likely have a modern Node.
 
     try {
-        const response = await fetch(`${PROD_URL}/api/migrate`, {
+        const response = await fetch(`${PROD_URL}/api/create-db`, {
             method: 'POST',
         });
 

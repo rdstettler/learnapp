@@ -28,15 +28,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     try {
         await db.execute({
-            sql: `INSERT INTO feedback (user_uid, app_id, session_id, content, comment, error_type)
-                  VALUES (?, ?, ?, ?, ?, ?)`,
+            sql: `INSERT INTO feedback (user_uid, app_id, session_id, content, comment, error_type, target_id)
+                  VALUES (?, ?, ?, ?, ?, ?, ?)`,
             args: [
                 user_uid || null,
                 app_id,
                 session_id || null,
                 typeof content === 'object' ? JSON.stringify(content) : (content || null),
                 comment,
-                error_type || 'general'
+                error_type || 'general',
+                req.body.target_id || null
             ]
         });
 

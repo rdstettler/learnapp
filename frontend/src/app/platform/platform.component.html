@@ -120,9 +120,18 @@
             <button class="primary-btn" (click)="saveNameAndNext()">Weiter</button>
             <button class="text-btn" (click)="refuseProperties()">Nein, danke.</button>
         </div>
+        } @else if (propertiesStep() === 2) {
+        <h2>Welche Sprache bevorzugst du?</h2>
+        <p>Dies hilft der KI, die richtigen Aufgaben zu erstellen.</p>
+        <div class="grid-options">
+            <button class="option-btn" (click)="selectLanguage('swiss')">Schweizerdeutsch 🇨🇭<br><small>(z.B.
+                    "Regelmässig")</small></button>
+            <button class="option-btn" (click)="selectLanguage('standard')">Hochdeutsch 🇩🇪<br><small>(z.B.
+                    "Regelmäßig")</small></button>
+        </div>
         }
 
-        @else if (propertiesStep() === 2) {
+        @else if (propertiesStep() === 3) {
         <h2>Wie schätzt du deine Fähigkeiten ein?</h2>
         <div class="slider-container">
             <input type="range" min="0" max="1" step="0.1" [value]="tempSkillLevel()" (input)="setSkillLevel($event)"
@@ -137,7 +146,7 @@
         </div>
         }
 
-        @else if (propertiesStep() === 3) {
+        @else if (propertiesStep() === 4) {
         <h2>In welche Klasse gehst du?</h2>
         <div class="grid-options">
             @for (type of schoolTypes; track type) {
@@ -148,7 +157,7 @@
         </div>
         }
 
-        @else if (propertiesStep() === 4) {
+        @else if (propertiesStep() === 5) {
         <h2>Welche Stufe?</h2>
         <div class="grid-options num-grid">
             @for (grade of gradesForType; track grade) {
@@ -159,7 +168,7 @@
         </div>
         }
 
-        @else if (propertiesStep() === 5) {
+        @else if (propertiesStep() === 6) {
         <h2>Vielen Dank, {{ getDisplayName() }}!</h2>
         <p>Dein Profil wurde aktualisiert.</p>
         <div class="hint-box" style="margin: 2rem 0; padding: 1rem; background: rgba(0,0,0,0.05); border-radius: 8px;">

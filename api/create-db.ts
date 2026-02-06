@@ -163,6 +163,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.error("Error creating app_content table:", e.message);
     }
 
+    try {
+        await db.execute("ALTER TABLE app_content ADD COLUMN ai_reviewed_counter INTEGER DEFAULT 0");
+        console.log("Added ai_reviewed_counter column to app_content");
+    } catch (e: any) { }
+
     // Create ai_logs table
     try {
         await db.execute(`
@@ -183,6 +188,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.error("Error creating ai_logs table:", e.message);
     }
 
+
     // Create feedback table
     try {
         await db.execute(`
@@ -200,6 +206,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.log("Created feedback table (if not exists)");
     } catch (e: any) {
         console.error("Error creating feedback table:", e.message);
+    }
+
+    // Create user_question_progress table
+    try {
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS user_question_progress (
+                user_uid TEXT NOT NULL,
+                app_id TEXT NOT NULL,
+                question_hash TEXT NOT NULL,
+                success_count INTEGER DEFAULT 0,
+                failure_count INTEGER DEFAULT 0,
+                last_attempt_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (user_uid, question_hash)
+            )
+        `);
+        console.log("Created user_question_progress table (if not exists)");
+    } catch (e: any) {
+        console.error("Error creating user_question_progress table:", e.message);
     }
 
     // Seed apps
@@ -421,5 +445,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         console.error("Error seeding apps:", e.message);
     }
 
-    res.status(200).json({ message: "DB setup attempted. Check logs for details." });
+    // V2 Updates (Target ID, Admin, Resolved, Seed Admin)
+    try {
+        await db.execute("ALTER TABLE feedback ADD COLUMN target_id TEXT");
+        console.log("Added target_id column to feedback");
+    } catch (e: any) { }
+
+    try {
+        await db.execute("ALTER TABLE feedback ADD COLUMN resolved BOOLEAN DEFAULT 0");
+        console.log("Added resolved column to feedback");
+    } catch (e: any) { }
+
+    try {
+        await db.execute("ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT 0");
+        console.log("Added is_admin column to users");
+    } catch (e: any) { }
+
+    try {
+        await db.execute("UPDATE users SET is_admin = 1 WHERE uid = 'IMv3Vu3lPWNG419VdOoXxvyn5DK2'");
+        console.log("Promoted Robert to Admin");
+    } catch (e: any) { }
+
+    try {
+        await db.execute("ALTER TABLE feedback ADD COLUMN resolution_reason TEXT");
+        console.log("Added resolution_reason column to feedback");
+    } catch (e: any) { }
+
+    try {
+        await db.execute("ALTER TABLE users ADD COLUMN language_variant TEXT DEFAULT 'swiss'");
+        console.log("Added language_variant column to users");
+    } catch (e: any) { }
+
+    res.status(200).json({ message: "DB setup/migration complete." });
 }

@@ -36,10 +36,11 @@ export class PlatformComponent implements OnInit, AfterViewInit {
 
     // User Properties Modal
     showPropertiesModal = signal(false);
-    propertiesStep = signal<1 | 2 | 3 | 4 | 5>(1);
+    propertiesStep = signal<1 | 2 | 3 | 4 | 5 | 6>(1);
 
     // Form values
     tempDisplayName = signal<string>('');
+    tempLanguage = signal<'swiss' | 'standard'>('swiss');
     tempSkillLevel = signal<number>(0.5);
     tempSchoolType = signal<string | null>(null);
     tempLearnLevel = signal<number | null>(null);
@@ -126,7 +127,7 @@ export class PlatformComponent implements OnInit, AfterViewInit {
     }
 
     nextStep(): void {
-        this.propertiesStep.update(s => (s < 5 ? s + 1 : s) as 1 | 2 | 3 | 4 | 5);
+        this.propertiesStep.update(s => (s < 6 ? s + 1 : s) as 1 | 2 | 3 | 4 | 5 | 6);
     }
 
     updateName(event: Event): void {
@@ -142,6 +143,11 @@ export class PlatformComponent implements OnInit, AfterViewInit {
                 this.userService.updateProfile({ displayName: name }, uid);
             }
         }
+        this.nextStep();
+    }
+
+    selectLanguage(lang: 'swiss' | 'standard'): void {
+        this.tempLanguage.set(lang);
         this.nextStep();
     }
 
@@ -164,6 +170,7 @@ export class PlatformComponent implements OnInit, AfterViewInit {
         const type = this.tempSchoolType();
         let grade = this.tempLearnLevel() || 1;
         let skill = this.tempSkillLevel();
+        const language = this.tempLanguage();
 
         // Calculate stored learn level
         // Kindergarten 1-2 -> 1, 2 is OK? User: "start with 0 for pre-kindergarten, then 1-2 for kindergarten"
@@ -194,7 +201,11 @@ export class PlatformComponent implements OnInit, AfterViewInit {
 
         const uid = this.authService.user()?.uid;
         if (uid) {
-            this.userService.updateProfile({ skillLevel: skill, learnLevel: finalLearnLevel }, uid);
+            this.userService.updateProfile({
+                skillLevel: skill,
+                learnLevel: finalLearnLevel,
+                languageVariant: language
+            }, uid);
         }
         // Instead of closing, go to next step (Avatar hint)
         this.nextStep();

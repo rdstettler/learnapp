@@ -121,6 +121,7 @@ export class SettingsComponent implements OnInit {
     // User Properties
     skillLevel = signal<number | null>(null);
     learnLevel = signal<number | null>(null);
+    languageVariant = signal<'swiss' | 'standard'>('swiss');
     optedOut = computed(() => this.skillLevel() === -1 || this.learnLevel() === -1);
 
     // Derived UI state for learn level
@@ -152,6 +153,9 @@ export class SettingsComponent implements OnInit {
             if (profile.avatarConfig) {
                 this.avatarConfig.set(profile.avatarConfig);
             }
+            if (profile.languageVariant) {
+                this.languageVariant.set(profile.languageVariant);
+            }
 
             // Load User Properties
             if (profile.skillLevel !== undefined && profile.skillLevel !== null) {
@@ -165,7 +169,6 @@ export class SettingsComponent implements OnInit {
             this.displayName.set(this.authService.user()?.displayName || '');
         }
     }
-
     private reverseMapLearnLevel(level: number, skill: number | null | undefined): void {
         if (level === -1) return; // Opted out
 
@@ -234,6 +237,7 @@ export class SettingsComponent implements OnInit {
         });
     }
 
+
     async saveProfile(): Promise<void> {
         this.saving.set(true);
         this.saveSuccess.set(false);
@@ -254,11 +258,6 @@ export class SettingsComponent implements OnInit {
                     case 'secondary': finalLearnLevel = grade + 8; break;
                     case 'gymnasium': finalLearnLevel = grade + 8; break;
                 }
-
-                // Note: We are NOT auto-adjusting skill level here like in the modal
-                // because the user might have manually set the slider in the settings.
-                // We trust the slider value (this.skillLevel()) unless it was never touched?
-                // Actually, let's trust the slider.
             }
 
             const uid = this.authService.user()?.uid;
@@ -267,7 +266,8 @@ export class SettingsComponent implements OnInit {
                 avatarConfig: this.avatarConfig(),
                 avatarSvg: this.avatarSvg(),
                 skillLevel: finalSkillLevel,
-                learnLevel: finalLearnLevel
+                learnLevel: finalLearnLevel,
+                languageVariant: this.languageVariant()
             }, uid);
 
             if (success) {

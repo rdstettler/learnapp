@@ -29,6 +29,7 @@ export interface UserProfile {
     avatarSvg: string | null;
     skillLevel?: number | null;
     learnLevel?: number | null;
+    languageVariant?: 'swiss' | 'standard';
 }
 
 @Injectable({

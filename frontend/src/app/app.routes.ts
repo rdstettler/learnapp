@@ -22,5 +22,6 @@ export const routes: Routes = [
     { path: 'symmetrien', loadComponent: () => import('./apps/symmetrien/symmetrien.component').then(m => m.SymmetrienComponent) },
     { path: 'isolation', loadComponent: () => import('./apps/isolation/isolation.component').then(m => m.IsolationComponent) },
     { path: 'quarto', loadComponent: () => import('./apps/quarto/quarto.component').then(m => m.QuartoComponent) },
+    { path: 'admin', loadComponent: () => import('./feedback-review/feedback-review').then(m => m.FeedbackReviewComponent) },
     { path: '**', redirectTo: '' }
 ];
