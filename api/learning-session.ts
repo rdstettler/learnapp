@@ -9,11 +9,9 @@ import crypto from 'node:crypto';
 interface ResultAnalysis {
     result_id: number;
     is_correct: boolean;
-    question_hash_content: string;
 }
 
 interface AISessionResponse {
-    result_analysis?: ResultAnalysis[];
     topic: string;
     text: string;
     theory?: { title: string; content: string }[];
@@ -193,8 +191,7 @@ IMPORTANT: Return ONLY valid JSON matching the following structure.
     "result_analysis": [
         {
             "result_id": "integer (match from input)",
-            "is_correct": "boolean (true if the user answered correctly/mastered this specific question)",
-            "question_hash_content": "string (the exact unique identifier content of the question, e.g. the specific sentence or math problem, so we can hash it)"
+            "is_correct": "boolean (true if the user answered correctly/mastered this specific question)"
         }
     ],
     "topic": "string",
@@ -252,54 +249,15 @@ ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in
                 return res.status(500).json({ error: "Failed to parse AI response" });
             }
 
-            // 6. Process Analysis & Update Progress
-            if (object.result_analysis && Array.isArray(object.result_analysis)) {
-                for (const analysis of object.result_analysis) {
-                    if (!analysis.question_hash_content) continue;
-
-                    // Create a simple hash of the content to identify the question consistently
-                    const hash = crypto.createHash('md5').update(analysis.question_hash_content.trim()).digest('hex');
-                    const isSuccess = analysis.is_correct;
-
-                    try {
-                        const col = isSuccess ? 'success_count' : 'failure_count';
-                        await db.execute({
-                            sql: `INSERT INTO user_question_progress (user_uid, app_id, question_hash, success_count, failure_count, last_attempt_at)
-                                  VALUES (?, 'unknown', ?, ?, ?, CURRENT_TIMESTAMP)
-                                  ON CONFLICT(user_uid, question_hash) DO UPDATE SET
-                                  ${col} = ${col} + 1,
-                                  last_attempt_at = CURRENT_TIMESTAMP`,
-                            args: [user_uid, hash, isSuccess ? 1 : 0, isSuccess ? 0 : 1]
-                        });
-                    } catch (e: unknown) {
-                        console.error("Error updating question progress:", e);
-                    }
-                }
-            }
-
-            // 7. Filter & Save Tasks
+            // 6. Save Tasks
             const sessionId = crypto.randomUUID();
             let taskOrder = 1;
 
             if (object.tasks && Array.isArray(object.tasks)) {
                 for (const task of object.tasks) {
-                    // Skip empty
                     if (!task.content) continue;
 
-                    // Check Mastery
                     const contentStr = JSON.stringify(task.content);
-                    const taskHash = crypto.createHash('md5').update(contentStr).digest('hex');
-
-                    // Check if mastered
-                    const progress = await db.execute({
-                        sql: "SELECT success_count FROM user_question_progress WHERE user_uid = ? AND question_hash = ?",
-                        args: [user_uid as string, taskHash]
-                    });
-
-                    if (progress.rows.length > 0 && (progress.rows[0].success_count as number) >= 3) {
-                        console.log(`Skipping mastered task: ${taskHash}`);
-                        continue; // SKIP this task
-                    }
 
                     await db.execute({
                         sql: `INSERT INTO learning_session (user_uid, session_id, app_id, content, order_index, pristine, topic, text, theory)
@@ -318,7 +276,7 @@ ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in
                 }
             }
 
-            // 8. Log to ai_logs
+            // 7. Log to ai_logs
             try {
                 await db.execute({
                     sql: `INSERT INTO ai_logs (user_uid, session_id, prompt, system_prompt, response, provider, model)
@@ -338,11 +296,11 @@ ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in
                 // Don't fail the request just because logging failed
             }
 
-            // 9. Mark results processed
+            // 8. Mark results processed
             const resultIds = results.rows.map(r => r.id).join(',');
             await db.execute(`UPDATE app_results SET processed = 1 WHERE id IN (${resultIds})`);
 
-            // 10. Return 
+            // 9. Return 
             const refetchedSession = await db.execute({
                 sql: "SELECT * FROM learning_session WHERE session_id = ? ORDER BY order_index ASC",
                 args: [sessionId]

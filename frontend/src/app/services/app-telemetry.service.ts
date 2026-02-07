@@ -44,6 +44,28 @@ export class AppTelemetryService {
     }
 
     /**
+     * Track question-level progress (success/failure) for personalized content.
+     * Only sends if user is logged in.
+     */
+    async trackProgress(appId: string, appContentId: number, isCorrect: boolean): Promise<void> {
+        const user = this.authService.user();
+        if (!user) return;
+
+        try {
+            await firstValueFrom(
+                this.http.post(`${this.API_BASE}/events`, {
+                    type: 'question_progress',
+                    appId,
+                    appContentId,
+                    isCorrect
+                })
+            );
+        } catch (error) {
+            console.error('Failed to track progress:', error);
+        }
+    }
+
+    /**
      * Generates a simple session ID for an app session
      */
     generateSessionId(): string {

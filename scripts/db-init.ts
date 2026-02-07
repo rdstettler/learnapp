@@ -171,11 +171,11 @@ async function initDB() {
             sql: `CREATE TABLE IF NOT EXISTS user_question_progress (
                 user_uid TEXT NOT NULL,
                 app_id TEXT NOT NULL,
-                question_hash TEXT NOT NULL,
+                app_content_id INTEGER NOT NULL,
                 success_count INTEGER DEFAULT 0,
                 failure_count INTEGER DEFAULT 0,
                 last_attempt_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (user_uid, question_hash)
+                PRIMARY KEY (user_uid, app_content_id)
             )`
         }
     ];

@@ -30,18 +30,23 @@ export class DataService {
 
     /**
      * Load app content from API
+     * Returns full content rows including id, data, and mastery info (if logged in)
      */
-    loadAppContent<T>(appId: string): Observable<T[]> {
+    loadAppContent<T>(appId: string): Observable<(T & { _contentId?: number; _mastery?: string })[]> {
         const url = `/api/apps?app_id=${appId}`;
 
         if (!this.cache.has(url)) {
-            const request = this.http.get<{ content: { data: T }[] }>(url).pipe(
-                map(res => res.content.map(row => row.data)),
+            const request = this.http.get<{ content: { id: number; data: T; mastery?: string; success_count?: number; failure_count?: number }[] }>(url).pipe(
+                map(res => res.content.map(row => ({
+                    ...row.data,
+                    _contentId: row.id,
+                    _mastery: row.mastery
+                }))),
                 shareReplay(1)
             );
             this.cache.set(url, request);
         }
-        return this.cache.get(url) as Observable<T[]>;
+        return this.cache.get(url) as Observable<(T & { _contentId?: number; _mastery?: string })[]>;
     }
 
     /**
