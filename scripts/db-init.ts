@@ -10,108 +10,50 @@ async function initDB() {
 
     console.log("Starting Database Initialization...");
 
-    try {
-        await db.execute("ALTER TABLE users ADD COLUMN avatar_config TEXT");
-        console.log("Added avatar_config column");
-    } catch (e) {
-        // console.log("avatar_config error (likely exists):", e.message);
-    }
-
-    try {
-        await db.execute("ALTER TABLE users ADD COLUMN avatar_svg TEXT");
-        console.log("Added avatar_svg column");
-    } catch (e) {
-        // console.log("avatar_svg error (likely exists):", e.message);
-    }
-
-    try {
-        await db.execute("ALTER TABLE users ADD COLUMN skill_level REAL");
-        console.log("Added skill_level column");
-    } catch (e) {
-        // console.log("skill_level error (likely exists):", e.message);
-    }
-
-    try {
-        await db.execute("ALTER TABLE users ADD COLUMN learn_level INTEGER");
-        console.log("Added learn_level column");
-    } catch (e) {
-        // console.log("learn_level error (likely exists):", e.message);
-    }
-
-    /* New columns for AI Logic */
-    try {
-        await db.execute("ALTER TABLE apps ADD COLUMN type TEXT DEFAULT 'tool'");
-        console.log("Added apps.type column");
-    } catch (e) {
-        // console.log("apps.type error (likely exists):", e.message);
-    }
-
-    try {
-        await db.execute("ALTER TABLE apps ADD COLUMN data_structure TEXT");
-        console.log("Added apps.data_structure column");
-    } catch (e) {
-        // console.log("apps.data_structure error (likely exists):", e.message);
-    }
-
-    try {
-        await db.execute("ALTER TABLE app_results ADD COLUMN processed BOOLEAN DEFAULT 0");
-        console.log("Added app_results.processed column");
-    } catch (e) {
-        // console.log("app_results.processed error (likely exists):", e.message);
-    }
-
-
-    try {
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS app_results (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                app_id TEXT NOT NULL,
-                user_uid TEXT NOT NULL,
-                session_id TEXT,
-                content TEXT,
-                processed BOOLEAN DEFAULT 0,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-        console.log("Created app_results table (if not exists)");
-    } catch (e) {
-        console.error("Error creating app_results table:", e.message);
-    }
-
-    /* Learning Session Table */
-    try {
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS learning_session (
+    const tables = [
+        {
+            name: "users",
+            sql: `CREATE TABLE IF NOT EXISTS users (
+                uid TEXT PRIMARY KEY,
+                email TEXT NOT NULL,
+                display_name TEXT,
+                photo_url TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                avatar_config TEXT,
+                avatar_svg TEXT,
+                skill_level REAL,
+                learn_level INTEGER,
+                is_admin BOOLEAN DEFAULT 0,
+                language_variant TEXT DEFAULT 'swiss'
+            )`
+        },
+        {
+            name: "telemetry_events",
+            sql: `CREATE TABLE IF NOT EXISTS telemetry_events (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_uid TEXT NOT NULL,
-                session_id TEXT NOT NULL,
                 app_id TEXT NOT NULL,
-                content TEXT,
-                order_index INTEGER,
-                pristine BOOLEAN DEFAULT 1,
-                topic TEXT,
-                text TEXT,
-                theory TEXT,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-        console.log("Created learning_session table (if not exists)");
-    } catch (e) {
-        console.error("Error creating learning_session table:", e.message);
-    }
-
-    /* Add theory column if missing */
-    try {
-        await db.execute("ALTER TABLE learning_session ADD COLUMN theory TEXT");
-        console.log("Added learning_session.theory column");
-    } catch (e) {
-        // ignore
-    }
-
-    // Create apps table
-    try {
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS apps (
+                event_type TEXT NOT NULL,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                metadata TEXT,
+                FOREIGN KEY (user_uid) REFERENCES users(uid)
+            )`
+        },
+        {
+            name: "user_metrics",
+            sql: `CREATE TABLE IF NOT EXISTS user_metrics (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_uid TEXT NOT NULL,
+                app_id TEXT NOT NULL,
+                open_count INTEGER DEFAULT 0,
+                last_opened DATETIME,
+                UNIQUE(user_uid, app_id),
+                FOREIGN KEY (user_uid) REFERENCES users(uid)
+            )`
+        },
+        {
+            name: "apps",
+            sql: `CREATE TABLE IF NOT EXISTS apps (
                 id TEXT PRIMARY KEY,
                 name TEXT NOT NULL,
                 description TEXT,
@@ -122,36 +64,36 @@ async function initDB() {
                 featured BOOLEAN DEFAULT 0,
                 min_learn_level INTEGER,
                 min_skill_level INTEGER,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 type TEXT DEFAULT 'tool',
-                data_structure TEXT,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-        console.log("Created apps table (if not exists)");
-    } catch (e) {
-        console.error("Error creating apps table:", e.message);
-    }
-
-    // Create user_apps table (favorites)
-    try {
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS user_apps (
+                data_structure TEXT
+            )`
+        },
+        {
+            name: "app_results",
+            sql: `CREATE TABLE IF NOT EXISTS app_results (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                app_id TEXT NOT NULL,
+                user_uid TEXT NOT NULL,
+                session_id TEXT,
+                content TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                processed BOOLEAN DEFAULT 0
+            )`
+        },
+        {
+            name: "user_apps",
+            sql: `CREATE TABLE IF NOT EXISTS user_apps (
                 user_uid TEXT NOT NULL,
                 app_id TEXT NOT NULL,
                 is_favorite BOOLEAN DEFAULT 0,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (user_uid, app_id)
-            )
-        `);
-        console.log("Created user_apps table (if not exists)");
-    } catch (e) {
-        console.error("Error creating user_apps table:", e.message);
-    }
-
-    // Create app_content table
-    try {
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS app_content (
+            )`
+        },
+        {
+            name: "app_content",
+            sql: `CREATE TABLE IF NOT EXISTS app_content (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 app_id TEXT NOT NULL,
                 data TEXT NOT NULL,
@@ -160,23 +102,43 @@ async function initDB() {
                 ai_generated BOOLEAN DEFAULT 0,
                 human_verified BOOLEAN DEFAULT 0,
                 flag_counter INTEGER DEFAULT 0,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-        console.log("Created app_content table (if not exists)");
-    } catch (e) {
-        console.error("Error creating app_content table:", e.message);
-    }
-
-    try {
-        await db.execute("ALTER TABLE app_content ADD COLUMN ai_reviewed_counter INTEGER DEFAULT 0");
-        console.log("Added ai_reviewed_counter column to app_content");
-    } catch (e) { }
-
-    // Create ai_logs table
-    try {
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS ai_logs (
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                ai_reviewed_counter INTEGER DEFAULT 0
+            )`
+        },
+        {
+            name: "learning_session",
+            sql: `CREATE TABLE IF NOT EXISTS learning_session (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_uid TEXT NOT NULL,
+                session_id TEXT NOT NULL,
+                app_id TEXT NOT NULL,
+                content TEXT,
+                order_index INTEGER,
+                pristine BOOLEAN DEFAULT 1,
+                topic TEXT,
+                text TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                theory TEXT
+            )`
+        },
+        {
+            name: "learn_results",
+            sql: `CREATE TABLE IF NOT EXISTS learn_results (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_uid TEXT NOT NULL,
+                app_id TEXT NOT NULL,
+                score INTEGER NOT NULL,
+                max_score INTEGER NOT NULL,
+                completed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                duration_seconds INTEGER,
+                details TEXT,
+                FOREIGN KEY (user_uid) REFERENCES users(uid)
+            )`
+        },
+        {
+            name: "ai_logs",
+            sql: `CREATE TABLE IF NOT EXISTS ai_logs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_uid TEXT,
                 session_id TEXT,
@@ -186,18 +148,11 @@ async function initDB() {
                 provider TEXT,
                 model TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-        console.log("Created ai_logs table (if not exists)");
-    } catch (e) {
-        console.error("Error creating ai_logs table:", e.message);
-    }
-
-
-    // Create feedback table
-    try {
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS feedback (
+            )`
+        },
+        {
+            name: "feedback",
+            sql: `CREATE TABLE IF NOT EXISTS feedback (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_uid TEXT,
                 app_id TEXT NOT NULL,
@@ -205,18 +160,15 @@ async function initDB() {
                 content TEXT,
                 comment TEXT,
                 error_type TEXT,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-        console.log("Created feedback table (if not exists)");
-    } catch (e) {
-        console.error("Error creating feedback table:", e.message);
-    }
-
-    // Create user_question_progress table
-    try {
-        await db.execute(`
-            CREATE TABLE IF NOT EXISTS user_question_progress (
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                target_id TEXT,
+                resolved BOOLEAN DEFAULT 0,
+                resolution_reason TEXT
+            )`
+        },
+        {
+            name: "user_question_progress",
+            sql: `CREATE TABLE IF NOT EXISTS user_question_progress (
                 user_uid TEXT NOT NULL,
                 app_id TEXT NOT NULL,
                 question_hash TEXT NOT NULL,
@@ -224,11 +176,17 @@ async function initDB() {
                 failure_count INTEGER DEFAULT 0,
                 last_attempt_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (user_uid, question_hash)
-            )
-        `);
-        console.log("Created user_question_progress table (if not exists)");
-    } catch (e) {
-        console.error("Error creating user_question_progress table:", e.message);
+            )`
+        }
+    ];
+
+    for (const table of tables) {
+        try {
+            await db.execute(table.sql);
+            console.log(`Verified/Created table: ${table.name}`);
+        } catch (e) {
+            console.error(`Error creating table ${table.name}:`, e.message);
+        }
     }
 
     // Seed apps
@@ -450,35 +408,9 @@ async function initDB() {
         console.error("Error seeding apps:", e.message);
     }
 
-    // V2 Updates (Target ID, Admin, Resolved, Seed Admin)
-    try {
-        await db.execute("ALTER TABLE feedback ADD COLUMN target_id TEXT");
-        console.log("Added target_id column to feedback");
-    } catch (e) { }
-
-    try {
-        await db.execute("ALTER TABLE feedback ADD COLUMN resolved BOOLEAN DEFAULT 0");
-        console.log("Added resolved column to feedback");
-    } catch (e) { }
-
-    try {
-        await db.execute("ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT 0");
-        console.log("Added is_admin column to users");
-    } catch (e) { }
-
     try {
         await db.execute("UPDATE users SET is_admin = 1 WHERE uid = 'IMv3Vu3lPWNG419VdOoXxvyn5DK2'");
         console.log("Promoted Robert to Admin");
-    } catch (e) { }
-
-    try {
-        await db.execute("ALTER TABLE feedback ADD COLUMN resolution_reason TEXT");
-        console.log("Added resolution_reason column to feedback");
-    } catch (e) { }
-
-    try {
-        await db.execute("ALTER TABLE users ADD COLUMN language_variant TEXT DEFAULT 'swiss'");
-        console.log("Added language_variant column to users");
     } catch (e) { }
 
     console.log("DB setup/migration complete.");
