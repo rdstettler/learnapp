@@ -6,6 +6,20 @@ import { xai } from '@ai-sdk/xai';
 import { generateText } from 'ai';
 import crypto from 'node:crypto';
 
+interface ResultAnalysis {
+    result_id: number;
+    is_correct: boolean;
+    question_hash_content: string;
+}
+
+interface AISessionResponse {
+    result_analysis?: ResultAnalysis[];
+    topic: string;
+    text: string;
+    theory?: { title: string; content: string }[];
+    tasks?: { app_id: string; content: Record<string, unknown> }[];
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (handleCors(req, res)) return;
 
@@ -97,9 +111,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             // Ready to generate
             return res.status(200).json(null);
 
-        } catch (e: any) {
-            console.error("Error in GET /api/learning-session:", e.message);
-            return res.status(500).json({ error: e.message });
+        } catch (e: unknown) {
+            console.error("Error in GET /api/learning-session:", e);
+            return res.status(500).json({ error: e instanceof Error ? e.message : 'Unknown error' });
         }
     }
 
@@ -125,9 +139,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
 
             return res.status(200).json({ success: true });
-        } catch (e: any) {
-            console.error("Error in PUT /api/learning-session:", e.message);
-            return res.status(500).json({ error: e.message });
+        } catch (e: unknown) {
+            console.error("Error in PUT /api/learning-session:", e);
+            return res.status(500).json({ error: e instanceof Error ? e.message : 'Unknown error' });
         }
     }
 
@@ -223,13 +237,13 @@ ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in
                     prompt: userPrompt,
                 });
                 text = aiRes.text;
-            } catch (aiError: any) {
+            } catch (aiError: unknown) {
                 console.error("AI Generation Failed:", aiError);
-                return res.status(500).json({ error: `AI Provider Error: ${aiError.message}` });
+                return res.status(500).json({ error: `AI Provider Error: ${aiError instanceof Error ? aiError.message : 'Unknown error'}` });
             }
 
             // 5. Parse JSON
-            let object: any;
+            let object: AISessionResponse;
             try {
                 const cleanText = text.replace(/```json\n?|```/g, '').trim();
                 object = JSON.parse(cleanText);
@@ -257,8 +271,8 @@ ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in
                                   last_attempt_at = CURRENT_TIMESTAMP`,
                             args: [user_uid, hash, isSuccess ? 1 : 0, isSuccess ? 0 : 1]
                         });
-                    } catch (e: any) {
-                        console.error("Error updating question progress:", e.message);
+                    } catch (e: unknown) {
+                        console.error("Error updating question progress:", e);
                     }
                 }
             }
@@ -364,9 +378,9 @@ ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in
             }
             return res.status(200).json(finalData);
 
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error("Error generating session:", e);
-            const msg = e.message || e.toString();
+            const msg = e instanceof Error ? e.message : String(e);
             return res.status(500).json({ error: `Server Error: ${msg}` });
         }
     }

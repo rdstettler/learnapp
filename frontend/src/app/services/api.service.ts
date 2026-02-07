@@ -1,7 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { firstValueFrom } from 'rxjs';
+import { LearningSession, SessionTask, NotEnoughDataResponse } from '../shared/models/learning-session.model';
 
 export interface LearnResult {
     id?: number;
@@ -10,13 +11,13 @@ export interface LearnResult {
     maxScore: number;
     completedAt?: string;
     durationSeconds?: number;
-    details?: any;
+    details?: Record<string, unknown>;
 }
 
 export interface TelemetryEvent {
     appId: string;
     eventType: 'app_open' | 'app_close' | 'quiz_start' | 'quiz_complete' | string;
-    metadata?: any;
+    metadata?: Record<string, unknown>;
 }
 
 @Injectable({
@@ -87,7 +88,7 @@ export class ApiService {
     }
 
     // State for the active learning session
-    activeSession = signal<any | null>(null);
+    activeSession = signal<LearningSession | null>(null);
 
     /**
      * Get current learning session
@@ -96,17 +97,17 @@ export class ApiService {
      * - null if ready to generate (enough data but no active session)
      * - 404 object { message: "Not enough data", suggestedApps: [...] } if not enough data
      */
-    async getLearningSession(): Promise<any> {
+    async getLearningSession(): Promise<LearningSession | NotEnoughDataResponse | null> {
         const user = this.authService.user();
         if (!user) return null;
 
         try {
-            const session = await firstValueFrom(this.http.get(`${this.API_BASE}/learning-session`));
+            const session = await firstValueFrom(this.http.get<LearningSession>(`${this.API_BASE}/learning-session`));
             this.activeSession.set(session);
             return session;
-        } catch (error: any) {
-            if (error.status === 404) {
-                return error.error; // Return the body which contains suggestedApps
+        } catch (error: unknown) {
+            if (error instanceof HttpErrorResponse && error.status === 404) {
+                return error.error as NotEnoughDataResponse; // Return the body which contains suggestedApps
             }
             console.error('Failed to get learning session:', error);
             throw error;
@@ -116,11 +117,11 @@ export class ApiService {
     /**
      * Generate a new learning session
      */
-    async generateLearningSession(): Promise<any> {
+    async generateLearningSession(): Promise<LearningSession> {
         const user = this.authService.user();
         if (!user) throw new Error("User not logged in");
 
-        const session = await firstValueFrom(this.http.post(`${this.API_BASE}/learning-session`, {}));
+        const session = await firstValueFrom(this.http.post<LearningSession>(`${this.API_BASE}/learning-session`, {}));
 
         // Refresh session after generation
         await this.getLearningSession();
@@ -131,12 +132,12 @@ export class ApiService {
     /**
      * Get a task from the active session for a specific app
      */
-    getSessionTask(appId: string): any | null {
+    getSessionTask(appId: string): SessionTask | null {
         const session = this.activeSession();
         if (!session || !session.tasks) return null;
 
         // Find the first pristine (not completed) task for this app
-        return session.tasks.find((t: any) => t.app_id === appId && t.pristine);
+        return session.tasks.find((t) => t.app_id === appId && t.pristine) ?? null;
     }
 
     /**
@@ -166,7 +167,7 @@ export class ApiService {
      */
     async submitFeedback(feedback: {
         appId: string;
-        content?: any;
+        content?: Record<string, unknown>;
         comment: string;
         errorType: string;
         sessionId?: string;
@@ -191,7 +192,7 @@ export class ApiService {
     /**
      * Add new app content (Admin only)
      */
-    async addAppContent(appId: string, content: any): Promise<boolean> {
+    async addAppContent(appId: string, content: Record<string, unknown>): Promise<boolean> {
         const user = this.authService.user();
         if (!user) throw new Error("Unauthorized");
 
@@ -201,9 +202,9 @@ export class ApiService {
                 content: content
             }));
             return true;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Failed to add app content:', error);
-            throw new Error(error.error?.error || "Failed to add content");
+            throw new Error(error instanceof HttpErrorResponse ? error.error?.error : 'Failed to add content');
         }
     }
 }

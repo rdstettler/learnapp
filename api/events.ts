@@ -42,9 +42,9 @@ async function handleTelemetry(req: VercelRequest, res: VercelResponse, uid: str
         });
 
         return res.status(200).json({ success: true });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Telemetry error:', error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
 }
 
@@ -72,8 +72,8 @@ async function handleAppResult(req: VercelRequest, res: VercelResponse, uid: str
             success: true,
             id: Number(result.lastInsertRowid)
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('App Results error:', error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
 }

@@ -82,13 +82,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             results: updates
         });
 
-    } catch (e: any) {
-        console.error("Error in generic review:", e.message);
-        return res.status(500).json({ error: e.message });
+    } catch (e: unknown) {
+        console.error("Error in generic review:", e);
+        return res.status(500).json({ error: e instanceof Error ? e.message : 'Unknown error' });
     }
 }
 
-async function reviewItem(appId: string, content: any, languageVariant: 'swiss' | 'standard' = 'swiss'): Promise<{ status: string, reason?: string, correction?: string }> {
+async function reviewItem(appId: string, content: Record<string, unknown>, languageVariant: 'swiss' | 'standard' = 'swiss'): Promise<{ status: string, reason?: string, correction?: string }> {
     // We now handle ss/ß replacement at runtime, so we enforce Standard German spelling in the review to ensure correctness before runtime transformation.
     const languageRule = "IMPORTANT: Verify that the content uses Standard German spelling conventions (e.g., use 'ß' where appropriate). However, do NOT flag spelling errors in JSON property names (keys). Specifically, treat 'ae' vs 'ä', 'ue' vs 'ü', and 'oe' vs 'ö' as valid variations in keys (e.g., 'praeteritum' is acceptable).";
 
@@ -120,8 +120,8 @@ async function reviewItem(appId: string, content: any, languageVariant: 'swiss' 
 
         const text = aiRes.text.replace(/```json\n?|```/g, '').trim();
         return JSON.parse(text);
-    } catch (e: any) {
+    } catch (e: unknown) {
         console.error("AI Generation Failed", e);
-        return { status: "ERROR", reason: e.message };
+        return { status: "ERROR", reason: e instanceof Error ? e.message : 'Unknown error' };
     }
 }

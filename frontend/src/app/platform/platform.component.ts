@@ -7,6 +7,7 @@ import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
 import { AuthModalComponent, AppCardComponent } from '../shared';
 import { LearningViewComponent } from './learning-view/learning-view.component';
+import { PropertiesModalComponent } from './properties-modal/properties-modal.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { catchError, of } from 'rxjs';
 import { AppInfo } from '../shared/components/app-card/app-card.component'; // Import from shared
@@ -18,7 +19,7 @@ interface AppsConfig {
 @Component({
     selector: 'app-platform',
     standalone: true,
-    imports: [AuthModalComponent, AppCardComponent, LearningViewComponent],
+    imports: [AuthModalComponent, AppCardComponent, LearningViewComponent, PropertiesModalComponent],
     templateUrl: './platform.component.html',
     styleUrl: './platform.component.css'
 })
@@ -36,29 +37,6 @@ export class PlatformComponent implements OnInit, AfterViewInit {
 
     // User Properties Modal
     showPropertiesModal = signal(false);
-    propertiesStep = signal<1 | 2 | 3 | 4 | 5 | 6>(1);
-
-    // Form values
-    tempDisplayName = signal<string>('');
-    tempLanguage = signal<'swiss' | 'standard'>('swiss');
-    tempSkillLevel = signal<number>(0.5);
-    tempSchoolType = signal<string | null>(null);
-    tempLearnLevel = signal<number | null>(null);
-
-    // School types for step 3
-    readonly schoolTypes = ['Kindergarten', 'Primarschule', 'Sekundarschule', 'Gymnasium'];
-
-    // Grades for step 4 based on school type
-    get gradesForType(): number[] {
-        const type = this.tempSchoolType();
-        switch (type) {
-            case 'Kindergarten': return [1, 2];
-            case 'Primarschule': return [1, 2, 3, 4, 5, 6];
-            case 'Sekundarschule': return [1, 2, 3];
-            case 'Gymnasium': return [1, 2, 3, 4, 5, 6];
-            default: return [];
-        }
-    }
 
     constructor() {
         // Load metrics and profile from backend when user logs in
@@ -83,13 +61,8 @@ export class PlatformComponent implements OnInit, AfterViewInit {
                 const learnRefused = profile.learnLevel === -1;
 
                 if ((skillMissing && !skillRefused) || (learnMissing && !learnRefused)) {
-                    // Only open if not already open/handled to avoid loops or flashing
-                    // Use untracked if needed, but here we just check if it's already true
                     if (!this.showPropertiesModal()) {
                         this.showPropertiesModal.set(true);
-                        // Initialize tempDisplayName with current display name if available
-                        const currentName = this.getDisplayName();
-                        this.tempDisplayName.set(currentName);
                     }
                 }
             }
@@ -118,99 +91,6 @@ export class PlatformComponent implements OnInit, AfterViewInit {
     }
 
     // Modal Actions
-    refuseProperties(): void {
-        const uid = this.authService.user()?.uid;
-        if (uid) {
-            this.userService.updateProfile({ skillLevel: -1, learnLevel: -1 }, uid);
-        }
-        this.showPropertiesModal.set(false);
-    }
-
-    nextStep(): void {
-        this.propertiesStep.update(s => (s < 6 ? s + 1 : s) as 1 | 2 | 3 | 4 | 5 | 6);
-    }
-
-    updateName(event: Event): void {
-        const val = (event.target as HTMLInputElement).value;
-        this.tempDisplayName.set(val);
-    }
-
-    saveNameAndNext(): void {
-        const name = this.tempDisplayName();
-        if (name && name.trim() !== '') {
-            const uid = this.authService.user()?.uid;
-            if (uid) {
-                this.userService.updateProfile({ displayName: name }, uid);
-            }
-        }
-        this.nextStep();
-    }
-
-    selectLanguage(lang: 'swiss' | 'standard'): void {
-        this.tempLanguage.set(lang);
-        this.nextStep();
-    }
-
-    setSkillLevel(event: Event): void {
-        const val = (event.target as HTMLInputElement).value;
-        this.tempSkillLevel.set(parseFloat(val));
-    }
-
-    selectSchoolType(type: string): void {
-        this.tempSchoolType.set(type);
-        this.nextStep();
-    }
-
-    selectGrade(grade: number): void {
-        this.tempLearnLevel.set(grade);
-        this.saveProperties();
-    }
-
-    saveProperties(): void {
-        const type = this.tempSchoolType();
-        let grade = this.tempLearnLevel() || 1;
-        let skill = this.tempSkillLevel();
-        const language = this.tempLanguage();
-
-        // Calculate stored learn level
-        // Kindergarten 1-2 -> 1, 2 is OK? User: "start with 0 for pre-kindergarten, then 1-2 for kindergarten"
-        // Primarschule 1-6 -> 3-8 (So +2)
-        // Sekundarschule 1-3 -> 9-11 (So +8). User said "store 9-12" for 1-3? 1->9. 
-        // Gymnasium 1-6 -> 9-14 (So +8). User said "store 9-15".
-
-        let finalLearnLevel = 0;
-
-        switch (type) {
-            case 'Kindergarten':
-                finalLearnLevel = grade; // 1-2
-                break;
-            case 'Primarschule':
-                finalLearnLevel = grade + 2; // 1->3, 6->8
-                break;
-            case 'Sekundarschule':
-                finalLearnLevel = grade + 8; // 1->9
-                // Adjust skill level if user didn't change it or just based on rule
-                if (skill === 0.5) skill = 0.3;
-                break;
-            case 'Gymnasium':
-                finalLearnLevel = grade + 8; // 1->9
-                // Adjust skill level
-                if (skill === 0.5) skill = 0.8;
-                break;
-        }
-
-        const uid = this.authService.user()?.uid;
-        if (uid) {
-            this.userService.updateProfile({
-                skillLevel: skill,
-                learnLevel: finalLearnLevel,
-                languageVariant: language
-            }, uid);
-        }
-        // Instead of closing, go to next step (Avatar hint)
-        this.nextStep();
-    }
-
     closePropertiesModal(): void {
         this.showPropertiesModal.set(false);
     }
@@ -292,13 +172,11 @@ export class PlatformComponent implements OnInit, AfterViewInit {
                 return this.http.get<AppsConfig>('/assets/apps.config.json');
             })
         ).subscribe({
-            next: (data: any) => {
+            next: (data) => {
                 // API returns { apps: [...] }
-                const appsList = data.apps || data;
+                const appsList = data.apps;
                 if (Array.isArray(appsList)) {
                     this.apps.set(appsList);
-                } else if (data && data.apps) {
-                    this.apps.set(data.apps);
                 }
             },
             error: (err) => {

@@ -10,6 +10,7 @@ import {
     User,
     UserCredential
 } from '@angular/fire/auth';
+import { FirebaseError } from '@angular/fire/app';
 import { Subject } from 'rxjs';
 
 export interface AuthUser {
@@ -76,8 +77,8 @@ export class AuthService {
         try {
             const result = await signInWithPopup(this.auth, this.googleProvider);
             return result;
-        } catch (error: any) {
-            this._error.set(this.getErrorMessage(error.code));
+        } catch (error: unknown) {
+            this._error.set(this.getErrorMessage(error instanceof FirebaseError ? error.code : 'unknown'));
             return null;
         } finally {
             this._loading.set(false);
@@ -91,8 +92,8 @@ export class AuthService {
         try {
             const result = await signInWithEmailAndPassword(this.auth, email, password);
             return result;
-        } catch (error: any) {
-            this._error.set(this.getErrorMessage(error.code));
+        } catch (error: unknown) {
+            this._error.set(this.getErrorMessage(error instanceof FirebaseError ? error.code : 'unknown'));
             return null;
         } finally {
             this._loading.set(false);
@@ -106,8 +107,8 @@ export class AuthService {
         try {
             const result = await createUserWithEmailAndPassword(this.auth, email, password);
             return result;
-        } catch (error: any) {
-            this._error.set(this.getErrorMessage(error.code));
+        } catch (error: unknown) {
+            this._error.set(this.getErrorMessage(error instanceof FirebaseError ? error.code : 'unknown'));
             return null;
         } finally {
             this._loading.set(false);
@@ -119,8 +120,8 @@ export class AuthService {
         this._error.set(null);
         try {
             await signOut(this.auth);
-        } catch (error: any) {
-            this._error.set(this.getErrorMessage(error.code));
+        } catch (error: unknown) {
+            this._error.set(this.getErrorMessage(error instanceof FirebaseError ? error.code : 'unknown'));
         }
     }
 

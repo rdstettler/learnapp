@@ -47,8 +47,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         return res.status(200).json({ success: true, message: 'Content added successfully' });
 
-    } catch (e: any) {
+    } catch (e: unknown) {
         console.error("Error adding app content:", e);
-        return res.status(500).json({ error: e.message });
+        return res.status(500).json({ error: e instanceof Error ? e.message : 'Unknown error' });
     }
 }

@@ -8,3 +8,6 @@ export { WelcomeScreenComponent } from './components/welcome-screen/welcome-scre
 export { AuthModalComponent } from './components/auth-modal/auth-modal.component';
 export { AppCardComponent } from './components/app-card/app-card.component';
 
+// Shared Models
+export type { LearningSession, SessionTask, TheoryCard, SuggestedApp, NotEnoughDataResponse } from './models/learning-session.model';
+

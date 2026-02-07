@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTursoClient } from './_lib/turso.js';
+import { getTursoClient, type TursoClient } from './_lib/turso.js';
 import { handleCors } from './_lib/auth.js';
 import { replaceEszett } from './_lib/text-utils.js';
 
@@ -45,9 +45,9 @@ async function handleAppsList(req: VercelRequest, res: VercelResponse) {
         });
 
         return res.status(200).json({ apps });
-    } catch (e: any) {
-        console.error("Error fetching apps:", e.message);
-        return res.status(500).json({ error: e.message });
+    } catch (e: unknown) {
+        console.error("Error fetching apps:", e);
+        return res.status(500).json({ error: e instanceof Error ? e.message : 'Unknown error' });
     }
 }
 
@@ -57,7 +57,7 @@ async function handleAppContent(req: VercelRequest, res: VercelResponse, app_id:
 
     try {
         let sql = "SELECT * FROM app_content WHERE app_id = ?";
-        const args: any[] = [app_id];
+        const args: (string | number)[] = [app_id];
 
         if (skill_level) {
             const skillVal = parseFloat(skill_level as string);
@@ -93,8 +93,8 @@ async function handleAppContent(req: VercelRequest, res: VercelResponse, app_id:
         }
 
         return res.status(200).json({ content });
-    } catch (e: any) {
+    } catch (e: unknown) {
         console.error("Error fetching app content:", e);
-        return res.status(500).json({ error: e.message });
+        return res.status(500).json({ error: e instanceof Error ? e.message : 'Unknown error' });
     }
 }

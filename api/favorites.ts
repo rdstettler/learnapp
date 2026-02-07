@@ -21,8 +21,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             });
             const favoriteIds = result.rows.map(r => r.app_id);
             return res.status(200).json({ favorites: favoriteIds });
-        } catch (e: any) {
-            return res.status(500).json({ error: e.message });
+        } catch (e: unknown) {
+            return res.status(500).json({ error: e instanceof Error ? e.message : 'Unknown error' });
         }
     }
     else if (req.method === 'POST') {
@@ -41,8 +41,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 args: [user_uid, app_id, is_favorite ? 1 : 0]
             });
             return res.status(200).json({ success: true });
-        } catch (e: any) {
-            return res.status(500).json({ error: e.message });
+        } catch (e: unknown) {
+            return res.status(500).json({ error: e instanceof Error ? e.message : 'Unknown error' });
         }
     }
     else {

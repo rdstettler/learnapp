@@ -7,7 +7,7 @@ import { Observable, of, tap, shareReplay, map } from 'rxjs'; // Added map
 })
 export class DataService {
     private http = inject(HttpClient);
-    private cache = new Map<string, Observable<any>>();
+    private cache = new Map<string, Observable<unknown>>();
 
     /**
      * Load JSON data from assets folder.
@@ -35,7 +35,7 @@ export class DataService {
         const url = `/api/apps?app_id=${appId}`;
 
         if (!this.cache.has(url)) {
-            const request = this.http.get<{ content: any[] }>(url).pipe(
+            const request = this.http.get<{ content: { data: T }[] }>(url).pipe(
                 map(res => res.content.map(row => row.data)),
                 tap(items => console.log(`Loaded ${items.length} items for ${appId} from API`)),
                 shareReplay(1)

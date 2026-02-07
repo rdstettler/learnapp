@@ -1,6 +1,6 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTursoClient } from './_lib/turso.js';
+import { getTursoClient, type TursoClient } from './_lib/turso.js';
 import { requireAuth, handleCors } from './_lib/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -24,13 +24,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(400).json({ error: "Missing or invalid 'type' parameter (profile|metrics|sync)" });
         }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('User API error:', error);
-        return res.status(500).json({ error: error.message });
+        return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
 }
 
-async function handleProfile(req: VercelRequest, res: VercelResponse, db: any, uid: string) {
+async function handleProfile(req: VercelRequest, res: VercelResponse, db: TursoClient, uid: string) {
     if (req.method === 'GET') {
         // Get user profile — uid from verified token
 
@@ -92,7 +92,7 @@ async function handleProfile(req: VercelRequest, res: VercelResponse, db: any, u
     return res.status(405).json({ error: 'Method not allowed for profile' });
 }
 
-async function handleMetrics(req: VercelRequest, res: VercelResponse, db: any, uid: string) {
+async function handleMetrics(req: VercelRequest, res: VercelResponse, db: TursoClient, uid: string) {
     if (req.method === 'GET') {
         // Get user metrics — uid from verified token
 
@@ -143,7 +143,7 @@ async function handleMetrics(req: VercelRequest, res: VercelResponse, db: any, u
     return res.status(405).json({ error: 'Method not allowed for metrics' });
 }
 
-async function handleSync(req: VercelRequest, res: VercelResponse, db: any, decoded: { uid: string; email?: string }) {
+async function handleSync(req: VercelRequest, res: VercelResponse, db: TursoClient, decoded: { uid: string; email?: string }) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed for sync' });
     }

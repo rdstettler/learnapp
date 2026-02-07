@@ -1,7 +1,9 @@
-import { createClient } from '@libsql/client';
+import { createClient, type Client } from '@libsql/client';
+
+export type TursoClient = Client;
 
 // Singleton Turso client
-let client: ReturnType<typeof createClient> | null = null;
+let client: TursoClient | null = null;
 
 export function getTursoClient() {
     if (!client) {

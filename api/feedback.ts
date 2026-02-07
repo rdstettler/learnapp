@@ -1,6 +1,6 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTursoClient } from './_lib/turso.js';
+import { getTursoClient, type TursoClient } from './_lib/turso.js';
 import { verifyAuth, handleCors } from './_lib/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -29,7 +29,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: "Method not allowed" });
 }
 
-async function handleFeedbackSubmission(req: VercelRequest, res: VercelResponse, db: any) {
+async function handleFeedbackSubmission(req: VercelRequest, res: VercelResponse, db: TursoClient) {
     // Allow anonymous feedback, but use verified uid if available
     const decoded = await verifyAuth(req);
     const { app_id, session_id, content, comment, error_type } = req.body;
@@ -55,13 +55,13 @@ async function handleFeedbackSubmission(req: VercelRequest, res: VercelResponse,
         });
 
         return res.status(200).json({ success: true, message: "Feedback submitted successfully" });
-    } catch (e: any) {
+    } catch (e: unknown) {
         console.error("Error submitting feedback:", e);
-        return res.status(500).json({ error: e.message });
+        return res.status(500).json({ error: e instanceof Error ? e.message : 'Unknown error' });
     }
 }
 
-async function handleAdminReviewList(req: VercelRequest, res: VercelResponse, db: any) {
+async function handleAdminReviewList(req: VercelRequest, res: VercelResponse, db: TursoClient) {
     // 1. Verify token
     const decoded = await verifyAuth(req);
     if (!decoded) return res.status(401).json({ error: "Unauthorized" });
@@ -85,12 +85,12 @@ async function handleAdminReviewList(req: VercelRequest, res: VercelResponse, db
         `);
         return res.status(200).json(feedback.rows);
 
-    } catch (e: any) {
+    } catch (e: unknown) {
         return res.status(500).json({ error: "Auth check or DB error" });
     }
 }
 
-async function handleAdminResolve(req: VercelRequest, res: VercelResponse, db: any) {
+async function handleAdminResolve(req: VercelRequest, res: VercelResponse, db: TursoClient) {
     // 1. Verify token
     const decoded = await verifyAuth(req);
     if (!decoded) return res.status(401).json({ error: "Unauthorized" });
@@ -142,7 +142,7 @@ async function handleAdminResolve(req: VercelRequest, res: VercelResponse, db: a
 
         return res.status(200).json({ success: true });
 
-    } catch (e: any) {
-        return res.status(500).json({ error: e.message });
+    } catch (e: unknown) {
+        return res.status(500).json({ error: e instanceof Error ? e.message : 'Unknown error' });
     }
 }
