@@ -74,13 +74,10 @@ export class DasdassComponent {
     }
 
     private loadData(): void {
-        console.log('DasDass loadData: Checking for session content...');
         const state = window.history.state as any;
-        console.log('Router State:', state);
 
         // 1. Check Router State
         if (state && state.learningContent && state.sessionId) {
-            console.log("Loading AI Session Content from Router State", state.learningContent);
             this.isSessionMode = true;
             this.sessionTaskId = state.taskId;
             this.sessionTaskIds = state.taskIds; // Capture grouped IDs
@@ -110,7 +107,6 @@ export class DasdassComponent {
         const sessionTask = this.apiService.getSessionTask('dasdass');
 
         if (sessionTask) {
-            console.log("Loading AI Session Content from ApiService", sessionTask);
             this.isSessionMode = true;
             this.sessionTaskId = sessionTask.id;
             // Note: taskIds usually come from router state, but if we loaded from service, we might rely on single ID.
@@ -118,17 +114,17 @@ export class DasdassComponent {
             let aiTexts: TextItem[] = [];
 
             // Case A: AI returned 'sentences' array
-            if (sessionTask.content && Array.isArray(sessionTask.content.sentences)) {
-                aiTexts = sessionTask.content.sentences.map((s: string, index: number) => ({
+            if (sessionTask.content && Array.isArray(sessionTask.content['sentences'])) {
+                aiTexts = (sessionTask.content['sentences'] as string[]).map((s: string, index: number) => ({
                     id: 1000 + index,
                     sentences: s
                 }));
             }
             // Case B: AI returned 'originalText'
-            else if (sessionTask.content && typeof sessionTask.content.originalText === 'string') {
+            else if (sessionTask.content && typeof sessionTask.content['originalText'] === 'string') {
                 aiTexts = [{
                     id: 1000,
-                    sentences: sessionTask.content.originalText
+                    sentences: sessionTask.content['originalText'] as string
                 }];
             }
 

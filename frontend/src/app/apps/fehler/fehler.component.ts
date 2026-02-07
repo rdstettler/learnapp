@@ -74,12 +74,8 @@ export class FehlerComponent {
         });
     }
 
-    private shuffle<T>(array: T[]): T[] {
-        return shuffle(array);
-    }
-
     startQuiz(): void {
-        this.texts.set(this.shuffle(this.allTexts()));
+        this.texts.set(shuffle(this.allTexts()));
         this.currentTextIndex.set(0);
         this.totalFound.set(0);
         this.totalMissed.set(0);

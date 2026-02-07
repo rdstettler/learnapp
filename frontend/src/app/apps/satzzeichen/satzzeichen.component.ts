@@ -66,10 +66,6 @@ export class SatzzeichenComponent {
         });
     }
 
-    private shuffle<T>(array: T[]): T[] {
-        return shuffle(array);
-    }
-
     private isPunct(char: string): boolean {
         return this.punctSet.has(char);
     }
@@ -125,7 +121,7 @@ export class SatzzeichenComponent {
     }
 
     startQuiz(): void {
-        this.texts.set(this.shuffle(this.allTexts()).slice(0, 5));
+        this.texts.set(shuffle(this.allTexts()).slice(0, 5));
         this.currentTextIndex.set(0);
         this.totalCorrect.set(0);
         this.totalSlots.set(0);

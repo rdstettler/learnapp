@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, OnDestroy, ElementRef, ViewChild, signal } from '@angular/core';
 import * as THREE from 'three';
-import { RouterLink } from '@angular/router';
+import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 // Piece attributes: [Color(0=Dark,1=Light), Shape(0=Round,1=Square), Height(0=Short,1=Tall), Top(0=Solid,1=Hollow)]
@@ -31,7 +31,7 @@ interface GameState {
 @Component({
     selector: 'app-quarto',
     standalone: true,
-    imports: [RouterLink],
+    imports: [LearningAppLayoutComponent],
     templateUrl: './quarto.component.html',
     styleUrl: './quarto.component.css'
 })

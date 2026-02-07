@@ -72,11 +72,9 @@ export class KasusComponent {
     // ...
 
     private loadData(): void {
-        console.log('Kasus loadData: Checking for session content...');
         // 1. Check Router State
         const state = window.history.state as any;
         if (state && state.learningContent && state.sessionId) {
-            console.log("Loading AI Session Content from Router State", state.learningContent);
             this.isSessionMode = true;
             this.sessionTaskId = state.taskId;
             this.sessionTaskIds = state.taskIds;
@@ -100,13 +98,12 @@ export class KasusComponent {
         // 2. Fallback ApiService
         const sessionTask = this.apiService.getSessionTask('kasus');
         if (sessionTask) {
-            console.log("Loading AI Session Content from ApiService", sessionTask);
             this.isSessionMode = true;
             this.sessionTaskId = sessionTask.id;
 
             let content: Exercise[] = [];
-            if (sessionTask.content && Array.isArray(sessionTask.content.sentences)) {
-                content = sessionTask.content.sentences.map((s: string) => ({ text: s }));
+            if (sessionTask.content && Array.isArray(sessionTask.content['sentences'])) {
+                content = (sessionTask.content['sentences'] as string[]).map((s: string) => ({ text: s }));
             }
             if (content.length > 0) {
                 this.exercises.set(content);
@@ -119,11 +116,6 @@ export class KasusComponent {
             next: (data) => this.exercises.set(data),
             error: (err) => console.error('Error loading kasus data:', err)
         });
-    }
-
-    // ... shuffle ...
-    private shuffle<T>(array: T[]): T[] {
-        return shuffle(array);
     }
 
     private parseText(text: string): WordPart[] {
@@ -152,7 +144,7 @@ export class KasusComponent {
         if (this.isSessionMode) {
             quizRounds = [...this.exercises()];
         } else {
-            quizRounds = this.shuffle(this.exercises()).slice(0, 5);
+            quizRounds = shuffle(this.exercises()).slice(0, 5);
         }
         this.rounds.set(quizRounds);
         this.currentRound.set(0);

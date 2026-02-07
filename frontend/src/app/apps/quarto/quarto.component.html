@@ -1,10 +1,4 @@
-<div class="bg-animation"></div>
-<div class="app-container quarto-container">
-    <div class="app-header">
-        <a routerLink="/" class="back-button">← Dashboard</a>
-        <h1>🎲 Quarto 3D</h1>
-    </div>
-
+<app-learning-app-layout title="🎲 Quarto 3D" appId="quarto">
     <div class="card game-card">
         <div class="info-panel">
             <div class="status" [style.color]="statusColor()">{{ statusMessage() }}</div>
@@ -30,4 +24,4 @@
             </ul>
         </div>
     </div>
-</div>
+</app-learning-app-layout>

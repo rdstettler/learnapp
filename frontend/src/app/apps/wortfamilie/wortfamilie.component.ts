@@ -76,12 +76,8 @@ export class WortfamilieComponent {
         });
     }
 
-    private shuffle<T>(array: T[]): T[] {
-        return shuffle(array);
-    }
-
     startQuiz(): void {
-        const shuffled = this.shuffle(this.allItems());
+        const shuffled = shuffle(this.allItems());
         const selected = shuffled.slice(0, this.PROBLEMS_PER_ROUND);
 
         // Erstelle Probleme mit zufällig gegebenem Worttyp

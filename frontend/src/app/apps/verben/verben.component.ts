@@ -66,18 +66,14 @@ export class VerbenComponent {
         });
     }
 
-    private shuffle<T>(array: T[]): T[] {
-        return shuffle(array);
-    }
-
     private generateRounds(): void {
         const rounds: Question[][] = [];
 
         for (let r = 0; r < 5; r++) {
             const roundQuestions: Question[] = [];
-            const shuffledVerbs = this.shuffle(this.verbs());
-            const shuffledPersons = this.shuffle(this.persons);
-            const shuffledTenses = this.shuffle(this.tenses);
+            const shuffledVerbs = shuffle(this.verbs());
+            const shuffledPersons = shuffle(this.persons);
+            const shuffledTenses = shuffle(this.tenses);
 
             for (let q = 0; q < 3; q++) {
                 const verb = shuffledVerbs[q];

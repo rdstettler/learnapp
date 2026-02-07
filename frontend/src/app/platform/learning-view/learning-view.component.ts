@@ -488,7 +488,7 @@ export class LearningViewComponent implements OnInit {
     this.router.navigate([app.route], {
       state: {
         learningContent: mergedContent,
-        sessionId: this.session().session_id,
+        sessionId: this.session()!.session_id,
         taskId: group.id, // Primary ID to complete
         taskIds: group.ids // All IDs to complete (if app supports it)
       }

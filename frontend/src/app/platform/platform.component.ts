@@ -254,7 +254,6 @@ export class PlatformComponent implements OnInit, AfterViewInit {
     }
 
     navigateToApp(app: AppInfo): void {
-        console.log('navigateToApp called:', app.id, app.route);
         const uid = this.authService.user()?.uid;
         this.userService.recordAppOpen(app.id, uid);
 
@@ -263,7 +262,6 @@ export class PlatformComponent implements OnInit, AfterViewInit {
 
         // Use the router properly - navigate returns a promise
         this.router.navigate([app.route]).then(success => {
-            console.log('Navigation result:', success);
             if (success) {
                 this.cdr.markForCheck();
             }

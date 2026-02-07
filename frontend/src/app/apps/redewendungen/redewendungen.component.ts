@@ -54,10 +54,6 @@ export class RedewendungenComponent {
         });
     }
 
-    private shuffle<T>(array: T[]): T[] {
-        return shuffle(array);
-    }
-
     startQuiz(): void {
         const seen = new Set<string>();
         const unique = this.redewendungen().filter(r => {
@@ -66,7 +62,7 @@ export class RedewendungenComponent {
             return true;
         });
 
-        this.questions.set(this.shuffle(unique).slice(0, this.QUESTIONS_PER_ROUND));
+        this.questions.set(shuffle(unique).slice(0, this.QUESTIONS_PER_ROUND));
         this.currentQuestion.set(0);
         this.correctCount.set(0);
         this.wrongCount.set(0);
@@ -77,7 +73,7 @@ export class RedewendungenComponent {
     private showQuestion(): void {
         const q = this.questions()[this.currentQuestion()];
         const correctAnswer = q.options[0];
-        const shuffledOptions = this.shuffle(q.options);
+        const shuffledOptions = shuffle(q.options);
 
         this.currentOptions.set(shuffledOptions.map(opt => ({
             text: opt,

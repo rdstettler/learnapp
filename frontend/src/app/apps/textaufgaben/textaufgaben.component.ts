@@ -59,10 +59,8 @@ export class TextaufgabenComponent {
     }
 
     private loadData(): void {
-        console.log('Textaufgaben loadData: Checking for session content...');
         const state = window.history.state;
         if (state && state.learningContent && state.sessionId) {
-            console.log("Loading AI Session Content from Router State", state.learningContent);
             this.isSessionMode = true;
             this.sessionTaskId = state.taskId;
             this.sessionTaskIds = state.taskIds;
@@ -107,20 +105,19 @@ export class TextaufgabenComponent {
         // Fallback ApiService check
         const sessionTask = this.apiService.getSessionTask('textaufgaben');
         if (sessionTask) {
-            console.log("Loading AI Session Content from ApiService", sessionTask);
             this.isSessionMode = true;
             this.sessionTaskId = sessionTask.id;
             // Assume sessionTask content can be array or single
             let loadedItems: TextaufgabeItem[] = [];
             if (Array.isArray(sessionTask.content)) {
                 loadedItems = sessionTask.content;
-            } else if (sessionTask.content && sessionTask.content.question) {
+            } else if (sessionTask.content && sessionTask.content['question']) {
                 loadedItems = [{
                     id: 'ai-gen',
                     topics: ['ai'],
-                    question: sessionTask.content.question,
-                    answers: sessionTask.content.answers || [],
-                    explanation: sessionTask.content.explanation || ''
+                    question: sessionTask.content['question'] as string,
+                    answers: (sessionTask.content['answers'] as string[]) || [],
+                    explanation: (sessionTask.content['explanation'] as string) || ''
                 }];
             }
             if (loadedItems.length > 0) {
@@ -140,16 +137,12 @@ export class TextaufgabenComponent {
         });
     }
 
-    private shuffle<T>(array: T[]): T[] {
-        return shuffle(array);
-    }
-
     startQuiz(): void {
         let quizRounds: TextaufgabeItem[];
         if (this.isSessionMode) {
             quizRounds = [...this.items()];
         } else {
-            quizRounds = this.shuffle(this.items()).slice(0, 5);
+            quizRounds = shuffle(this.items()).slice(0, 5);
         }
 
         this.rounds.set(quizRounds);

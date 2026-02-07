@@ -62,12 +62,8 @@ export class OberbegriffeComponent {
         });
     }
 
-    private shuffle<T>(array: T[]): T[] {
-        return shuffle(array);
-    }
-
     startQuiz(): void {
-        const shuffled = this.shuffle(this.allItems());
+        const shuffled = shuffle(this.allItems());
         this.items.set(shuffled.slice(0, this.PROBLEMS_PER_ROUND));
         this.currentIndex.set(0);
         this.totalCorrect.set(0);

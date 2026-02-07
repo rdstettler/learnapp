@@ -102,10 +102,6 @@ export class AehnlichewoerterComponent {
         });
     }
 
-    private shuffle<T>(array: T[]): T[] {
-        return shuffle(array);
-    }
-
     selectPair(event: Event): void {
         this.selectedPairId.set((event.target as HTMLSelectElement).value);
     }
@@ -115,7 +111,7 @@ export class AehnlichewoerterComponent {
         if (!pair) return;
 
         this.currentPair.set(pair);
-        const shuffled = this.shuffle(pair.sentences);
+        const shuffled = shuffle(pair.sentences);
         this.sentences.set(shuffled.slice(0, this.SENTENCES_PER_ROUND));
         this.currentSentenceIndex.set(0);
         this.resetRoundState();

@@ -1,11 +1,11 @@
 import { Component, signal, ElementRef, viewChild, AfterViewInit, OnDestroy, PLATFORM_ID, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
+import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 
 @Component({
     selector: 'app-symmetry',
     standalone: true,
-    imports: [RouterLink],
+    imports: [LearningAppLayoutComponent],
     templateUrl: './symmetry.component.html',
     styleUrl: './symmetry.component.css'
 })

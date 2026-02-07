@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of, tap, shareReplay, map } from 'rxjs'; // Added map
+import { Observable, of, shareReplay, map } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -37,7 +37,6 @@ export class DataService {
         if (!this.cache.has(url)) {
             const request = this.http.get<{ content: { data: T }[] }>(url).pipe(
                 map(res => res.content.map(row => row.data)),
-                tap(items => console.log(`Loaded ${items.length} items for ${appId} from API`)),
                 shareReplay(1)
             );
             this.cache.set(url, request);

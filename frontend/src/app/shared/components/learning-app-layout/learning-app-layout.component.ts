@@ -1,13 +1,12 @@
 
 import { Component, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ErrorReporterComponent } from '../error-reporter/error-reporter.component';
 
 @Component({
     selector: 'app-learning-app-layout',
     standalone: true,
-    imports: [CommonModule, RouterLink, ErrorReporterComponent],
+    imports: [RouterLink, ErrorReporterComponent],
     template: `
     <div class="bg-animation"></div>
     <div class="app-container">
@@ -35,6 +34,6 @@ import { ErrorReporterComponent } from '../error-reporter/error-reporter.compone
 export class LearningAppLayoutComponent {
     title = input.required<string>();
     appId = input.required<string>();
-    content = input<any>();
-    backLink = input<any[] | string>('/');
+    content = input<Record<string, unknown>>();
+    backLink = input<string[] | string>('/');
 }
