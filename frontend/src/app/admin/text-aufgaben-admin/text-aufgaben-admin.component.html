@@ -1,0 +1,39 @@
+<app-learning-app-layout title="➕ Textaufgaben Admin" appId="textaufgaben">
+    <div class="admin-container">
+        <h2>Neue Textaufgabe erstellen</h2>
+
+        <div class="form-group">
+            <label>Frage:</label>
+            <textarea [(ngModel)]="question" rows="4" placeholder="Hier die Frage eingeben..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Antwortmöglichkeiten (akzeptierte Lösungen):</label>
+            <div *ngFor="let answer of answers; let i = index; trackBy: trackByIndex" class="answer-row">
+                <input [(ngModel)]="answers[i]" placeholder="Antwort..." />
+                <button class="btn-icon" (click)="removeAnswer(i)" [disabled]="answers.length <= 1"
+                    title="Entfernen">🗑️</button>
+            </div>
+            <button class="btn-secondary small" (click)="addAnswer()">+ Antwort hinzufügen</button>
+        </div>
+
+        <div class="form-group">
+            <label>Erklärung (Optional):</label>
+            <textarea [(ngModel)]="explanation" rows="3" placeholder="Erklärung zur Lösung..."></textarea>
+        </div>
+
+        <div class="actions">
+            <button class="btn-primary" (click)="submit()" [disabled]="isSubmitting()">
+                {{ isSubmitting() ? 'Speichert...' : 'Speichern' }}
+            </button>
+        </div>
+
+        <div *ngIf="successMessage()" class="message success">
+            {{ successMessage() }}
+        </div>
+
+        <div *ngIf="errorMessage()" class="message error">
+            {{ errorMessage() }}
+        </div>
+    </div>
+</app-learning-app-layout>

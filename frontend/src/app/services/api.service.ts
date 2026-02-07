@@ -193,4 +193,24 @@ export class ApiService {
             return false;
         }
     }
+    /**
+     * Add new app content (Admin only)
+     */
+    async addAppContent(appId: string, content: any): Promise<boolean> {
+        const user = this.authService.user();
+        if (!user) throw new Error("Unauthorized");
+
+        try {
+            await firstValueFrom(this.http.post(`${this.API_BASE}/admin/add-content`, {
+                app_id: appId,
+                content: content
+            }, {
+                headers: { 'x-user-uid': user.uid }
+            }));
+            return true;
+        } catch (error: any) {
+            console.error('Failed to add app content:', error);
+            throw new Error(error.error?.error || "Failed to add content");
+        }
+    }
 }

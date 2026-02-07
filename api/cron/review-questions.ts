@@ -22,7 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const appContents = await db.execute({
             sql: `
             SELECT * FROM app_content 
-            WHERE ai_generated = 1 AND human_verified = 0
+            WHERE ai_generated = 1 AND human_verified = 0 AND app_id NOT IN ('kopfrechnen', 'zeitrechnen', 'umrechnen', 'zahlen-raten', 'flaeche-umfang')
             ORDER BY ai_reviewed_counter ASC, flag_counter DESC, RANDOM()
             LIMIT ?
         `,
@@ -79,7 +79,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 async function reviewItem(appId: string, content: any, languageVariant: 'swiss' | 'standard' = 'swiss'): Promise<{ status: string, reason?: string, correction?: string }> {
     // We now handle ss/ß replacement at runtime, so we enforce Standard German spelling in the review to ensure correctness before runtime transformation.
-    const languageRule = "IMPORTANT: Verify that the content uses Standard German spelling conventions (e.g., use 'ß' where appropriate).";
+    const languageRule = "IMPORTANT: Verify that the content uses Standard German spelling conventions (e.g., use 'ß' where appropriate). However, do NOT flag spelling errors in JSON property names (keys). Specifically, treat 'ae' vs 'ä', 'ue' vs 'ü', and 'oe' vs 'ö' as valid variations in keys (e.g., 'praeteritum' is acceptable).";
 
     const prompt = `
     You are a Data Quality Auditor.

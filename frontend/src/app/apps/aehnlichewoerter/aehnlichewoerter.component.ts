@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject, HostListener } from '@angular/core';
+import { normalizeGermanText } from '../../shared/utils/text.utils';
 import { DataService } from '../../services/data.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
@@ -186,8 +187,8 @@ export class AehnlichewoerterComponent {
         // If multiple slots exist, the user likely needs to pick the right one for EACH.
         // I will assume the 'correct' word applies to the slot being checked.
 
-        const normalizedAnswer = answer.toLowerCase();
-        const normalizedCorrect = sentence.correct.toLowerCase();
+        const normalizedAnswer = normalizeGermanText(answer);
+        const normalizedCorrect = normalizeGermanText(sentence.correct);
 
         return normalizedAnswer === normalizedCorrect ? 'correct' : 'incorrect';
     }
@@ -261,7 +262,7 @@ export class AehnlichewoerterComponent {
             }
 
             // Check correctness
-            if (answer.toLowerCase() !== sentence.correct.toLowerCase()) {
+            if (normalizeGermanText(answer) !== normalizeGermanText(sentence.correct)) {
                 allCorrect = false;
                 errorActual += answer + ' ';
             }

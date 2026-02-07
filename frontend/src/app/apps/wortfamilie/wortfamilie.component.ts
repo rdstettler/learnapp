@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject } from '@angular/core';
+import { normalizeGermanText } from '../../shared/utils/text.utils';
 import { DataService } from '../../services/data.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
@@ -216,12 +217,8 @@ export class WortfamilieComponent {
             }
         }
 
-        // Normalisiere Umlaute
-        return normalized
-            .replace(/ä/g, 'ae')
-            .replace(/ö/g, 'oe')
-            .replace(/ü/g, 'ue')
-            .replace(/ß/g, 'ss');
+        // Normalisiere Umlaute und ß
+        return normalizeGermanText(normalized);
     }
 
     canCheck(): boolean {

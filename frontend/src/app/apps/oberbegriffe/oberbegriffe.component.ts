@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject } from '@angular/core';
+import { normalizeGermanText } from '../../shared/utils/text.utils';
 import { DataService } from '../../services/data.service';
 
 interface OberbegriffItem {
@@ -122,13 +123,7 @@ export class OberbegriffeComponent {
     }
 
     private normalizeAnswer(answer: string): string {
-        return answer
-            .toLowerCase()
-            .trim()
-            .replace(/ä/g, 'ae')
-            .replace(/ö/g, 'oe')
-            .replace(/ü/g, 'ue')
-            .replace(/ß/g, 'ss');
+        return normalizeGermanText(answer);
     }
 
     getPossibleAnswers(): string {

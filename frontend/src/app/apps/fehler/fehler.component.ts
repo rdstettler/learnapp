@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject, ChangeDetectorRef } from '@angular/core';
+import { normalizeGermanText } from '../../shared/utils/text.utils';
 import { FormsModule } from '@angular/forms';
 import { DataService } from '../../services/data.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
@@ -241,7 +242,7 @@ export class FehlerComponent {
         if (!error) return '';
 
         if (error.userCorrection) {
-            if (error.userCorrection.toLowerCase() === error.correctWord.toLowerCase()) {
+            if (normalizeGermanText(error.userCorrection) === normalizeGermanText(error.correctWord)) {
                 return 'correct-click';
             } else {
                 return 'missed';
@@ -278,7 +279,7 @@ export class FehlerComponent {
 
         this.currentTextErrors.forEach(error => {
             if (error.userCorrection) {
-                if (error.userCorrection.toLowerCase() === error.correctWord.toLowerCase()) {
+                if (normalizeGermanText(error.userCorrection) === normalizeGermanText(error.correctWord)) {
                     foundCorrect++;
                 } else {
                     missed++;
@@ -295,7 +296,7 @@ export class FehlerComponent {
         // Telemetry: Track errors
         const errors = this.currentTextErrors.filter(e => {
             // An error is missed if no correction, or correction is wrong
-            return !e.userCorrection || e.userCorrection.toLowerCase() !== e.correctWord.toLowerCase();
+            return !e.userCorrection || normalizeGermanText(e.userCorrection) !== normalizeGermanText(e.correctWord);
         });
 
         if (errors.length > 0) {
