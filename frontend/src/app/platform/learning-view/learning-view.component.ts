@@ -1,10 +1,12 @@
 
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { ApiService } from '../../services/api.service';
 import { AppCardComponent, AppInfo } from '../../shared/components/app-card/app-card.component';
 import { Router } from '@angular/router';
 import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
+import { LearningSession, SessionTask, NotEnoughDataResponse } from '../../shared/models/learning-session.model';
 
 @Component({
   selector: 'app-learning-view',
@@ -21,8 +23,8 @@ import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
         <!-- Active Session -->
         <div class="session-view fade-in">
           <div class="session-header">
-            <h2>{{ session().topic }}</h2>
-            <p class="session-text">{{ session().text }}</p>
+            <h2>{{ session()!.topic }}</h2>
+            <p class="session-text">{{ session()!.text }}</p>
             
             <div class="progress-bar-container">
                 <div class="progress-text">
@@ -38,11 +40,11 @@ import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
             </div>
           </div>
 
-          @if (session().theory && session().theory.length > 0) {
+          @if (session()!.theory && session()!.theory.length > 0) {
             <div class="theory-section fade-in">
                 <h3>💡 Gut zu wissen</h3>
                 <div class="theory-grid">
-                    @for (card of session().theory; track $index) {
+                    @for (card of session()!.theory; track $index) {
                         <div class="theory-card">
                             <h4>{{ card.title }}</h4>
                             <div [innerHTML]="card.content | markdown"></div>
@@ -295,6 +297,7 @@ import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
 })
 export class LearningViewComponent implements OnInit {
   apiService = inject(ApiService);
+  private http = inject(HttpClient);
   router = inject(Router);
 
   loading = signal(true);
@@ -315,13 +318,12 @@ export class LearningViewComponent implements OnInit {
     return "Fast fertig...";
   });
 
-  session = signal<any>(null);
+  session = signal<LearningSession | null>(null);
   suggestions = signal<AppInfo[] | null>(null);
 
   // Computed stats
-  // Computed stats
   totalTasks = computed(() => this.session()?.tasks?.length || 0);
-  completedTasks = computed(() => this.session()?.tasks?.filter((t: any) => !t.pristine).length || 0);
+  completedTasks = computed(() => this.session()?.tasks?.filter((t) => !t.pristine).length || 0);
   sessionProgress = computed(() => {
     const total = this.totalTasks();
     return total > 0 ? (this.completedTasks() / total) * 100 : 0;
@@ -331,32 +333,23 @@ export class LearningViewComponent implements OnInit {
     const tasks = this.session()?.tasks || [];
     if (tasks.length === 0) return [];
 
-    const groups: any[] = [];
-    let currentGroup: any = null;
+    interface TaskGroup extends SessionTask {
+        ids: number[];
+        tasks: SessionTask[];
+    }
+
+    const groups: TaskGroup[] = [];
+    let currentGroup: TaskGroup | null = null;
 
     for (const task of tasks) {
       if (currentGroup && currentGroup.app_id === task.app_id && currentGroup.pristine === task.pristine) {
-        // Merge into current group
         currentGroup.ids.push(task.id);
         currentGroup.tasks.push(task);
-        // Merge content if possible
-        if (currentGroup.content && task.content) {
-          // If existing content is array of items (DASDASS/KASUS/TEXTAUFGABEN array style)
-          // We need to normalize.
-          // DasDass: { sentences: [...] }
-          // Kasus: { sentences: [...] } (as per my update) or single string
-          // Textaufgaben: { items: [...] } or single item
-
-          // Strategy: Keep content as array of task contents, and merge on startTask
-          // Actually, let's keep references and merge later.
-        }
       } else {
-        // Start new group
         currentGroup = {
-          ...task, // Copy generic props from first task
+          ...task,
           ids: [task.id],
-          tasks: [task], // Keep track of all merged tasks
-          // content: task.content // Keep first content as base? No, need all.
+          tasks: [task],
         };
         groups.push(currentGroup);
       }
@@ -380,17 +373,17 @@ export class LearningViewComponent implements OnInit {
   }
 
   async loadAllApps() {
-    // Basic fetch
     try {
-      // This endpoint exists and returns { apps: [] }
-      const res = await fetch('/api/apps').then(r => r.json());
+      const res = await new Promise<{ apps: AppInfo[] }>((resolve, reject) => {
+        this.http.get<{ apps: AppInfo[] }>('/api/apps').subscribe({ next: resolve, error: reject });
+      });
       if (res.apps) {
         const map = new Map<string, AppInfo>();
-        res.apps.forEach((a: AppInfo) => map.set(a.id, a));
+        res.apps.forEach((a) => map.set(a.id, a));
         this.allApps.set(map);
       }
     } catch (e) {
-      console.error("Failed to load apps map", e);
+      console.error('Failed to load apps map', e);
     }
   }
 
@@ -398,17 +391,16 @@ export class LearningViewComponent implements OnInit {
     this.loading.set(true);
     try {
       const res = await this.apiService.getLearningSession();
-      if (res && res.session_id) {
-        this.session.set(res);
-      } else if (res && res.message === "Not enough data") {
-        this.suggestions.set(res.suggestedApps);
+      if (res && 'session_id' in res) {
+        this.session.set(res as LearningSession);
+      } else if (res && 'message' in res) {
+        this.suggestions.set((res as NotEnoughDataResponse).suggestedApps as unknown as AppInfo[]);
       } else {
-        // Null means ready to generate
         this.session.set(null);
         this.suggestions.set(null);
       }
     } catch (e) {
-      console.error("Error loading learning session", e);
+      console.error('Error loading learning session', e);
     } finally {
       this.loading.set(false);
     }
@@ -441,14 +433,13 @@ export class LearningViewComponent implements OnInit {
     this.router.navigate([app.route]);
   }
 
-  async removeGroup(group: any) {
+  async removeGroup(group: { ids: number[]; id: number }) {
     if (!confirm('Möchtest du diese Aufgaben wirklich aus der Sitzung entfernen?')) return;
 
     // Optimistic update
     this.session.update(current => {
       if (!current) return null;
-      // Filter out tasks that belong to this group
-      const newTasks = current.tasks.filter((t: any) => !group.ids.includes(t.id));
+      const newTasks = current.tasks.filter((t) => !group.ids.includes(t.id));
       return {
         ...current,
         tasks: newTasks
@@ -463,38 +454,35 @@ export class LearningViewComponent implements OnInit {
     }
   }
 
-  startTask(group: any, app: AppInfo) {
+  startTask(group: { id: number; ids: number[]; tasks?: SessionTask[]; content?: Record<string, unknown> }, app: AppInfo) {
     // Merge content from all tasks in the group
-    let mergedContent: any = {};
+    let mergedContent: Record<string, unknown> | Record<string, unknown>[] = {};
 
-    // Check if tasks are available (from grouping logic)
-    const tasks = group.tasks || [group];
+    const tasks = group.tasks || (group.content ? [group as unknown as SessionTask] : []);
 
     if (app.id === 'dasdass' || app.id === 'kasus') {
-      // Expect { sentences: string[] } or { originalText: string }
       const allSentences: string[] = [];
       for (const t of tasks) {
-        if (t.content?.sentences && Array.isArray(t.content.sentences)) {
-          allSentences.push(...t.content.sentences);
-        } else if (typeof t.content?.originalText === 'string') {
-          allSentences.push(t.content.originalText);
+        const c = t.content as Record<string, unknown>;
+        if (c?.['sentences'] && Array.isArray(c['sentences'])) {
+          allSentences.push(...(c['sentences'] as string[]));
+        } else if (typeof c?.['originalText'] === 'string') {
+          allSentences.push(c['originalText'] as string);
         }
       }
       mergedContent = { sentences: allSentences };
     } else if (app.id === 'textaufgaben') {
-      // Expect array or single object
-      const allItems: any[] = [];
+      const allItems: Record<string, unknown>[] = [];
       for (const t of tasks) {
         if (Array.isArray(t.content)) {
-          allItems.push(...t.content);
+          allItems.push(...(t.content as Record<string, unknown>[]));
         } else if (t.content) {
-          allItems.push(t.content);
+          allItems.push(t.content as Record<string, unknown>);
         }
       }
-      mergedContent = allItems; // Pass generic array
+      mergedContent = allItems;
     } else {
-      // Default: take first or merge if possible
-      mergedContent = tasks[0].content;
+      mergedContent = (tasks[0].content as Record<string, unknown>) ?? {};
     }
 
     this.router.navigate([app.route], {
@@ -507,8 +495,8 @@ export class LearningViewComponent implements OnInit {
     });
   }
 
-  getGroupTaskCount(group: any): number {
-    const tasks = group.tasks || [group];
+  getGroupTaskCount(group: { tasks?: SessionTask[] }): number {
+    const tasks = group.tasks || [];
     let count = 0;
     for (const t of tasks) {
       count += this.getTaskCount(t);
@@ -516,13 +504,13 @@ export class LearningViewComponent implements OnInit {
     return count;
   }
 
-  getTaskCount(task: any): number {
+  getTaskCount(task: SessionTask): number {
     if (!task.content) return 0;
-    // Heuristic: check for array properties
-    if (Array.isArray(task.content.sentences)) return task.content.sentences.length;
-    if (Array.isArray(task.content.pairs)) return task.content.pairs.length;
-    if (Array.isArray(task.content.questions)) return task.content.questions.length;
-    return 1; // Default
+    const content = task.content as Record<string, unknown>;
+    if (Array.isArray(content['sentences'])) return (content['sentences'] as unknown[]).length;
+    if (Array.isArray(content['pairs'])) return (content['pairs'] as unknown[]).length;
+    if (Array.isArray(content['questions'])) return (content['questions'] as unknown[]).length;
+    return 1;
   }
 }
 

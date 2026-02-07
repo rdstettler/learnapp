@@ -1,8 +1,9 @@
 
 import { Component, inject, signal, effect } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { JsonPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 interface FeedbackItem {
@@ -10,17 +11,27 @@ interface FeedbackItem {
   user_uid: string;
   app_id: string;
   session_id: string;
-  content: string; // JSON string of the *original* faulty content
-  comment: string; // AI Reason
+  content: string;
+  comment: string;
   target_id: string;
   created_at: string;
-  suggestion?: any; // Parsed from comment if possible, or we just show comment
+  suggestion?: Record<string, unknown>;
+}
+
+interface ReviewResult {
+  checked_count: number;
+  results: { status: string }[];
+}
+
+interface ReviewProgress {
+  current: number;
+  total: number;
 }
 
 @Component({
   selector: 'app-feedback-review',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [JsonPipe, FormsModule],
   templateUrl: './feedback-review.html',
   styles: [`
         .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
@@ -84,7 +95,7 @@ export class FeedbackReviewComponent {
     });
   }
 
-  reviewProgress = signal<{ current: number, total: number } | null>(null);
+  reviewProgress = signal<ReviewProgress | null>(null);
 
   async runAiReview() {
     this.loading.set(true);
@@ -96,20 +107,20 @@ export class FeedbackReviewComponent {
 
     try {
       for (let i = 0; i < total; i++) {
-        // limit=1 for granular progress
-        const res: any = await this.http.get('/api/cron/review-questions?limit=1').toPromise();
+        const res = await firstValueFrom(this.http.get<ReviewResult>('/api/cron/review-questions?limit=1'));
 
         if (res) {
           checked += res.checked_count;
-          newFlags += res.results.filter((r: any) => r.status === 'FAILED').length;
+          newFlags += res.results.filter(r => r.status === 'FAILED').length;
         }
 
         this.reviewProgress.set({ current: i + 1, total });
       }
 
       alert(`Review complete! Checked: ${checked}, New Flags: ${newFlags}`);
-    } catch (e: any) {
-      alert("Review failed: " + e.message);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Unknown error';
+      alert('Review failed: ' + msg);
     } finally {
       this.reviewProgress.set(null);
       this.loadItems();
@@ -117,8 +128,8 @@ export class FeedbackReviewComponent {
     }
   }
 
-  parseContent(json: string): any {
-    try { return JSON.parse(json); } catch { return json; }
+  parseContent(json: string): unknown {
+    try { return JSON.parse(json) as unknown; } catch { return json; }
   }
 
   startEdit(item: FeedbackItem) {
@@ -160,8 +171,8 @@ export class FeedbackReviewComponent {
         this.cancelEdit();
         this.loading.set(false);
       },
-      error: (e: any) => {
-        alert("Failed: " + (e.error?.error || e.message));
+      error: (e: HttpErrorResponse) => {
+        alert('Failed: ' + (e.error?.error || e.message));
         this.loading.set(false);
       }
     });

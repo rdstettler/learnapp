@@ -3,42 +3,56 @@
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
         <p style="margin:0;">Review AI-flagged content corrections.</p>
         <button class="btn-approve" (click)="runAiReview()" [disabled]="loading()">
-            <span *ngIf="!reviewProgress()">🤖 Jetzt reviewen</span>
-            <span *ngIf="reviewProgress()">🤖 Reviewing...
-                ({{reviewProgress()?.current}}/{{reviewProgress()?.total}})</span>
-            <span *ngIf="loading() && !reviewProgress()">Loading...</span>
+            @if (!reviewProgress()) {
+                <span>🤖 Jetzt reviewen</span>
+            }
+            @if (reviewProgress(); as progress) {
+                <span>🤖 Reviewing... ({{ progress.current }}/{{ progress.total }})</span>
+            }
+            @if (loading() && !reviewProgress()) {
+                <span>Loading...</span>
+            }
         </button>
     </div>
 
-    <div *ngIf="loading()">Loading...</div>
-    <div *ngIf="items().length === 0 && !loading()">No pending items. Great job!</div>
+    @if (loading()) {
+        <div>Loading...</div>
+    }
+    @if (items().length === 0 && !loading()) {
+        <div>No pending items. Great job!</div>
+    }
 
-    <div class="card" *ngFor="let item of items()">
-        <h3>{{ item.app_id }} <small>(Target: {{item.target_id}})</small></h3>
+    @for (item of items(); track item.id) {
+        <div class="card">
+            <h3>{{ item.app_id }} <small>(Target: {{ item.target_id }})</small></h3>
 
-        <div class="reason">
-            <strong>Flagged Reason:</strong> {{ item.comment }}
-        </div>
-
-        <div class="row">
-            <div class="col">
-                <h4>Original Content</h4>
-                <pre>{{ parseContent(item.content) | json }}</pre>
+            <div class="reason">
+                <strong>Flagged Reason:</strong> {{ item.comment }}
             </div>
-            <!-- Future: Suggested Content Col -->
-        </div>
 
-        <div class="actions" *ngIf="editingId() !== item.id">
-            <button class="btn-approve" (click)="startEdit(item)" [disabled]="loading()">Review & Fix</button>
-            <button class="btn-dismiss" (click)="dismiss(item)" [disabled]="loading()">Dismiss (Ignore)</button>
-        </div>
-
-        <div class="editor" *ngIf="editingId() === item.id" style="margin-top:1rem;">
-            <textarea [(ngModel)]="editContent" style="width:100%; height:200px; font-family:monospace;"></textarea>
-            <div class="actions">
-                <button class="btn-approve" (click)="saveEdit(item)" [disabled]="loading()">Approve Fix</button>
-                <button class="btn-dismiss" (click)="cancelEdit()" [disabled]="loading()">Cancel</button>
+            <div class="row">
+                <div class="col">
+                    <h4>Original Content</h4>
+                    <pre>{{ parseContent(item.content) | json }}</pre>
+                </div>
             </div>
+
+            @if (editingId() !== item.id) {
+                <div class="actions">
+                    <button class="btn-approve" (click)="startEdit(item)" [disabled]="loading()">Review & Fix</button>
+                    <button class="btn-dismiss" (click)="dismiss(item)" [disabled]="loading()">Dismiss (Ignore)</button>
+                </div>
+            }
+
+            @if (editingId() === item.id) {
+                <div class="editor" style="margin-top:1rem;">
+                    <textarea [ngModel]="editContent()" (ngModelChange)="editContent.set($event)" style="width:100%; height:200px; font-family:monospace;"></textarea>
+                    <div class="actions">
+                        <button class="btn-approve" (click)="saveEdit(item)" [disabled]="loading()">Approve Fix</button>
+                        <button class="btn-dismiss" (click)="cancelEdit()" [disabled]="loading()">Cancel</button>
+                    </div>
+                </div>
+            }
         </div>
-    </div>
+    }
 </div>
