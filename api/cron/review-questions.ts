@@ -1,20 +1,31 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getTursoClient } from '../_lib/turso.js';
+import { requireAuth, handleCors } from '../_lib/auth.js';
 import { xai } from '@ai-sdk/xai';
 import { generateText } from 'ai';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Only allow GET requests (for Cron)
+    if (handleCors(req, res)) return;
+
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // Cron security check (optional but recommended)
-    // if (req.headers['authorization'] !== `Bearer ${process.env.CRON_SECRET}`) {
-    //     return res.status(401).json({ error: 'Unauthorized' });
-    // }
+    // Require authenticated admin user
+    const decoded = await requireAuth(req, res);
+    if (!decoded) return;
 
     const db = getTursoClient();
+
+    const user = await db.execute({
+        sql: "SELECT is_admin FROM users WHERE uid = ?",
+        args: [decoded.uid]
+    });
+
+    if (user.rows.length === 0 || !user.rows[0].is_admin) {
+        return res.status(403).json({ error: 'Forbidden: Admins only' });
+    }
+
     const limit = parseInt(req.query.limit as string) || 1;
 
     try {

@@ -1,5 +1,6 @@
 import { Component, signal, computed, inject, ChangeDetectorRef } from '@angular/core';
 import { DataService } from '../../services/data.service';
+import { shuffle } from '../../shared/utils/array.utils';
 
 interface WordSlot {
     word: string;
@@ -66,12 +67,7 @@ export class SatzzeichenComponent {
     }
 
     private shuffle<T>(array: T[]): T[] {
-        const arr = [...array];
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
+        return shuffle(array);
     }
 
     private isPunct(char: string): boolean {

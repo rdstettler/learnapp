@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getTursoClient } from './_lib/turso.js';
 import { handleCors } from './_lib/auth.js';
+import { replaceEszett } from './_lib/text-utils.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (handleCors(req, res)) return;
@@ -96,19 +97,4 @@ async function handleAppContent(req: VercelRequest, res: VercelResponse, app_id:
         console.error("Error fetching app content:", e);
         return res.status(500).json({ error: e.message });
     }
-}
-
-function replaceEszett(obj: any): any {
-    if (typeof obj === 'string') {
-        return obj.replace(/ß/g, 'ss');
-    } else if (Array.isArray(obj)) {
-        return obj.map(item => replaceEszett(item));
-    } else if (obj !== null && typeof obj === 'object') {
-        const newObj: any = {};
-        for (const key in obj) {
-            newObj[key] = replaceEszett(obj[key]);
-        }
-        return newObj;
-    }
-    return obj;
 }

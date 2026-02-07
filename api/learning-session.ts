@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getTursoClient } from './_lib/turso.js';
 import { requireAuth, handleCors } from './_lib/auth.js';
+import { replaceEszett } from './_lib/text-utils.js';
 import { xai } from '@ai-sdk/xai';
 import { generateText } from 'ai';
 import crypto from 'node:crypto';
@@ -371,19 +372,4 @@ ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in
     }
 
     res.status(405).json({ error: "Method not allowed" });
-}
-
-function replaceEszett(obj: any): any {
-    if (typeof obj === 'string') {
-        return obj.replace(/ß/g, 'ss');
-    } else if (Array.isArray(obj)) {
-        return obj.map(item => replaceEszett(item));
-    } else if (obj !== null && typeof obj === 'object') {
-        const newObj: any = {};
-        for (const key in obj) {
-            newObj[key] = replaceEszett(obj[key]);
-        }
-        return newObj;
-    }
-    return obj;
 }

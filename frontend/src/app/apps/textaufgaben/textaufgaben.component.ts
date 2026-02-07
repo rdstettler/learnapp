@@ -4,6 +4,7 @@ import { DataService } from '../../services/data.service';
 import { ApiService } from '../../services/api.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { shuffle } from '../../shared/utils/array.utils';
 
 interface TextaufgabeItem {
     id: string;
@@ -140,12 +141,7 @@ export class TextaufgabenComponent {
     }
 
     private shuffle<T>(array: T[]): T[] {
-        const arr = [...array];
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
+        return shuffle(array);
     }
 
     startQuiz(): void {

@@ -2,6 +2,7 @@ import { Component, signal, computed, inject } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { DataService } from '../../services/data.service';
 import { ApiService } from '../../services/api.service';
+import { shuffle } from '../../shared/utils/array.utils';
 
 interface Exercise {
     text: string;
@@ -122,12 +123,7 @@ export class KasusComponent {
 
     // ... shuffle ...
     private shuffle<T>(array: T[]): T[] {
-        const arr = [...array];
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
+        return shuffle(array);
     }
 
     private parseText(text: string): WordPart[] {

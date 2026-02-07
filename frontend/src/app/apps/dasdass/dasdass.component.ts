@@ -3,6 +3,7 @@ import { RouterLink, Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { DataService } from '../../services/data.service';
 import { ApiService } from '../../services/api.service';
+import { shuffle } from '../../shared/utils/array.utils';
 
 interface TextItem {
     id: number;
@@ -146,15 +147,6 @@ export class DasdassComponent {
         });
     }
 
-    private shuffle<T>(array: T[]): T[] {
-        const arr = [...array];
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
-    }
-
     startQuiz(): void {
         let quizTexts: TextItem[];
 
@@ -166,7 +158,7 @@ export class DasdassComponent {
             // But let's just use all of them.
             quizTexts = [...this.allTexts()];
         } else {
-            const shuffled = this.shuffle(this.allTexts());
+            const shuffled = shuffle(this.allTexts());
             quizTexts = shuffled.slice(0, this.textsPerRound);
         }
 

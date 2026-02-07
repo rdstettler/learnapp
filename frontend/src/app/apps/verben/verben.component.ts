@@ -2,6 +2,7 @@ import { Component, signal, computed, inject } from '@angular/core';
 import { DataService } from '../../services/data.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { shuffle } from '../../shared/utils/array.utils';
 
 interface VerbData {
     verb: string;
@@ -66,12 +67,7 @@ export class VerbenComponent {
     }
 
     private shuffle<T>(array: T[]): T[] {
-        const arr = [...array];
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
+        return shuffle(array);
     }
 
     private generateRounds(): void {
