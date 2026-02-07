@@ -69,9 +69,29 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             };
         });
 
+        const langFormat = req.query['language-format'];
+        if (langFormat === 'swiss') {
+            return res.status(200).json({ content: replaceEszett(content) });
+        }
+
         return res.status(200).json({ content });
     } catch (e: any) {
         console.error("Error fetching app content:", e);
         return res.status(500).json({ error: e.message });
     }
+}
+
+function replaceEszett(obj: any): any {
+    if (typeof obj === 'string') {
+        return obj.replace(/ß/g, 'ss');
+    } else if (Array.isArray(obj)) {
+        return obj.map(item => replaceEszett(item));
+    } else if (obj !== null && typeof obj === 'object') {
+        const newObj: any = {};
+        for (const key in obj) {
+            newObj[key] = replaceEszett(obj[key]);
+        }
+        return newObj;
+    }
+    return obj;
 }

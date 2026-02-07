@@ -86,18 +86,37 @@ export class FeedbackReviewComponent {
     });
   }
 
-  runAiReview() {
+  reviewProgress = signal<{ current: number, total: number } | null>(null);
+
+  async runAiReview() {
     this.loading.set(true);
-    this.http.get('/api/cron/review-questions').subscribe({
-      next: (res: any) => {
-        alert(`Review complete! Checked: ${res.checked_count}, New Flags: ${res.results.filter((r: any) => r.status === 'FAILED').length}`);
-        this.loadItems();
-      },
-      error: (e) => {
-        alert("Review failed: " + e.message);
-        this.loading.set(false);
+    const total = 10;
+    this.reviewProgress.set({ current: 0, total });
+
+    let newFlags = 0;
+    let checked = 0;
+
+    try {
+      for (let i = 0; i < total; i++) {
+        // limit=1 for granular progress
+        const res: any = await this.http.get('/api/cron/review-questions?limit=1').toPromise();
+
+        if (res) {
+          checked += res.checked_count;
+          newFlags += res.results.filter((r: any) => r.status === 'FAILED').length;
+        }
+
+        this.reviewProgress.set({ current: i + 1, total });
       }
-    });
+
+      alert(`Review complete! Checked: ${checked}, New Flags: ${newFlags}`);
+    } catch (e: any) {
+      alert("Review failed: " + e.message);
+    } finally {
+      this.reviewProgress.set(null);
+      this.loadItems();
+      this.loading.set(false);
+    }
   }
 
   parseContent(json: string): any {

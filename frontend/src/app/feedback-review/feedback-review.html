@@ -2,7 +2,12 @@
     <h1>Feedback Review</h1>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
         <p style="margin:0;">Review AI-flagged content corrections.</p>
-        <button class="btn-approve" (click)="runAiReview()" [disabled]="loading()">🤖 Jetzt reviewen</button>
+        <button class="btn-approve" (click)="runAiReview()" [disabled]="loading()">
+            <span *ngIf="!reviewProgress()">🤖 Jetzt reviewen</span>
+            <span *ngIf="reviewProgress()">🤖 Reviewing...
+                ({{reviewProgress()?.current}}/{{reviewProgress()?.total}})</span>
+            <span *ngIf="loading() && !reviewProgress()">Loading...</span>
+        </button>
     </div>
 
     <div *ngIf="loading()">Loading...</div>

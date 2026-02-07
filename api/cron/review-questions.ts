@@ -15,15 +15,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // }
 
     const db = getTursoClient();
+    const limit = parseInt(req.query.limit as string) || 1;
 
     try {
         const updates = [];
-        const appContents = await db.execute(`
+        const appContents = await db.execute({
+            sql: `
             SELECT * FROM app_content 
             WHERE ai_generated = 1 AND human_verified = 0
             ORDER BY ai_reviewed_counter ASC, flag_counter DESC, RANDOM()
-            LIMIT 10
-        `);
+            LIMIT ?
+        `,
+            args: [limit]
+        });
 
         for (const row of appContents.rows) {
             let content = null;
@@ -74,9 +78,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 async function reviewItem(appId: string, content: any, languageVariant: 'swiss' | 'standard' = 'swiss'): Promise<{ status: string, reason?: string, correction?: string }> {
-    const languageRule = languageVariant === 'swiss'
-        ? "IMPORTANT: The content MUST be in STANDARD HIGH GERMAN. However, it MUST use Swiss spelling conventions (specifically, use 'ss' instead of 'ß'). DO NOT use Swiss German dialect words. It must be formal, standard German."
-        : "IMPORTANT: Verify that the content uses Standard German spelling conventions (e.g., use 'ß' where appropriate).";
+    // We now handle ss/ß replacement at runtime, so we enforce Standard German spelling in the review to ensure correctness before runtime transformation.
+    const languageRule = "IMPORTANT: Verify that the content uses Standard German spelling conventions (e.g., use 'ß' where appropriate).";
 
     const prompt = `
     You are a Data Quality Auditor.

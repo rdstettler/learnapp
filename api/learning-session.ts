@@ -58,6 +58,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     }))
                 };
 
+                const langFormat = req.query['language-format'] || req.body['language-format'];
+                if (langFormat === 'swiss') {
+                    // Recursive replace
+                    return res.status(200).json(replaceEszett(sessionData));
+                }
+
+                // TODO: Verify if we should also check user.language_variant from DB here. 
+                // For now, adhering strictly to "if query param... is set" as per user request, 
+                // but checking DB is safer for consistent user experience.
+                // However, fetching user prefs here might be an extra DB call. 
+                // Let's stick to the explicit param for now as requested.
+
                 return res.status(200).json(sessionData);
             }
 
@@ -341,7 +353,7 @@ ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in
             }
 
             const firstRow = refetchedSession.rows[0];
-            return res.status(200).json({
+            const finalData = {
                 session_id: sessionId,
                 topic: firstRow.topic,
                 text: firstRow.text,
@@ -353,7 +365,13 @@ ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in
                     pristine: row.pristine,
                     content: JSON.parse(row.content as string)
                 }))
-            });
+            };
+
+            const langFormat = req.query['language-format'] || req.body['language-format'];
+            if (langFormat === 'swiss') {
+                return res.status(200).json(replaceEszett(finalData));
+            }
+            return res.status(200).json(finalData);
 
         } catch (e: any) {
             console.error("Error generating session:", e);
@@ -363,4 +381,19 @@ ADDITIONALLY, provide a list of "theory" cards that explain the concepts used in
     }
 
     res.status(405).json({ error: "Method not allowed" });
+}
+
+function replaceEszett(obj: any): any {
+    if (typeof obj === 'string') {
+        return obj.replace(/ß/g, 'ss');
+    } else if (Array.isArray(obj)) {
+        return obj.map(item => replaceEszett(item));
+    } else if (obj !== null && typeof obj === 'object') {
+        const newObj: any = {};
+        for (const key in obj) {
+            newObj[key] = replaceEszett(obj[key]);
+        }
+        return newObj;
+    }
+    return obj;
 }
