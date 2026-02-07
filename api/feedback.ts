@@ -1,18 +1,10 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getTursoClient } from './_lib/turso.js';
+import { verifyAuth, handleCors } from './_lib/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // CORS headers
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
-    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-User-Uid');
-
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
+    if (handleCors(req, res)) return;
 
     const db = getTursoClient();
 
@@ -38,7 +30,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 async function handleFeedbackSubmission(req: VercelRequest, res: VercelResponse, db: any) {
-    const { user_uid, app_id, session_id, content, comment, error_type } = req.body;
+    // Allow anonymous feedback, but use verified uid if available
+    const decoded = await verifyAuth(req);
+    const { app_id, session_id, content, comment, error_type } = req.body;
+    const user_uid = decoded?.uid || 'anonymous';
 
     if (!app_id || !comment) {
         return res.status(400).json({ error: "Missing required fields (app_id, comment)" });
@@ -67,10 +62,10 @@ async function handleFeedbackSubmission(req: VercelRequest, res: VercelResponse,
 }
 
 async function handleAdminReviewList(req: VercelRequest, res: VercelResponse, db: any) {
-    const user_uid = req.headers['x-user-uid'] || req.query.user_uid;
-
-    // 1. Check Admin Status
-    if (!user_uid) return res.status(401).json({ error: "Unauthorized" });
+    // 1. Verify token
+    const decoded = await verifyAuth(req);
+    if (!decoded) return res.status(401).json({ error: "Unauthorized" });
+    const user_uid = decoded.uid;
 
     try {
         const user = await db.execute({
@@ -96,10 +91,10 @@ async function handleAdminReviewList(req: VercelRequest, res: VercelResponse, db
 }
 
 async function handleAdminResolve(req: VercelRequest, res: VercelResponse, db: any) {
-    const user_uid = req.headers['x-user-uid'] || req.body.user_uid;
-
-    // 1. Check Admin Status
-    if (!user_uid) return res.status(401).json({ error: "Unauthorized" });
+    // 1. Verify token
+    const decoded = await verifyAuth(req);
+    if (!decoded) return res.status(401).json({ error: "Unauthorized" });
+    const user_uid = decoded.uid;
 
     try {
         const user = await db.execute({

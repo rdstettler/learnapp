@@ -45,8 +45,8 @@ export class ApiService {
         if (!user) return false;
 
         try {
-            await firstValueFrom(this.http.post(`${this.API_BASE}/sync_user`, {
-                uid: user.uid,
+            await firstValueFrom(this.http.post(`${this.API_BASE}/user`, {
+                type: 'sync',
                 email: user.email,
                 displayName: user.displayName,
                 photoUrl: user.photoURL
@@ -66,8 +66,8 @@ export class ApiService {
         if (!user) return false;
 
         try {
-            await firstValueFrom(this.http.post(`${this.API_BASE}/telemetry`, {
-                uid: user.uid,
+            await firstValueFrom(this.http.post(`${this.API_BASE}/events`, {
+                type: 'telemetry',
                 appId: event.appId,
                 eventType: event.eventType,
                 metadata: event.metadata
@@ -101,7 +101,7 @@ export class ApiService {
         if (!user) return null;
 
         try {
-            const session = await firstValueFrom(this.http.get(`${this.API_BASE}/learning-session?user_uid=${user.uid}`));
+            const session = await firstValueFrom(this.http.get(`${this.API_BASE}/learning-session`));
             this.activeSession.set(session);
             return session;
         } catch (error: any) {
@@ -120,9 +120,7 @@ export class ApiService {
         const user = this.authService.user();
         if (!user) throw new Error("User not logged in");
 
-        const session = await firstValueFrom(this.http.post(`${this.API_BASE}/learning-session`, {
-            user_uid: user.uid
-        }));
+        const session = await firstValueFrom(this.http.post(`${this.API_BASE}/learning-session`, {}));
 
         // Refresh session after generation
         await this.getLearningSession();
@@ -149,8 +147,8 @@ export class ApiService {
         if (!user) return false;
 
         const payload = Array.isArray(taskId)
-            ? { user_uid: user.uid, taskIds: taskId }
-            : { user_uid: user.uid, taskId: taskId };
+            ? { taskIds: taskId }
+            : { taskId: taskId };
 
         try {
             await firstValueFrom(this.http.put(`${this.API_BASE}/learning-session`, payload));
@@ -176,11 +174,8 @@ export class ApiService {
         const user = this.authService.user();
         // Allow anonymous feedback if needed, but for now fallback to user check or specific handling?
         // Let's allow generic feedback but require user_uid if logged in.
-        const uid = user ? user.uid : 'anonymous';
-
         try {
             await firstValueFrom(this.http.post(`${this.API_BASE}/feedback`, {
-                user_uid: uid,
                 app_id: feedback.appId,
                 session_id: feedback.sessionId || this.activeSession()?.session_id,
                 content: feedback.content,
@@ -204,8 +199,6 @@ export class ApiService {
             await firstValueFrom(this.http.post(`${this.API_BASE}/admin/add-content`, {
                 app_id: appId,
                 content: content
-            }, {
-                headers: { 'x-user-uid': user.uid }
             }));
             return true;
         } catch (error: any) {

@@ -120,7 +120,7 @@ async function initDB() {
                 icon TEXT,
                 tags TEXT,
                 featured BOOLEAN DEFAULT 0,
-                min_age INTEGER,
+                min_learn_level INTEGER,
                 min_skill_level INTEGER,
                 type TEXT DEFAULT 'tool',
                 data_structure TEXT,

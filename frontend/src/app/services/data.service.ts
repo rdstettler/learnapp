@@ -32,7 +32,7 @@ export class DataService {
      * Load app content from API
      */
     loadAppContent<T>(appId: string): Observable<T[]> {
-        const url = `/api/app_content?app_id=${appId}`;
+        const url = `/api/apps?app_id=${appId}`;
 
         if (!this.cache.has(url)) {
             const request = this.http.get<{ content: any[] }>(url).pipe(

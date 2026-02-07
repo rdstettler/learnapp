@@ -1,27 +1,19 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getTursoClient } from '../_lib/turso.js';
+import { requireAuth, handleCors } from '../_lib/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // CORS headers
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
-    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-User-Uid');
-
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
+    if (handleCors(req, res)) return;
 
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const user_uid = req.headers['x-user-uid'];
-    if (!user_uid) {
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
+    const decoded = await requireAuth(req, res);
+    if (!decoded) return;
+
+    const user_uid = decoded.uid;
 
     const { app_id, content, category, level } = req.body;
 

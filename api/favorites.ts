@@ -1,15 +1,18 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getTursoClient } from './_lib/turso.js';
+import { requireAuth, handleCors } from './_lib/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+    if (handleCors(req, res)) return;
+
+    const decoded = await requireAuth(req, res);
+    if (!decoded) return;
+
     const db = getTursoClient();
+    const user_uid = decoded.uid;
 
     if (req.method === 'GET') {
-        const { user_uid } = req.query;
-        if (!user_uid || typeof user_uid !== 'string') {
-            return res.status(400).json({ error: 'Missing user_uid' });
-        }
 
         try {
             const result = await db.execute({
@@ -23,10 +26,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
     }
     else if (req.method === 'POST') {
-        const { user_uid, app_id, is_favorite } = req.body;
+        const { app_id, is_favorite } = req.body;
 
-        if (!user_uid || !app_id || is_favorite === undefined) {
-            return res.status(400).json({ error: 'Missing required fields' });
+        if (!app_id || is_favorite === undefined) {
+            return res.status(400).json({ error: 'Missing required fields (app_id, is_favorite)' });
         }
 
         try {

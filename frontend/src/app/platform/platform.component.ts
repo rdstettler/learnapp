@@ -65,8 +65,8 @@ export class PlatformComponent implements OnInit, AfterViewInit {
         effect(() => {
             const user = this.authService.user();
             if (user) {
-                this.userService.loadMetricsFromBackend(user.uid);
-                this.userService.loadProfileFromBackend(user.uid);
+                this.userService.loadMetricsFromBackend();
+                this.userService.loadProfileFromBackend();
             }
         });
 
@@ -110,7 +110,7 @@ export class PlatformComponent implements OnInit, AfterViewInit {
             if (user) {
                 // Use untracked if loadFavorites reads other signals to avoid loops, 
                 // but here it just makes an HTTP call.
-                this.loadFavorites(user.uid);
+                this.loadFavorites();
             } else {
                 this.favorites.set(new Set());
             }
@@ -309,12 +309,10 @@ export class PlatformComponent implements OnInit, AfterViewInit {
 
     favoritesLoading = signal(false);
 
-    private loadFavorites(uid: string): void {
-        console.log('Loading favorites for user:', uid);
+    private loadFavorites(): void {
         this.favoritesLoading.set(true);
-        this.http.get<{ favorites: string[] }>(`/api/favorites?user_uid=${uid}`).subscribe({
+        this.http.get<{ favorites: string[] }>('/api/favorites').subscribe({
             next: (res) => {
-                console.log('Loaded favorites:', res.favorites);
                 const favSet = new Set(res.favorites);
                 this.favorites.set(favSet);
 
@@ -347,7 +345,6 @@ export class PlatformComponent implements OnInit, AfterViewInit {
         this.favorites.set(newFavs);
 
         this.http.post('/api/favorites', {
-            user_uid: user.uid,
             app_id: appId,
             is_favorite: !isFav
         }).subscribe({

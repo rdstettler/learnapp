@@ -1,6 +1,6 @@
 
 import { Component, inject, signal, effect } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
@@ -60,9 +60,7 @@ export class FeedbackReviewComponent {
     if (!uid) return;
 
     this.loading.set(true);
-    this.http.get<FeedbackItem[]>('/api/feedback', {
-      headers: new HttpHeaders({ 'X-User-Uid': uid })
-    }).subscribe({
+    this.http.get<FeedbackItem[]>('/api/feedback').subscribe({
       next: (data) => {
         // Parse suggestions from comments
         const processedData = data.map(item => {
@@ -156,8 +154,6 @@ export class FeedbackReviewComponent {
       target_id: item.target_id || item.session_id, // Fallback for legacy items
       new_content: newContentParsed,
       resolution_reason: reason
-    }, {
-      headers: new HttpHeaders({ 'X-User-Uid': uid })
     }).subscribe({
       next: () => {
         this.items.update(list => list.filter(i => i.id !== item.id));
@@ -188,8 +184,6 @@ export class FeedbackReviewComponent {
       new_content: originalContent,
       resolution_reason: reason,
       dismiss: true // Signal to backend this is a dismissal (optional, or just content update same as old)
-    }, {
-      headers: new HttpHeaders({ 'X-User-Uid': uid })
     }).subscribe({
       next: () => {
         this.items.update(list => list.filter(i => i.id !== item.id));

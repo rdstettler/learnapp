@@ -29,13 +29,11 @@ export class AppTelemetryService {
             return;
         }
 
-        const uid = user.uid;
-
         try {
             await firstValueFrom(
-                this.http.post(`${this.API_BASE}/app_results`, {
+                this.http.post(`${this.API_BASE}/events`, {
+                    type: 'app_result',
                     appId,
-                    uid,
                     sessionId,
                     content
                 })

@@ -16,6 +16,7 @@
     "@libsql/client": "^0.14.0",
     "ai": "^6.0.70",
     "dotenv": "^17.2.3",
+    "firebase-admin": "^13.6.1",
     "tsx": "^4.21.0"
   },
   "devDependencies": {

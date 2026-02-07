@@ -1,16 +1,13 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getTursoClient } from './_lib/turso.js';
+import { requireAuth, handleCors } from './_lib/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Enable CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    if (handleCors(req, res)) return;
 
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
+    const decoded = await requireAuth(req, res);
+    if (!decoded) return;
 
     try {
         const db = getTursoClient();
@@ -18,11 +15,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const type = req.query.type || req.body?.type;
 
         if (type === 'profile') {
-            return handleProfile(req, res, db);
+            return handleProfile(req, res, db, decoded.uid);
         } else if (type === 'metrics') {
-            return handleMetrics(req, res, db);
+            return handleMetrics(req, res, db, decoded.uid);
+        } else if (type === 'sync') {
+            return handleSync(req, res, db, decoded);
         } else {
-            return res.status(400).json({ error: "Missing or invalid 'type' parameter (profile|metrics)" });
+            return res.status(400).json({ error: "Missing or invalid 'type' parameter (profile|metrics|sync)" });
         }
 
     } catch (error: any) {
@@ -31,14 +30,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 }
 
-async function handleProfile(req: VercelRequest, res: VercelResponse, db: any) {
+async function handleProfile(req: VercelRequest, res: VercelResponse, db: any, uid: string) {
     if (req.method === 'GET') {
-        // Get user profile
-        const { uid } = req.query;
-
-        if (!uid || typeof uid !== 'string') {
-            return res.status(400).json({ error: 'uid is required' });
-        }
+        // Get user profile — uid from verified token
 
         const result = await db.execute({
             sql: `SELECT display_name, avatar_config, avatar_svg, skill_level, learn_level FROM users WHERE uid = ?`,
@@ -62,12 +56,8 @@ async function handleProfile(req: VercelRequest, res: VercelResponse, db: any) {
     }
 
     if (req.method === 'POST') {
-        // Save/update user profile
-        const { uid, profile } = req.body;
-
-        if (!uid) {
-            return res.status(400).json({ error: 'uid is required' });
-        }
+        // Save/update user profile — uid from verified token
+        const { profile } = req.body;
 
         if (!profile) {
             return res.status(400).json({ error: 'profile is required' });
@@ -102,14 +92,9 @@ async function handleProfile(req: VercelRequest, res: VercelResponse, db: any) {
     return res.status(405).json({ error: 'Method not allowed for profile' });
 }
 
-async function handleMetrics(req: VercelRequest, res: VercelResponse, db: any) {
+async function handleMetrics(req: VercelRequest, res: VercelResponse, db: any, uid: string) {
     if (req.method === 'GET') {
-        // Get user metrics
-        const { uid } = req.query;
-
-        if (!uid || typeof uid !== 'string') {
-            return res.status(400).json({ error: 'uid is required' });
-        }
+        // Get user metrics — uid from verified token
 
         const result = await db.execute({
             sql: `SELECT app_id, open_count, last_opened FROM user_metrics WHERE user_uid = ?`,
@@ -129,12 +114,8 @@ async function handleMetrics(req: VercelRequest, res: VercelResponse, db: any) {
     }
 
     if (req.method === 'POST') {
-        // Save/update user metrics
-        const { uid, metrics } = req.body;
-
-        if (!uid) {
-            return res.status(400).json({ error: 'uid is required' });
-        }
+        // Save/update user metrics — uid from verified token
+        const { metrics } = req.body;
 
         if (!metrics || typeof metrics !== 'object') {
             return res.status(400).json({ error: 'metrics object is required' });
@@ -160,4 +141,31 @@ async function handleMetrics(req: VercelRequest, res: VercelResponse, db: any) {
     }
 
     return res.status(405).json({ error: 'Method not allowed for metrics' });
+}
+
+async function handleSync(req: VercelRequest, res: VercelResponse, db: any, decoded: { uid: string; email?: string }) {
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed for sync' });
+    }
+
+    const uid = decoded.uid;
+    const email = decoded.email || req.body.email;
+    const { displayName, photoUrl } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ error: 'email is required' });
+    }
+
+    await db.execute({
+        sql: `
+            INSERT INTO users (uid, email, display_name, photo_url) 
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(uid) DO UPDATE SET
+                email = excluded.email,
+                photo_url = excluded.photo_url
+        `,
+        args: [uid, email, displayName || null, photoUrl || null]
+    });
+
+    return res.status(200).json({ success: true, uid });
 }

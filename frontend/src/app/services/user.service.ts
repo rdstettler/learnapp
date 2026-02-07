@@ -103,10 +103,10 @@ export class UserService {
     /**
      * Load metrics from backend for authenticated user
      */
-    async loadMetricsFromBackend(uid: string): Promise<void> {
+    async loadMetricsFromBackend(): Promise<void> {
         try {
             const response = await firstValueFrom(
-                this.http.get<{ metrics: UserMetrics }>(`${this.API_BASE}/user?type=metrics&uid=${uid}`)
+                this.http.get<{ metrics: UserMetrics }>(`${this.API_BASE}/user?type=metrics`)
             );
             if (response.metrics) {
                 this._metrics.set(response.metrics);
@@ -123,10 +123,10 @@ export class UserService {
     /**
      * Load profile from backend for authenticated user
      */
-    async loadProfileFromBackend(uid: string): Promise<void> {
+    async loadProfileFromBackend(): Promise<void> {
         try {
             const response = await firstValueFrom(
-                this.http.get<{ profile: UserProfile }>(`${this.API_BASE}/user?type=profile&uid=${uid}`)
+                this.http.get<{ profile: UserProfile }>(`${this.API_BASE}/user?type=profile`)
             );
             if (response.profile) {
                 this._profile.set(response.profile);
@@ -157,17 +157,17 @@ export class UserService {
 
         // Sync to backend if user is authenticated
         if (uid) {
-            this.syncMetricsToBackend(uid, newMetrics);
+            this.syncMetricsToBackend(newMetrics);
         }
     }
 
     /**
      * Sync metrics to backend
      */
-    private async syncMetricsToBackend(uid: string, metrics: UserMetrics): Promise<void> {
+    private async syncMetricsToBackend(metrics: UserMetrics): Promise<void> {
         try {
             await firstValueFrom(
-                this.http.post(`${this.API_BASE}/user`, { type: 'metrics', uid, metrics })
+                this.http.post(`${this.API_BASE}/user`, { type: 'metrics', metrics })
             );
         } catch (error) {
             console.error('Failed to sync metrics to backend:', error);
@@ -188,7 +188,7 @@ export class UserService {
         if (uid) {
             try {
                 await firstValueFrom(
-                    this.http.post(`${this.API_BASE}/user`, { type: 'profile', uid, profile: newProfile })
+                    this.http.post(`${this.API_BASE}/user`, { type: 'profile', profile: newProfile })
                 );
                 return true;
             } catch (error) {
