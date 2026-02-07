@@ -60,7 +60,7 @@ export class FeedbackReviewComponent {
     if (!uid) return;
 
     this.loading.set(true);
-    this.http.get<FeedbackItem[]>('/api/feedback-review', {
+    this.http.get<FeedbackItem[]>('/api/feedback', {
       headers: new HttpHeaders({ 'X-User-Uid': uid })
     }).subscribe({
       next: (data) => {
@@ -150,7 +150,8 @@ export class FeedbackReviewComponent {
     const reason = prompt("Any comments on this edit? (Optional)");
 
     this.loading.set(true);
-    this.http.post('/api/feedback-review', {
+    this.http.post('/api/feedback', {
+      action: 'resolve',
       feedback_id: item.id,
       target_id: item.target_id || item.session_id, // Fallback for legacy items
       new_content: newContentParsed,
@@ -180,7 +181,8 @@ export class FeedbackReviewComponent {
     const reason = prompt("Why are you dismissing this? (Optional)");
 
     this.loading.set(true);
-    this.http.post('/api/feedback-review', {
+    this.http.post('/api/feedback', {
+      action: 'resolve',
       feedback_id: item.id,
       target_id: item.target_id || item.session_id, // Fallback for legacy items
       new_content: originalContent,

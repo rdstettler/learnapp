@@ -1,34 +1,40 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTursoClient } from './_lib/turso.js';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+import { getTursoClient } from '../api/_lib/turso.js';
+import * as dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
+async function initDB() {
     const db = getTursoClient();
+
+    console.log("Starting Database Initialization...");
 
     try {
         await db.execute("ALTER TABLE users ADD COLUMN avatar_config TEXT");
         console.log("Added avatar_config column");
-    } catch (e: any) {
+    } catch (e) {
         // console.log("avatar_config error (likely exists):", e.message);
     }
 
     try {
         await db.execute("ALTER TABLE users ADD COLUMN avatar_svg TEXT");
         console.log("Added avatar_svg column");
-    } catch (e: any) {
+    } catch (e) {
         // console.log("avatar_svg error (likely exists):", e.message);
     }
 
     try {
         await db.execute("ALTER TABLE users ADD COLUMN skill_level REAL");
         console.log("Added skill_level column");
-    } catch (e: any) {
+    } catch (e) {
         // console.log("skill_level error (likely exists):", e.message);
     }
 
     try {
         await db.execute("ALTER TABLE users ADD COLUMN learn_level INTEGER");
         console.log("Added learn_level column");
-    } catch (e: any) {
+    } catch (e) {
         // console.log("learn_level error (likely exists):", e.message);
     }
 
@@ -36,21 +42,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
         await db.execute("ALTER TABLE apps ADD COLUMN type TEXT DEFAULT 'tool'");
         console.log("Added apps.type column");
-    } catch (e: any) {
+    } catch (e) {
         // console.log("apps.type error (likely exists):", e.message);
     }
 
     try {
         await db.execute("ALTER TABLE apps ADD COLUMN data_structure TEXT");
         console.log("Added apps.data_structure column");
-    } catch (e: any) {
+    } catch (e) {
         // console.log("apps.data_structure error (likely exists):", e.message);
     }
 
     try {
         await db.execute("ALTER TABLE app_results ADD COLUMN processed BOOLEAN DEFAULT 0");
         console.log("Added app_results.processed column");
-    } catch (e: any) {
+    } catch (e) {
         // console.log("app_results.processed error (likely exists):", e.message);
     }
 
@@ -68,7 +74,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             )
         `);
         console.log("Created app_results table (if not exists)");
-    } catch (e: any) {
+    } catch (e) {
         console.error("Error creating app_results table:", e.message);
     }
 
@@ -90,7 +96,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             )
         `);
         console.log("Created learning_session table (if not exists)");
-    } catch (e: any) {
+    } catch (e) {
         console.error("Error creating learning_session table:", e.message);
     }
 
@@ -98,7 +104,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
         await db.execute("ALTER TABLE learning_session ADD COLUMN theory TEXT");
         console.log("Added learning_session.theory column");
-    } catch (e: any) {
+    } catch (e) {
         // ignore
     }
 
@@ -122,9 +128,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             )
         `);
         console.log("Created apps table (if not exists)");
-    } catch (e: any) {
+    } catch (e) {
         console.error("Error creating apps table:", e.message);
-        return res.status(500).json({ error: e.message });
     }
 
     // Create user_apps table (favorites)
@@ -139,7 +144,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             )
         `);
         console.log("Created user_apps table (if not exists)");
-    } catch (e: any) {
+    } catch (e) {
         console.error("Error creating user_apps table:", e.message);
     }
 
@@ -159,14 +164,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             )
         `);
         console.log("Created app_content table (if not exists)");
-    } catch (e: any) {
+    } catch (e) {
         console.error("Error creating app_content table:", e.message);
     }
 
     try {
         await db.execute("ALTER TABLE app_content ADD COLUMN ai_reviewed_counter INTEGER DEFAULT 0");
         console.log("Added ai_reviewed_counter column to app_content");
-    } catch (e: any) { }
+    } catch (e) { }
 
     // Create ai_logs table
     try {
@@ -184,7 +189,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             )
         `);
         console.log("Created ai_logs table (if not exists)");
-    } catch (e: any) {
+    } catch (e) {
         console.error("Error creating ai_logs table:", e.message);
     }
 
@@ -204,7 +209,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             )
         `);
         console.log("Created feedback table (if not exists)");
-    } catch (e: any) {
+    } catch (e) {
         console.error("Error creating feedback table:", e.message);
     }
 
@@ -222,7 +227,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             )
         `);
         console.log("Created user_question_progress table (if not exists)");
-    } catch (e: any) {
+    } catch (e) {
         console.error("Error creating user_question_progress table:", e.message);
     }
 
@@ -441,7 +446,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         console.log("Seeded/Updated apps data");
 
-    } catch (e: any) {
+    } catch (e) {
         console.error("Error seeding apps:", e.message);
     }
 
@@ -449,32 +454,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
         await db.execute("ALTER TABLE feedback ADD COLUMN target_id TEXT");
         console.log("Added target_id column to feedback");
-    } catch (e: any) { }
+    } catch (e) { }
 
     try {
         await db.execute("ALTER TABLE feedback ADD COLUMN resolved BOOLEAN DEFAULT 0");
         console.log("Added resolved column to feedback");
-    } catch (e: any) { }
+    } catch (e) { }
 
     try {
         await db.execute("ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT 0");
         console.log("Added is_admin column to users");
-    } catch (e: any) { }
+    } catch (e) { }
 
     try {
         await db.execute("UPDATE users SET is_admin = 1 WHERE uid = 'IMv3Vu3lPWNG419VdOoXxvyn5DK2'");
         console.log("Promoted Robert to Admin");
-    } catch (e: any) { }
+    } catch (e) { }
 
     try {
         await db.execute("ALTER TABLE feedback ADD COLUMN resolution_reason TEXT");
         console.log("Added resolution_reason column to feedback");
-    } catch (e: any) { }
+    } catch (e) { }
 
     try {
         await db.execute("ALTER TABLE users ADD COLUMN language_variant TEXT DEFAULT 'swiss'");
         console.log("Added language_variant column to users");
-    } catch (e: any) { }
+    } catch (e) { }
 
-    res.status(200).json({ message: "DB setup/migration complete." });
+    console.log("DB setup/migration complete.");
 }
+
+initDB().catch(console.error);

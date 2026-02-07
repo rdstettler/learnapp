@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTursoClient, initSchema } from './_lib/turso.js';
+import { getTursoClient } from './_lib/turso.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Enable CORS
@@ -23,9 +23,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const db = getTursoClient();
-
-        // Ensure schema exists
-        await initSchema();
 
         await db.execute({
             sql: `

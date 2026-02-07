@@ -106,7 +106,7 @@ export class UserService {
     async loadMetricsFromBackend(uid: string): Promise<void> {
         try {
             const response = await firstValueFrom(
-                this.http.get<{ metrics: UserMetrics }>(`${this.API_BASE}/user/metrics?uid=${uid}`)
+                this.http.get<{ metrics: UserMetrics }>(`${this.API_BASE}/user?type=metrics&uid=${uid}`)
             );
             if (response.metrics) {
                 this._metrics.set(response.metrics);
@@ -126,7 +126,7 @@ export class UserService {
     async loadProfileFromBackend(uid: string): Promise<void> {
         try {
             const response = await firstValueFrom(
-                this.http.get<{ profile: UserProfile }>(`${this.API_BASE}/user/profile?uid=${uid}`)
+                this.http.get<{ profile: UserProfile }>(`${this.API_BASE}/user?type=profile&uid=${uid}`)
             );
             if (response.profile) {
                 this._profile.set(response.profile);
@@ -167,7 +167,7 @@ export class UserService {
     private async syncMetricsToBackend(uid: string, metrics: UserMetrics): Promise<void> {
         try {
             await firstValueFrom(
-                this.http.post(`${this.API_BASE}/user/metrics`, { uid, metrics })
+                this.http.post(`${this.API_BASE}/user`, { type: 'metrics', uid, metrics })
             );
         } catch (error) {
             console.error('Failed to sync metrics to backend:', error);
@@ -188,7 +188,7 @@ export class UserService {
         if (uid) {
             try {
                 await firstValueFrom(
-                    this.http.post(`${this.API_BASE}/user/profile`, { uid, profile: newProfile })
+                    this.http.post(`${this.API_BASE}/user`, { type: 'profile', uid, profile: newProfile })
                 );
                 return true;
             } catch (error) {

@@ -3,23 +3,22 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "scripts": {
-    "dev": "cd frontend && npm run start",
-    "build": "cd frontend && npm run build",
-    "vercel-build": "cd frontend && npm install && npm run build",
-    "migrate-trigger": "node scripts/trigger-migrate.js",
-    "publish": "vercel deploy --prod && npm run migrate-trigger"
-  },
-  "dependencies": {
-    "@ai-sdk/openai": "^3.0.25",
-    "@ai-sdk/xai": "^3.0.47",
-    "@libsql/client": "^0.14.0",
-    "ai": "^6.0.70",
-    "dotenv": "^17.2.3",
-    "tsx": "^4.21.0"
-  },
-  "devDependencies": {
-    "@vercel/node": "^3.0.0",
-    "typescript": "^5.0.0"
-  }
+  "dev": "cd frontend && npm run start",
+  "build": "cd frontend && npm run build",
+  "vercel-build": "cd frontend && npm install && npm run build",
+  "db:init": "tsx scripts/db-init.ts",
+  "publish": "vercel deploy --prod"
+},
+"dependencies": {
+  "@ai-sdk/openai": "^3.0.25",
+  "@ai-sdk/xai": "^3.0.47",
+  "@libsql/client": "^0.14.0",
+  "ai": "^6.0.70",
+  "dotenv": "^17.2.3",
+  "tsx": "^4.21.0"
+},
+"devDependencies": {
+  "@vercel/node": "^3.0.0",
+  "typescript": "^5.0.0"
+}
 }
