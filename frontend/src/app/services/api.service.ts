@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from './auth.service';
+import { BadgeService } from './badge.service';
 import { firstValueFrom } from 'rxjs';
 import { LearningSession, SessionTask, NotEnoughDataResponse } from '../shared/models/learning-session.model';
 
@@ -26,6 +27,7 @@ export interface TelemetryEvent {
 export class ApiService {
     private http = inject(HttpClient);
     private authService = inject(AuthService);
+    private badgeService = inject(BadgeService);
 
     // Use relative path - works in both dev and prod
     private readonly API_BASE = '/api';
@@ -121,12 +123,20 @@ export class ApiService {
         const user = this.authService.user();
         if (!user) throw new Error("User not logged in");
 
-        const session = await firstValueFrom(this.http.post<LearningSession>(`${this.API_BASE}/learning-session`, {}));
+        try {
+            const session = await firstValueFrom(this.http.post<LearningSession>(`${this.API_BASE}/learning-session`, {}));
 
-        // Refresh session after generation
-        await this.getLearningSession();
+            // Refresh session after generation
+            await this.getLearningSession();
 
-        return session;
+            return session;
+        } catch (error: unknown) {
+            if (error instanceof HttpErrorResponse && error.status === 400) {
+                // No new results to process — rethrow with a user-friendly message
+                throw new Error(error.error?.error || 'Keine neuen Ergebnisse zum Verarbeiten vorhanden.');
+            }
+            throw error;
+        }
     }
 
     /**
@@ -192,19 +202,44 @@ export class ApiService {
     /**
      * Add new app content (Admin only)
      */
-    async addAppContent(appId: string, content: Record<string, unknown>): Promise<boolean> {
+    async addAppContent(appId: string, content: object, level?: number | null): Promise<boolean> {
         const user = this.authService.user();
         if (!user) throw new Error("Unauthorized");
 
         try {
             await firstValueFrom(this.http.post(`${this.API_BASE}/admin/add-content`, {
                 app_id: appId,
-                content: content
+                content: content,
+                ...(level != null && { level })
             }));
             return true;
         } catch (error: unknown) {
             console.error('Failed to add app content:', error);
             throw new Error(error instanceof HttpErrorResponse ? error.error?.error : 'Failed to add content');
+        }
+    }
+
+    /**
+     * Submit question progress and check for new badges.
+     * Call this after a user answers a question.
+     */
+    async submitQuestionProgress(appId: string, appContentId: number, isCorrect: boolean): Promise<void> {
+        const user = this.authService.user();
+        if (!user) return;
+
+        try {
+            await firstValueFrom(this.http.post(`${this.API_BASE}/events`, {
+                type: 'question_progress',
+                appId,
+                appContentId,
+                isCorrect
+            }));
+
+            // Fire-and-forget badge check after a short delay
+            // (gives DB a moment to settle, avoids blocking the UI)
+            setTimeout(() => this.badgeService.checkBadges(), 500);
+        } catch (error) {
+            console.error('Failed to submit question progress:', error);
         }
     }
 }

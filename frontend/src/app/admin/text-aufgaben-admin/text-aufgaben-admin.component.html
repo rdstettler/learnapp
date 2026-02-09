@@ -22,6 +22,14 @@
             <textarea [(ngModel)]="explanation" rows="3" placeholder="Erklärung zur Lösung..."></textarea>
         </div>
 
+        <div class="form-group">
+            <label>Lernstufe (Optional):</label>
+            <select [(ngModel)]="learnLevel">
+                <option [ngValue]="null">— Keine Stufe —</option>
+                <option *ngFor="let lvl of [1,2,3,4,5,6,7,8,9,10,11,12,13,14]" [ngValue]="lvl">{{ lvl }}</option>
+            </select>
+        </div>
+
         <div class="actions">
             <button class="btn-primary" (click)="submit()" [disabled]="isSubmitting()">
                 {{ isSubmitting() ? 'Speichert...' : 'Speichern' }}

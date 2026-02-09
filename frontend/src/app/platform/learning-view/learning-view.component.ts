@@ -111,6 +111,9 @@ import { LearningSession, SessionTask, NotEnoughDataResponse } from '../../share
             <div class="magic-icon">✨</div>
             <h2>Dein persönlicher Lernplan kann erstellt werden!</h2>
             <p>Basierend auf deinen letzten Übungen kann ich 🤖 eine Lerneinheit für dich zusammenstellen.</p>
+            @if (generationError()) {
+              <div class="error-message">⚠️ {{ generationError() }}</div>
+            }
             <button class="generate-btn" (click)="generateSession()" [disabled]="generating()">
                 @if (generating()) {
                     {{ loadingMessage() }}
@@ -250,6 +253,17 @@ import { LearningSession, SessionTask, NotEnoughDataResponse } from '../../share
         50% { transform: translateY(-10px); }
         100% { transform: translateY(0px); }
     }
+    .error-message {
+        background: #FFF3E0;
+        color: #E65100;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        border-left: 4px solid #FF9800;
+        width: 100%;
+        max-width: 500px;
+        text-align: left;
+        font-size: 0.95rem;
+    }
     .fade-in {
         animation: fadeIn 0.5s ease-out;
     }
@@ -302,6 +316,7 @@ export class LearningViewComponent implements OnInit {
 
   loading = signal(true);
   generating = signal(false);
+  generationError = signal<string | null>(null);
 
   // Timer for generation
   generationSeconds = signal(0);
@@ -408,6 +423,7 @@ export class LearningViewComponent implements OnInit {
 
   async generateSession() {
     this.generating.set(true);
+    this.generationError.set(null);
     this.generationSeconds.set(0);
 
     const interval = setInterval(() => {
@@ -417,8 +433,12 @@ export class LearningViewComponent implements OnInit {
     try {
       const res = await this.apiService.generateLearningSession();
       this.session.set(res);
-    } catch (e) {
+    } catch (e: unknown) {
       console.error("Error generating session", e);
+      const msg = e instanceof Error ? e.message : 'Unbekannter Fehler';
+      this.generationError.set(msg);
+      // Reload session to show correct state (suggestions, etc.)
+      await this.loadSession();
     } finally {
       clearInterval(interval);
       this.generating.set(false);

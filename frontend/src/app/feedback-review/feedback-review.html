@@ -3,7 +3,7 @@
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
         <p style="margin:0;">Review AI-flagged content corrections.</p>
         <button class="btn-approve" (click)="runAiReview()" [disabled]="loading()">
-            @if (!reviewProgress()) {
+            @if (!reviewProgress() && !loading()) {
                 <span>🤖 Jetzt reviewen</span>
             }
             @if (reviewProgress(); as progress) {

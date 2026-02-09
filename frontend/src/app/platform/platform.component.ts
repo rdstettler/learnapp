@@ -5,7 +5,9 @@ import { OnboardingService } from '../services/onboarding.service';
 import { UserService } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
+import { BadgeService } from '../services/badge.service';
 import { AuthModalComponent, AppCardComponent } from '../shared';
+import { BadgeShowcaseComponent } from '../shared/components/badge-showcase/badge-showcase.component';
 import { LearningViewComponent } from './learning-view/learning-view.component';
 import { PropertiesModalComponent } from './properties-modal/properties-modal.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -19,7 +21,7 @@ interface AppsConfig {
 @Component({
     selector: 'app-platform',
     standalone: true,
-    imports: [AuthModalComponent, AppCardComponent, LearningViewComponent, PropertiesModalComponent],
+    imports: [AuthModalComponent, AppCardComponent, LearningViewComponent, PropertiesModalComponent, BadgeShowcaseComponent],
     templateUrl: './platform.component.html',
     styleUrl: './platform.component.css'
 })
@@ -31,12 +33,16 @@ export class PlatformComponent implements OnInit, AfterViewInit {
     private apiService = inject(ApiService);
     private sanitizer = inject(DomSanitizer);
     private onboardingService = inject(OnboardingService);
+    badgeService = inject(BadgeService);
 
     // Auth
     authService = inject(AuthService);
 
     // User Properties Modal
     showPropertiesModal = signal(false);
+
+    // Badge Showcase Modal
+    showBadgeShowcase = signal(false);
 
     constructor() {
         // Load metrics and profile from backend when user logs in
@@ -45,6 +51,7 @@ export class PlatformComponent implements OnInit, AfterViewInit {
             if (user) {
                 this.userService.loadMetricsFromBackend();
                 this.userService.loadProfileFromBackend();
+                this.badgeService.loadBadges();
             }
         });
 
@@ -294,6 +301,18 @@ export class PlatformComponent implements OnInit, AfterViewInit {
 
     openSettings(): void {
         this.router.navigate(['/settings']);
+    }
+
+    openBadgeShowcase(): void {
+        if (!this.authService.user()) {
+            this.openAuthModal();
+            return;
+        }
+        this.showBadgeShowcase.set(true);
+    }
+
+    closeBadgeShowcase(): void {
+        this.showBadgeShowcase.set(false);
     }
 
     getDisplayName(): string {

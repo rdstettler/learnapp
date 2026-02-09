@@ -40,6 +40,12 @@
                 <div class="user-avatar-placeholder">{{ getDisplayName().charAt(0).toUpperCase() }}</div>
                 }
                 <span class="user-name">{{ getDisplayName() }}</span>
+                <button class="auth-btn badge-btn" (click)="openBadgeShowcase()" title="Abzeichen">
+                    <span class="badge-btn-icon">🏆</span>
+                    @if (badgeService.badges().length > 0) {
+                        <span class="badge-count">{{ badgeService.earnedCount }}</span>
+                    }
+                </button>
                 <button id="settings-btn" class="auth-btn settings-btn" (click)="openSettings()"
                     title="Einstellungen"><span class="settings-icon">⚙️</span></button>
                 <button class="auth-btn logout-btn" (click)="signOut()">Abmelden</button>
@@ -107,4 +113,9 @@
 <!-- Properties Modal -->
 @if (showPropertiesModal()) {
 <app-properties-modal (closed)="closePropertiesModal()"></app-properties-modal>
+}
+
+<!-- Badge Showcase Modal -->
+@if (showBadgeShowcase()) {
+<app-badge-showcase (closed)="closeBadgeShowcase()"></app-badge-showcase>
 }

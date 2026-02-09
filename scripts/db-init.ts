@@ -177,6 +177,17 @@ async function initDB() {
                 last_attempt_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (user_uid, app_content_id)
             )`
+        },
+        {
+            name: "user_badges",
+            sql: `CREATE TABLE IF NOT EXISTS user_badges (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_uid TEXT NOT NULL,
+                badge_id TEXT NOT NULL,
+                awarded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_uid, badge_id),
+                FOREIGN KEY (user_uid) REFERENCES users(uid)
+            )`
         }
     ];
 

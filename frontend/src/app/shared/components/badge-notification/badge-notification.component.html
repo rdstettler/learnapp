@@ -1,0 +1,10 @@
+@for (badge of pending(); track badge.id) {
+    <div class="badge-toast" [class]="'tier-' + badge.tier" (click)="dismiss(badge.id)">
+        <div class="toast-icon">{{ badge.icon }}</div>
+        <div class="toast-content">
+            <div class="toast-title">Neues Abzeichen!</div>
+            <div class="toast-name">{{ badge.name }}</div>
+        </div>
+        <button class="toast-close" (click)="dismiss(badge.id)">✕</button>
+    </div>
+}

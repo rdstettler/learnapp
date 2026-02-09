@@ -240,6 +240,45 @@ a.app-card {
     transform: rotate(90deg);
 }
 
+/* Badge Button */
+.badge-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.badge-btn:hover {
+    background: rgba(255, 215, 0, 0.15);
+    border-color: rgba(255, 215, 0, 0.4);
+}
+
+.badge-btn-icon {
+    display: inline-block;
+    transition: transform 0.2s;
+}
+
+.badge-btn:hover .badge-btn-icon {
+    transform: scale(1.2);
+}
+
+.badge-count {
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    color: white;
+    border-radius: 10px;
+    padding: 1px 7px;
+    min-width: 20px;
+    text-align: center;
+    line-height: 1.4;
+}
+
 .user-info {
     display: flex;
     align-items: center;

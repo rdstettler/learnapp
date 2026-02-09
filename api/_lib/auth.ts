@@ -9,8 +9,10 @@ function getFirebaseAdmin(): App {
         // Uses GOOGLE_APPLICATION_CREDENTIALS env var or explicit service account
         const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
         if (serviceAccount) {
+            // Replace literal newlines/carriage returns with \n for JSON parsing
+            const sanitized = serviceAccount.replace(/\n/g, '\\n').replace(/\r/g, '');
             firebaseApp = initializeApp({
-                credential: cert(JSON.parse(serviceAccount)),
+                credential: cert(JSON.parse(sanitized)),
             });
         } else {
             // Fallback: uses GOOGLE_APPLICATION_CREDENTIALS or ADC

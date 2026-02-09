@@ -34,6 +34,6 @@ import { ErrorReporterComponent } from '../error-reporter/error-reporter.compone
 export class LearningAppLayoutComponent {
     title = input.required<string>();
     appId = input.required<string>();
-    content = input<Record<string, unknown>>();
+    content = input<unknown>();
     backLink = input<string[] | string>('/');
 }

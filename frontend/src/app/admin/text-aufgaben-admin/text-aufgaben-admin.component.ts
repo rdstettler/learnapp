@@ -24,6 +24,7 @@ export class TextAufgabenAdminComponent {
     question = '';
     answers: string[] = [''];
     explanation = '';
+    learnLevel: number | null = null;
 
     isSubmitting = signal(false);
     successMessage = signal('');
@@ -67,7 +68,7 @@ export class TextAufgabenAdminComponent {
         };
 
         try {
-            await this.apiService.addAppContent('textaufgaben', content);
+            await this.apiService.addAppContent('textaufgaben', content, this.learnLevel);
             this.successMessage.set('Aufgabe erfolgreich gespeichert!');
             this.resetForm();
         } catch (err: any) {
@@ -82,5 +83,6 @@ export class TextAufgabenAdminComponent {
         this.question = '';
         this.answers = [''];
         this.explanation = '';
+        this.learnLevel = null;
     }
 }

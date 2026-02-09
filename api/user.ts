@@ -2,6 +2,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getTursoClient, type TursoClient } from './_lib/turso.js';
 import { requireAuth, handleCors } from './_lib/auth.js';
+import { BADGE_DEFINITIONS, getBadgeInfoList } from './_lib/badges.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (handleCors(req, res)) return;
@@ -20,8 +21,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return handleMetrics(req, res, db, decoded.uid);
         } else if (type === 'sync') {
             return handleSync(req, res, db, decoded);
+        } else if (type === 'badges') {
+            return handleBadges(req, res, db, decoded.uid);
         } else {
-            return res.status(400).json({ error: "Missing or invalid 'type' parameter (profile|metrics|sync)" });
+            return res.status(400).json({ error: "Missing or invalid 'type' parameter (profile|metrics|sync|badges)" });
         }
 
     } catch (error: unknown) {
@@ -168,4 +171,72 @@ async function handleSync(req: VercelRequest, res: VercelResponse, db: TursoClie
     });
 
     return res.status(200).json({ success: true, uid });
+}
+
+async function handleBadges(req: VercelRequest, res: VercelResponse, db: TursoClient, uid: string) {
+    if (req.method === 'GET') {
+        // Return all badge definitions + which ones this user has earned
+        try {
+            const earned = await db.execute({
+                sql: `SELECT badge_id, awarded_at FROM user_badges WHERE user_uid = ?`,
+                args: [uid]
+            });
+
+            const earnedMap: Record<string, string> = {};
+            for (const row of earned.rows) {
+                earnedMap[row.badge_id as string] = row.awarded_at as string;
+            }
+
+            const allBadges = getBadgeInfoList().map(badge => ({
+                ...badge,
+                earned: !!earnedMap[badge.id],
+                awardedAt: earnedMap[badge.id] || null
+            }));
+
+            return res.status(200).json({ badges: allBadges });
+        } catch (error: unknown) {
+            console.error('Error fetching badges:', error);
+            return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+    }
+
+    if (req.method === 'POST') {
+        // Check all badges and award any newly earned ones.
+        // Returns the list of NEWLY awarded badges (for toast notifications).
+        try {
+            const earned = await db.execute({
+                sql: `SELECT badge_id FROM user_badges WHERE user_uid = ?`,
+                args: [uid]
+            });
+            const earnedSet = new Set(earned.rows.map(r => r.badge_id as string));
+
+            const newlyAwarded: { id: string; name: string; icon: string; tier: string }[] = [];
+
+            for (const badge of BADGE_DEFINITIONS) {
+                if (earnedSet.has(badge.id)) continue; // Already earned
+
+                const result = await db.execute({
+                    sql: badge.check.query,
+                    args: [uid]
+                });
+
+                const count = (result.rows[0]?.count as number) || 0;
+                if (count >= badge.check.threshold) {
+                    // Award!
+                    await db.execute({
+                        sql: `INSERT INTO user_badges (user_uid, badge_id) VALUES (?, ?) ON CONFLICT DO NOTHING`,
+                        args: [uid, badge.id]
+                    });
+                    newlyAwarded.push({ id: badge.id, name: badge.name, icon: badge.icon, tier: badge.tier });
+                }
+            }
+
+            return res.status(200).json({ newBadges: newlyAwarded });
+        } catch (error: unknown) {
+            console.error('Error checking badges:', error);
+            return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+    }
+
+    return res.status(405).json({ error: 'Method not allowed for badges' });
 }

@@ -1,0 +1,54 @@
+<div class="badge-showcase-overlay" (click)="close()">
+    <div class="badge-showcase" (click)="$event.stopPropagation()">
+        <div class="showcase-header">
+            <h2>🏆 Abzeichen</h2>
+            <button class="close-btn" (click)="close()">✕</button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-section">
+            <div class="progress-label">
+                <span>{{ earnedCount() }} / {{ totalCount() }} erreicht</span>
+                <span class="progress-percent">{{ progressPercent() }}%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="progressPercent()"></div>
+            </div>
+        </div>
+
+        <!-- Category Filters -->
+        <div class="category-filters">
+            @for (cat of categories(); track cat) {
+                <button 
+                    class="cat-chip" 
+                    [class.active]="selectedCategory() === cat"
+                    (click)="selectCategory(cat)">
+                    {{ getCategoryLabel(cat) }}
+                </button>
+            }
+        </div>
+
+        <!-- Badge Grid -->
+        @if (loading()) {
+            <div class="loading-state">Laden...</div>
+        } @else {
+            <div class="badge-grid">
+                @for (badge of filteredBadges(); track badge.id) {
+                    <div class="badge-card" [class.earned]="badge.earned" [class]="getTierClass(badge.tier)">
+                        <div class="badge-icon" [class.locked]="!badge.earned">
+                            {{ badge.earned ? badge.icon : '🔒' }}
+                        </div>
+                        <div class="badge-name">{{ badge.name }}</div>
+                        <div class="badge-description">{{ badge.description }}</div>
+                        @if (badge.earned && badge.awardedAt) {
+                            <div class="badge-date">
+                                {{ badge.awardedAt | date:'dd.MM.yyyy' }}
+                            </div>
+                        }
+                        <div class="badge-tier-label">{{ badge.tier }}</div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
