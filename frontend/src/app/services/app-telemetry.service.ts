@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { UserService } from './user.service';
 import { AuthService } from './auth.service';
 import { firstValueFrom } from 'rxjs';
 
@@ -9,39 +8,8 @@ import { firstValueFrom } from 'rxjs';
 })
 export class AppTelemetryService {
     private http = inject(HttpClient);
-    private userService = inject(UserService);
     private authService = inject(AuthService);
     private readonly API_BASE = '/api';
-
-    /**
-     * Track an error or event in an app.
-     * Only sends data if the user has opted in (learn_level > 0) AND is logged in.
-     */
-    async trackError(appId: string, content: string, sessionId: string): Promise<void> {
-        // specific check: only send if appTelemetry is enabled (learn_level > 0)
-        if (!this.userService.appTelemetry()) {
-            return;
-        }
-
-        // Check if user is logged in
-        const user = this.authService.user();
-        if (!user) {
-            return;
-        }
-
-        try {
-            await firstValueFrom(
-                this.http.post(`${this.API_BASE}/events`, {
-                    type: 'app_result',
-                    appId,
-                    sessionId,
-                    content
-                })
-            );
-        } catch (error) {
-            console.error('Failed to send app telemetry:', error);
-        }
-    }
 
     /**
      * Track question-level progress (success/failure) for personalized content.

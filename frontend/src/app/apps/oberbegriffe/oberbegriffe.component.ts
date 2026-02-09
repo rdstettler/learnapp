@@ -94,24 +94,24 @@ export class OberbegriffeComponent {
             this.normalizeAnswer(ans) === userStr
         );
 
-        if (matched) {
+        const correct = !!matched;
+        if (correct) {
             this.isCorrect.set(true);
-            this.matchedAnswer.set(matched);
+            this.matchedAnswer.set(matched!);
             this.totalCorrect.update(c => c + 1);
         } else {
             this.isCorrect.set(false);
             this.matchedAnswer.set(acceptedAnswers[0]); // Zeige erste mögliche Antwort
             this.totalWrong.update(w => w + 1);
-
-            // Telemetry: Track error
-            const content = JSON.stringify({
-                item: item,
-                actual: this.userAnswer()
-            });
-            this.telemetryService.trackError('oberbegriffe', content, this.sessionId);
         }
 
         this.answered.set(true);
+
+        // Track per-question progress
+        const contentId = (item as any)._contentId;
+        if (contentId) {
+            this.telemetryService.trackProgress('oberbegriffe', contentId, correct);
+        }
     }
 
     private normalizeAnswer(answer: string): string {

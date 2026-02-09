@@ -264,19 +264,15 @@ export class AehnlichewoerterComponent {
             this.totalCorrect.update(c => c + 1);
         } else {
             this.totalWrong.update(c => c + 1);
-
-            // Telemetry: Track error
-            const content = JSON.stringify({
-                sentenceId: sentence.id,
-                originalText: sentence.text,
-                correct: sentence.correct,
-                actual: errorActual.trim() || 'incomplete'
-            });
-
-            this.telemetryService.trackError('aehnlichewoerter', content, this.sessionId);
         }
 
         this.answered.set(true);
+
+        // Track per-sentence progress
+        const pairItem = this.currentPair() as any;
+        if (pairItem?._contentId) {
+            this.telemetryService.trackProgress('aehnlichewoerter', pairItem._contentId, allCorrect);
+        }
     }
 
     getCorrectAnswer(): string {

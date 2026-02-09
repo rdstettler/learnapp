@@ -127,17 +127,6 @@ export class WortstaemmeComponent {
         this.totalCorrect.update(c => c + correct);
         this.totalQuestions.update(t => t + stem.composites.length);
 
-        // Telemetry: Track errors (Stage 1)
-        const errors = results.filter(r => r.type === 'false-positive' || r.type === 'false-negative');
-        if (errors.length > 0) {
-            const content = JSON.stringify({
-                stage: 1,
-                stem: stem.stem,
-                errors: errors
-            });
-            this.telemetryService.trackError('wortstaemme', content, this.sessionId);
-        }
-
         // Find existing words that have meanings
         const existing = stem.composites
             .filter(c => c.exists)
@@ -146,6 +135,13 @@ export class WortstaemmeComponent {
 
         this.existingWords.set(existing);
         this.screen.set('results1');
+
+        // Track per-content progress for stage 1
+        const stemItem = this.currentStem() as any;
+        if (stemItem?._contentId) {
+            const totalComposites = stem.composites.length;
+            this.telemetryService.trackProgress('wortstaemme', stemItem._contentId, correct === totalComposites);
+        }
     }
 
     continueToStage2(): void {
@@ -193,17 +189,6 @@ export class WortstaemmeComponent {
         this.totalCorrect.update(c => c + correct);
         this.totalQuestions.update(t => t + meanings.length);
 
-        // Telemetry: Track errors (Stage 2)
-        const errors = results.filter(r => r.type === 'false-positive' || r.type === 'false-negative');
-        if (errors.length > 0) {
-            const content = JSON.stringify({
-                stage: 2,
-                stem: this.currentStem()?.stem,
-                word: this.currentMeaningWord(),
-                errors: errors
-            });
-            this.telemetryService.trackError('wortstaemme', content, this.sessionId);
-        }
         this.screen.set('results2');
     }
 

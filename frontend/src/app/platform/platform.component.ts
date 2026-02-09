@@ -9,6 +9,7 @@ import { BadgeService } from '../services/badge.service';
 import { AuthModalComponent, AppCardComponent } from '../shared';
 import { BadgeShowcaseComponent } from '../shared/components/badge-showcase/badge-showcase.component';
 import { LearningViewComponent } from './learning-view/learning-view.component';
+import { PlanViewComponent } from './plan-view/plan-view.component';
 import { PropertiesModalComponent } from './properties-modal/properties-modal.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { catchError, of } from 'rxjs';
@@ -21,7 +22,7 @@ interface AppsConfig {
 @Component({
     selector: 'app-platform',
     standalone: true,
-    imports: [AuthModalComponent, AppCardComponent, LearningViewComponent, PropertiesModalComponent, BadgeShowcaseComponent],
+    imports: [AuthModalComponent, AppCardComponent, LearningViewComponent, PlanViewComponent, PropertiesModalComponent, BadgeShowcaseComponent],
     templateUrl: './platform.component.html',
     styleUrl: './platform.component.css'
 })
@@ -79,7 +80,7 @@ export class PlatformComponent implements OnInit, AfterViewInit {
             const user = this.authService.user();
             const view = this.currentView();
             // If logged out and on a protected view, switch to 'all'
-            if (!user && (view === 'favorites' || view === 'ai')) {
+            if (!user && (view === 'favorites' || view === 'ai' || view === 'plan')) {
                 this.setView('all');
             }
         }, { allowSignalWrites: true });
@@ -107,8 +108,8 @@ export class PlatformComponent implements OnInit, AfterViewInit {
 
 
     // View State
-    currentView = signal<'all' | 'favorites' | 'ai'>(
-        (typeof localStorage !== 'undefined' && localStorage.getItem('dashboard_view') as 'all' | 'favorites' | 'ai') || 'all'
+    currentView = signal<'all' | 'favorites' | 'ai' | 'plan'>(
+        (typeof localStorage !== 'undefined' && localStorage.getItem('dashboard_view') as 'all' | 'favorites' | 'ai' | 'plan') || 'all'
     );
 
     favorites = signal<Set<string>>(new Set());
@@ -244,7 +245,7 @@ export class PlatformComponent implements OnInit, AfterViewInit {
         });
     }
 
-    setView(view: 'all' | 'favorites' | 'ai'): void {
+    setView(view: 'all' | 'favorites' | 'ai' | 'plan'): void {
         this.currentView.set(view);
         if (typeof localStorage !== 'undefined') {
             localStorage.setItem('dashboard_view', view);

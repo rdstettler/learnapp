@@ -188,6 +188,37 @@ async function initDB() {
                 UNIQUE(user_uid, badge_id),
                 FOREIGN KEY (user_uid) REFERENCES users(uid)
             )`
+        },
+        {
+            name: "learning_plans",
+            sql: `CREATE TABLE IF NOT EXISTS learning_plans (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_uid TEXT NOT NULL,
+                plan_id TEXT NOT NULL UNIQUE,
+                title TEXT NOT NULL,
+                description TEXT,
+                status TEXT DEFAULT 'active',
+                total_days INTEGER DEFAULT 1,
+                plan_data TEXT NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                completed_at DATETIME,
+                FOREIGN KEY (user_uid) REFERENCES users(uid)
+            )`
+        },
+        {
+            name: "learning_plan_tasks",
+            sql: `CREATE TABLE IF NOT EXISTS learning_plan_tasks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                plan_id TEXT NOT NULL,
+                day_number INTEGER NOT NULL,
+                order_index INTEGER NOT NULL,
+                app_id TEXT NOT NULL,
+                app_content_id INTEGER NOT NULL,
+                completed BOOLEAN DEFAULT 0,
+                completed_at DATETIME,
+                FOREIGN KEY (plan_id) REFERENCES learning_plans(plan_id),
+                FOREIGN KEY (app_content_id) REFERENCES app_content(id)
+            )`
         }
     ];
 

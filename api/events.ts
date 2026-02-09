@@ -16,12 +16,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (type === 'telemetry') {
         return handleTelemetry(req, res, decoded.uid);
-    } else if (type === 'app_result') {
-        return handleAppResult(req, res, decoded.uid);
     } else if (type === 'question_progress') {
         return handleQuestionProgress(req, res, decoded.uid);
     } else {
-        return res.status(400).json({ error: "Missing or invalid 'type' in body (telemetry|app_result|question_progress)" });
+        return res.status(400).json({ error: "Missing or invalid 'type' in body (telemetry|question_progress)" });
     }
 }
 
@@ -46,36 +44,6 @@ async function handleTelemetry(req: VercelRequest, res: VercelResponse, uid: str
         return res.status(200).json({ success: true });
     } catch (error: unknown) {
         console.error('Telemetry error:', error);
-        return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
-    }
-}
-
-async function handleAppResult(req: VercelRequest, res: VercelResponse, uid: string) {
-    try {
-        const { appId, sessionId, content } = req.body;
-
-        if (!appId || !sessionId || !content) {
-            return res.status(400).json({
-                error: 'appId, sessionId, and content are required'
-            });
-        }
-
-        const db = getTursoClient();
-
-        const result = await db.execute({
-            sql: `
-                INSERT INTO app_results (app_id, user_uid, session_id, content)
-                VALUES (?, ?, ?, ?)
-            `,
-            args: [appId, uid, sessionId, content]
-        });
-
-        return res.status(200).json({
-            success: true,
-            id: Number(result.lastInsertRowid)
-        });
-    } catch (error: unknown) {
-        console.error('App Results error:', error);
         return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
 }

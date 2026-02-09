@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from './auth.service';
 import { BadgeService } from './badge.service';
 import { firstValueFrom } from 'rxjs';
-import { LearningSession, SessionTask, NotEnoughDataResponse } from '../shared/models/learning-session.model';
+import { LearningSession, SessionTask, NotEnoughDataResponse, LearningPlan, PlanNotEnoughDataResponse } from '../shared/models/learning-session.model';
 
 export interface LearnResult {
     id?: number;
@@ -240,6 +240,96 @@ export class ApiService {
             setTimeout(() => this.badgeService.checkBadges(), 500);
         } catch (error) {
             console.error('Failed to submit question progress:', error);
+        }
+    }
+
+    // ═══════════════════════════════════════
+    //  Learning Plan
+    // ═══════════════════════════════════════
+
+    activePlan = signal<LearningPlan | null>(null);
+
+    /**
+     * Get current learning plan.
+     * Returns:
+     * - LearningPlan if one exists
+     * - null if ready to generate (enough data)
+     * - PlanNotEnoughDataResponse if not enough data (404)
+     */
+    async getLearningPlan(): Promise<LearningPlan | PlanNotEnoughDataResponse | null> {
+        const user = this.authService.user();
+        if (!user) return null;
+
+        try {
+            const plan = await firstValueFrom(
+                this.http.get<LearningPlan>(`${this.API_BASE}/learning-session?type=plan`)
+            );
+            this.activePlan.set(plan);
+            return plan;
+        } catch (error: unknown) {
+            if (error instanceof HttpErrorResponse && error.status === 404) {
+                return error.error as PlanNotEnoughDataResponse;
+            }
+            console.error('Failed to get learning plan:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Generate a new learning plan via AI.
+     * @param days Number of days (1-7, default 3)
+     */
+    async generateLearningPlan(days = 3): Promise<LearningPlan> {
+        const user = this.authService.user();
+        if (!user) throw new Error("User not logged in");
+
+        const plan = await firstValueFrom(
+            this.http.post<LearningPlan>(`${this.API_BASE}/learning-session?type=plan`, { days })
+        );
+        this.activePlan.set(plan);
+        return plan;
+    }
+
+    /**
+     * Mark plan task(s) as completed.
+     */
+    async completePlanTask(taskId: number | number[]): Promise<boolean> {
+        const user = this.authService.user();
+        if (!user) return false;
+
+        const payload = Array.isArray(taskId)
+            ? { taskIds: taskId }
+            : { taskId: taskId };
+
+        try {
+            await firstValueFrom(
+                this.http.put(`${this.API_BASE}/learning-session?type=plan`, payload)
+            );
+            // Refresh plan state
+            await this.getLearningPlan();
+            return true;
+        } catch (error) {
+            console.error('Failed to complete plan task:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Abandon the active plan.
+     */
+    async abandonPlan(): Promise<boolean> {
+        const user = this.authService.user();
+        if (!user) return false;
+
+        try {
+            await firstValueFrom(
+                this.http.delete(`${this.API_BASE}/learning-session?type=plan`)
+            );
+            this.activePlan.set(null);
+            return true;
+        } catch (error) {
+            console.error('Failed to abandon plan:', error);
+            return false;
         }
     }
 }

@@ -289,15 +289,6 @@ export class UmrechnenComponent {
             this.totalCorrect.update(c => c + 1);
         } else {
             this.totalWrong.update(w => w + 1);
-
-            // Telemetry: Track error
-            const content = JSON.stringify({
-                fromUnit: problem.fromUnit.symbol,
-                toUnit: problem.toUnit.symbol,
-                value: problem.value,
-                actual: userNum
-            });
-            this.telemetryService.trackError('umrechnen', content, this.sessionId);
         }
     }
 

@@ -267,14 +267,6 @@ export class ZeitrechnenComponent {
             this.totalCorrect.update(c => c + 1);
         } else {
             this.totalWrong.update(w => w + 1);
-
-            // Telemetry: Track error
-            const content = JSON.stringify({
-                type: problem.type,
-                question: problem.question,
-                actual: this.userAnswer()
-            });
-            this.telemetryService.trackError('zeitrechnen', content, this.sessionId);
         }
     }
 

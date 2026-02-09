@@ -285,24 +285,10 @@ export class FehlerComponent {
         this.totalMissed.update(m => m + missed);
         this.checked.set(true);
 
-        // Telemetry: Track errors
-        const errors = this.currentTextErrors.filter(e => {
-            // An error is missed if no correction, or correction is wrong
-            return !e.userCorrection || normalizeGermanText(e.userCorrection) !== normalizeGermanText(e.correctWord);
-        });
-
-        if (errors.length > 0) {
-            const content = JSON.stringify({
-                textIndex: this.currentTextIndex(),
-                originalText: this.texts()[this.currentTextIndex()], // Send full text as context is important
-                errors: errors.map(e => ({
-                    wrongWord: e.wrongWord,
-                    correctWord: e.correctWord,
-                    userCorrection: e.userCorrection
-                }))
-            });
-
-            this.telemetryService.trackError('fehler', content, this.sessionId);
+        // Track per-content progress
+        const text = this.texts()[this.currentTextIndex()] as any;
+        if (text?._contentId) {
+            this.telemetryService.trackProgress('fehler', text._contentId, missed === 0);
         }
     }
 

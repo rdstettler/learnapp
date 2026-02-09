@@ -176,25 +176,10 @@ export class WortfamilieComponent {
         this.totalWrong.update(w => w + wrongCount);
         this.answered.set(true);
 
-        // Telemetry: Track errors
-        const errors = Object.keys(newResults).filter(type => {
-            const t = type as WordType;
-            return !newResults[t].correct && problem.missingTypes.includes(t);
-        }).map(type => {
-            const t = type as WordType;
-            return {
-                type: t,
-                expected: newResults[t].matched, // This holds the expected word for wrong answers
-                actual: this.userAnswers()[t]
-            };
-        });
-
-        if (errors.length > 0) {
-            const content = JSON.stringify({
-                itemId: problem.item.id,
-                errors: errors
-            });
-            this.telemetryService.trackError('wortfamilie', content, this.sessionId);
+        // Track per-content progress
+        const contentId = (problem.item as any)._contentId;
+        if (contentId) {
+            this.telemetryService.trackProgress('wortfamilie', contentId, wrongCount === 0);
         }
     }
 

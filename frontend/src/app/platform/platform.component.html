@@ -4,8 +4,8 @@
         <div class="header-left branding">
             <div class="platform-logo">🚀</div>
             <div class="title-container">
-                <h1 class="platform-title">Arnes Lern-Plattform</h1>
-                <p class="platform-subtitle">Entdecke spannende Lern-Apps</p>
+                <h1 class="platform-title">Arnes Lernen</h1>
+                <p class="platform-subtitle">Spannende Lern-Apps</p>
             </div>
         </div>
 
@@ -21,6 +21,9 @@
                 </button>
                 <button class="view-tab" [class.active]="currentView() === 'ai'" (click)="setView('ai')">
                     KI Vorschläge ✨
+                </button>
+                <button class="view-tab" [class.active]="currentView() === 'plan'" (click)="setView('plan')">
+                    📋 Lernplan
                 </button>
                 }
             </div>
@@ -48,7 +51,7 @@
                 </button>
                 <button id="settings-btn" class="auth-btn settings-btn" (click)="openSettings()"
                     title="Einstellungen"><span class="settings-icon">⚙️</span></button>
-                <button class="auth-btn logout-btn" (click)="signOut()">Abmelden</button>
+                <button class="auth-btn logout-btn" (click)="signOut()" title="Abmelden">🚪</button>
             </div>
             } @else {
             <button id="auth-btn" class="auth-btn login-btn" (click)="openAuthModal()">🔑 Anmelden</button>
@@ -70,6 +73,8 @@
 
     @if (currentView() === 'ai') {
     <app-learning-view></app-learning-view>
+    } @else if (currentView() === 'plan') {
+    <app-plan-view></app-plan-view>
     } @else {
     <div class="apps-grid">
         @for (app of filteredApps(); track app.id) {

@@ -137,21 +137,13 @@ export class VerbenComponent {
         this.totalCorrect.update(c => c + correct);
         this.answered.set(true);
 
-        // Telemetry: Track errors
-        const errors = updatedRound.filter(q => !q.isCorrect);
-        if (errors.length > 0) {
-            const content = JSON.stringify({
-                round: this.currentRoundIndex(),
-                errors: errors.map(q => ({
-                    verb: q.verb,
-                    person: q.person,
-                    tense: q.tense,
-                    expected: q.answer,
-                    actual: q.userAnswer
-                }))
-            });
-            this.telemetryService.trackError('verben', content, this.sessionId);
-        }
+        // Track per-verb progress
+        updatedRound.forEach(q => {
+            const verb = this.verbs().find(v => v.verb === q.verb) as any;
+            if (verb?._contentId) {
+                this.telemetryService.trackProgress('verben', verb._contentId, !!q.isCorrect);
+            }
+        });
     }
 
     nextRound(): void {

@@ -161,13 +161,6 @@ export class KopfrechnenComponent {
             this.feedbackText.set(`✗ Falsch. Die Antwort war: ${this.correctAnswer()}`);
             this.wrongCount.update(w => w + 1);
             this.streak.set(0);
-
-            // Telemetry: Track error
-            const content = JSON.stringify({
-                question: this.question(),
-                actual: userNum
-            });
-            this.telemetryService.trackError('kopfrechnen', content, this.sessionId);
         }
 
         this.answered.set(true);

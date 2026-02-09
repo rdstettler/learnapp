@@ -101,7 +101,8 @@ export class RedewendungenComponent {
         this.currentOptions.set(updatedOptions);
         this.answered.set(true);
 
-        if (selected.isCorrect) {
+        const correct = selected.isCorrect;
+        if (correct) {
             this.correctCount.update(c => c + 1);
             this.feedbackText.set('✓ Richtig!');
             this.isCorrect.set(true);
@@ -109,14 +110,12 @@ export class RedewendungenComponent {
             this.wrongCount.update(c => c + 1);
             this.feedbackText.set('✗ Leider falsch!');
             this.isCorrect.set(false);
+        }
 
-            // Telemetry: Track error
-            const content = JSON.stringify({
-                idiom: this.questions()[this.currentQuestion()].idiom,
-                correct: this.questions()[this.currentQuestion()].options[0],
-                actual: selected.text
-            });
-            this.telemetryService.trackError('redewendungen', content, this.sessionId);
+        // Track per-question progress
+        const q = this.questions()[this.currentQuestion()] as any;
+        if (q?._contentId) {
+            this.telemetryService.trackProgress('redewendungen', q._contentId, correct);
         }
     }
 

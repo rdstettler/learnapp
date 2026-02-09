@@ -115,8 +115,11 @@
             <div style="margin-top: 16px;" class="text-secondary">
                 Längste Serie: <strong>{{ maxStreak() }}</strong>
             </div>
-            <button class="btn btn-primary" style="margin-top: 30px; max-width: 200px;" (click)="restartQuiz()">
-                Nochmal spielen
+            <button class="btn btn-primary" style="margin-top: 30px; max-width: 200px;" (click)="startQuiz()">
+                Weiter üben
+            </button>
+            <button class="btn btn-secondary" style="margin-top: 10px;" (click)="restartQuiz()">
+                Zurück
             </button>
         </div>
         }

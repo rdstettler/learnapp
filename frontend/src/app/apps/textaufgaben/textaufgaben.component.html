@@ -75,13 +75,12 @@
                     <div class="score-item-label">Falsch</div>
                 </div>
             </div>
-            <button class="btn btn-primary" style="margin-top: 30px;" (click)="restartQuiz()">
-                Nochmal spielen
+            <button class="btn btn-primary" style="margin-top: 30px;" (click)="startQuiz()">
+                Weiter üben
             </button>
-            <a routerLink="/" class="btn btn-secondary"
-                style="margin-top: 10px; display: block; text-align: center; text-decoration: none;">
-                Zurück zur Übersicht
-            </a>
+            <button class="btn btn-secondary" style="margin-top: 10px;" (click)="restartQuiz()">
+                Zurück
+            </button>
         </div>
         }
     </div>

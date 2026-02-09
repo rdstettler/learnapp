@@ -1,5 +1,5 @@
 import { Component, signal, computed, inject, ChangeDetectorRef, SecurityContext } from '@angular/core';
-import { RouterLink, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { DataService } from '../../services/data.service';
 import { ApiService } from '../../services/api.service';
@@ -21,7 +21,7 @@ import { LearningAppLayoutComponent } from '../../shared/components/learning-app
 @Component({
     selector: 'app-dasdass',
     standalone: true,
-    imports: [RouterLink, LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent],
     templateUrl: './dasdass.component.html',
     styleUrl: './dasdass.component.css'
 })
@@ -30,7 +30,6 @@ export class DasdassComponent {
     private sanitizer = inject(DomSanitizer);
     private cdr = inject(ChangeDetectorRef);
     private apiService = inject(ApiService); // Public so we can bind to it if needed
-    private router = inject(Router);
     private telemetryService = inject(AppTelemetryService);
     private sessionId = this.telemetryService.generateSessionId();
 
@@ -323,20 +322,6 @@ export class DasdassComponent {
             });
         }
 
-        // Telemetry: Track errors
-        const errors = answers.filter(a => !a.isCorrect);
-        if (errors.length > 0) {
-            const content = JSON.stringify({
-                textId: this.currentText().id,
-                originalText: this.currentText().sentences,
-                errors: errors.map(e => ({
-                    correct: e.correct,
-                    actual: e.userAnswer
-                }))
-            });
-            this.telemetryService.trackError('dasdass', content, this.sessionId);
-        }
-
         // Store this text's results for AI analysis
         const currentText = this.currentText();
         if (currentText) {
@@ -350,6 +335,11 @@ export class DasdassComponent {
         this.totalCorrect.update(c => c + correctCount);
         this.totalWrong.update(c => c + wrongCount);
         this.answered.set(true);
+
+        // Track per-content progress
+        if (currentText && (currentText as any)._contentId) {
+            this.telemetryService.trackProgress('dasdass', (currentText as any)._contentId, wrongCount === 0);
+        }
     }
 
 

@@ -207,24 +207,10 @@ export class SatzzeichenComponent {
         this.totalSlots.update(t => t + roundTotal);
         this.answered.set(true);
 
-        // Telemetry: Track errors
-        const errors = checked.filter(s => (s.expected || s.selected) && s.expected !== s.selected);
-        if (errors.length > 0) {
-            const errorDetails = errors.map(e => ({
-                word: e.word,
-                expected: e.expected,
-                actual: e.selected
-            }));
-
-            // Context could be the full sentence or just the error details
-            // For now, let's send the sentence index and the error details
-            const content = JSON.stringify({
-                textIndex: this.currentTextIndex(),
-                originalText: this.texts()[this.currentTextIndex()],
-                errors: errorDetails
-            });
-
-            this.telemetryService.trackError('satzzeichen', content, this.sessionId);
+        // Track per-content progress
+        const text = this.texts()[this.currentTextIndex()] as any;
+        if (text?._contentId) {
+            this.telemetryService.trackProgress('satzzeichen', text._contentId, roundCorrect === roundTotal);
         }
     }
 

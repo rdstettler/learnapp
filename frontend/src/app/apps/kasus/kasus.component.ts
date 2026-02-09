@@ -1,5 +1,4 @@
 import { Component, signal, computed, inject } from '@angular/core';
-import { RouterLink, Router } from '@angular/router';
 import { DataService } from '../../services/data.service';
 import { ApiService } from '../../services/api.service';
 import { shuffle } from '../../shared/utils/array.utils';
@@ -21,7 +20,7 @@ import { LearningAppLayoutComponent } from '../../shared/components/learning-app
 @Component({
     selector: 'app-kasus',
     standalone: true,
-    imports: [RouterLink, LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent],
     templateUrl: './kasus.component.html',
     styleUrl: './kasus.component.css',
     host: {
@@ -31,7 +30,6 @@ import { LearningAppLayoutComponent } from '../../shared/components/learning-app
 export class KasusComponent {
     private dataService = inject(DataService);
     private apiService = inject(ApiService);
-    private router = inject(Router);
     private telemetryService = inject(AppTelemetryService);
     private sessionId = this.telemetryService.generateSessionId();
 
@@ -204,19 +202,11 @@ export class KasusComponent {
         this.totalCorrect.update(c => c + correct);
         this.answered.set(true);
 
-        // Telemetry: Track errors
-        const errors = updatedParts.filter(p => p.kasus && !p.isCorrect);
-        if (errors.length > 0) {
-            const content = JSON.stringify({
-                round: this.currentRound(),
-                originalText: this.rounds()[this.currentRound()].text,
-                errors: errors.map(p => ({
-                    text: p.text,
-                    expected: p.kasus,
-                    actual: p.selected
-                }))
-            });
-            this.telemetryService.trackError('kasus', content, this.sessionId);
+        // Track per-content progress
+        const exercise = this.rounds()[this.currentRound()] as any;
+        if (exercise?._contentId) {
+            const totalSlots = this.parts().filter(p => p.kasus).length;
+            this.telemetryService.trackProgress('kasus', exercise._contentId, correct === totalSlots);
         }
     }
 

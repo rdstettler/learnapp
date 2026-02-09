@@ -1,5 +1,4 @@
 import { Component, signal, computed, inject } from '@angular/core';
-import { RouterLink, Router } from '@angular/router';
 import { DataService } from '../../services/data.service';
 import { ApiService } from '../../services/api.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
@@ -18,14 +17,13 @@ interface TextaufgabeItem {
 @Component({
     selector: 'app-textaufgaben',
     standalone: true,
-    imports: [RouterLink, LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent],
     templateUrl: './textaufgaben.component.html',
     styleUrl: './textaufgaben.component.css'
 })
 export class TextaufgabenComponent {
     private dataService = inject(DataService);
     private apiService = inject(ApiService);
-    private router = inject(Router);
     private telemetryService = inject(AppTelemetryService);
     private sessionId = this.telemetryService.generateSessionId();
 
@@ -188,14 +186,12 @@ export class TextaufgabenComponent {
             this.feedbackText.set('✓ Richtig!');
         } else {
             this.feedbackText.set(`✗ Falsch! Richtige Antwort: ${problem.answers[0]}`);
+        }
 
-            // Telemetry: Track error
-            const content = JSON.stringify({
-                questionId: problem.id,
-                question: problem.question,
-                actual: this.userAnswer()
-            });
-            this.telemetryService.trackError('textaufgaben', content, this.sessionId);
+        // Track per-question progress
+        const contentId = (problem as any)._contentId;
+        if (contentId) {
+            this.telemetryService.trackProgress('textaufgaben', contentId, correct);
         }
     }
 

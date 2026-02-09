@@ -8,5 +8,5 @@ export { BadgeShowcaseComponent } from './components/badge-showcase/badge-showca
 export { BadgeNotificationComponent } from './components/badge-notification/badge-notification.component';
 
 // Shared Models
-export type { LearningSession, SessionTask, TheoryCard, SuggestedApp, NotEnoughDataResponse } from './models/learning-session.model';
+export type { LearningSession, SessionTask, TheoryCard, SuggestedApp, NotEnoughDataResponse, LearningPlan, PlanDay, PlanTask, PlanNotEnoughDataResponse } from './models/learning-session.model';
 
