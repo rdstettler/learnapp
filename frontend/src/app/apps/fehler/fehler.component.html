@@ -12,12 +12,21 @@
             <p style="color: var(--text-secondary); margin-bottom: 24px; max-width: 300px;">
                 Lies den Text und klicke auf falsch geschriebene Wörter. Schreibe dann die korrekte Version.
             </p>
+            <div class="mode-selector">
+                @for (m of modes; track m.id) {
+                <button class="mode-btn" [class.active]="mode() === m.id" (click)="setMode(m.id)">
+                    <span class="mode-icon">{{ m.icon }}</span>
+                    <span class="mode-label">{{ m.label }}</span>
+                    <span class="mode-desc">{{ m.description }}</span>
+                </button>
+                }
+            </div>
             <button class="btn btn-primary" (click)="startQuiz()" [disabled]="!dataLoaded()">Starten</button>
         </div>
         }
 
-        <!-- Quiz Screen -->
-        @if (screen() === 'quiz') {
+        <!-- Quiz Screen: Korrektur -->
+        @if (screen() === 'quiz' && mode() === 'korrektur') {
         <div class="quiz-content">
             <div class="stats-bar">
                 <span>Text <strong>{{ currentTextIndex() + 1 }}</strong> von <strong>{{ texts().length
@@ -36,6 +45,33 @@
                 @if (!checked()) {
                 <button class="btn btn-hint" (click)="showHint()">💡 Hinweis</button>
                 <button class="btn btn-check" (click)="checkText()">Überprüfen</button>
+                } @else {
+                <button class="btn btn-primary" (click)="nextText()">Weiter</button>
+                }
+            </div>
+        </div>
+        }
+
+        <!-- Quiz Screen: Markieren -->
+        @if (screen() === 'quiz' && mode() === 'markieren') {
+        <div class="quiz-content">
+            <div class="stats-bar">
+                <span>Text <strong>{{ currentTextIndex() + 1 }}</strong> von <strong>{{ texts().length }}</strong></span>
+            </div>
+
+            <p class="hunt-instruction">Klicke auf die falsch geschriebenen Wörter!</p>
+
+            <div class="text-display">
+                @for (word of displayWords(); track word.wordIndex) {
+                <span class="word" [class]="getHighlightClass(word)"
+                    (click)="toggleHighlight(word)">{{ word.text }}</span>{{ ' ' }}
+                }
+            </div>
+
+            <div class="actions">
+                @if (!checked()) {
+                <button class="btn btn-hint" (click)="showHint()">💡 Hinweis</button>
+                <button class="btn btn-check" (click)="checkHighlight()">Überprüfen</button>
                 } @else {
                 <button class="btn btn-primary" (click)="nextText()">Weiter</button>
                 }

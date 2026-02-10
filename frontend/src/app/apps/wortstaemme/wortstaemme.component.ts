@@ -20,6 +20,8 @@ interface Stem {
     meanings: Record<string, MeaningOption[]>;
 }
 
+type QuizMode = 'klassisch' | 'kreativ';
+
 @Component({
     selector: 'app-wortstaemme',
     standalone: true,
@@ -32,7 +34,13 @@ export class WortstaemmeComponent {
     private telemetryService = inject(AppTelemetryService);
     private sessionId = this.telemetryService.generateSessionId();
 
-    screen = signal<'welcome' | 'stage1' | 'results1' | 'stage2' | 'results2' | 'final'>('welcome');
+    readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [
+        { id: 'klassisch', label: 'Klassisch', icon: '📝', description: 'Existenz prüfen & Bedeutungen zuordnen.' },
+        { id: 'kreativ', label: 'Kreativ', icon: '💡', description: 'Tippe zusammengesetzte Wörter aus dem Gedächtnis.' }
+    ];
+    mode = signal<QuizMode>('klassisch');
+
+    screen = signal<'welcome' | 'stage1' | 'results1' | 'stage2' | 'results2' | 'final' | 'build'>('welcome');
     stems = signal<Stem[]>([]);
     currentStem = signal<Stem | null>(null);
     selectedStemValue = signal('');
@@ -47,6 +55,11 @@ export class WortstaemmeComponent {
 
     totalCorrect = signal(0);
     totalQuestions = signal(0);
+
+    // Build mode
+    buildInput = signal('');
+    buildFound = signal<string[]>([]);
+    buildTotal = signal(0);
 
     percentage = computed(() => {
         const total = this.totalQuestions();
@@ -75,14 +88,28 @@ export class WortstaemmeComponent {
         this.selectedStemValue.set((event.target as HTMLSelectElement).value);
     }
 
+    setMode(m: QuizMode): void {
+        this.mode.set(m);
+    }
+
     startQuiz(): void {
         const stem = this.stems().find(s => s.stem === this.selectedStemValue());
         if (!stem) return;
-
         this.currentStem.set(stem);
-        this.stage1Selections.set(new Set());
         this.totalCorrect.set(0);
         this.totalQuestions.set(0);
+
+        if (this.mode() === 'kreativ') {
+            const existing = stem.composites.filter(c => c.exists);
+            this.buildTotal.set(existing.length);
+            this.buildFound.set([]);
+            this.buildInput.set('');
+            this.totalQuestions.set(existing.length);
+            this.screen.set('build');
+            return;
+        }
+
+        this.stage1Selections.set(new Set());
         this.screen.set('stage1');
     }
 
@@ -223,5 +250,34 @@ export class WortstaemmeComponent {
             case 'false-negative': return 'Übersehen';
             default: return 'Korrekt';
         }
+    }
+
+    // ═══ MODE: KREATIV ═══
+
+    submitBuildWord(): void {
+        const input = this.buildInput().trim();
+        if (!input) return;
+        const stem = this.currentStem();
+        if (!stem) return;
+
+        const existing = stem.composites.filter(c => c.exists);
+        const normalizedInput = input.toLowerCase().replace(/-/g, '');
+
+        if (this.buildFound().some(f => f.toLowerCase() === normalizedInput)) {
+            this.buildInput.set('');
+            return;
+        }
+
+        const found = existing.find(c => c.word.replace(/-/g, '').toLowerCase() === normalizedInput);
+        if (found) {
+            this.buildFound.update(f => [...f, found.word.replace(/-/g, '')]);
+            this.totalCorrect.update(c => c + 1);
+        }
+
+        this.buildInput.set('');
+    }
+
+    finishBuild(): void {
+        this.screen.set('final');
     }
 }

@@ -15,6 +15,8 @@ interface SlotData {
     capitalize: boolean;
 }
 
+type QuizMode = 'standard' | 'fehlerjagd';
+
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 
@@ -38,6 +40,12 @@ export class DasdassComponent {
     readonly DEFAULT_TEXTS_PER_ROUND = 10;
     textsPerRound = this.DEFAULT_TEXTS_PER_ROUND;
 
+    readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [
+        { id: 'standard', label: 'Standard', icon: '📝', description: 'Wähle "das" oder "dass" für jede Lücke.' },
+        { id: 'fehlerjagd', label: 'Fehlerjagd', icon: '🔎', description: 'Text ist ausgefüllt – finde die Fehler!' }
+    ];
+    mode = signal<QuizMode>('standard');
+
     screen = signal<'welcome' | 'quiz' | 'results'>('welcome');
     texts = signal<TextItem[]>([]);
     allTexts = signal<TextItem[]>([]);
@@ -51,10 +59,17 @@ export class DasdassComponent {
     showPopup = signal(false);
     currentSlotIndex = signal<number | null>(null);
 
-    // AI Session State
+    // Hunt mode
+    huntFills = signal<Record<number, string>>({});
+    huntToggled = signal<Set<number>>(new Set());
+    huntChecked = signal(false);
+
+    // AI Session / Plan State
     isSessionMode = false;
+    isPlanMode = false;
     sessionTaskId: number | null = null;
     sessionTaskIds: number[] | null = null;
+    planTaskIds: number[] | null = null;
 
     // Store all text results for AI analysis
     allTextResults: { text: string; textId: number; answers: { correct: string; userAnswer: string | null; isCorrect: boolean }[] }[] = [];
@@ -76,10 +91,12 @@ export class DasdassComponent {
         const state = window.history.state as any;
 
         // 1. Check Router State
-        if (state && state.learningContent && state.sessionId) {
+        if (state && state.learningContent && (state.sessionId || state.fromPlan)) {
             this.isSessionMode = true;
+            this.isPlanMode = !!state.fromPlan;
             this.sessionTaskId = state.taskId;
             this.sessionTaskIds = state.taskIds; // Capture grouped IDs
+            this.planTaskIds = state.planTaskIds;
 
             if (state.learningContent && Array.isArray(state.learningContent.sentences)) {
                 const aiTexts: TextItem[] = state.learningContent.sentences.map((s: string, index: number) => ({
@@ -142,6 +159,10 @@ export class DasdassComponent {
         });
     }
 
+    setMode(m: QuizMode): void {
+        this.mode.set(m);
+    }
+
     startQuiz(): void {
         let quizTexts: TextItem[];
 
@@ -172,6 +193,9 @@ export class DasdassComponent {
         this.slotData = {};
         this.answered.set(false);
         this.parseCurrentText();
+        if (this.mode() === 'fehlerjagd') {
+            this.setupHunt();
+        }
         this.cdr.markForCheck();
     }
 
@@ -345,9 +369,15 @@ export class DasdassComponent {
 
     nextText(): void {
         if (this.currentTextIndex() >= this.textsPerRound - 1) {
-            // If in session mode, mark task as completed
-            if (this.isSessionMode && this.sessionTaskId) {
-                this.apiService.completeTask(this.sessionTaskId);
+            // If in session/plan mode, mark task(s) as completed
+            if (this.isSessionMode) {
+                if (this.isPlanMode && this.planTaskIds && this.planTaskIds.length > 0) {
+                    this.apiService.completePlanTask(this.planTaskIds);
+                } else if (this.sessionTaskIds && this.sessionTaskIds.length > 0) {
+                    this.apiService.completeTask(this.sessionTaskIds);
+                } else if (this.sessionTaskId) {
+                    this.apiService.completeTask(this.sessionTaskId);
+                }
             }
             this.screen.set('results');
         } else {
@@ -358,6 +388,86 @@ export class DasdassComponent {
 
     restartQuiz(): void {
         this.screen.set('welcome');
+    }
+
+    // ═══ MODE: FEHLERJAGD ═══
+
+    private setupHunt(): void {
+        const fills: Record<number, string> = {};
+        for (const key of Object.keys(this.slotData)) {
+            const index = parseInt(key);
+            const data = this.slotData[index];
+            if (Math.random() < 0.4) {
+                fills[index] = data.correct === 'das' ? 'dass' : 'das';
+            } else {
+                fills[index] = data.correct;
+            }
+        }
+        this.huntFills.set(fills);
+        this.huntToggled.set(new Set());
+        this.huntChecked.set(false);
+    }
+
+    toggleHuntSlot(index: number): void {
+        if (this.huntChecked()) return;
+        const toggled = new Set(this.huntToggled());
+        if (toggled.has(index)) toggled.delete(index);
+        else toggled.add(index);
+        this.huntToggled.set(toggled);
+    }
+
+    getHuntSlotDisplay(index: number): string {
+        const fills = this.huntFills();
+        const word = fills[index] || '?';
+        const data = this.slotData[index];
+        if (data?.capitalize) {
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        }
+        return word;
+    }
+
+    getHuntSlotClass(index: number): string {
+        const toggled = this.huntToggled().has(index);
+        if (!this.huntChecked()) {
+            return toggled ? 'hunt-flagged' : '';
+        }
+        const fills = this.huntFills();
+        const data = this.slotData[index];
+        const isActuallyWrong = fills[index] !== data.correct;
+        if (isActuallyWrong && toggled) return 'correct';
+        if (isActuallyWrong && !toggled) return 'missed';
+        if (!isActuallyWrong && toggled) return 'incorrect';
+        return '';
+    }
+
+    checkHunt(): void {
+        let correct = 0;
+        let wrong = 0;
+        const fills = this.huntFills();
+        const toggled = this.huntToggled();
+
+        for (const key of Object.keys(this.slotData)) {
+            const index = parseInt(key);
+            const isActuallyWrong = fills[index] !== this.slotData[index].correct;
+            const userFlagged = toggled.has(index);
+
+            if (isActuallyWrong) {
+                if (userFlagged) correct++;
+                else wrong++;
+            } else {
+                if (userFlagged) wrong++;
+            }
+        }
+
+        this.totalCorrect.update(c => c + correct);
+        this.totalWrong.update(w => w + wrong);
+        this.huntChecked.set(true);
+        this.answered.set(true);
+
+        const currentText = this.currentText() as any;
+        if (currentText?._contentId) {
+            this.telemetryService.trackProgress('dasdass', currentText._contentId, wrong === 0);
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth.service';
+import { BadgeService } from './badge.service';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -9,6 +10,7 @@ import { firstValueFrom } from 'rxjs';
 export class AppTelemetryService {
     private http = inject(HttpClient);
     private authService = inject(AuthService);
+    private badgeService = inject(BadgeService);
     private readonly API_BASE = '/api';
 
     /**
@@ -28,6 +30,9 @@ export class AppTelemetryService {
                     isCorrect
                 })
             );
+
+            // Check for newly earned badges after recording progress
+            setTimeout(() => this.badgeService.checkBadges(), 500);
         } catch (error) {
             console.error('Failed to track progress:', error);
         }

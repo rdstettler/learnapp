@@ -8,16 +8,29 @@
         <div class="welcome-container">
             <div class="welcome-emoji">🗣️</div>
             <h2>Deutsche Redewendungen</h2>
-            <p class="text-secondary" style="margin-bottom: 30px;">
-                Was bedeuten diese Redewendungen? Wähle die richtige Bedeutung!
+
+            <div class="mode-selector">
+                @for (m of modes; track m.id) {
+                <button class="mode-btn" [class.active]="mode() === m.id" (click)="setMode(m.id)">
+                    <span class="mode-icon">{{ m.icon }}</span>
+                    <span class="mode-label">{{ m.label }}</span>
+                </button>
+                }
+            </div>
+            <p class="text-secondary mode-description">
+                @for (m of modes; track m.id) {
+                    @if (mode() === m.id) { {{ m.description }} }
+                }
             </p>
+
             <button class="btn btn-primary" (click)="startQuiz()" [disabled]="redewendungen().length === 0">
                 Quiz starten
             </button>
         </div>
         }
 
-        @if (screen() === 'quiz') {
+        <!-- MODE: BEDEUTUNG -->
+        @if (screen() === 'quiz' && mode() === 'bedeutung') {
         <div class="quiz-content">
             <div class="round-info">Frage {{ currentQuestion() + 1 }} / {{ QUESTIONS_PER_ROUND }}</div>
 
@@ -38,6 +51,57 @@
                     [class.incorrect]="answered() && option.selected && !option.isCorrect" [disabled]="option.disabled"
                     (click)="selectOption($index)">
                     {{ option.text }}
+                </button>
+                }
+            </div>
+
+            @if (feedbackText()) {
+            <div class="feedback" [class.correct]="isCorrect()" [class.incorrect]="!isCorrect()">
+                {{ feedbackText() }}
+            </div>
+            }
+
+            @if (answered()) {
+            <button class="btn btn-primary" (click)="nextQuestion()">Weiter</button>
+            }
+        </div>
+        }
+
+        <!-- MODE: ERGÄNZE -->
+        @if (screen() === 'quiz' && mode() === 'ergaenze') {
+        <div class="quiz-content" (keydown.enter)="handleEnter()">
+            <div class="round-info">Frage {{ currentQuestion() + 1 }} / {{ QUESTIONS_PER_ROUND }}</div>
+
+            <div class="score-live">
+                <div class="score-live-item correct">✓ {{ correctCount() }}</div>
+                <div class="score-live-item wrong">✗ {{ wrongCount() }}</div>
+            </div>
+
+            <div class="idiom-container ergaenze">
+                <div class="idiom-label">Ergänze die Redewendung</div>
+                <div class="idiom-text">
+                    {{ idiomPrefix() }}
+                    <span class="missing-slot" [class.correct]="answered() && isCorrect()" [class.incorrect]="answered() && !isCorrect()">
+                        @if (answered()) {
+                            {{ missingWord() }}
+                        } @else {
+                            ___
+                        }
+                    </span>
+                </div>
+            </div>
+
+            <div class="ergaenze-input-area">
+                <input type="text" class="answer-input" [value]="userInput()"
+                    (input)="updateInput($any($event.target).value)" [disabled]="answered()"
+                    placeholder="Fehlendes Wort eingeben..." autocomplete="off"
+                    [class.correct]="answered() && isCorrect()"
+                    [class.incorrect]="answered() && !isCorrect()">
+
+                @if (!answered()) {
+                <button class="btn btn-primary" (click)="checkErgaenze()"
+                    [disabled]="userInput().trim().length === 0">
+                    Prüfen
                 </button>
                 }
             </div>

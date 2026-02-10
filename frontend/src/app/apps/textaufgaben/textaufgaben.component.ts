@@ -32,10 +32,12 @@ export class TextaufgabenComponent {
     rounds = signal<TextaufgabeItem[]>([]);
     currentRound = signal(0);
 
-    // AI Session
+    // AI Session / Plan
     isSessionMode = false;
+    isPlanMode = false;
     sessionTaskId: number | null = null;
     sessionTaskIds: number[] | null = null;
+    planTaskIds: number[] | null = null;
 
     userAnswer = signal('');
     answered = signal(false);
@@ -58,10 +60,12 @@ export class TextaufgabenComponent {
 
     private loadData(): void {
         const state = window.history.state;
-        if (state && state.learningContent && state.sessionId) {
+        if (state && state.learningContent && (state.sessionId || state.fromPlan)) {
             this.isSessionMode = true;
+            this.isPlanMode = !!state.fromPlan;
             this.sessionTaskId = state.taskId;
             this.sessionTaskIds = state.taskIds;
+            this.planTaskIds = state.planTaskIds;
 
             // Map content. 
             // Determine if content is array or single item?
@@ -202,7 +206,9 @@ export class TextaufgabenComponent {
     nextRound(): void {
         if (this.currentRound() >= this.rounds().length - 1) {
             if (this.isSessionMode) {
-                if (this.sessionTaskIds && this.sessionTaskIds.length > 0) {
+                if (this.isPlanMode && this.planTaskIds && this.planTaskIds.length > 0) {
+                    this.apiService.completePlanTask(this.planTaskIds);
+                } else if (this.sessionTaskIds && this.sessionTaskIds.length > 0) {
                     this.apiService.completeTask(this.sessionTaskIds);
                 } else if (this.sessionTaskId) {
                     this.apiService.completeTask(this.sessionTaskId);

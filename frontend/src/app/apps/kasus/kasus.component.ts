@@ -14,6 +14,8 @@ interface WordPart {
     isCorrect?: boolean;
 }
 
+type QuizMode = 'klassisch' | 'schnell';
+
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 
@@ -38,15 +40,23 @@ export class KasusComponent {
         'N': 'Nominativ', 'A': 'Akkusativ', 'D': 'Dativ', 'G': 'Genitiv'
     };
 
+    readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [
+        { id: 'klassisch', label: 'Klassisch', icon: '📖', description: 'Alle Wörter eines Satzes zuordnen.' },
+        { id: 'schnell', label: 'Speed Drill', icon: '⚡', description: 'Ein Wort nach dem anderen – schnell entscheiden!' }
+    ];
+
+    mode = signal<QuizMode>('klassisch');
     screen = signal<'welcome' | 'quiz' | 'results'>('welcome');
     exercises = signal<Exercise[]>([]);
     rounds = signal<Exercise[]>([]);
     currentRound = signal(0);
 
-    // AI Session State
+    // AI Session / Plan State
     isSessionMode = false;
+    isPlanMode = false;
     sessionTaskId: number | null = null;
     sessionTaskIds: number[] | null = null;
+    planTaskIds: number[] | null = null;
 
     parts = signal<WordPart[]>([]);
     showPopup = signal(false);
@@ -57,7 +67,20 @@ export class KasusComponent {
     totalCorrect = signal(0);
     totalQuestions = signal(0);
 
-    progress = computed(() => (this.currentRound() / this.rounds().length) * 100);
+    // Speed Drill mode
+    drillParts = signal<{ text: string; kasus: string; context: string }[]>([]);
+    drillIndex = signal(0);
+    drillAnswered = signal(false);
+    drillSelected = signal('');
+    drillIsCorrect = signal(false);
+
+    progress = computed(() => {
+        if (this.mode() === 'schnell') {
+            const total = this.drillParts().length;
+            return total > 0 ? (this.drillIndex() / total) * 100 : 0;
+        }
+        return (this.currentRound() / this.rounds().length) * 100;
+    });
     percentage = computed(() => {
         const total = this.totalQuestions();
         return total > 0 ? Math.round((this.totalCorrect() / total) * 100) : 0;
@@ -72,10 +95,12 @@ export class KasusComponent {
     private loadData(): void {
         // 1. Check Router State
         const state = window.history.state as any;
-        if (state && state.learningContent && state.sessionId) {
+        if (state && state.learningContent && (state.sessionId || state.fromPlan)) {
             this.isSessionMode = true;
+            this.isPlanMode = !!state.fromPlan;
             this.sessionTaskId = state.taskId;
             this.sessionTaskIds = state.taskIds;
+            this.planTaskIds = state.planTaskIds;
 
             // ...
 
@@ -137,6 +162,10 @@ export class KasusComponent {
         return parts;
     }
 
+    setMode(m: QuizMode): void {
+        this.mode.set(m);
+    }
+
     startQuiz(): void {
         let quizRounds: Exercise[];
         if (this.isSessionMode) {
@@ -149,7 +178,12 @@ export class KasusComponent {
         this.totalCorrect.set(0);
         this.totalQuestions.set(0);
         this.screen.set('quiz');
-        this.showRound();
+
+        if (this.mode() === 'schnell' && !this.isSessionMode) {
+            this.startDrill(quizRounds);
+        } else {
+            this.showRound();
+        }
     }
 
     private showRound(): void {
@@ -213,7 +247,9 @@ export class KasusComponent {
     nextRound(): void {
         if (this.currentRound() >= this.rounds().length - 1) {
             if (this.isSessionMode) {
-                if (this.sessionTaskIds && this.sessionTaskIds.length > 0) {
+                if (this.isPlanMode && this.planTaskIds && this.planTaskIds.length > 0) {
+                    this.apiService.completePlanTask(this.planTaskIds);
+                } else if (this.sessionTaskIds && this.sessionTaskIds.length > 0) {
                     this.apiService.completeTask(this.sessionTaskIds);
                 } else if (this.sessionTaskId) {
                     this.apiService.completeTask(this.sessionTaskId);
@@ -238,12 +274,67 @@ export class KasusComponent {
         return classes[kasus] || '';
     }
     handleEnter(event: Event) {
-        if (this.showPopup()) return; // Don't interfere if popup is open
-
+        if (this.showPopup()) return;
+        if (this.mode() === 'schnell') {
+            if (this.drillAnswered()) this.nextDrill();
+            return;
+        }
         if (this.answered()) {
             this.nextRound();
         } else if (this.canCheck()) {
             this.checkAnswers();
+        }
+    }
+
+    // ═══ MODE: SPEED DRILL ═══
+
+    private startDrill(exercises: Exercise[]): void {
+        const allParts: { text: string; kasus: string; context: string }[] = [];
+        for (const ex of exercises) {
+            const parsed = this.parseText(ex.text);
+            const contextText = parsed.map(p => p.text).join('');
+            for (const p of parsed) {
+                if (p.kasus) {
+                    allParts.push({ text: p.text, kasus: p.kasus, context: contextText });
+                }
+            }
+        }
+        this.drillParts.set(shuffle(allParts));
+        this.drillIndex.set(0);
+        this.totalQuestions.set(allParts.length);
+        this.drillAnswered.set(false);
+        this.drillSelected.set('');
+    }
+
+    currentDrillPart = computed(() => this.drillParts()[this.drillIndex()]);
+
+    selectDrillKasus(kasus: string): void {
+        if (this.drillAnswered()) return;
+        const part = this.currentDrillPart();
+        if (!part) return;
+        const isCorrect = kasus === part.kasus;
+        this.drillSelected.set(kasus);
+        this.drillIsCorrect.set(isCorrect);
+        this.drillAnswered.set(true);
+        if (isCorrect) this.totalCorrect.update(c => c + 1);
+    }
+
+    getDrillOptionClass(kasus: string): string {
+        if (!this.drillAnswered()) return '';
+        const part = this.currentDrillPart();
+        if (!part) return '';
+        if (kasus === part.kasus) return 'correct';
+        if (kasus === this.drillSelected()) return 'incorrect';
+        return '';
+    }
+
+    nextDrill(): void {
+        if (this.drillIndex() >= this.drillParts().length - 1) {
+            this.screen.set('results');
+        } else {
+            this.drillIndex.update(i => i + 1);
+            this.drillAnswered.set(false);
+            this.drillSelected.set('');
         }
     }
 }

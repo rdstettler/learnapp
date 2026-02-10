@@ -2,8 +2,6 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getTursoClient } from './_lib/turso.js';
 import { requireAuth, handleCors } from './_lib/auth.js';
 import { replaceEszett } from './_lib/text-utils.js';
-import { xai } from '@ai-sdk/xai';
-import { generateText } from 'ai';
 import crypto from 'node:crypto';
 
 interface AISessionResponse {
@@ -156,23 +154,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method === 'POST') {
         try {
-            // 1. Fetch user's question progress (weak areas + reviewed)
-            const progress = await db.execute({
-                sql: `SELECT uqp.app_id, uqp.app_content_id, uqp.success_count, uqp.failure_count,
-                             ac.data as content_data
-                      FROM user_question_progress uqp
-                      JOIN app_content ac ON uqp.app_content_id = ac.id
-                      WHERE uqp.user_uid = ?
-                      ORDER BY uqp.failure_count DESC, uqp.success_count ASC`,
-                args: [user_uid as string]
-            });
+            // 1-2. Fetch progress, apps, and language preference in parallel
+            const [progress, apps, userLangRes] = await Promise.all([
+                db.execute({
+                    sql: `SELECT uqp.app_id, uqp.app_content_id, uqp.success_count, uqp.failure_count,
+                                 ac.data as content_data
+                          FROM user_question_progress uqp
+                          JOIN app_content ac ON uqp.app_content_id = ac.id
+                          WHERE uqp.user_uid = ?
+                          ORDER BY uqp.failure_count DESC, uqp.success_count ASC`,
+                    args: [user_uid as string]
+                }),
+                db.execute("SELECT id, name, description, data_structure FROM apps WHERE type = 'learning'"),
+                db.execute({ sql: "SELECT language_variant FROM users WHERE uid = ?", args: [user_uid] })
+            ]);
 
             if (progress.rows.length === 0) {
                 return res.status(400).json({ error: "Keine Lerndaten vorhanden. Beantworte zuerst ein paar Fragen in den Apps." });
             }
-
-            // 2. Fetch app definitions
-            const apps = await db.execute("SELECT id, name, description, data_structure FROM apps WHERE type = 'learning'");
             const appsMap = new Map(apps.rows.map(a => [a.id, a]));
 
             // 3. Analyze weak areas from question progress
@@ -227,17 +226,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 `- ID: ${a.id}, Name: ${a.name}, Description: ${a.description}, Target Structure JSON Schema: ${a.data_structure || '{}'}`
             ).join("\n");
 
-            // 4. Fetch User Language Preference
+            // 4. Use pre-fetched language preference
             let languageInstruction = "IMPORTANT: Use Swiss German spelling conventions (e.g., 'ss' instead of 'ß').";
-            try {
-                const userRes = await db.execute({
-                    sql: "SELECT language_variant FROM users WHERE uid = ?",
-                    args: [user_uid]
-                });
-                if (userRes.rows.length > 0 && userRes.rows[0].language_variant === 'standard') {
-                    languageInstruction = "IMPORTANT: Use Standard German spelling conventions (e.g., use 'ß' where appropriate).";
-                }
-            } catch (e) { console.warn("Failed to fetch user language preference", e); }
+            if (userLangRes.rows.length > 0 && userLangRes.rows[0].language_variant === 'standard') {
+                languageInstruction = "IMPORTANT: Use Standard German spelling conventions (e.g., use 'ß' where appropriate).";
+            }
 
             const systemPrompt = `You are an educational AI assistant creating a personalized learning session.
 ${languageInstruction}
@@ -278,11 +271,16 @@ For each task, generate SPECIFIC content that follows the app's Target Structure
 Create a motivating header (topic) and a short explanation (text).
 ADDITIONALLY, provide "theory" cards that explain the concepts the user struggles with.`;
 
-            // 5. Call AI (xAI Grok)
+            // 5. Call AI (xAI Grok) — lazy import to avoid cold-start tax on GET/PUT
             if (!process.env.XAI_API_KEY) {
                 console.error("Missing XAI_API_KEY");
                 return res.status(500).json({ error: "Server Configuration Error: Missing API Key" });
             }
+
+            const [{ xai }, { generateText }] = await Promise.all([
+                import('@ai-sdk/xai'),
+                import('ai')
+            ]);
 
             let text = "";
             try {
@@ -308,31 +306,30 @@ ADDITIONALLY, provide "theory" cards that explain the concepts the user struggle
                 return res.status(500).json({ error: "Failed to parse AI response" });
             }
 
-            // 7. Save Tasks
+            // 7. Save Tasks (batched — single round-trip instead of N)
             const sessionId = crypto.randomUUID();
-            let taskOrder = 1;
+            const theoryStr = JSON.stringify(object.theory || []);
+            const validTasks = (object.tasks || []).filter(t => t.content);
 
-            if (object.tasks && Array.isArray(object.tasks)) {
-                for (const task of object.tasks) {
-                    if (!task.content) continue;
-
-                    const contentStr = JSON.stringify(task.content);
-
-                    await db.execute({
+            let taskIds: (bigint | undefined)[] = [];
+            if (validTasks.length > 0) {
+                const batchResults = await db.batch(
+                    validTasks.map((task, idx) => ({
                         sql: `INSERT INTO learning_session (user_uid, session_id, app_id, content, order_index, pristine, topic, text, theory)
                               VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?)`,
                         args: [
                             user_uid,
                             sessionId,
                             task.app_id,
-                            contentStr,
-                            taskOrder++,
+                            JSON.stringify(task.content),
+                            idx + 1,
                             object.topic,
                             object.text,
-                            JSON.stringify(object.theory || [])
+                            theoryStr
                         ]
-                    });
-                }
+                    }))
+                );
+                taskIds = batchResults.map(r => r.lastInsertRowid);
             }
 
             // 8. Log to ai_logs
@@ -354,13 +351,8 @@ ADDITIONALLY, provide "theory" cards that explain the concepts the user struggle
                 console.error("Failed to log AI interaction:", logError);
             }
 
-            // 9. Return
-            const refetchedSession = await db.execute({
-                sql: "SELECT * FROM learning_session WHERE session_id = ? ORDER BY order_index ASC",
-                args: [sessionId]
-            });
-
-            if (refetchedSession.rows.length === 0) {
+            // 9. Build response from in-memory data (no redundant re-fetch)
+            if (validTasks.length === 0) {
                 return res.status(200).json({
                     session_id: sessionId,
                     tasks: [],
@@ -369,18 +361,17 @@ ADDITIONALLY, provide "theory" cards that explain the concepts the user struggle
                 });
             }
 
-            const firstRow = refetchedSession.rows[0];
             const finalData = {
                 session_id: sessionId,
-                topic: firstRow.topic,
-                text: firstRow.text,
-                theory: firstRow.theory ? JSON.parse(firstRow.theory as string) : [],
-                created_at: firstRow.created_at,
-                tasks: refetchedSession.rows.map(row => ({
-                    id: row.id,
-                    app_id: row.app_id,
-                    pristine: row.pristine,
-                    content: JSON.parse(row.content as string)
+                topic: object.topic,
+                text: object.text,
+                theory: object.theory || [],
+                created_at: new Date().toISOString(),
+                tasks: validTasks.map((task, idx) => ({
+                    id: taskIds[idx] != null ? Number(taskIds[idx]) : null,
+                    app_id: task.app_id,
+                    pristine: 1,
+                    content: task.content
                 }))
             };
 
@@ -569,33 +560,32 @@ async function handlePlan(req: VercelRequest, res: VercelResponse, db: ReturnTyp
                 args: [user_uid]
             });
 
-            // 1. Fetch user's question progress (weak areas)
-            const progress = await db.execute({
-                sql: `SELECT uqp.app_id, uqp.app_content_id, uqp.success_count, uqp.failure_count,
-                             ac.data as content_data
-                      FROM user_question_progress uqp
-                      JOIN app_content ac ON uqp.app_content_id = ac.id
-                      WHERE uqp.user_uid = ?
-                      ORDER BY uqp.failure_count DESC, uqp.success_count ASC`,
-                args: [user_uid]
-            });
-
-            // 2. Fetch questions user has NOT seen yet (for variety)
-            const unseenQuestions = await db.execute({
-                sql: `SELECT ac.id, ac.app_id, ac.data as content_data
-                      FROM app_content ac
-                      JOIN apps a ON ac.app_id = a.id
-                      WHERE a.type = 'learning'
-                        AND ac.id NOT IN (
-                            SELECT app_content_id FROM user_question_progress WHERE user_uid = ?
-                        )
-                      ORDER BY RANDOM()
-                      LIMIT 30`,
-                args: [user_uid]
-            });
-
-            // 3. Fetch all learning apps
-            const apps = await db.execute("SELECT id, name, description FROM apps WHERE type = 'learning'");
+            // 1-3. Fetch progress, unseen questions, apps, and language preference in parallel
+            const [progress, unseenQuestions, apps, planUserLangRes] = await Promise.all([
+                db.execute({
+                    sql: `SELECT uqp.app_id, uqp.app_content_id, uqp.success_count, uqp.failure_count,
+                                 ac.data as content_data
+                          FROM user_question_progress uqp
+                          JOIN app_content ac ON uqp.app_content_id = ac.id
+                          WHERE uqp.user_uid = ?
+                          ORDER BY uqp.failure_count DESC, uqp.success_count ASC`,
+                    args: [user_uid]
+                }),
+                db.execute({
+                    sql: `SELECT ac.id, ac.app_id, ac.data as content_data
+                          FROM app_content ac
+                          JOIN apps a ON ac.app_id = a.id
+                          WHERE a.type = 'learning'
+                            AND ac.id NOT IN (
+                                SELECT app_content_id FROM user_question_progress WHERE user_uid = ?
+                            )
+                          ORDER BY RANDOM()
+                          LIMIT 30`,
+                    args: [user_uid]
+                }),
+                db.execute("SELECT id, name, description FROM apps WHERE type = 'learning'"),
+                db.execute({ sql: "SELECT language_variant FROM users WHERE uid = ?", args: [user_uid] })
+            ]);
             const appsMap = new Map(apps.rows.map(a => [a.id as string, { name: a.name as string, description: a.description as string }]));
 
             // 4. Build candidate pool with scoring
@@ -666,17 +656,11 @@ async function handlePlan(req: VercelRequest, res: VercelResponse, db: ReturnTyp
                 return res.status(400).json({ error: "Nicht genügend Fragen vorhanden, um einen Lernplan zu erstellen." });
             }
 
-            // 5. Fetch language preference
+            // 5. Use pre-fetched language preference
             let languageInstruction = "IMPORTANT: Use Swiss German spelling conventions (e.g., 'ss' instead of 'ß').";
-            try {
-                const userRes = await db.execute({
-                    sql: "SELECT language_variant FROM users WHERE uid = ?",
-                    args: [user_uid]
-                });
-                if (userRes.rows.length > 0 && userRes.rows[0].language_variant === 'standard') {
-                    languageInstruction = "IMPORTANT: Use Standard German spelling conventions (e.g., use 'ß' where appropriate).";
-                }
-            } catch (e) { console.warn("Failed to fetch user language preference", e); }
+            if (planUserLangRes.rows.length > 0 && planUserLangRes.rows[0].language_variant === 'standard') {
+                languageInstruction = "IMPORTANT: Use Standard German spelling conventions (e.g., use 'ß' where appropriate).";
+            }
 
             // 6. Prepare AI prompt
             const candidateSummary = candidates.slice(0, 50).map((c, i) =>
@@ -719,11 +703,16 @@ Return ONLY valid JSON:
 
             const userPrompt = `Create a ${requestedDays}-day learning plan from these question candidates:\n\n${candidateSummary}`;
 
-            // 7. Call AI
+            // 7. Call AI — lazy import to avoid cold-start tax on GET/PUT
             if (!process.env.XAI_API_KEY) {
                 console.error("Missing XAI_API_KEY");
                 return res.status(500).json({ error: "Server Configuration Error: Missing API Key" });
             }
+
+            const [{ xai }, { generateText }] = await Promise.all([
+                import('@ai-sdk/xai'),
+                import('ai')
+            ]);
 
             let text = "";
             try {
@@ -780,48 +769,46 @@ Return ONLY valid JSON:
                 ]
             });
 
-            // 11. Save individual tasks
+            // 11. Save individual tasks (batched — single round-trip)
+            const planTaskInserts: { sql: string; args: (string | number)[] }[] = [];
             for (const day of planResponse.days) {
                 let orderIdx = 1;
                 for (const contentId of day.task_ids) {
                     const candidate = candidateMap.get(contentId);
                     if (!candidate) continue;
 
-                    await db.execute({
+                    planTaskInserts.push({
                         sql: `INSERT INTO learning_plan_tasks (plan_id, day_number, order_index, app_id, app_content_id)
                               VALUES (?, ?, ?, ?, ?)`,
                         args: [planId, day.day, orderIdx++, candidate.app_id, contentId]
                     });
                 }
             }
+            if (planTaskInserts.length > 0) {
+                await db.batch(planTaskInserts);
+            }
 
-            // 12. Log AI interaction
-            try {
-                await db.execute({
+            // 12-13. Log AI interaction and re-fetch plan + tasks in parallel
+            const [, savedPlan, savedTasks] = await Promise.all([
+                db.execute({
                     sql: `INSERT INTO ai_logs (user_uid, session_id, prompt, system_prompt, response, provider, model)
                           VALUES (?, ?, ?, ?, ?, ?, ?)`,
                     args: [user_uid, planId, userPrompt, systemPrompt, text, 'xai', 'grok-4-1-fast-reasoning']
-                });
-            } catch (logError) {
-                console.error("Failed to log AI plan interaction:", logError);
-            }
-
-            // 13. Re-fetch and return the full plan (reuse GET logic)
-            // Instead of duplicating, do a simple fetch
-            const savedPlan = await db.execute({
-                sql: `SELECT * FROM learning_plans WHERE plan_id = ?`,
-                args: [planId]
-            });
-
-            const savedTasks = await db.execute({
-                sql: `SELECT lpt.*, ac.data as content_data, a.name as app_name, a.icon as app_icon, a.route as app_route
-                      FROM learning_plan_tasks lpt
-                      JOIN app_content ac ON lpt.app_content_id = ac.id
-                      JOIN apps a ON lpt.app_id = a.id
-                      WHERE lpt.plan_id = ?
-                      ORDER BY lpt.day_number ASC, lpt.order_index ASC`,
-                args: [planId]
-            });
+                }).catch(logError => { console.error("Failed to log AI plan interaction:", logError); return null; }),
+                db.execute({
+                    sql: `SELECT * FROM learning_plans WHERE plan_id = ?`,
+                    args: [planId]
+                }),
+                db.execute({
+                    sql: `SELECT lpt.*, ac.data as content_data, a.name as app_name, a.icon as app_icon, a.route as app_route
+                          FROM learning_plan_tasks lpt
+                          JOIN app_content ac ON lpt.app_content_id = ac.id
+                          JOIN apps a ON lpt.app_id = a.id
+                          WHERE lpt.plan_id = ?
+                          ORDER BY lpt.day_number ASC, lpt.order_index ASC`,
+                    args: [planId]
+                })
+            ]);
 
             const daysMap: Record<number, unknown[]> = {};
             for (const row of savedTasks.rows) {

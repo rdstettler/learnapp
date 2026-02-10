@@ -17,14 +17,25 @@
                 <strong>Tipp:</strong> "Das" kann durch "dieses", "jenes" oder "welches" ersetzt werden. "Dass"
                 leitet einen Nebensatz ein und kann nicht ersetzt werden.
             </div>
+            @if (!isSessionMode) {
+            <div class="mode-selector">
+                @for (m of modes; track m.id) {
+                <button class="mode-btn" [class.active]="mode() === m.id" (click)="setMode(m.id)">
+                    <span class="mode-icon">{{ m.icon }}</span>
+                    <span class="mode-label">{{ m.label }}</span>
+                    <span class="mode-desc">{{ m.description }}</span>
+                </button>
+                }
+            </div>
+            }
             <button class="btn btn-primary" style="margin-top: 24px;" (click)="startQuiz()" [disabled]="!dataLoaded()">
                 Quiz starten
             </button>
         </div>
         }
 
-        <!-- Quiz Screen -->
-        @if (screen() === 'quiz') {
+        <!-- Quiz Screen: Standard -->
+        @if (screen() === 'quiz' && mode() === 'standard') {
         <div class="quiz-content">
             <div class="round-info">Text {{ currentTextIndex() + 1 }} / {{ textsPerRound }}</div>
 
@@ -46,6 +57,33 @@
 
             @if (!answered()) {
             <button class="btn btn-primary" (click)="checkAnswers()">Überprüfen</button>
+            } @else {
+            <button class="btn btn-primary" (click)="nextText()">Weiter</button>
+            }
+        </div>
+        }
+
+        <!-- Quiz Screen: Fehlerjagd -->
+        @if (screen() === 'quiz' && mode() === 'fehlerjagd') {
+        <div class="quiz-content">
+            <div class="round-info">Text {{ currentTextIndex() + 1 }} / {{ textsPerRound }}</div>
+            <div class="score-live">
+                <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
+                <div class="score-live-item wrong">✗ {{ totalWrong() }}</div>
+            </div>
+            <p class="hunt-instruction">Klicke auf falsch ausgefüllte Stellen!</p>
+            <div class="text-container">
+                @for (part of getProcessedText().parts; track $index) {
+                @if (part.type === 'text') {
+                <span>{{ part.content }}</span>
+                } @else {
+                <span class="choice-slot" [class]="getHuntSlotClass(part.index!)"
+                    (click)="toggleHuntSlot(part.index!)">{{ getHuntSlotDisplay(part.index!) }}</span>
+                }
+                }
+            </div>
+            @if (!huntChecked()) {
+            <button class="btn btn-primary" (click)="checkHunt()">Überprüfen</button>
             } @else {
             <button class="btn btn-primary" (click)="nextText()">Weiter</button>
             }

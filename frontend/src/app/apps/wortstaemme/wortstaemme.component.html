@@ -13,6 +13,17 @@
                 <option [value]="stem.stem">{{ stem.stem }}</option>
                 }
             </select>
+
+            <div class="mode-selector">
+                @for (m of modes; track m.id) {
+                <button class="mode-btn" [class.active]="mode() === m.id" (click)="setMode(m.id)">
+                    <span class="mode-icon">{{ m.icon }}</span>
+                    <span class="mode-label">{{ m.label }}</span>
+                    <span class="mode-desc">{{ m.description }}</span>
+                </button>
+                }
+            </div>
+
             <button class="btn btn-primary" [disabled]="!selectedStemValue()" (click)="startQuiz()">
                 Quiz starten
             </button>
@@ -94,6 +105,33 @@
                 }
             </div>
             <button class="btn btn-primary" (click)="continueAfterResults2()">Weiter</button>
+        </div>
+        }
+
+        @if (screen() === 'build') {
+        <div class="quiz-content">
+            <h2 class="stage-title">Wörter bilden</h2>
+            <div class="word-badge">{{ currentStem()?.stem }}</div>
+            <p class="stage-subtitle">Welche zusammengesetzten Wörter mit «{{ currentStem()?.stem }}» kennst du?</p>
+
+            <div class="build-input-row">
+                <input type="text" class="build-input" [value]="buildInput()"
+                    (input)="buildInput.set($any($event.target).value)"
+                    (keyup.enter)="submitBuildWord()"
+                    placeholder="Zusammengesetztes Wort..." autocomplete="off">
+                <button class="btn btn-primary btn-sm" (click)="submitBuildWord()">+</button>
+            </div>
+
+            <div class="build-found">
+                <div class="build-count">{{ buildFound().length }} / {{ buildTotal() }} gefunden</div>
+                <div class="build-chips">
+                    @for (word of buildFound(); track word) {
+                    <span class="build-chip">✓ {{ word }}</span>
+                    }
+                </div>
+            </div>
+
+            <button class="btn btn-secondary" style="margin-top: 20px;" (click)="finishBuild()">Fertig</button>
         </div>
         }
 

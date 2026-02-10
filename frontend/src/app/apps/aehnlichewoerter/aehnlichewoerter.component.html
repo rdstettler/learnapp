@@ -13,12 +13,24 @@
                 Wähle ein Wortpaar und übe den Unterschied zwischen ähnlich klingenden Wörtern!
             </p>
 
+            <div class="mode-selector">
+                @for (m of modes; track m.id) {
+                <button class="mode-btn" [class.active]="mode() === m.id" (click)="setMode(m.id)">
+                    <span class="mode-icon">{{ m.icon }}</span>
+                    <span class="mode-label">{{ m.label }}</span>
+                    <span class="mode-desc">{{ m.description }}</span>
+                </button>
+                }
+            </div>
+
+            @if (mode() === 'einzeln') {
             <select class="pair-select" (change)="selectPair($event)">
                 <option value="">Wortpaar wählen...</option>
                 @for (pair of pairs(); track pair.id) {
                 <option [value]="pair.id">{{ pair.words[0] }} / {{ pair.words[1] }} – {{ pair.description }}</option>
                 }
             </select>
+            }
 
             <div class="rule-box">
                 <strong>Tipp:</strong> Achte genau auf die Bedeutung der Wörter im Satz.
@@ -26,7 +38,7 @@
             </div>
 
             <button class="btn btn-primary" style="margin-top: 24px;" (click)="startQuiz()"
-                [disabled]="!dataLoaded() || !selectedPairId()">
+                [disabled]="!dataLoaded() || (mode() === 'einzeln' && !selectedPairId())">
                 Quiz starten
             </button>
         </div>
@@ -37,9 +49,11 @@
         <div class="quiz-content">
             <div class="round-info">Satz {{ currentSentenceIndex() + 1 }} / {{ SENTENCES_PER_ROUND }}</div>
 
+            @if (mode() === 'einzeln') {
             <div class="pair-badge">
                 {{ currentPair()?.words?.[0] }} / {{ currentPair()?.words?.[1] }}
             </div>
+            }
 
             <div class="score-live">
                 <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
@@ -59,7 +73,7 @@
             </div>
 
             <div class="word-options">
-                @for (word of currentPair()?.words; track word) {
+                @for (word of currentWordOptions(); track word) {
                 <button class="word-option"
                     [class.selected]="getSelectedSlotValue().toLowerCase() === word.toLowerCase()"
                     [disabled]="answered()" (click)="selectWord(word)">
@@ -93,9 +107,11 @@
             <div class="score-circle">{{ percentage() }}%</div>
             <p class="score-text">{{ totalCorrect() }} von {{ totalCorrect() + totalWrong() }} richtig!</p>
 
+            @if (mode() === 'einzeln') {
             <div class="result-pair">
                 {{ currentPair()?.words?.[0] }} / {{ currentPair()?.words?.[1] }}
             </div>
+            }
 
             <div class="score-breakdown">
                 <div class="score-item correct">

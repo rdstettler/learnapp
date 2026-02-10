@@ -14,6 +14,7 @@ interface WortfamilieItem {
 }
 
 type WordType = 'nomen' | 'verb' | 'adjektiv';
+type QuizMode = 'tippen' | 'zuordnen';
 
 interface Problem {
     item: WortfamilieItem;
@@ -38,6 +39,12 @@ export class WortfamilieComponent {
     private sessionId = this.telemetryService.generateSessionId();
 
     readonly PROBLEMS_PER_ROUND = 10;
+
+    readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [
+        { id: 'tippen', label: 'Tippen', icon: '✍️', description: 'Ergänze die fehlenden Wortformen.' },
+        { id: 'zuordnen', label: 'Zuordnen', icon: '🏷️', description: 'Ordne Wörter als Nomen, Verb oder Adjektiv zu.' }
+    ];
+    mode = signal<QuizMode>('tippen');
     readonly ARTICLES = ['der', 'die', 'das', 'den', 'dem', 'des', 'ein', 'eine', 'einer', 'einem', 'einen', 'eines'];
 
     screen = signal<'welcome' | 'quiz' | 'results'>('welcome');
@@ -56,7 +63,20 @@ export class WortfamilieComponent {
     totalCorrect = signal(0);
     totalWrong = signal(0);
 
-    progress = computed(() => (this.currentIndex() / this.PROBLEMS_PER_ROUND) * 100);
+    // Classification mode
+    classWords = signal<{ word: string; type: WordType }[]>([]);
+    classIndex = signal(0);
+    classAnswered = signal(false);
+    classSelected = signal('');
+    classIsCorrect = signal(false);
+
+    progress = computed(() => {
+        if (this.mode() === 'zuordnen') {
+            const total = this.classWords().length;
+            return total > 0 ? (this.classIndex() / total) * 100 : 0;
+        }
+        return (this.currentIndex() / this.PROBLEMS_PER_ROUND) * 100;
+    });
     percentage = computed(() => {
         const total = this.totalCorrect() + this.totalWrong();
         return total > 0 ? Math.round((this.totalCorrect() / total) * 100) : 0;
@@ -76,29 +96,34 @@ export class WortfamilieComponent {
         });
     }
 
+    setMode(m: QuizMode): void {
+        this.mode.set(m);
+    }
+
     startQuiz(): void {
+        this.totalCorrect.set(0);
+        this.totalWrong.set(0);
+        this.screen.set('quiz');
+
+        if (this.mode() === 'zuordnen') {
+            this.startClassification();
+            return;
+        }
+
         const shuffled = shuffle(this.allItems());
         const selected = shuffled.slice(0, this.PROBLEMS_PER_ROUND);
 
-        // Erstelle Probleme mit zufällig gegebenem Worttyp
         const problems: Problem[] = selected.map(item => {
             const types: WordType[] = ['nomen', 'verb', 'adjektiv'];
             const givenType = types[Math.floor(Math.random() * types.length)];
-
-            // Wähle ein zufälliges Wort aus dem gegebenen Typ
             const words = item[givenType].split(',').map(w => w.trim());
             const givenWord = words[Math.floor(Math.random() * words.length)];
-
             const missingTypes = types.filter(t => t !== givenType);
-
             return { item, givenType, givenWord, missingTypes };
         });
 
         this.problems.set(problems);
         this.currentIndex.set(0);
-        this.totalCorrect.set(0);
-        this.totalWrong.set(0);
-        this.screen.set('quiz');
         this.showProblem();
     }
 
@@ -227,10 +252,70 @@ export class WortfamilieComponent {
     }
 
     handleEnter(event: Event) {
+        if (this.mode() === 'zuordnen') {
+            if (this.classAnswered()) this.nextClassWord();
+            return;
+        }
         if (this.answered()) {
             this.nextProblem();
         } else if (this.canCheck()) {
             this.checkAnswers();
+        }
+    }
+
+    // ═══ MODE: ZUORDNEN ═══
+
+    private startClassification(): void {
+        const items = shuffle(this.allItems());
+        const words: { word: string; type: WordType }[] = [];
+        const types: WordType[] = ['nomen', 'verb', 'adjektiv'];
+
+        for (const item of items) {
+            const type = types[Math.floor(Math.random() * types.length)];
+            const allWords = item[type].split(',').map(w => w.trim());
+            const word = allWords[Math.floor(Math.random() * allWords.length)];
+            words.push({ word, type });
+            if (words.length >= this.PROBLEMS_PER_ROUND) break;
+        }
+
+        this.classWords.set(shuffle(words));
+        this.classIndex.set(0);
+        this.classAnswered.set(false);
+        this.classSelected.set('');
+    }
+
+    currentClassWord = computed(() => this.classWords()[this.classIndex()]);
+
+    selectClassType(type: string): void {
+        if (this.classAnswered()) return;
+        const current = this.currentClassWord();
+        if (!current) return;
+
+        const isCorrect = type === current.type;
+        this.classSelected.set(type);
+        this.classIsCorrect.set(isCorrect);
+        this.classAnswered.set(true);
+
+        if (isCorrect) this.totalCorrect.update(c => c + 1);
+        else this.totalWrong.update(w => w + 1);
+    }
+
+    getClassOptionClass(type: string): string {
+        if (!this.classAnswered()) return '';
+        const current = this.currentClassWord();
+        if (!current) return '';
+        if (type === current.type) return 'correct';
+        if (type === this.classSelected()) return 'incorrect';
+        return '';
+    }
+
+    nextClassWord(): void {
+        if (this.classIndex() >= this.classWords().length - 1) {
+            this.screen.set('results');
+        } else {
+            this.classIndex.update(i => i + 1);
+            this.classAnswered.set(false);
+            this.classSelected.set('');
         }
     }
 }

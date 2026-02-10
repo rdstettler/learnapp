@@ -1,11 +1,14 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { DataService } from '../../services/data.service';
 import { shuffle } from '../../shared/utils/array.utils';
+import { normalizeGermanText } from '../../shared/utils/text.utils';
 
 interface Redewendung {
     idiom: string;
     options: string[];
 }
+
+type QuizMode = 'bedeutung' | 'ergaenze';
 
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 
@@ -24,7 +27,12 @@ export class RedewendungenComponent {
     private sessionId = this.telemetryService.generateSessionId();
 
     readonly QUESTIONS_PER_ROUND = 10;
+    readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [
+        { id: 'bedeutung', label: 'Bedeutung', icon: '🎯', description: 'Was bedeutet die Redewendung?' },
+        { id: 'ergaenze', label: 'Ergänze', icon: '✏️', description: 'Vervollständige die Redewendung!' }
+    ];
 
+    mode = signal<QuizMode>('bedeutung');
     screen = signal<'welcome' | 'quiz' | 'results'>('welcome');
     redewendungen = signal<Redewendung[]>([]);
     questions = signal<Redewendung[]>([]);
@@ -32,7 +40,14 @@ export class RedewendungenComponent {
     correctCount = signal(0);
     wrongCount = signal(0);
 
+    // Mode: bedeutung
     currentOptions = signal<{ text: string; isCorrect: boolean; selected: boolean; disabled: boolean }[]>([]);
+
+    // Mode: ergaenze
+    idiomPrefix = signal('');
+    missingWord = signal('');
+    userInput = signal('');
+
     feedbackText = signal('');
     isCorrect = signal(false);
     answered = signal(false);
@@ -54,15 +69,24 @@ export class RedewendungenComponent {
         });
     }
 
+    setMode(m: QuizMode): void {
+        this.mode.set(m);
+    }
+
     startQuiz(): void {
         const seen = new Set<string>();
-        const unique = this.redewendungen().filter(r => {
+        let pool = this.redewendungen().filter(r => {
             if (seen.has(r.idiom)) return false;
             seen.add(r.idiom);
             return true;
         });
 
-        this.questions.set(shuffle(unique).slice(0, this.QUESTIONS_PER_ROUND));
+        // For ergaenze mode, only use idioms with 3+ words (so we can remove the last word)
+        if (this.mode() === 'ergaenze') {
+            pool = pool.filter(r => r.idiom.trim().split(/\s+/).length >= 3);
+        }
+
+        this.questions.set(shuffle(pool).slice(0, this.QUESTIONS_PER_ROUND));
         this.currentQuestion.set(0);
         this.correctCount.set(0);
         this.wrongCount.set(0);
@@ -72,20 +96,29 @@ export class RedewendungenComponent {
 
     private showQuestion(): void {
         const q = this.questions()[this.currentQuestion()];
-        const correctAnswer = q.options[0];
-        const shuffledOptions = shuffle(q.options);
-
-        this.currentOptions.set(shuffledOptions.map(opt => ({
-            text: opt,
-            isCorrect: opt === correctAnswer,
-            selected: false,
-            disabled: false
-        })));
-
         this.feedbackText.set('');
         this.answered.set(false);
+
+        if (this.mode() === 'bedeutung') {
+            const correctAnswer = q.options[0];
+            const shuffledOptions = shuffle(q.options);
+            this.currentOptions.set(shuffledOptions.map(opt => ({
+                text: opt,
+                isCorrect: opt === correctAnswer,
+                selected: false,
+                disabled: false
+            })));
+        } else {
+            // Ergänze mode: split idiom, remove last word
+            const words = q.idiom.trim().split(/\s+/);
+            const missing = words.pop()!;
+            this.idiomPrefix.set(words.join(' '));
+            this.missingWord.set(missing);
+            this.userInput.set('');
+        }
     }
 
+    // Mode: bedeutung
     selectOption(index: number): void {
         if (this.answered()) return;
 
@@ -119,6 +152,36 @@ export class RedewendungenComponent {
         }
     }
 
+    // Mode: ergaenze
+    updateInput(value: string): void {
+        this.userInput.set(value);
+    }
+
+    checkErgaenze(): void {
+        if (this.answered()) return;
+
+        const userStr = normalizeGermanText(this.userInput().trim());
+        const correctStr = normalizeGermanText(this.missingWord());
+        const correct = userStr === correctStr;
+
+        this.answered.set(true);
+        this.isCorrect.set(correct);
+
+        if (correct) {
+            this.correctCount.update(c => c + 1);
+            this.feedbackText.set('✓ Richtig!');
+        } else {
+            this.wrongCount.update(c => c + 1);
+            this.feedbackText.set(`✗ Richtig wäre: ${this.missingWord()}`);
+        }
+
+        // Track per-question progress
+        const q = this.questions()[this.currentQuestion()] as any;
+        if (q?._contentId) {
+            this.telemetryService.trackProgress('redewendungen', q._contentId, correct);
+        }
+    }
+
     nextQuestion(): void {
         if (this.currentQuestion() >= this.QUESTIONS_PER_ROUND - 1) {
             this.screen.set('results');
@@ -135,5 +198,14 @@ export class RedewendungenComponent {
 
     restartQuiz(): void {
         this.screen.set('welcome');
+    }
+
+    handleEnter(): void {
+        if (this.mode() !== 'ergaenze') return;
+        if (this.answered()) {
+            this.nextQuestion();
+        } else if (this.userInput().trim().length > 0) {
+            this.checkErgaenze();
+        }
     }
 }

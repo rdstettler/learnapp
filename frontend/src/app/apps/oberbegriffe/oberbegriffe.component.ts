@@ -6,8 +6,10 @@ import { DataService } from '../../services/data.service';
 interface OberbegriffItem {
     id: number;
     words: string[];
-    answers: string; // Kommagetrennte mögliche Antworten
+    answers: string;
 }
+
+type QuizMode = 'tippen' | 'auswahl' | 'eindringling';
 
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
@@ -29,6 +31,13 @@ export class OberbegriffeComponent {
 
     readonly PROBLEMS_PER_ROUND = 10;
 
+    readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [
+        { id: 'tippen', label: 'Tippen', icon: '✍️', description: 'Tippe den Oberbegriff ein.' },
+        { id: 'auswahl', label: 'Auswahl', icon: '🎯', description: 'Wähle den richtigen Oberbegriff.' },
+        { id: 'eindringling', label: 'Eindringling', icon: '🔍', description: 'Finde das Wort, das nicht passt.' }
+    ];
+
+    mode = signal<QuizMode>('tippen');
     screen = signal<'welcome' | 'quiz' | 'results'>('welcome');
     allItems = signal<OberbegriffItem[]>([]);
     items = signal<OberbegriffItem[]>([]);
@@ -38,6 +47,21 @@ export class OberbegriffeComponent {
     answered = signal(false);
     isCorrect = signal(false);
     matchedAnswer = signal('');
+
+    // Auswahl (MC) mode
+    mcOptions = signal<string[]>([]);
+    mcAnswered = signal(false);
+    mcSelected = signal('');
+    mcIsCorrect = signal(false);
+    mcCorrectAnswer = signal('');
+
+    // Eindringling (OOO) mode
+    oooWords = signal<string[]>([]);
+    oooIntruder = signal('');
+    oooIntruderCategory = signal('');
+    oooAnswered = signal(false);
+    oooSelected = signal('');
+    oooIsCorrect = signal(false);
 
     totalCorrect = signal(0);
     totalWrong = signal(0);
@@ -62,6 +86,10 @@ export class OberbegriffeComponent {
         });
     }
 
+    setMode(m: QuizMode): void {
+        this.mode.set(m);
+    }
+
     startQuiz(): void {
         const shuffled = shuffle(this.allItems());
         this.items.set(shuffled.slice(0, this.PROBLEMS_PER_ROUND));
@@ -69,13 +97,15 @@ export class OberbegriffeComponent {
         this.totalCorrect.set(0);
         this.totalWrong.set(0);
         this.screen.set('quiz');
-        this.showItem();
+        this.setupItem();
     }
 
-    private showItem(): void {
+    private setupItem(): void {
         this.userAnswer.set('');
         this.answered.set(false);
         this.matchedAnswer.set('');
+        if (this.mode() === 'auswahl') this.setupMCItem();
+        if (this.mode() === 'eindringling') this.setupOOOItem();
     }
 
     updateAnswer(value: string): void {
@@ -124,14 +154,94 @@ export class OberbegriffeComponent {
         return item.answers;
     }
 
+    // ═══ MODE: AUSWAHL (MC) ═══
+
+    private setupMCItem(): void {
+        const item = this.currentItem();
+        if (!item) return;
+        const correctAnswer = item.answers.split(',')[0].trim();
+        const otherItems = this.allItems().filter(i => i.id !== item.id);
+        const distractors = shuffle(otherItems)
+            .map(i => i.answers.split(',')[0].trim())
+            .filter(a => this.normalizeAnswer(a) !== this.normalizeAnswer(correctAnswer))
+            .slice(0, 3);
+        this.mcOptions.set(shuffle([correctAnswer, ...distractors]));
+        this.mcSelected.set('');
+        this.mcAnswered.set(false);
+        this.mcCorrectAnswer.set(correctAnswer);
+    }
+
+    selectMCOption(option: string): void {
+        if (this.mcAnswered()) return;
+        const item = this.currentItem();
+        if (!item) return;
+        const acceptedAnswers = item.answers.split(',').map(a => this.normalizeAnswer(a.trim()));
+        const isCorrect = acceptedAnswers.includes(this.normalizeAnswer(option));
+        this.mcSelected.set(option);
+        this.mcIsCorrect.set(isCorrect);
+        this.mcAnswered.set(true);
+        if (isCorrect) this.totalCorrect.update(c => c + 1);
+        else this.totalWrong.update(w => w + 1);
+        const contentId = (item as any)._contentId;
+        if (contentId) this.telemetryService.trackProgress('oberbegriffe', contentId, isCorrect);
+    }
+
+    getMCOptionClass(option: string): string {
+        if (!this.mcAnswered()) return '';
+        const item = this.currentItem();
+        if (!item) return '';
+        const acceptedAnswers = item.answers.split(',').map(a => this.normalizeAnswer(a.trim()));
+        const isThis = acceptedAnswers.includes(this.normalizeAnswer(option));
+        if (option === this.mcSelected()) return isThis ? 'correct' : 'incorrect';
+        return isThis ? 'correct' : '';
+    }
+
+    // ═══ MODE: EINDRINGLING (OOO) ═══
+
+    private setupOOOItem(): void {
+        const item = this.currentItem();
+        if (!item) return;
+        const otherItems = this.allItems().filter(i => i.id !== item.id);
+        const otherItem = otherItems[Math.floor(Math.random() * otherItems.length)];
+        const intruder = otherItem.words[Math.floor(Math.random() * otherItem.words.length)];
+        const intruderCategory = otherItem.answers.split(',')[0].trim();
+        this.oooIntruder.set(intruder);
+        this.oooIntruderCategory.set(intruderCategory);
+        this.oooWords.set(shuffle([...item.words, intruder]));
+        this.oooSelected.set('');
+        this.oooAnswered.set(false);
+    }
+
+    selectOOOWord(word: string): void {
+        if (this.oooAnswered()) return;
+        const item = this.currentItem();
+        if (!item) return;
+        const isCorrect = word === this.oooIntruder();
+        this.oooSelected.set(word);
+        this.oooIsCorrect.set(isCorrect);
+        this.oooAnswered.set(true);
+        if (isCorrect) this.totalCorrect.update(c => c + 1);
+        else this.totalWrong.update(w => w + 1);
+        const contentId = (item as any)._contentId;
+        if (contentId) this.telemetryService.trackProgress('oberbegriffe', contentId, isCorrect);
+    }
+
+    getOOOWordClass(word: string): string {
+        if (!this.oooAnswered()) return '';
+        if (word === this.oooIntruder()) return 'intruder-correct';
+        if (word === this.oooSelected() && word !== this.oooIntruder()) return 'intruder-wrong';
+        return '';
+    }
+
+    // ═══ SHARED ═══
+
     nextItem(): void {
         const nextIndex = this.currentIndex() + 1;
-
         if (nextIndex >= this.PROBLEMS_PER_ROUND) {
             this.screen.set('results');
         } else {
             this.currentIndex.set(nextIndex);
-            this.showItem();
+            this.setupItem();
         }
     }
 
@@ -144,10 +254,14 @@ export class OberbegriffeComponent {
     }
 
     handleEnter(): void {
-        if (this.answered()) {
-            this.nextItem();
-        } else if (this.userAnswer().trim().length > 0) {
-            this.checkAnswer();
+        const m = this.mode();
+        if (m === 'tippen') {
+            if (this.answered()) this.nextItem();
+            else if (this.userAnswer().trim().length > 0) this.checkAnswer();
+        } else if (m === 'auswahl') {
+            if (this.mcAnswered()) this.nextItem();
+        } else if (m === 'eindringling') {
+            if (this.oooAnswered()) this.nextItem();
         }
     }
 }

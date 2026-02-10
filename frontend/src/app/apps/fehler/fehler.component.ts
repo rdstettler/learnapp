@@ -22,6 +22,8 @@ interface ErrorItem {
     wordIndex: number;
 }
 
+type QuizMode = 'korrektur' | 'markieren';
+
 @Component({
     selector: 'app-fehler',
     standalone: true,
@@ -35,6 +37,12 @@ export class FehlerComponent {
     private telemetryService = inject(AppTelemetryService);
     private sessionId = this.telemetryService.generateSessionId();
 
+    readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [
+        { id: 'korrektur', label: 'Korrektur', icon: '✏️', description: 'Finde Fehler und tippe die Korrektur.' },
+        { id: 'markieren', label: 'Markieren', icon: '🎯', description: 'Klicke nur auf die falschen Wörter.' }
+    ];
+    mode = signal<QuizMode>('korrektur');
+
     screen = signal<'welcome' | 'quiz' | 'results'>('welcome');
     texts = signal<string[]>([]);
     allTexts = signal<string[]>([]);
@@ -46,6 +54,9 @@ export class FehlerComponent {
     totalFound = signal(0);
     totalMissed = signal(0);
     checked = signal(false);
+
+    // Highlight mode
+    highlightMarked = signal<Set<number>>(new Set());
 
     // Popup state
     showPopup = signal(false);
@@ -72,6 +83,10 @@ export class FehlerComponent {
             next: (data) => this.allTexts.set(data),
             error: (err) => console.error('Error loading fehler data:', err)
         });
+    }
+
+    setMode(m: QuizMode): void {
+        this.mode.set(m);
     }
 
     startQuiz(): void {
@@ -174,6 +189,7 @@ export class FehlerComponent {
         this.displayWords.set(displayWords);
         this.currentTextErrors = errors;
         this.checked.set(false);
+        this.highlightMarked.set(new Set());
         this.cdr.markForCheck();
     }
 
@@ -303,5 +319,52 @@ export class FehlerComponent {
 
     restartQuiz(): void {
         this.screen.set('welcome');
+    }
+
+    // ═══ MODE: MARKIEREN ═══
+
+    toggleHighlight(word: DisplayWord): void {
+        if (this.checked()) return;
+        const marked = new Set(this.highlightMarked());
+        if (marked.has(word.wordIndex)) marked.delete(word.wordIndex);
+        else marked.add(word.wordIndex);
+        this.highlightMarked.set(marked);
+    }
+
+    getHighlightClass(word: DisplayWord): string {
+        const isMarked = this.highlightMarked().has(word.wordIndex);
+        if (!this.checked()) {
+            return isMarked ? 'hl-marked' : '';
+        }
+        if (word.isError && isMarked) return 'correct-click';
+        if (word.isError && !isMarked) return 'missed';
+        if (!word.isError && isMarked) return 'false-alarm';
+        return '';
+    }
+
+    checkHighlight(): void {
+        let found = 0;
+        let missed = 0;
+        const marked = this.highlightMarked();
+
+        this.currentTextErrors.forEach(error => {
+            if (marked.has(error.wordIndex)) found++;
+            else missed++;
+        });
+
+        marked.forEach(idx => {
+            if (!this.currentTextErrors.some(e => e.wordIndex === idx)) {
+                missed++;
+            }
+        });
+
+        this.totalFound.update(f => f + found);
+        this.totalMissed.update(m => m + missed);
+        this.checked.set(true);
+
+        const text = this.texts()[this.currentTextIndex()] as any;
+        if (text?._contentId) {
+            this.telemetryService.trackProgress('fehler', text._contentId, missed === 0);
+        }
     }
 }
