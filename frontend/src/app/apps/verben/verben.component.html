@@ -12,11 +12,19 @@
 
             <div class="mode-selector">
                 @for (m of modes; track m.id) {
+                @if (!m.minLevel || userLevel() >= m.minLevel) {
                 <button class="mode-btn" [class.active]="mode() === m.id" (click)="setMode(m.id)">
                     <span class="mode-icon">{{ m.icon }}</span>
                     <span class="mode-label">{{ m.label }}</span>
                     <span class="mode-desc">{{ m.description }}</span>
                 </button>
+                } @else {
+                <button class="mode-btn locked" disabled>
+                    <span class="mode-icon">🔒</span>
+                    <span class="mode-label">{{ m.label }}</span>
+                    <span class="mode-desc">Ab Stufe {{ m.minLevel }}</span>
+                </button>
+                }
                 }
             </div>
 
@@ -133,6 +141,49 @@
                 }
             </div>
             <button class="btn btn-primary" (click)="nextMCQuestion()">Weiter</button>
+            }
+            }
+        </div>
+        }
+
+        <!-- ═══ QUIZ: FEHLER FINDEN ═══ -->
+        @if (screen() === 'quiz' && mode() === 'fehlerfinden') {
+        <div class="quiz-content">
+            <div class="round-info">Frage {{ currentFehlerIndex() + 1 }} / {{ totalQuestions() }}</div>
+
+            @if (currentFehlerQuestion(); as q) {
+            <div class="fehler-question">
+                <div class="fehler-header">
+                    <span class="verb-badge">{{ q.verb }}</span>
+                    <span class="tense-badge">{{ tenseNames[q.tense] }}</span>
+                </div>
+                <p class="fehler-prompt">🔍 Welche Form ist falsch?</p>
+                <div class="fehler-options">
+                    @for (opt of q.options; track $index) {
+                    <button class="fehler-option-btn"
+                        [class.selected]="opt.selected"
+                        [class.is-mistake]="fehlerAnswered() && opt.isMistake"
+                        [class.correct-pick]="fehlerAnswered() && opt.selected && opt.isMistake"
+                        [class.wrong-pick]="fehlerAnswered() && opt.selected && !opt.isMistake"
+                        [class.safe]="fehlerAnswered() && !opt.isMistake && !opt.selected"
+                        [disabled]="fehlerAnswered()"
+                        (click)="selectFehlerOption($index)">
+                        <span class="fehler-person">{{ opt.person }}</span>
+                        <span class="fehler-form">{{ opt.form }}</span>
+                    </button>
+                    }
+                </div>
+            </div>
+
+            @if (fehlerAnswered()) {
+            <div class="feedback-row">
+                @if (q.isCorrect) {
+                <span class="feedback correct">✓ Richtig! «{{ q.mistakeForm }}» ist falsch.</span>
+                } @else {
+                <span class="feedback incorrect">✗ «{{ q.mistakePerson }}: {{ q.mistakeForm }}» war der Fehler. Richtig: {{ q.correctForm }}</span>
+                }
+            </div>
+            <button class="btn btn-primary" (click)="nextFehlerQuestion()">Weiter</button>
             }
             }
         </div>

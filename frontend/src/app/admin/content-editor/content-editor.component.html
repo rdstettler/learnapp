@@ -26,6 +26,9 @@
         @if (s.accuracy !== null) {
         <span class="summary-item" [style.color]="getAccuracyColor(s.accuracy)">🎯 {{ s.accuracy }}% Genauigkeit</span>
         }
+        @if (s.sparse > 0) {
+        <span class="summary-item sparse">🧩 {{ s.sparse }} unvollständig</span>
+        }
         @if (s.flagged > 0) {
         <span class="summary-item flagged">🚩 {{ s.flagged }} markiert</span>
         }
@@ -37,11 +40,124 @@
 
     <!-- Actions Bar -->
     <div class="actions-bar">
-        <button class="action-btn add-btn" (click)="toggleAddForm()">
-            {{ showAddForm() ? '✕ Abbrechen' : '+ Neuer Eintrag' }}
-        </button>
+        <div class="actions-left">
+            <button class="action-btn add-btn" (click)="toggleAddForm()">
+                {{ showAddForm() ? '✕ Abbrechen' : '+ Neuer Eintrag' }}
+            </button>
+            <button class="action-btn enhance-btn" (click)="toggleEnhancePanel()"
+                    [class.active]="showEnhancePanel()">
+                🤖 KI-Erweiterung
+            </button>
+            <select class="sort-select" [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)">
+                <option value="id">Sortierung: ID</option>
+                <option value="completeness-asc">Vollständigkeit ↑</option>
+                <option value="completeness-desc">Vollständigkeit ↓</option>
+                <option value="accuracy-asc">Genauigkeit ↑</option>
+                <option value="accuracy-desc">Genauigkeit ↓</option>
+                <option value="flags">Markierungen ↓</option>
+            </select>
+        </div>
         <span class="page-info">Seite {{ currentPage() }} / {{ totalPages() }} ({{ totalCount() }} total)</span>
     </div>
+
+    <!-- AI Enhancement Panel -->
+    @if (showEnhancePanel()) {
+    <div class="enhance-panel">
+        <h3>🤖 KI-gestützte Inhalts-Erweiterung</h3>
+
+        <!-- Template Info -->
+        @if (templateItem(); as tpl) {
+        <div class="template-info">
+            <span class="template-label">⭐ Vorlage:</span>
+            <span class="template-preview">#{{ tpl.id }} — {{ getPreview(tpl.data) }}</span>
+            <span class="template-score">{{ tpl.depthScore }} Props</span>
+        </div>
+        } @else {
+        <div class="template-warning">
+            ⚠️ Keine Vorlage gewählt. Klicke ⭐ auf einem Eintrag um ihn als Vorlage zu setzen.
+        </div>
+        }
+
+        <!-- Custom Prompt -->
+        <div class="prompt-section">
+            <label>Anweisungen an die KI (app-spezifisch):</label>
+            <textarea class="prompt-editor" rows="4"
+                      [ngModel]="customPrompt()"
+                      (ngModelChange)="customPrompt.set($event)"
+                      placeholder="z.B. 'Nur bei unregelmässigen Verben typicalMistakes hinzufügen...'"></textarea>
+        </div>
+
+        <!-- Batch Controls -->
+        <div class="batch-controls">
+            <div class="field-group">
+                <label>Batch-Grösse:</label>
+                <input type="number" [ngModel]="batchSize()" (ngModelChange)="batchSize.set($event)" min="1" max="10">
+            </div>
+            <span class="sparse-count">{{ sparseEntries().length }} unvollständige Einträge</span>
+            <button class="save-btn" (click)="runEnhanceBatch()"
+                    [disabled]="enhancing() || !templateItem() || sparseEntries().length === 0">
+                @if (enhancing()) {
+                    @if (enhanceProgress(); as p) {
+                    <span>⏳ {{ p.current }}/{{ p.total }}...</span>
+                    } @else {
+                    <span>⏳ Starte...</span>
+                    }
+                } @else {
+                <span>🚀 Nächsten Batch erweitern</span>
+                }
+            </button>
+        </div>
+
+        <!-- Enhancement Results -->
+        @if (enhanceResults().length > 0) {
+        <div class="enhance-results">
+            <h4>Ergebnisse — Prüfen & Übernehmen</h4>
+            @for (r of enhanceResults(); track r.id) {
+            <div class="result-card" [class.accepted]="isAccepted(r.id)" [class.rejected]="isRejected(r.id)">
+                <div class="result-header">
+                    <span class="result-id">#{{ r.id }}</span>
+                    <span class="result-preview">{{ getPreview(r.original) }}</span>
+                    @if (r.error) {
+                    <span class="result-error">❌ {{ r.error }}</span>
+                    } @else {
+                    <span class="result-diff">+{{ getEnhancedDiffKeys(r).length }} Felder</span>
+                    }
+                </div>
+                @if (r.enhanced && !r.error) {
+                <div class="result-body">
+                    <div class="result-col">
+                        <h5>Vorher</h5>
+                        <pre class="diff-pre">{{ r.original | json }}</pre>
+                    </div>
+                    <div class="result-col">
+                        <h5>Nachher (KI)</h5>
+                        <pre class="diff-pre enhanced">{{ r.enhanced | json }}</pre>
+                    </div>
+                </div>
+                <div class="result-actions">
+                    <button class="action-btn accept-btn" (click)="acceptResult(r)" [class.active]="isAccepted(r.id)">
+                        ✓ Übernehmen
+                    </button>
+                    <button class="action-btn reject-btn" (click)="rejectResult(r)" [class.active]="isRejected(r.id)">
+                        ✕ Ablehnen
+                    </button>
+                </div>
+                }
+            </div>
+            }
+
+            <!-- Save All Accepted -->
+            @if (acceptedIds().size > 0) {
+            <div class="save-accepted-bar">
+                <button class="save-btn" (click)="saveAcceptedEnhancements()" [disabled]="savingEnhanced()">
+                    {{ savingEnhanced() ? 'Speichert...' : '💾 ' + acceptedIds().size + ' Änderungen speichern' }}
+                </button>
+            </div>
+            }
+        </div>
+        }
+    </div>
+    }
 
     <!-- Add Form -->
     @if (showAddForm()) {
@@ -83,13 +199,33 @@
     <!-- Content Table -->
     @if (!loading() && items().length > 0) {
     <div class="content-table">
-        @for (item of items(); track item.id) {
-        <div class="content-row" [class.flagged]="item.flagCounter > 0" [class.editing]="editingId() === item.id">
+        @for (item of sortedItems(); track item.id) {
+        <div class="content-row"
+             [class.flagged]="item.flagCounter > 0"
+             [class.editing]="editingId() === item.id"
+             [class.is-template]="templateId() === item.id"
+             [class.sparse]="(item.completeness ?? 100) < 80">
             <!-- Row Header -->
             <div class="row-header">
                 <div class="row-id">#{{ item.id }}</div>
                 <div class="row-preview">{{ getPreview(item.data) }}</div>
+
+                <!-- Completeness Bar -->
+                <div class="completeness-cell" [title]="'Vollständigkeit: ' + (item.completeness ?? 100) + '% (' + (item.depthScore ?? 0) + ' Props)'">
+                    <div class="completeness-bar">
+                        <div class="completeness-fill"
+                             [style.width.%]="item.completeness ?? 100"
+                             [style.background]="getCompletenessColor(item.completeness ?? 100)"></div>
+                    </div>
+                    <span class="completeness-pct" [style.color]="getCompletenessColor(item.completeness ?? 100)">
+                        {{ item.completeness ?? 100 }}%
+                    </span>
+                </div>
+
                 <div class="row-badges">
+                    @if (templateId() === item.id) {
+                    <span class="badge badge-template" title="Vorlage">⭐</span>
+                    }
                     @if (item.flagCounter > 0) {
                     <span class="badge badge-flag" title="Markierungen">🚩 {{ item.flagCounter }}</span>
                     }
@@ -117,6 +253,8 @@
                     }
                 </div>
                 <div class="row-actions">
+                    <button class="icon-btn template-btn" (click)="setAsTemplate(item)" title="Als Vorlage setzen"
+                            [class.active]="templateId() === item.id">⭐</button>
                     <button class="icon-btn edit-btn" (click)="startEdit(item)" title="Bearbeiten">✏️</button>
                     <button class="icon-btn delete-btn" (click)="deleteItem(item)" title="Löschen">🗑️</button>
                 </div>

@@ -2,6 +2,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getTursoClient } from '../_lib/turso.js';
 import { requireAuth, handleCors } from '../_lib/auth.js';
+import { xai } from '@ai-sdk/xai';
+import { generateText } from 'ai';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (handleCors(req, res)) return;
@@ -25,6 +27,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'GET') {
         return handleGetContent(req, res, db);
     } else if (req.method === 'POST') {
+        // Route by action
+        const action = req.body?.action;
+        if (action === 'enhance') {
+            return handleEnhanceBatch(req, res, db);
+        }
         return handleAddContent(req, res, db);
     } else if (req.method === 'PUT') {
         return handleUpdateContent(req, res, db);
@@ -203,4 +210,103 @@ async function handleDeleteContent(req: VercelRequest, res: VercelResponse, db: 
         console.error("Error deleting content:", e);
         return res.status(500).json({ error: e instanceof Error ? e.message : 'Unknown error' });
     }
+}
+
+/**
+ * POST action=enhance — AI-enhance a batch of sparse entries using a template
+ * Body: { action: 'enhance', template: object, entries: {id, data}[], customPrompt?: string, appId: string }
+ * Returns: { results: { id, original, enhanced, error? }[] }
+ */
+async function handleEnhanceBatch(req: VercelRequest, res: VercelResponse, db: DB) {
+    const { template, entries, customPrompt, appId } = req.body;
+
+    if (!template || !entries || !Array.isArray(entries) || entries.length === 0 || !appId) {
+        return res.status(400).json({ error: 'Missing required fields (template, entries[], appId)' });
+    }
+
+    if (entries.length > 10) {
+        return res.status(400).json({ error: 'Max 10 entries per batch' });
+    }
+
+    const results: { id: number; original: object; enhanced: object | null; error?: string }[] = [];
+
+    // Find which keys the template has that each entry is missing
+    const templateKeys = collectKeyPaths(template);
+
+    for (const entry of entries) {
+        const entryKeys = collectKeyPaths(entry.data);
+        const missingKeys = templateKeys.filter(k => !entryKeys.includes(k));
+
+        if (missingKeys.length === 0) {
+            results.push({ id: entry.id, original: entry.data, enhanced: null, error: 'Already complete' });
+            continue;
+        }
+
+        try {
+            const enhanced = await enhanceEntry(appId, template, entry.data, missingKeys, customPrompt);
+            results.push({ id: entry.id, original: entry.data, enhanced });
+        } catch (e: unknown) {
+            results.push({
+                id: entry.id,
+                original: entry.data,
+                enhanced: null,
+                error: e instanceof Error ? e.message : 'AI enhancement failed'
+            });
+        }
+    }
+
+    return res.status(200).json({ results });
+}
+
+/**
+ * Recursively collect all key paths from an object (e.g. "typicalMistakes.praeteritum.ich")
+ */
+function collectKeyPaths(obj: unknown, prefix = ''): string[] {
+    if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) return [];
+    const paths: string[] = [];
+    for (const key of Object.keys(obj as Record<string, unknown>)) {
+        const fullPath = prefix ? `${prefix}.${key}` : key;
+        paths.push(fullPath);
+        paths.push(...collectKeyPaths((obj as Record<string, unknown>)[key], fullPath));
+    }
+    return paths;
+}
+
+/**
+ * Call Grok to enhance a single entry based on a template
+ */
+async function enhanceEntry(
+    appId: string,
+    template: object,
+    entry: object,
+    missingKeys: string[],
+    customPrompt?: string
+): Promise<object> {
+    const systemPrompt = `You are an educational content enhancer for a Swiss German learning platform. You enhance existing content entries by adding missing properties based on a provided template. Always use Standard German spelling (with ß). Return ONLY valid JSON, no markdown fences.`;
+
+    const userPrompt = `
+App: ${appId}
+
+TEMPLATE (gold standard, all desired properties):
+${JSON.stringify(template, null, 2)}
+
+ENTRY TO ENHANCE:
+${JSON.stringify(entry, null, 2)}
+
+MISSING PROPERTIES (dot-notation):
+${missingKeys.join('\n')}
+
+${customPrompt ? `IMPORTANT INSTRUCTIONS FROM ADMIN:\n${customPrompt}\n` : ''}
+TASK: Return the enhanced entry as a complete JSON object. Keep all existing properties unchanged. Add the missing properties with correct, educationally accurate values appropriate for this specific entry. If a missing property does NOT make sense for this particular entry (based on the admin instructions or the entry content), you may omit it — do NOT force-add nonsensical data.
+
+Return ONLY the JSON object, nothing else.`;
+    console.log("Enhancement prompt:", { systemPrompt, userPrompt });
+    const aiRes = await generateText({
+        model: xai('grok-4-1-fast-reasoning'),
+        system: systemPrompt,
+        prompt: userPrompt
+    });
+    console.log("Raw AI response:", aiRes.text);
+    const text = aiRes.text.replace(/```json\n?|```/g, '').trim();
+    return JSON.parse(text);
 }

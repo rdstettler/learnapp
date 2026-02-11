@@ -3,6 +3,7 @@ import { Component, inject, signal, effect } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { JsonPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
@@ -31,7 +32,7 @@ interface ReviewProgress {
 @Component({
   selector: 'app-feedback-review',
   standalone: true,
-  imports: [JsonPipe, FormsModule],
+  imports: [JsonPipe, FormsModule, RouterModule],
   templateUrl: './feedback-review.html',
   styles: [`
         .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }

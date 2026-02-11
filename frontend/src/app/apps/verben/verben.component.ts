@@ -1,6 +1,7 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { DataService } from '../../services/data.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
+import { UserService } from '../../services/user.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
 import { shuffle } from '../../shared/utils/array.utils';
@@ -10,6 +11,12 @@ interface VerbData {
     praeteritum: Record<string, string>;
     perfekt: Record<string, string>;
     plusquamperfekt: Record<string, string>;
+    typicalMistakes?: {
+        praeteritum?: Record<string, string>;
+        perfekt?: Record<string, string>;
+        plusquamperfekt?: Record<string, string>;
+    };
+    category?: string;
 }
 
 interface Question {
@@ -44,7 +51,19 @@ interface MCQuestion {
     _verbData?: VerbData;
 }
 
-type QuizMode = 'konjugation' | 'zeitform' | 'multiplechoice';
+// Fehler finden mode question
+interface FehlerQuestion {
+    verb: string;
+    tense: 'praeteritum' | 'perfekt' | 'plusquamperfekt';
+    mistakePerson: string;
+    mistakeForm: string;
+    correctForm: string;
+    options: { person: string; form: string; isMistake: boolean; selected: boolean; disabled: boolean }[];
+    isCorrect?: boolean;
+    _verbData?: VerbData;
+}
+
+type QuizMode = 'konjugation' | 'zeitform' | 'multiplechoice' | 'fehlerfinden';
 
 @Component({
     selector: 'app-verben',
@@ -56,6 +75,7 @@ type QuizMode = 'konjugation' | 'zeitform' | 'multiplechoice';
 export class VerbenComponent {
     private dataService = inject(DataService);
     private telemetryService = inject(AppTelemetryService);
+    private userService = inject(UserService);
     private sessionId = this.telemetryService.generateSessionId();
 
     readonly tenseNames: Record<string, string> = {
@@ -67,11 +87,14 @@ export class VerbenComponent {
     readonly persons = ['ich', 'du', 'er/sie/es', 'wir', 'ihr', 'sie/Sie'];
     readonly tenses: ('praeteritum' | 'perfekt' | 'plusquamperfekt')[] = ['praeteritum', 'perfekt', 'plusquamperfekt'];
 
-    readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [
+    readonly modes: { id: QuizMode; label: string; icon: string; description: string; minLevel?: number }[] = [
         { id: 'konjugation', label: 'Konjugation', icon: '✍️', description: 'Schreibe die richtige Verbform.' },
         { id: 'zeitform', label: 'Zeitform', icon: '🕐', description: 'Erkenne die Zeitform der konjugierten Form.' },
-        { id: 'multiplechoice', label: 'Auswahl', icon: '🎯', description: 'Wähle die richtige Verbform aus vier Optionen.' }
+        { id: 'multiplechoice', label: 'Auswahl', icon: '🎯', description: 'Wähle die richtige Verbform aus vier Optionen.' },
+        { id: 'fehlerfinden', label: 'Fehler finden', icon: '🔍', description: 'Finde die falsche Verbform unter fünf Optionen.', minLevel: 7 }
     ];
+
+    userLevel = computed(() => this.userService.profile()?.learnLevel ?? 0);
 
     mode = signal<QuizMode>('konjugation');
     screen = signal<'welcome' | 'quiz' | 'results'>('welcome');
@@ -93,6 +116,11 @@ export class VerbenComponent {
     currentMCIndex = signal(0);
     mcAnswered = signal(false);
 
+    // Mode: fehlerfinden
+    fehlerQuestions = signal<FehlerQuestion[]>([]);
+    currentFehlerIndex = signal(0);
+    fehlerAnswered = signal(false);
+
     totalCorrect = signal(0);
     totalQuestions = signal(15);
 
@@ -101,6 +129,7 @@ export class VerbenComponent {
     progress = computed(() => {
         if (this.mode() === 'konjugation') return (this.currentRoundIndex() / 5) * 100;
         if (this.mode() === 'zeitform') return (this.currentTenseIndex() / this.totalQuestions()) * 100;
+        if (this.mode() === 'fehlerfinden') return (this.currentFehlerIndex() / this.totalQuestions()) * 100;
         return (this.currentMCIndex() / this.totalQuestions()) * 100;
     });
     percentage = computed(() => {
@@ -113,6 +142,12 @@ export class VerbenComponent {
 
     // Computed: multiplechoice
     currentMCQuestion = computed(() => this.mcQuestions()[this.currentMCIndex()]);
+
+    // Computed: fehlerfinden
+    currentFehlerQuestion = computed(() => this.fehlerQuestions()[this.currentFehlerIndex()]);
+
+    // Verbs that have typicalMistakes
+    verbsWithMistakes = computed(() => this.verbs().filter(v => v.typicalMistakes && Object.keys(v.typicalMistakes).length > 0));
 
     constructor() {
         this.loadData();
@@ -142,6 +177,9 @@ export class VerbenComponent {
                 break;
             case 'multiplechoice':
                 this.startMultipleChoice();
+                break;
+            case 'fehlerfinden':
+                this.startFehlerFinden();
                 break;
         }
         this.screen.set('quiz');
@@ -377,6 +415,109 @@ export class VerbenComponent {
         } else {
             this.currentMCIndex.update(i => i + 1);
             this.mcAnswered.set(false);
+        }
+    }
+
+    // ═══ MODE: FEHLER FINDEN ═══
+
+    private startFehlerFinden(): void {
+        const eligible = this.verbsWithMistakes();
+        if (eligible.length === 0) {
+            // Fallback if no verbs have typicalMistakes yet
+            this.startMultipleChoice();
+            return;
+        }
+
+        const count = Math.min(10, eligible.length * 3); // At most 3 questions per verb
+        this.totalQuestions.set(count);
+        const questions: FehlerQuestion[] = [];
+        const shuffledVerbs = shuffle(eligible);
+
+        for (let i = 0; i < count; i++) {
+            const verb = shuffledVerbs[i % shuffledVerbs.length];
+            const mistakes = verb.typicalMistakes!;
+
+            // Pick a tense that has a mistake defined
+            const availableTenses = this.tenses.filter(t => mistakes[t] && Object.keys(mistakes[t]!).length > 0);
+            if (availableTenses.length === 0) continue;
+
+            const tense = availableTenses[Math.floor(Math.random() * availableTenses.length)];
+            const mistakeEntries = Object.entries(mistakes[tense]!);
+            const [mistakePerson, mistakeForm] = mistakeEntries[Math.floor(Math.random() * mistakeEntries.length)];
+            const correctForm = verb[tense][mistakePerson];
+
+            // Build options: 4 correct conjugations + 1 mistake
+            const correctPersons = shuffle(this.persons.filter(p => p !== mistakePerson)).slice(0, 4);
+            const options: FehlerQuestion['options'] = correctPersons.map(p => ({
+                person: p,
+                form: verb[tense][p],
+                isMistake: false,
+                selected: false,
+                disabled: false
+            }));
+
+            // Insert the mistake at a random position
+            const mistakeOption = {
+                person: mistakePerson,
+                form: mistakeForm,
+                isMistake: true,
+                selected: false,
+                disabled: false
+            };
+            const insertIdx = Math.floor(Math.random() * (options.length + 1));
+            options.splice(insertIdx, 0, mistakeOption);
+
+            questions.push({
+                verb: verb.verb,
+                tense,
+                mistakePerson,
+                mistakeForm,
+                correctForm,
+                options,
+                _verbData: verb
+            });
+        }
+
+        this.fehlerQuestions.set(questions);
+        this.currentFehlerIndex.set(0);
+        this.fehlerAnswered.set(false);
+    }
+
+    selectFehlerOption(index: number): void {
+        if (this.fehlerAnswered()) return;
+
+        const q = this.currentFehlerQuestion();
+        if (!q) return;
+
+        const selected = q.options[index];
+        const isCorrect = selected.isMistake; // User should tap the WRONG one
+
+        const updatedOptions = q.options.map((opt, i) => ({
+            ...opt,
+            selected: i === index,
+            disabled: true
+        }));
+
+        const updated = [...this.fehlerQuestions()];
+        updated[this.currentFehlerIndex()] = { ...q, options: updatedOptions, isCorrect };
+        this.fehlerQuestions.set(updated);
+        this.fehlerAnswered.set(true);
+
+        if (isCorrect) this.totalCorrect.update(c => c + 1);
+
+        const verb = q._verbData as any;
+        if (verb?._contentId) {
+            this.telemetryService.trackProgress('verben', verb._contentId, isCorrect);
+        }
+    }
+
+    nextFehlerQuestion(): void {
+        if (this.currentFehlerIndex() >= this.totalQuestions() - 1) {
+            this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
+        } else {
+            this.currentFehlerIndex.update(i => i + 1);
+            this.fehlerAnswered.set(false);
         }
     }
 
