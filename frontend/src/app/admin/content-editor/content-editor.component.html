@@ -1,0 +1,169 @@
+<div class="editor-container">
+    <header class="editor-header">
+        <button class="back-btn" (click)="goBack()">← Zurück</button>
+        <h1>📦 Inhalte verwalten</h1>
+    </header>
+
+    <!-- App Selector -->
+    <div class="app-selector">
+        <label>App wählen:</label>
+        <div class="app-chips">
+            @for (app of apps(); track app.id) {
+            <button class="app-chip"
+                    [class.active]="selectedAppId() === app.id"
+                    (click)="selectApp(app.id)">
+                {{ app.icon }} {{ app.name }}
+            </button>
+            }
+        </div>
+    </div>
+
+    @if (selectedAppId()) {
+    <!-- Summary Bar -->
+    @if (summary(); as s) {
+    <div class="summary-bar">
+        <span class="summary-item">📋 {{ s.total }} Einträge</span>
+        @if (s.accuracy !== null) {
+        <span class="summary-item" [style.color]="getAccuracyColor(s.accuracy)">🎯 {{ s.accuracy }}% Genauigkeit</span>
+        }
+        @if (s.flagged > 0) {
+        <span class="summary-item flagged">🚩 {{ s.flagged }} markiert</span>
+        }
+        @if (s.unverified > 0) {
+        <span class="summary-item unverified">⚠️ {{ s.unverified }} ungeprüft</span>
+        }
+    </div>
+    }
+
+    <!-- Actions Bar -->
+    <div class="actions-bar">
+        <button class="action-btn add-btn" (click)="toggleAddForm()">
+            {{ showAddForm() ? '✕ Abbrechen' : '+ Neuer Eintrag' }}
+        </button>
+        <span class="page-info">Seite {{ currentPage() }} / {{ totalPages() }} ({{ totalCount() }} total)</span>
+    </div>
+
+    <!-- Add Form -->
+    @if (showAddForm()) {
+    <div class="edit-panel add-panel">
+        <h3>Neuer Eintrag für {{ selectedAppId() }}</h3>
+        <div class="edit-fields">
+            <div class="field-group">
+                <label>Level (optional)</label>
+                <input type="number" [ngModel]="addLevel()" (ngModelChange)="addLevel.set($event)" min="1" max="10" placeholder="—">
+            </div>
+        </div>
+        <textarea class="json-editor" rows="10" [ngModel]="addJson()" (ngModelChange)="addJson.set($event)"></textarea>
+        @if (jsonError()) {
+        <div class="json-error">{{ jsonError() }}</div>
+        }
+        <div class="edit-actions">
+            <button class="save-btn" (click)="addContent()" [disabled]="saving()">
+                {{ saving() ? 'Speichert...' : '✓ Hinzufügen' }}
+            </button>
+        </div>
+    </div>
+    }
+
+    <!-- Success Message -->
+    @if (successMsg()) {
+    <div class="success-toast">{{ successMsg() }}</div>
+    }
+
+    <!-- Loading -->
+    @if (loading()) {
+    <div class="loading-state">Laden...</div>
+    }
+
+    <!-- Error -->
+    @if (error()) {
+    <div class="error-state">{{ error() }}</div>
+    }
+
+    <!-- Content Table -->
+    @if (!loading() && items().length > 0) {
+    <div class="content-table">
+        @for (item of items(); track item.id) {
+        <div class="content-row" [class.flagged]="item.flagCounter > 0" [class.editing]="editingId() === item.id">
+            <!-- Row Header -->
+            <div class="row-header">
+                <div class="row-id">#{{ item.id }}</div>
+                <div class="row-preview">{{ getPreview(item.data) }}</div>
+                <div class="row-badges">
+                    @if (item.flagCounter > 0) {
+                    <span class="badge badge-flag" title="Markierungen">🚩 {{ item.flagCounter }}</span>
+                    }
+                    @if (item.aiGenerated) {
+                    <span class="badge badge-ai" title="KI-generiert">🤖</span>
+                    }
+                    @if (!item.humanVerified) {
+                    <span class="badge badge-unverified" title="Nicht verifiziert">⚠️</span>
+                    }
+                    @if (item.level) {
+                    <span class="badge badge-level" title="Level">Lv{{ item.level }}</span>
+                    }
+                </div>
+                <div class="row-stats">
+                    @if (item.stats.totalAttempts > 0) {
+                    <span class="stat-accuracy" [style.color]="getAccuracyColor(item.stats.accuracy)">
+                        {{ item.stats.accuracy }}%
+                    </span>
+                    <span class="stat-detail">
+                        {{ item.stats.totalCorrect }}/{{ item.stats.totalAttempts }}
+                        ({{ item.stats.uniqueUsers }} 👤)
+                    </span>
+                    } @else {
+                    <span class="stat-none">—</span>
+                    }
+                </div>
+                <div class="row-actions">
+                    <button class="icon-btn edit-btn" (click)="startEdit(item)" title="Bearbeiten">✏️</button>
+                    <button class="icon-btn delete-btn" (click)="deleteItem(item)" title="Löschen">🗑️</button>
+                </div>
+            </div>
+
+            <!-- Inline Editor -->
+            @if (editingId() === item.id) {
+            <div class="edit-panel">
+                <div class="edit-fields">
+                    <div class="field-group">
+                        <label>Level</label>
+                        <input type="number" [ngModel]="editLevel()" (ngModelChange)="editLevel.set($event)" min="1" max="10" placeholder="—">
+                    </div>
+                </div>
+                <textarea class="json-editor" rows="14" [ngModel]="editJson()" (ngModelChange)="editJson.set($event)"></textarea>
+                @if (jsonError()) {
+                <div class="json-error">{{ jsonError() }}</div>
+                }
+                <div class="edit-actions">
+                    <button class="save-btn" (click)="saveEdit()" [disabled]="saving()">
+                        {{ saving() ? 'Speichert...' : '✓ Speichern' }}
+                    </button>
+                    <button class="cancel-btn" (click)="cancelEdit()">Abbrechen</button>
+                </div>
+            </div>
+            }
+        </div>
+        }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+    <div class="pagination">
+        <button class="page-btn" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1">← Zurück</button>
+        @for (p of [].constructor(totalPages()); track $index) {
+        <button class="page-btn" [class.active]="currentPage() === $index + 1" (click)="goToPage($index + 1)">
+            {{ $index + 1 }}
+        </button>
+        }
+        <button class="page-btn" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()">Weiter →</button>
+    </div>
+    }
+    }
+
+    <!-- Empty State -->
+    @if (!loading() && items().length === 0 && selectedAppId()) {
+    <div class="empty-state">Keine Inhalte für diese App.</div>
+    }
+    }
+</div>

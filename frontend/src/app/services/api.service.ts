@@ -220,6 +220,43 @@ export class ApiService {
     }
 
     /**
+     * Get app content with per-question stats (Admin only)
+     */
+    async getAppContent(appId: string, page = 1, limit = 50): Promise<{ items: any[]; total: number; page: number; limit: number }> {
+        return firstValueFrom(this.http.get<any>(`${this.API_BASE}/admin/add-content?app_id=${appId}&page=${page}&limit=${limit}`));
+    }
+
+    /**
+     * Update app content (Admin only)
+     */
+    async updateAppContent(id: number, data: object, level?: number | null, humanVerified?: boolean): Promise<boolean> {
+        try {
+            await firstValueFrom(this.http.put(`${this.API_BASE}/admin/add-content`, {
+                id, data,
+                ...(level != null && { level }),
+                ...(humanVerified != null && { human_verified: humanVerified })
+            }));
+            return true;
+        } catch (error: unknown) {
+            console.error('Failed to update app content:', error);
+            throw new Error(error instanceof HttpErrorResponse ? error.error?.error : 'Failed to update content');
+        }
+    }
+
+    /**
+     * Delete app content (Admin only)
+     */
+    async deleteAppContent(id: number): Promise<boolean> {
+        try {
+            await firstValueFrom(this.http.request('DELETE', `${this.API_BASE}/admin/add-content`, { body: { id } }));
+            return true;
+        } catch (error: unknown) {
+            console.error('Failed to delete app content:', error);
+            throw new Error(error instanceof HttpErrorResponse ? error.error?.error : 'Failed to delete content');
+        }
+    }
+
+    /**
      * Submit question progress and check for new badges.
      * Call this after a user answers a question.
      */

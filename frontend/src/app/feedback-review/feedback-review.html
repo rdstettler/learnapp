@@ -1,6 +1,6 @@
 <div class="container">
     <h1>Feedback Review</h1>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
         <p style="margin:0;">Review AI-flagged content corrections.</p>
         <button class="btn-approve" (click)="runAiReview()" [disabled]="loading()">
             @if (!reviewProgress() && !loading()) {
@@ -13,6 +13,10 @@
                 <span>Loading...</span>
             }
         </button>
+    </div>
+    <div style="display:flex; gap:10px; margin-bottom:2rem;">
+        <a href="/admin/content" style="padding:8px 16px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:#a5b4fc; text-decoration:none; font-size:0.9rem;">📦 Inhalte verwalten</a>
+        <a href="/admin/text-aufgaben" style="padding:8px 16px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:#a5b4fc; text-decoration:none; font-size:0.9rem;">📝 Textaufgaben</a>
     </div>
 
     @if (loading()) {
