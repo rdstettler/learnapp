@@ -39,6 +39,31 @@ export class AppTelemetryService {
     }
 
     /**
+     * Track progress for procedural apps (kopfrechnen, umrechnen, zeitrechnen)
+     * that generate questions dynamically instead of using app_content entries.
+     * The backend auto-creates app_content entries per category.
+     */
+    async trackCategoryProgress(appId: string, category: string, isCorrect: boolean): Promise<void> {
+        const user = this.authService.user();
+        if (!user) return;
+
+        try {
+            await firstValueFrom(
+                this.http.post(`${this.API_BASE}/events`, {
+                    type: 'question_progress',
+                    appId,
+                    category,
+                    isCorrect
+                })
+            );
+
+            setTimeout(() => this.badgeService.checkBadges(), 500);
+        } catch (error) {
+            console.error('Failed to track category progress:', error);
+        }
+    }
+
+    /**
      * Generates a simple session ID for an app session
      */
     generateSessionId(): string {

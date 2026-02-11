@@ -5,6 +5,22 @@
             <button class="close-btn" (click)="close()">✕</button>
         </div>
 
+        <!-- Streak Summary -->
+        <div class="streak-summary">
+            <div class="streak-stat">
+                <span class="streak-stat-value">🔥 {{ streakService.streak().currentStreak }}</span>
+                <span class="streak-stat-label">Aktuelle Serie</span>
+            </div>
+            <div class="streak-stat">
+                <span class="streak-stat-value">🏅 {{ streakService.streak().longestStreak }}</span>
+                <span class="streak-stat-label">Längste Serie</span>
+            </div>
+            <div class="streak-stat">
+                <span class="streak-stat-value">📅 {{ streakService.streak().totalActiveDays }}</span>
+                <span class="streak-stat-label">Aktive Tage</span>
+            </div>
+        </div>
+
         <!-- Progress Bar -->
         <div class="progress-section">
             <div class="progress-label">

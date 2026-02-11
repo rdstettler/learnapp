@@ -43,11 +43,20 @@
                 <div class="user-avatar-placeholder">{{ getDisplayName().charAt(0).toUpperCase() }}</div>
                 }
                 <span class="user-name">{{ getDisplayName() }}</span>
+                @if (streakService.streak().currentStreak > 0) {
+                <button class="auth-btn streak-btn" (click)="openBadgeShowcase()" title="Tages-Streak">
+                    <span class="streak-fire">🔥</span>
+                    <span class="streak-count">{{ streakService.streak().currentStreak }}</span>
+                </button>
+                }
                 <button class="auth-btn badge-btn" (click)="openBadgeShowcase()" title="Abzeichen">
                     <span class="badge-btn-icon">🏆</span>
                     @if (badgeService.badges().length > 0) {
                         <span class="badge-count">{{ badgeService.earnedCount }}</span>
                     }
+                </button>
+                <button class="auth-btn stats-btn" (click)="openStats()" title="Statistiken">
+                    <span class="stats-icon">📊</span>
                 </button>
                 <button id="settings-btn" class="auth-btn settings-btn" (click)="openSettings()"
                     title="Einstellungen"><span class="settings-icon">⚙️</span></button>

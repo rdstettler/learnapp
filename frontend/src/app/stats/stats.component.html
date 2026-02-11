@@ -1,0 +1,120 @@
+<div class="stats-container">
+    <header class="stats-header">
+        <button class="back-btn" (click)="goBack()">← Zurück</button>
+        <h1>📊 Statistiken</h1>
+    </header>
+
+    @if (loading()) {
+    <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Lade Statistiken...</p>
+    </div>
+    } @else if (error()) {
+    <div class="error-state">
+        <p>{{ error() }}</p>
+        <button class="primary-btn" (click)="loadStats()">Erneut versuchen</button>
+    </div>
+    } @else if (stats(); as s) {
+
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+        <div class="summary-card">
+            <span class="card-icon">📝</span>
+            <span class="card-value">{{ s.overview.totalAnswers }}</span>
+            <span class="card-label">Fragen beantwortet</span>
+        </div>
+        <div class="summary-card">
+            <span class="card-icon">🎯</span>
+            <span class="card-value">{{ s.overview.accuracy }}%</span>
+            <span class="card-label">Genauigkeit</span>
+        </div>
+        <div class="summary-card">
+            <span class="card-icon">🔥</span>
+            <span class="card-value">{{ streakService.streak().currentStreak }}</span>
+            <span class="card-label">Aktuelle Serie</span>
+        </div>
+        <div class="summary-card">
+            <span class="card-icon">📅</span>
+            <span class="card-value">{{ s.overview.totalActiveDays }}</span>
+            <span class="card-label">Aktive Tage</span>
+        </div>
+    </div>
+
+    <!-- Activity Heatmap -->
+    <section class="stats-section">
+        <h2>📅 Aktivität (letzte 90 Tage)</h2>
+        <div class="heatmap-wrapper">
+            <div class="heatmap-grid">
+                @for (week of heatmapGrid(); track $index) {
+                <div class="heatmap-week">
+                    @for (day of week; track day.date) {
+                    <div class="heatmap-cell"
+                         [class.active]="day.active"
+                         [title]="formatDate(day.date) + (day.active ? ' ✓' : '')">
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+            <div class="heatmap-legend">
+                <span class="legend-label">Weniger</span>
+                <div class="heatmap-cell"></div>
+                <div class="heatmap-cell active"></div>
+                <span class="legend-label">Mehr</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Per-App Accuracy -->
+    @if (s.perApp.length > 0) {
+    <section class="stats-section">
+        <h2>📈 Genauigkeit pro App</h2>
+        <div class="app-accuracy-list">
+            @for (app of s.perApp; track app.appId) {
+            <div class="app-accuracy-row">
+                <div class="app-info">
+                    <span class="app-icon">{{ app.appIcon }}</span>
+                    <span class="app-name">{{ app.appName }}</span>
+                </div>
+                <div class="accuracy-bar-container">
+                    <div class="accuracy-bar">
+                        <div class="accuracy-fill"
+                             [style.width.%]="app.accuracy"
+                             [style.background]="getAccuracyColor(app.accuracy)">
+                        </div>
+                    </div>
+                    <span class="accuracy-value" [style.color]="getAccuracyColor(app.accuracy)">
+                        {{ app.accuracy }}%
+                    </span>
+                </div>
+                <span class="accuracy-detail">{{ app.correct }}/{{ app.total }}</span>
+            </div>
+            }
+        </div>
+    </section>
+    }
+
+    <!-- Weak Areas -->
+    @if (s.weakAreas.length > 0) {
+    <section class="stats-section">
+        <h2>⚠️ Übungsbedarf</h2>
+        <p class="section-subtitle">Fragen mit den meisten Fehlern</p>
+        <div class="weak-areas-list">
+            @for (item of s.weakAreas; track $index) {
+            <div class="weak-area-card">
+                <div class="weak-header">
+                    <span>{{ item.appIcon }} {{ item.appName }}</span>
+                    <span class="weak-ratio">
+                        <span class="correct">✓ {{ item.successCount }}</span>
+                        <span class="wrong">✗ {{ item.failureCount }}</span>
+                    </span>
+                </div>
+                <div class="weak-preview">{{ item.preview }}</div>
+            </div>
+            }
+        </div>
+    </section>
+    }
+
+    }
+</div>

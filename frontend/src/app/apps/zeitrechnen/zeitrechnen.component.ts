@@ -2,6 +2,7 @@ import { Component, signal, computed } from '@angular/core';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { inject } from '@angular/core';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { launchConfetti } from '../../shared/confetti';
 
 type ProblemType = 'mixed-to-single' | 'single-to-mixed' | 'fraction';
 
@@ -268,6 +269,9 @@ export class ZeitrechnenComponent {
         } else {
             this.totalWrong.update(w => w + 1);
         }
+
+        // Track per-question progress with problem type category
+        this.telemetryService.trackCategoryProgress('zeitrechnen', problem.type, isCorrect);
     }
 
     private checkFractionAnswer(userStr: string, problem: TimeProblem): boolean {
@@ -321,6 +325,7 @@ export class ZeitrechnenComponent {
 
         if (nextIndex >= this.PROBLEMS_PER_ROUND) {
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.problemIndex.set(nextIndex);
             this.generateProblem();

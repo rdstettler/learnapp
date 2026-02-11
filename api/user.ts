@@ -23,8 +23,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return handleSync(req, res, db, decoded);
         } else if (type === 'badges') {
             return handleBadges(req, res, db, decoded.uid);
+        } else if (type === 'streak') {
+            return handleStreak(req, res, db, decoded.uid);
+        } else if (type === 'stats') {
+            return handleStats(req, res, db, decoded.uid);
         } else {
-            return res.status(400).json({ error: "Missing or invalid 'type' parameter (profile|metrics|sync|badges)" });
+            return res.status(400).json({ error: "Missing or invalid 'type' parameter (profile|metrics|sync|badges|streak|stats)" });
         }
 
     } catch (error: unknown) {
@@ -239,4 +243,204 @@ async function handleBadges(req: VercelRequest, res: VercelResponse, db: TursoCl
     }
 
     return res.status(405).json({ error: 'Method not allowed for badges' });
+}
+
+async function handleStreak(req: VercelRequest, res: VercelResponse, db: TursoClient, uid: string) {
+    if (req.method !== 'GET') {
+        return res.status(405).json({ error: 'Method not allowed for streak' });
+    }
+
+    try {
+        // Fetch all active dates for this user, ordered descending
+        const result = await db.execute({
+            sql: `SELECT activity_date FROM user_daily_activity WHERE user_uid = ? ORDER BY activity_date DESC`,
+            args: [uid]
+        });
+
+        const dates = result.rows.map(r => r.activity_date as string); // YYYY-MM-DD, descending
+        const totalActiveDays = dates.length;
+
+        if (totalActiveDays === 0) {
+            return res.status(200).json({
+                currentStreak: 0,
+                longestStreak: 0,
+                totalActiveDays: 0,
+                lastActivityDate: null
+            });
+        }
+
+        const lastActivityDate = dates[0];
+
+        // Compute current streak: consecutive days ending today or yesterday
+        const today = new Date().toISOString().slice(0, 10);
+        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+
+        let currentStreak = 0;
+        if (dates[0] === today || dates[0] === yesterday) {
+            // Walk backwards from most recent date
+            currentStreak = 1;
+            for (let i = 1; i < dates.length; i++) {
+                const prev = new Date(dates[i - 1] + 'T00:00:00Z');
+                const curr = new Date(dates[i] + 'T00:00:00Z');
+                const diffDays = (prev.getTime() - curr.getTime()) / 86400000;
+                if (diffDays === 1) {
+                    currentStreak++;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        // Compute longest streak from all dates (reversed to ascending)
+        const ascending = [...dates].reverse();
+        let longestStreak = 1;
+        let runLength = 1;
+        for (let i = 1; i < ascending.length; i++) {
+            const prev = new Date(ascending[i - 1] + 'T00:00:00Z');
+            const curr = new Date(ascending[i] + 'T00:00:00Z');
+            const diffDays = (curr.getTime() - prev.getTime()) / 86400000;
+            if (diffDays === 1) {
+                runLength++;
+                if (runLength > longestStreak) longestStreak = runLength;
+            } else {
+                runLength = 1;
+            }
+        }
+
+        return res.status(200).json({
+            currentStreak,
+            longestStreak,
+            totalActiveDays,
+            lastActivityDate
+        });
+    } catch (error: unknown) {
+        console.error('Error computing streak:', error);
+        return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+    }
+}
+
+async function handleStats(req: VercelRequest, res: VercelResponse, db: TursoClient, uid: string) {
+    if (req.method !== 'GET') {
+        return res.status(405).json({ error: 'Method not allowed for stats' });
+    }
+
+    try {
+        // Run all queries in parallel for speed
+        const [appAccuracy, activityDays, weakAreas, overallTotals] = await Promise.all([
+            // 1. Per-app accuracy
+            db.execute({
+                sql: `SELECT uqp.app_id,
+                             a.name as app_name,
+                             a.icon as app_icon,
+                             COALESCE(SUM(uqp.success_count), 0) as correct,
+                             COALESCE(SUM(uqp.success_count + uqp.failure_count), 0) as total
+                      FROM user_question_progress uqp
+                      JOIN apps a ON uqp.app_id = a.id
+                      WHERE uqp.user_uid = ?
+                      GROUP BY uqp.app_id
+                      ORDER BY CASE WHEN SUM(uqp.success_count + uqp.failure_count) > 0
+                                    THEN CAST(SUM(uqp.success_count) AS REAL) / SUM(uqp.success_count + uqp.failure_count)
+                                    ELSE 0 END ASC`,
+                args: [uid]
+            }),
+            // 2. Activity heatmap (last 90 days)
+            db.execute({
+                sql: `SELECT activity_date FROM user_daily_activity
+                      WHERE user_uid = ? AND activity_date >= DATE('now', '-90 days')
+                      ORDER BY activity_date ASC`,
+                args: [uid]
+            }),
+            // 3. Weakest content areas (top 10 by failure rate)
+            db.execute({
+                sql: `SELECT uqp.app_id,
+                             a.name as app_name,
+                             a.icon as app_icon,
+                             ac.data as content_data,
+                             uqp.success_count,
+                             uqp.failure_count
+                      FROM user_question_progress uqp
+                      JOIN app_content ac ON uqp.app_content_id = ac.id
+                      JOIN apps a ON uqp.app_id = a.id
+                      WHERE uqp.user_uid = ? AND uqp.failure_count > 0
+                      ORDER BY uqp.failure_count DESC, uqp.success_count ASC
+                      LIMIT 10`,
+                args: [uid]
+            }),
+            // 4. Overall totals
+            db.execute({
+                sql: `SELECT COALESCE(SUM(success_count + failure_count), 0) as total_answers,
+                             COALESCE(SUM(success_count), 0) as total_correct,
+                             COUNT(DISTINCT app_id) as apps_used
+                      FROM user_question_progress
+                      WHERE user_uid = ?`,
+                args: [uid]
+            })
+        ]);
+
+        // Format per-app accuracy
+        const perApp = appAccuracy.rows.map(r => ({
+            appId: r.app_id as string,
+            appName: r.app_name as string,
+            appIcon: r.app_icon as string,
+            correct: r.correct as number,
+            total: r.total as number,
+            accuracy: (r.total as number) > 0
+                ? Math.round(((r.correct as number) / (r.total as number)) * 100)
+                : 0
+        }));
+
+        // Format heatmap
+        const heatmap = activityDays.rows.map(r => r.activity_date as string);
+
+        // Format weak areas
+        const weak = weakAreas.rows.map(r => {
+            let preview = '';
+            try {
+                const parsed = JSON.parse(r.content_data as string);
+                // Try to extract a meaningful preview from the content
+                if (parsed.category) {
+                    preview = parsed.category;
+                } else if (parsed.question) {
+                    preview = (parsed.question as string).slice(0, 80);
+                } else if (parsed.sentences) {
+                    preview = ((parsed.sentences as string[])[0] || '').slice(0, 80);
+                } else if (parsed.pairs) {
+                    const pair = (parsed.pairs as { word1: string; word2: string }[])[0];
+                    preview = pair ? `${pair.word1} / ${pair.word2}` : '';
+                } else {
+                    preview = JSON.stringify(parsed).slice(0, 80);
+                }
+            } catch { }
+
+            return {
+                appId: r.app_id as string,
+                appName: r.app_name as string,
+                appIcon: r.app_icon as string,
+                preview,
+                successCount: r.success_count as number,
+                failureCount: r.failure_count as number
+            };
+        });
+
+        // Overall
+        const totals = overallTotals.rows[0];
+        const totalAnswers = (totals.total_answers as number) || 0;
+        const totalCorrect = (totals.total_correct as number) || 0;
+
+        return res.status(200).json({
+            overview: {
+                totalAnswers,
+                totalCorrect,
+                accuracy: totalAnswers > 0 ? Math.round((totalCorrect / totalAnswers) * 100) : 0,
+                appsUsed: (totals.apps_used as number) || 0,
+                totalActiveDays: heatmap.length
+            },
+            perApp,
+            heatmap,
+            weakAreas: weak
+        });
+    } catch (error: unknown) {
+        console.error('Error fetching stats:', error);
+        return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+    }
 }

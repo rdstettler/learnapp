@@ -18,6 +18,7 @@ type QuizMode = 'klassisch' | 'schnell';
 
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { launchConfetti } from '../../shared/confetti';
 
 @Component({
     selector: 'app-kasus',
@@ -256,6 +257,7 @@ export class KasusComponent {
                 }
             }
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.currentRound.update(r => r + 1);
             this.showRound();
@@ -331,6 +333,7 @@ export class KasusComponent {
     nextDrill(): void {
         if (this.drillIndex() >= this.drillParts().length - 1) {
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.drillIndex.update(i => i + 1);
             this.drillAnswered.set(false);

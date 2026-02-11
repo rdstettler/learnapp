@@ -2,6 +2,7 @@ import { Component, signal, computed, inject } from '@angular/core';
 import { DataService } from '../../services/data.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { launchConfetti } from '../../shared/confetti';
 import { shuffle } from '../../shared/utils/array.utils';
 
 interface VerbData {
@@ -219,6 +220,7 @@ export class VerbenComponent {
     nextRound(): void {
         if (this.currentRoundIndex() >= 4) {
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.currentRoundIndex.update(i => i + 1);
             this.roundAnswers.set(['', '', '']);
@@ -278,6 +280,7 @@ export class VerbenComponent {
     nextTenseQuestion(): void {
         if (this.currentTenseIndex() >= this.totalQuestions() - 1) {
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.currentTenseIndex.update(i => i + 1);
             this.tenseAnswered.set(false);
@@ -370,6 +373,7 @@ export class VerbenComponent {
     nextMCQuestion(): void {
         if (this.currentMCIndex() >= this.totalQuestions() - 1) {
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.currentMCIndex.update(i => i + 1);
             this.mcAnswered.set(false);

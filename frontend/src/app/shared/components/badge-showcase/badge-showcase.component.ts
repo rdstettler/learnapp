@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, OnInit, output } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { BadgeService, BadgeInfo } from '../../../services/badge.service';
+import { StreakService } from '../../../services/streak.service';
 
 @Component({
     selector: 'app-badge-showcase',
@@ -11,6 +12,7 @@ import { BadgeService, BadgeInfo } from '../../../services/badge.service';
 })
 export class BadgeShowcaseComponent implements OnInit {
     private badgeService = inject(BadgeService);
+    streakService = inject(StreakService);
 
     closed = output<void>();
 
@@ -42,6 +44,7 @@ export class BadgeShowcaseComponent implements OnInit {
 
     ngOnInit(): void {
         this.badgeService.loadBadges();
+        this.streakService.loadStreak();
     }
 
     selectCategory(cat: string): void {

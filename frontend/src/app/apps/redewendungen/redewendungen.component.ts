@@ -13,6 +13,7 @@ type QuizMode = 'bedeutung' | 'ergaenze';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { launchConfetti } from '../../shared/confetti';
 
 @Component({
     selector: 'app-redewendungen',
@@ -185,6 +186,7 @@ export class RedewendungenComponent {
     nextQuestion(): void {
         if (this.currentQuestion() >= this.QUESTIONS_PER_ROUND - 1) {
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.currentQuestion.update(q => q + 1);
             this.showQuestion();

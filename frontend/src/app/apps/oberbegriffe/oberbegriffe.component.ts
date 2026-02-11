@@ -13,6 +13,7 @@ type QuizMode = 'tippen' | 'auswahl' | 'eindringling';
 
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { launchConfetti } from '../../shared/confetti';
 
 @Component({
     selector: 'app-oberbegriffe',
@@ -239,6 +240,7 @@ export class OberbegriffeComponent {
         const nextIndex = this.currentIndex() + 1;
         if (nextIndex >= this.PROBLEMS_PER_ROUND) {
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.currentIndex.set(nextIndex);
             this.setupItem();

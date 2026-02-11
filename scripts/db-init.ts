@@ -219,6 +219,15 @@ async function initDB() {
                 FOREIGN KEY (plan_id) REFERENCES learning_plans(plan_id),
                 FOREIGN KEY (app_content_id) REFERENCES app_content(id)
             )`
+        },
+        {
+            name: "user_daily_activity",
+            sql: `CREATE TABLE IF NOT EXISTS user_daily_activity (
+                user_uid TEXT NOT NULL,
+                activity_date TEXT NOT NULL,
+                PRIMARY KEY (user_uid, activity_date),
+                FOREIGN KEY (user_uid) REFERENCES users(uid)
+            )`
         }
     ];
 
@@ -448,6 +457,44 @@ async function initDB() {
 
     } catch (e) {
         console.error("Error seeding apps:", e.message);
+    }
+
+    // Seed procedural app category entries (for telemetry tracking)
+    try {
+        const proceduralCategories = [
+            // Kopfrechnen: operation × difficulty
+            { app_id: 'kopfrechnen', category: 'add-easy' },
+            { app_id: 'kopfrechnen', category: 'add-medium' },
+            { app_id: 'kopfrechnen', category: 'add-hard' },
+            { app_id: 'kopfrechnen', category: 'div-easy' },
+            { app_id: 'kopfrechnen', category: 'div-medium' },
+            { app_id: 'kopfrechnen', category: 'div-hard' },
+            // Umrechnen: unit categories
+            { app_id: 'umrechnen', category: 'length' },
+            { app_id: 'umrechnen', category: 'area' },
+            { app_id: 'umrechnen', category: 'volume' },
+            { app_id: 'umrechnen', category: 'liquid' },
+            { app_id: 'umrechnen', category: 'weight' },
+            // Zeitrechnen: problem types
+            { app_id: 'zeitrechnen', category: 'mixed-to-single' },
+            { app_id: 'zeitrechnen', category: 'single-to-mixed' },
+            { app_id: 'zeitrechnen', category: 'fraction' },
+        ];
+
+        for (const entry of proceduralCategories) {
+            const data = JSON.stringify({ category: entry.category, procedural: true });
+            await db.execute({
+                sql: `INSERT INTO app_content (app_id, data, human_verified)
+                      SELECT ?, ?, 1 WHERE NOT EXISTS (
+                          SELECT 1 FROM app_content WHERE app_id = ? AND data = ?
+                      )`,
+                args: [entry.app_id, data, entry.app_id, data]
+            });
+        }
+        console.log("Seeded procedural app categories");
+
+    } catch (e) {
+        console.error("Error seeding procedural categories:", e.message);
     }
 
     try {

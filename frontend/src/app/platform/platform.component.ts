@@ -6,6 +6,7 @@ import { UserService } from '../services/user.service';
 import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
 import { BadgeService } from '../services/badge.service';
+import { StreakService } from '../services/streak.service';
 import { AuthModalComponent, AppCardComponent } from '../shared';
 import { BadgeShowcaseComponent } from '../shared/components/badge-showcase/badge-showcase.component';
 import { LearningViewComponent } from './learning-view/learning-view.component';
@@ -35,6 +36,7 @@ export class PlatformComponent implements OnInit, AfterViewInit {
     private sanitizer = inject(DomSanitizer);
     private onboardingService = inject(OnboardingService);
     badgeService = inject(BadgeService);
+    streakService = inject(StreakService);
 
     // Auth
     authService = inject(AuthService);
@@ -53,6 +55,7 @@ export class PlatformComponent implements OnInit, AfterViewInit {
                 this.userService.loadMetricsFromBackend();
                 this.userService.loadProfileFromBackend();
                 this.badgeService.loadBadges();
+                this.streakService.loadStreak();
             }
         });
 
@@ -302,6 +305,10 @@ export class PlatformComponent implements OnInit, AfterViewInit {
 
     openSettings(): void {
         this.router.navigate(['/settings']);
+    }
+
+    openStats(): void {
+        this.router.navigate(['/stats']);
     }
 
     openBadgeShowcase(): void {

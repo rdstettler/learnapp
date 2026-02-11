@@ -4,6 +4,7 @@ import { shuffle } from '../../shared/utils/array.utils';
 import { DataService } from '../../services/data.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { launchConfetti } from '../../shared/confetti';
 
 
 interface Sentence {
@@ -313,6 +314,7 @@ export class AehnlichewoerterComponent {
 
         if (nextIndex >= this.SENTENCES_PER_ROUND) {
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.currentSentenceIndex.set(nextIndex);
             this.resetRoundState();

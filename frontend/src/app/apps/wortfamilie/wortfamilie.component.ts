@@ -4,6 +4,7 @@ import { shuffle } from '../../shared/utils/array.utils';
 import { DataService } from '../../services/data.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { launchConfetti } from '../../shared/confetti';
 
 
 interface WortfamilieItem {
@@ -237,6 +238,7 @@ export class WortfamilieComponent {
 
         if (nextIndex >= this.PROBLEMS_PER_ROUND) {
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.currentIndex.set(nextIndex);
             this.showProblem();
@@ -312,6 +314,7 @@ export class WortfamilieComponent {
     nextClassWord(): void {
         if (this.classIndex() >= this.classWords().length - 1) {
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.classIndex.update(i => i + 1);
             this.classAnswered.set(false);

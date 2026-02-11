@@ -191,13 +191,89 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     },
 
     // ═══════════════════════════════════════
-    //  STREAK — sessions
+    //  STREAK — consecutive active days
     // ═══════════════════════════════════════
+    {
+        id: 'streak_3',
+        name: 'Dranbleiber',
+        description: '3 Tage hintereinander gelernt',
+        icon: '🔥',
+        category: 'streak',
+        tier: 'bronze',
+        check: {
+            query: `WITH dates AS (
+                SELECT activity_date, ROW_NUMBER() OVER (ORDER BY activity_date) as rn
+                FROM user_daily_activity WHERE user_uid = ?
+            ),
+            groups AS (
+                SELECT activity_date, DATE(activity_date, '-' || rn || ' days') as grp FROM dates
+            )
+            SELECT MAX(cnt) as count FROM (SELECT COUNT(*) as cnt FROM groups GROUP BY grp)`,
+            threshold: 3
+        }
+    },
+    {
+        id: 'streak_7',
+        name: 'Wochenläufer',
+        description: '7 Tage hintereinander gelernt',
+        icon: '🔥',
+        category: 'streak',
+        tier: 'silver',
+        check: {
+            query: `WITH dates AS (
+                SELECT activity_date, ROW_NUMBER() OVER (ORDER BY activity_date) as rn
+                FROM user_daily_activity WHERE user_uid = ?
+            ),
+            groups AS (
+                SELECT activity_date, DATE(activity_date, '-' || rn || ' days') as grp FROM dates
+            )
+            SELECT MAX(cnt) as count FROM (SELECT COUNT(*) as cnt FROM groups GROUP BY grp)`,
+            threshold: 7
+        }
+    },
+    {
+        id: 'streak_14',
+        name: 'Unaufhaltsam',
+        description: '14 Tage hintereinander gelernt',
+        icon: '🚀',
+        category: 'streak',
+        tier: 'gold',
+        check: {
+            query: `WITH dates AS (
+                SELECT activity_date, ROW_NUMBER() OVER (ORDER BY activity_date) as rn
+                FROM user_daily_activity WHERE user_uid = ?
+            ),
+            groups AS (
+                SELECT activity_date, DATE(activity_date, '-' || rn || ' days') as grp FROM dates
+            )
+            SELECT MAX(cnt) as count FROM (SELECT COUNT(*) as cnt FROM groups GROUP BY grp)`,
+            threshold: 14
+        }
+    },
+    {
+        id: 'streak_30',
+        name: 'Monatsmeister',
+        description: '30 Tage hintereinander gelernt',
+        icon: '💎',
+        category: 'streak',
+        tier: 'diamond',
+        check: {
+            query: `WITH dates AS (
+                SELECT activity_date, ROW_NUMBER() OVER (ORDER BY activity_date) as rn
+                FROM user_daily_activity WHERE user_uid = ?
+            ),
+            groups AS (
+                SELECT activity_date, DATE(activity_date, '-' || rn || ' days') as grp FROM dates
+            )
+            SELECT MAX(cnt) as count FROM (SELECT COUNT(*) as cnt FROM groups GROUP BY grp)`,
+            threshold: 30
+        }
+    },
     {
         id: 'sessions_5',
         name: 'Am Ball',
         description: 'Schliesse 5 KI-Lernsessions ab',
-        icon: '🔥',
+        icon: '🎓',
         category: 'streak',
         tier: 'silver',
         check: {
@@ -207,9 +283,9 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     },
     {
         id: 'sessions_20',
-        name: 'Unaufhaltsam',
+        name: 'Sessionprofi',
         description: 'Schliesse 20 KI-Lernsessions ab',
-        icon: '🚀',
+        icon: '📖',
         category: 'streak',
         tier: 'gold',
         check: {

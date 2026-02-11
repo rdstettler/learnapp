@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { DataService } from '../../services/data.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { launchConfetti } from '../../shared/confetti';
 
 
 interface DisplayWord {
@@ -311,6 +312,7 @@ export class FehlerComponent {
     nextText(): void {
         if (this.currentTextIndex() >= this.texts().length - 1) {
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.currentTextIndex.update(i => i + 1);
             this.renderText();

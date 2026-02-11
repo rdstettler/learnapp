@@ -19,6 +19,7 @@ type QuizMode = 'standard' | 'fehlerjagd';
 
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { launchConfetti } from '../../shared/confetti';
 
 @Component({
     selector: 'app-dasdass',
@@ -380,6 +381,7 @@ export class DasdassComponent {
                 }
             }
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.currentTextIndex.update(i => i + 1);
             this.showText();

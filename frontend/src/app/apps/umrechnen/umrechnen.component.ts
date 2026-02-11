@@ -2,6 +2,7 @@ import { Component, signal, computed } from '@angular/core';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { inject } from '@angular/core';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { launchConfetti } from '../../shared/confetti';
 
 interface UnitCategory {
     id: string;
@@ -275,6 +276,10 @@ export class UmrechnenComponent {
             this.isCorrect.set(false);
             this.answered.set(true);
             this.totalWrong.update(w => w + 1);
+            // Track NaN input as incorrect
+            if (problem.category) {
+                this.telemetryService.trackCategoryProgress('umrechnen', problem.category.id, false);
+            }
             return;
         }
 
@@ -290,6 +295,11 @@ export class UmrechnenComponent {
         } else {
             this.totalWrong.update(w => w + 1);
         }
+
+        // Track per-question progress with unit category
+        if (problem.category) {
+            this.telemetryService.trackCategoryProgress('umrechnen', problem.category.id, correct);
+        }
     }
 
     nextProblem(): void {
@@ -297,6 +307,7 @@ export class UmrechnenComponent {
 
         if (nextIndex >= this.PROBLEMS_PER_ROUND) {
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.problemIndex.set(nextIndex);
             this.generateProblem();

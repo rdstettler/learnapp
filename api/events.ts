@@ -50,11 +50,24 @@ async function handleTelemetry(req: VercelRequest, res: VercelResponse, uid: str
 
 async function handleQuestionProgress(req: VercelRequest, res: VercelResponse, uid: string) {
     try {
-        const { appId, appContentId, isCorrect } = req.body;
+        const { appId, appContentId, category, isCorrect } = req.body;
 
-        if (!appId || appContentId == null || isCorrect == null) {
+        if (!appId || isCorrect == null) {
             return res.status(400).json({
-                error: 'appId, appContentId, and isCorrect are required'
+                error: 'appId and isCorrect are required'
+            });
+        }
+
+        // Resolve content ID: either directly provided, or via category for procedural apps
+        let resolvedContentId = appContentId;
+
+        if (resolvedContentId == null && category && appId) {
+            resolvedContentId = await resolveCategory(appId, category);
+        }
+
+        if (resolvedContentId == null) {
+            return res.status(400).json({
+                error: 'appContentId or category is required'
             });
         }
 
@@ -67,12 +80,53 @@ async function handleQuestionProgress(req: VercelRequest, res: VercelResponse, u
                   ON CONFLICT(user_uid, app_content_id) DO UPDATE SET
                   ${col} = ${col} + 1,
                   last_attempt_at = CURRENT_TIMESTAMP`,
-            args: [uid, appId, appContentId, isCorrect ? 1 : 0, isCorrect ? 0 : 1]
+            args: [uid, appId, resolvedContentId, isCorrect ? 1 : 0, isCorrect ? 0 : 1]
         });
+
+        // Record daily activity for streak tracking (fire-and-forget, ON CONFLICT ignores duplicates)
+        const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+        db.execute({
+            sql: `INSERT INTO user_daily_activity (user_uid, activity_date) VALUES (?, ?) ON CONFLICT DO NOTHING`,
+            args: [uid, today]
+        }).catch(e => console.error('Daily activity insert error:', e));
 
         return res.status(200).json({ success: true });
     } catch (error: unknown) {
         console.error('Question progress error:', error);
         return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
+}
+
+// Cache for procedural category → app_content_id mappings (avoids repeated DB lookups)
+const categoryCache = new Map<string, number>();
+
+async function resolveCategory(appId: string, category: string): Promise<number> {
+    const cacheKey = `${appId}:${category}`;
+    const cached = categoryCache.get(cacheKey);
+    if (cached) return cached;
+
+    const db = getTursoClient();
+    const categoryData = JSON.stringify({ category, procedural: true });
+
+    // Try to find existing entry
+    const existing = await db.execute({
+        sql: `SELECT id FROM app_content WHERE app_id = ? AND data = ?`,
+        args: [appId, categoryData]
+    });
+
+    if (existing.rows.length > 0) {
+        const id = existing.rows[0].id as number;
+        categoryCache.set(cacheKey, id);
+        return id;
+    }
+
+    // Auto-create entry for this category
+    const result = await db.execute({
+        sql: `INSERT INTO app_content (app_id, data, human_verified) VALUES (?, ?, 1)`,
+        args: [appId, categoryData]
+    });
+
+    const newId = Number(result.lastInsertRowid);
+    categoryCache.set(cacheKey, newId);
+    return newId;
 }

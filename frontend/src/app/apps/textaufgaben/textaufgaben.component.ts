@@ -3,6 +3,7 @@ import { DataService } from '../../services/data.service';
 import { ApiService } from '../../services/api.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { launchConfetti } from '../../shared/confetti';
 import { shuffle } from '../../shared/utils/array.utils';
 
 interface TextaufgabeItem {
@@ -215,6 +216,7 @@ export class TextaufgabenComponent {
                 }
             }
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.currentRound.update(r => r + 1);
             this.showRound();

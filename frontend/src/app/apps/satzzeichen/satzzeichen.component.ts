@@ -11,6 +11,7 @@ interface WordSlot {
 
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { launchConfetti } from '../../shared/confetti';
 
 @Component({
     selector: 'app-satzzeichen',
@@ -217,6 +218,7 @@ export class SatzzeichenComponent {
     nextText(): void {
         if (this.currentTextIndex() >= this.texts().length - 1) {
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.currentTextIndex.update(i => i + 1);
             this.showText();

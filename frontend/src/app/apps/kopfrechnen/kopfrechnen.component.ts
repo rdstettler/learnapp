@@ -18,6 +18,7 @@ import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { inject } from '@angular/core';
 
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { launchConfetti } from '../../shared/confetti';
 
 @Component({
     selector: 'app-kopfrechnen',
@@ -163,6 +164,13 @@ export class KopfrechnenComponent {
             this.streak.set(0);
         }
 
+        // Track per-question progress with operation+difficulty category
+        const q = this.question();
+        if (q) {
+            const category = `${q.operation}-${this.difficulty()}`;
+            this.telemetryService.trackCategoryProgress('kopfrechnen', category, correct);
+        }
+
         this.answered.set(true);
     }
 
@@ -170,6 +178,7 @@ export class KopfrechnenComponent {
         this.currentQuestion.update(q => q + 1);
         if (this.currentQuestion() >= this.QUESTIONS_PER_ROUND) {
             this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
         } else {
             this.showQuestion();
         }
