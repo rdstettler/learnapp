@@ -429,6 +429,16 @@ async function initDB() {
                     "icon": "🎲",
                     "type": "game",
                     "tags": ["spiel", "strategie", "brettspiel", "3d", "quarto"]
+                },
+                {
+                    "id": "wortarten",
+                    "name": "Wortarten",
+                    "description": "Finde alle Nomen, Verben und Adjektive im Text",
+                    "category": "Deutsch",
+                    "route": "/wortarten",
+                    "icon": "🏷️",
+                    "type": "learning",
+                    "tags": ["deutsch", "grammatik", "wortarten", "nomen", "verben", "adjektive"]
                 }
             ]
         };

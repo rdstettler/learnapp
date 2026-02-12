@@ -1,0 +1,110 @@
+<app-learning-app-layout title="🏷️ Wortarten" appId="wortarten" [content]="texts()[currentIndex()]?.text">
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+        <!-- ═══ Welcome ═══ -->
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">🏷️</div>
+            <h2 style="margin-bottom: 12px;">Wortarten erkennen</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 16px; max-width: 340px;">
+                Wähle eine Wortart, dann klicke auf alle Wörter im Text, die dazu passen.
+            </p>
+
+            <div class="legend">
+                <span class="legend-chip tag-n">Nomen</span>
+                <span class="legend-chip tag-v">Verb</span>
+                <span class="legend-chip tag-a">Adjektiv</span>
+                @if (advancedMode()) {
+                <span class="legend-chip tag-pr">Pronomen</span>
+                <span class="legend-chip tag-pa">Partikel</span>
+                }
+            </div>
+
+            <label class="toggle-row" (click)="toggleAdvanced()">
+                <span class="toggle-track" [class.active]="advancedMode()">
+                    <span class="toggle-thumb"></span>
+                </span>
+                <span>Erweitert (+ Pronomen, Partikel)</span>
+            </label>
+
+            @if (lowercaseMode()) {
+            <p class="lowercase-note">⚠️ Achtung: Alle Wörter werden kleingeschrieben – du kannst dich nicht auf Grossbuchstaben verlassen!</p>
+            }
+
+            <button class="btn btn-primary" style="margin-top: 20px;" (click)="startQuiz()" [disabled]="!dataLoaded()">
+                Starten
+            </button>
+        </div>
+        }
+
+        <!-- ═══ Quiz ═══ -->
+        @if (screen() === 'quiz') {
+        <div class="quiz-content">
+            <div class="stats-bar">
+                <span>Text <strong>{{ currentIndex() + 1 }}</strong> von <strong>{{ texts().length }}</strong></span>
+                <span>✅ {{ totalCorrect() }} · ❌ {{ totalWrong() }}</span>
+            </div>
+
+            <!-- Category pill selector -->
+            <div class="category-bar">
+                @for (cat of categories(); track cat.tag) {
+                <button class="cat-pill {{ cat.bgClass }}"
+                    [class.active]="activeTag() === cat.tag"
+                    [class.disabled]="checked()"
+                    (click)="selectCategory(cat.tag)">
+                    {{ cat.label }}
+                </button>
+                }
+            </div>
+
+            @if (!checked() && !activeTag()) {
+            <p class="hint-text">👆 Wähle oben eine Wortart, dann tippe auf die passenden Wörter.</p>
+            }
+
+            <!-- Sentence display -->
+            <div class="text-display">
+                @for (token of tokens(); track token.index) {
+                <span class="token" [class]="getTokenClass(token)"
+                    [attr.data-hint]="getTokenHint(token)"
+                    (click)="toggleWord(token)">{{ token.text }}</span>{{ ' ' }}
+                }
+            </div>
+
+            <div class="actions">
+                @if (!checked()) {
+                <button class="btn btn-check" (click)="checkText()">Überprüfen</button>
+                } @else {
+                <button class="btn btn-primary" (click)="nextText()">Weiter</button>
+                }
+            </div>
+        </div>
+        }
+
+        <!-- ═══ Results ═══ -->
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <div class="score-text">richtig erkannt</div>
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ totalCorrect() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ totalWrong() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 30px;" (click)="startQuiz()">
+                Weiter üben
+            </button>
+            <button class="btn btn-secondary" style="margin-top: 10px;" (click)="restartQuiz()">
+                Zurück
+            </button>
+        </div>
+        }
+    </div>
+</app-learning-app-layout>
