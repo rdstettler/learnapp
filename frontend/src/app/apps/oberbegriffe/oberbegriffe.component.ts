@@ -184,7 +184,7 @@ export class OberbegriffeComponent {
         if (isCorrect) this.totalCorrect.update(c => c + 1);
         else this.totalWrong.update(w => w + 1);
         const contentId = (item as any)._contentId;
-        if (contentId) this.telemetryService.trackProgress('oberbegriffe', contentId, isCorrect);
+        if (contentId) this.telemetryService.trackProgress('oberbegriffe', contentId, isCorrect, this.mode());
     }
 
     getMCOptionClass(option: string): string {
@@ -224,7 +224,7 @@ export class OberbegriffeComponent {
         if (isCorrect) this.totalCorrect.update(c => c + 1);
         else this.totalWrong.update(w => w + 1);
         const contentId = (item as any)._contentId;
-        if (contentId) this.telemetryService.trackProgress('oberbegriffe', contentId, isCorrect);
+        if (contentId) this.telemetryService.trackProgress('oberbegriffe', contentId, isCorrect, this.mode());
     }
 
     getOOOWordClass(word: string): string {

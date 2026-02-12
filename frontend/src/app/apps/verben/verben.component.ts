@@ -250,7 +250,7 @@ export class VerbenComponent {
         updatedRound.forEach(q => {
             const verb = this.verbs().find(v => v.verb === q.verb) as any;
             if (verb?._contentId) {
-                this.telemetryService.trackProgress('verben', verb._contentId, !!q.isCorrect);
+                this.telemetryService.trackProgress('verben', verb._contentId, !!q.isCorrect, this.mode());
             }
         });
     }
@@ -311,7 +311,7 @@ export class VerbenComponent {
 
         const verb = q._verbData as any;
         if (verb?._contentId) {
-            this.telemetryService.trackProgress('verben', verb._contentId, isCorrect);
+            this.telemetryService.trackProgress('verben', verb._contentId, isCorrect, this.mode());
         }
     }
 
@@ -404,7 +404,7 @@ export class VerbenComponent {
 
         const verb = q._verbData as any;
         if (verb?._contentId) {
-            this.telemetryService.trackProgress('verben', verb._contentId, isCorrect);
+            this.telemetryService.trackProgress('verben', verb._contentId, isCorrect, this.mode());
         }
     }
 
@@ -507,7 +507,7 @@ export class VerbenComponent {
 
         const verb = q._verbData as any;
         if (verb?._contentId) {
-            this.telemetryService.trackProgress('verben', verb._contentId, isCorrect);
+            this.telemetryService.trackProgress('verben', verb._contentId, isCorrect, this.mode());
         }
     }
 

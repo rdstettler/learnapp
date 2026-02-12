@@ -1,0 +1,1407 @@
+[
+    {
+        "firstGroup": {
+            "strong": [
+                "jammern",
+                "nörgeln",
+                "klagen"
+            ],
+            "weak": [
+                "weinen",
+                "heulen",
+                "schluchzen"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "lachen",
+                "kichern",
+                "grölen"
+            ],
+            "weak": [
+                "amüsieren",
+                "feiern",
+                "witzeln",
+                "spassen"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "freuen",
+                "jubeln",
+                "frohlocken"
+            ],
+            "weak": [
+                "strahlen",
+                "lächeln",
+                "begeistern"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "ärgern",
+                "wüten",
+                "toben"
+            ],
+            "weak": [
+                "klagen",
+                "verzweifeln",
+                "trauern"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "lieben",
+                "verehren",
+                "vergöttern"
+            ],
+            "weak": [
+                "mögen",
+                "schätzen",
+                "bewundern"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "hassen",
+                "verabscheuen",
+                "verachten"
+            ],
+            "weak": [
+                "meiden",
+                "ignorieren",
+                "ablehnen"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "glücklich",
+                "froh",
+                "zufrieden"
+            ],
+            "weak": [
+                "selig",
+                "begeistert",
+                "fröhlich"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "traurig",
+                "unglücklich",
+                "betrübt"
+            ],
+            "weak": [
+                "deprimiert",
+                "melancholisch",
+                "verzweifelt"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "mutig",
+                "tapfer",
+                "furchtlos"
+            ],
+            "weak": [
+                "kühn",
+                "heldenhaft",
+                "wagemutig"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "feige",
+                "ängstlich",
+                "zaghaft"
+            ],
+            "weak": [
+                "schüchtern",
+                "vorsichtig",
+                "verängstigt"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "schön",
+                "hübsch",
+                "attraktiv"
+            ],
+            "weak": [
+                "reizend",
+                "wunderschön",
+                "anmutig"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "hässlich",
+                "abstoßend",
+                "unschön"
+            ],
+            "weak": [
+                "furchtbar",
+                "eklig",
+                "grauenhaft"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "heiß",
+                "glühend",
+                "brennend"
+            ],
+            "weak": [
+                "warm",
+                "sengend",
+                "feurig"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "kalt",
+                "eiskalt",
+                "frostig"
+            ],
+            "weak": [
+                "kühl",
+                "frisch",
+                "klamm"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "schnell",
+                "rasch",
+                "flink"
+            ],
+            "weak": [
+                "eilig",
+                "hurtig",
+                "geschwind"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "langsam",
+                "träge",
+                "gemächlich"
+            ],
+            "weak": [
+                "schleppend",
+                "zögerlich",
+                "bedächtig"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "groß",
+                "riesig",
+                "gewaltig"
+            ],
+            "weak": [
+                "hoch",
+                "lang",
+                "mächtig"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "klein",
+                "winzig",
+                "gering"
+            ],
+            "weak": [
+                "kurz",
+                "schmal",
+                "niedrig"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "sprechen",
+                "reden",
+                "plaudern"
+            ],
+            "weak": [
+                "erzählen",
+                "diskutieren",
+                "quatschen"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "schweigen",
+                "verstummen",
+                "stumm"
+            ],
+            "weak": [
+                "lauschen",
+                "zuhören",
+                "ruhig"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "essen",
+                "verzehren",
+                "fressen"
+            ],
+            "weak": [
+                "schmausen",
+                "futtern",
+                "naschen"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "hungern",
+                "fasten",
+                "verhungern"
+            ],
+            "weak": [
+                "dürsten",
+                "verzichten",
+                "ablehnen"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "schlafen",
+                "ruhen",
+                "dösen"
+            ],
+            "weak": [
+                "pennen",
+                "schlummern",
+                "nicken"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "wachen",
+                "aufbleiben",
+                "wach"
+            ],
+            "weak": [
+                "arbeiten",
+                "aktiv",
+                "müde"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "arbeiten",
+                "schuften",
+                "tätig"
+            ],
+            "weak": [
+                "werkeln",
+                "erledigen",
+                "beschäftigt"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "faulenzen",
+                "rumhängen",
+                "chillen"
+            ],
+            "weak": [
+                "schlafen",
+                "ruhen",
+                "entspannen"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "kaufen",
+                "erwerben",
+                "anschaffen"
+            ],
+            "weak": [
+                "besorgen",
+                "holen",
+                "leisten"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "verkaufen",
+                "veräußern",
+                "abgeben"
+            ],
+            "weak": [
+                "verschenken",
+                "wegwerfen",
+                "loswerden"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "gewinnen",
+                "siegen",
+                "triumphieren"
+            ],
+            "weak": [
+                "erfolgreich",
+                "obsiegen",
+                "glücken"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "verlieren",
+                "scheitern",
+                "unterliegen"
+            ],
+            "weak": [
+                "verpassen",
+                "versagen",
+                "niederlage"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "laufen",
+                "rennen",
+                "sprinten"
+            ],
+            "weak": [
+                "joggen",
+                "traben",
+                "eilen"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "stehen",
+                "sitzen",
+                "liegen"
+            ],
+            "weak": [
+                "ruhen",
+                "verharren",
+                "schlendern"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "singen",
+                "trällern",
+                "summen"
+            ],
+            "weak": [
+                "musizieren",
+                "vorsingen",
+                "intonieren"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "schweigen",
+                "verstummen",
+                "stumm"
+            ],
+            "weak": [
+                "lauschen",
+                "hören",
+                "zuhören"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "tanzen",
+                "hüpfen",
+                "walzen"
+            ],
+            "weak": [
+                "steppen",
+                "drehen",
+                "bewegen"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "stehen",
+                "sitzen",
+                "liegen"
+            ],
+            "weak": [
+                "ruhen",
+                "stillstehen",
+                "verharren"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "malen",
+                "zeichnen",
+                "pinseln"
+            ],
+            "weak": [
+                "skizzieren",
+                "kolorieren",
+                "bemalen"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "radieren",
+                "löschen",
+                "zerstören"
+            ],
+            "weak": [
+                "ignorieren",
+                "übersehen",
+                "vergessen"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "kochen",
+                "zubereiten",
+                "braten"
+            ],
+            "weak": [
+                "backen",
+                "garen",
+                "schmoren"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "hungern",
+                "fasten",
+                "rohlassen"
+            ],
+            "weak": [
+                "bestellen",
+                "verderben",
+                "verbrennen"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "trinken",
+                "schlürfen",
+                "nippen"
+            ],
+            "weak": [
+                "saugen",
+                "leeren",
+                "genießen"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "dürsten",
+                "verdursten",
+                "trocken"
+            ],
+            "weak": [
+                "verzichten",
+                "ablehnen",
+                "ausschütten"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "fahren",
+                "lenken",
+                "steuern"
+            ],
+            "weak": [
+                "rasen",
+                "cruisen",
+                "rollen"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "gehen",
+                "laufen",
+                "zu Fuß"
+            ],
+            "weak": [
+                "stehen",
+                "parken",
+                "verharren"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "schwimmen",
+                "kraulen",
+                "paddeln"
+            ],
+            "weak": [
+                "tauchen",
+                "planschen",
+                "waten"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "ertrinken",
+                "sinken",
+                "untergehen"
+            ],
+            "weak": [
+                "trocken bleiben",
+                "stehen"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "springen",
+                "hüpfen",
+                "schnellen"
+            ],
+            "weak": [
+                "satz machen",
+                "abspringen",
+                "hochspringen"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "stehen",
+                "sitzen",
+                "liegen"
+            ],
+            "weak": [
+                "verharren",
+                "ruhen",
+                "bleiben"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "werfen",
+                "schleudern",
+                "schmeißen"
+            ],
+            "weak": [
+                "katapultieren",
+                "feuern",
+                "abwerfen"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "fangen",
+                "auffangen",
+                "halten"
+            ],
+            "weak": [
+                "liegen lassen",
+                "aufheben",
+                "bewahren"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "fangen",
+                "auffangen",
+                "ergreifen"
+            ],
+            "weak": [
+                "schnappen",
+                "greifen",
+                "erwischen"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "werfen",
+                "schleudern",
+                "loslassen"
+            ],
+            "weak": [
+                "verlieren",
+                "fallen lassen",
+                "wegwerfen"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "helfen",
+                "unterstützen",
+                "beistehen"
+            ],
+            "weak": [
+                "assistieren",
+                "mithelfen",
+                "retten"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "hindern",
+                "behindern",
+                "stören"
+            ],
+            "weak": [
+                "ignorieren",
+                "ablehnen",
+                "verweigern"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "lernen",
+                "studieren",
+                "büffeln"
+            ],
+            "weak": [
+                "einprägen",
+                "üben",
+                "memorieren"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "vergessen",
+                "verlernen",
+                "ignorieren"
+            ],
+            "weak": [
+                "faulenzen",
+                "ablenken",
+                "spielen"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "fragen",
+                "erkundigen",
+                "nachfragen"
+            ],
+            "weak": [
+                "befragen",
+                "interrogieren",
+                "ausfragen"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "antworten",
+                "erwidern",
+                "sagen"
+            ],
+            "weak": [
+                "schweigen",
+                "ignorieren",
+                "ablehnen"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "lesen",
+                "studieren",
+                "durchlesen"
+            ],
+            "weak": [
+                "überfliegen",
+                "blättern",
+                "vertiefen"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "vergessen",
+                "ignorieren",
+                "weglegen"
+            ],
+            "weak": [
+                "ablegen",
+                "vernachlässigen",
+                "verlieren"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "Freude",
+                "Glück",
+                "Vergnügen"
+            ],
+            "weak": [
+                "Heiterkeit",
+                "Zufriedenheit",
+                "Spaß"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "Trauer",
+                "Leid",
+                "Kummer"
+            ],
+            "weak": [
+                "Schmerz",
+                "Unglück",
+                "Verzweiflung",
+                "Sorge"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "Angst",
+                "Furcht",
+                "Panik"
+            ],
+            "weak": [
+                "Schreck",
+                "Grauen",
+                "Befürchtung"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "Mut",
+                "Tapferkeit",
+                "Zuversicht"
+            ],
+            "weak": [
+                "Sicherheit",
+                "Gelassenheit",
+                "Ruhe",
+                "Furchtlosigkeit"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "Liebe",
+                "Zuneigung",
+                "Leidenschaft"
+            ],
+            "weak": [
+                "Zärtlichkeit",
+                "Herzlichkeit",
+                "Bewunderung"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "Hass",
+                "Abneigung",
+                "Verachtung"
+            ],
+            "weak": [
+                "Gleichgültigkeit",
+                "Ablehnung",
+                "Feindschaft"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "Hass",
+                "Abneigung",
+                "Verachtung"
+            ],
+            "weak": [
+                "Feindschaft",
+                "Groll",
+                "Wut"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "Liebe",
+                "Zuneigung",
+                "Leidenschaft"
+            ],
+            "weak": [
+                "Zärtlichkeit",
+                "Herzlichkeit",
+                "Bewunderung"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "Frieden",
+                "Ruhe",
+                "Harmonie"
+            ],
+            "weak": [
+                "Eintracht",
+                "Versöhnung",
+                "Friedfertigkeit"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "Krieg",
+                "Streit",
+                "Konflikt"
+            ],
+            "weak": [
+                "Kampf",
+                "Auseinandersetzung",
+                "Fehde"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "Krieg",
+                "Streit",
+                "Konflikt"
+            ],
+            "weak": [
+                "Kampf",
+                "Schlacht",
+                "Auseinandersetzung"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "Frieden",
+                "Ruhe",
+                "Harmonie"
+            ],
+            "weak": [
+                "Eintracht",
+                "Versöhnung",
+                "Waffenstillstand"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "Erfolg",
+                "Sieg",
+                "Triumph"
+            ],
+            "weak": [
+                "Gelingen",
+                "Glück",
+                "Fortschritt"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "Misserfolg",
+                "Scheitern",
+                "Niederlage"
+            ],
+            "weak": [
+                "Versagen",
+                "Fehlschlag",
+                "Unglück"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "Misserfolg",
+                "Scheitern",
+                "Niederlage"
+            ],
+            "weak": [
+                "Versagen",
+                "Fehlschlag",
+                "Pech"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "Erfolg",
+                "Sieg",
+                "Triumph"
+            ],
+            "weak": [
+                "Gelingen",
+                "Glück"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "Schönheit",
+                "Anmut",
+                "Reiz"
+            ],
+            "weak": [
+                "Attraktivität",
+                "Liebreiz",
+                "Eleganz"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "Hässlichkeit",
+                "Abstoßung",
+                "Unansehnlichkeit"
+            ],
+            "weak": [
+                "Ekel",
+                "Grauen",
+                "Furchtbarkeit"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "Licht",
+                "Helligkeit",
+                "Glanz"
+            ],
+            "weak": [
+                "Schein",
+                "Leuchten",
+                "Strahl"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "Dunkelheit",
+                "Finsternis",
+                "Schatten"
+            ],
+            "weak": [
+                "Dunkel",
+                "Nacht",
+                "Düsterkeit"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "Reichtum",
+                "Wohlstand",
+                "Vermögen"
+            ],
+            "weak": [
+                "Überfluss",
+                "Luxus",
+                "Fülle"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "Armut",
+                "Not",
+                "Elend"
+            ],
+            "weak": [
+                "Mangel",
+                "Bedürftigkeit",
+                "Knappheit"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "Gesundheit",
+                "Wohlbefinden",
+                "Vitalität"
+            ],
+            "weak": [
+                "Kraft",
+                "Stärke",
+                "Fitness"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "Krankheit",
+                "Leiden",
+                "Schwäche"
+            ],
+            "weak": [
+                "Schmerz",
+                "Siechtum",
+                "Gebrechlichkeit"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "alt",
+                "betagt",
+                "greis"
+            ],
+            "weak": [
+                "älter",
+                "gereift",
+                "antik"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "jung",
+                "jugendlich",
+                "neu"
+            ],
+            "weak": [
+                "frisch",
+                "kindlich",
+                "unreif"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "reich",
+                "wohlhabend",
+                "vermögend"
+            ],
+            "weak": [
+                "begütert",
+                "finanzstark",
+                "luxuriös"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "arm",
+                "bedürftig",
+                "mittellos"
+            ],
+            "weak": [
+                "dürftig",
+                "notleidend",
+                "besitzlos"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "laut",
+                "geräuschvoll",
+                "ohrenbetäubend"
+            ],
+            "weak": [
+                "dröhnend",
+                "schallend",
+                "krachend"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "leise",
+                "ruhig",
+                "still"
+            ],
+            "weak": [
+                "gedämpft",
+                "flüsternd",
+                "sanft"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "hell",
+                "leuchtend",
+                "strahlend"
+            ],
+            "weak": [
+                "licht",
+                "klar",
+                "glänzend"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "dunkel",
+                "finster",
+                "düster"
+            ],
+            "weak": [
+                "schattig",
+                "trüb",
+                "dämmrig"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "hart",
+                "fest",
+                "starr"
+            ],
+            "weak": [
+                "steif",
+                "unbiegsam",
+                "rigide"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "weich",
+                "sanft",
+                "nachgiebig"
+            ],
+            "weak": [
+                "flexibel",
+                "zart",
+                "weichlich"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "sauber",
+                "rein",
+                "makellos"
+            ],
+            "weak": [
+                "ordentlich",
+                "hygi enisch",
+                "frisch"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "schmutzig",
+                "dreckig",
+                "unrein"
+            ],
+            "weak": [
+                "befleckt",
+                "unordentlich",
+                "verunreinigt"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "gut",
+                "toll",
+                "super"
+            ],
+            "weak": [
+                "prima",
+                "ausgezeichnet",
+                "vortrefflich"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "schlecht",
+                "mies",
+                "furchtbar"
+            ],
+            "weak": [
+                "mangelhaft",
+                "schlimm",
+                "unbrauchbar"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "klug",
+                "intelligent",
+                "weise"
+            ],
+            "weak": [
+                "schlau",
+                "gescheit",
+                "verständig"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "dumm",
+                "blöd",
+                "unintelligent"
+            ],
+            "weak": [
+                "naiv",
+                "töricht",
+                "unwissend"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "stark",
+                "kräftig",
+                "mächtig"
+            ],
+            "weak": [
+                "robust",
+                "muskulös",
+                "kraftvoll"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "schwach",
+                "kraftlos",
+                "zart"
+            ],
+            "weak": [
+                "schwächlich",
+                "hilflos",
+                "gebrechlich"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "freundlich",
+                "nett",
+                "liebenswürdig"
+            ],
+            "weak": [
+                "hilfsbereit",
+                "sympathisch",
+                "zugänglich"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "unfreundlich",
+                "unhöflich",
+                "grob"
+            ],
+            "weak": [
+                "feindselig",
+                "abweisend",
+                "barsch"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "schnell",
+                "rasch",
+                "flink"
+            ],
+            "weak": [
+                "eilig",
+                "hurtig",
+                "geschwind"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "langsam",
+                "träge",
+                "gemächlich"
+            ],
+            "weak": [
+                "schleppend",
+                "zögerlich",
+                "bedächtig"
+            ]
+        }
+    },
+    {
+        "firstGroup": {
+            "strong": [
+                "süß",
+                "zuckrig",
+                "honigsüß"
+            ],
+            "weak": [
+                "leck er",
+                "köstlich",
+                "süßlich"
+            ]
+        },
+        "secondGroup": {
+            "strong": [
+                "bitter",
+                "sauer",
+                "herb"
+            ],
+            "weak": [
+                "salzig",
+                "scharf",
+                "fade"
+            ]
+        }
+    }
+]

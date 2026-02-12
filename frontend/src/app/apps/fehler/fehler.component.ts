@@ -351,7 +351,7 @@ export class FehlerComponent {
         // Track per-content progress
         const text = this.texts()[this.currentTextIndex()] as any;
         if (text?._contentId) {
-            this.telemetryService.trackProgress('fehler', text._contentId, missed === 0);
+            this.telemetryService.trackProgress('fehler', text._contentId, missed === 0, this.mode());
         }
     }
 
@@ -412,7 +412,7 @@ export class FehlerComponent {
 
         const text = this.texts()[this.currentTextIndex()] as any;
         if (text?._contentId) {
-            this.telemetryService.trackProgress('fehler', text._contentId, missed === 0);
+            this.telemetryService.trackProgress('fehler', text._contentId, missed === 0, this.mode());
         }
     }
 
@@ -456,7 +456,7 @@ export class FehlerComponent {
 
         const item = this.sentences()[this.currentSentenceIndex()] as any;
         if (item?._contentId) {
-            this.telemetryService.trackProgress('fehlerfinden2', item._contentId, isCorrect);
+            this.telemetryService.trackProgress('fehlerfinden2', item._contentId, isCorrect, this.mode());
         }
     }
 

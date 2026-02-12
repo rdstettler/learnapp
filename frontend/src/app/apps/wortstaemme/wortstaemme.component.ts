@@ -167,7 +167,7 @@ export class WortstaemmeComponent {
         const stemItem = this.currentStem() as any;
         if (stemItem?._contentId) {
             const totalComposites = stem.composites.length;
-            this.telemetryService.trackProgress('wortstaemme', stemItem._contentId, correct === totalComposites);
+            this.telemetryService.trackProgress('wortstaemme', stemItem._contentId, correct === totalComposites, this.mode());
         }
     }
 

@@ -363,7 +363,7 @@ export class DasdassComponent {
 
         // Track per-content progress
         if (currentText && (currentText as any)._contentId) {
-            this.telemetryService.trackProgress('dasdass', (currentText as any)._contentId, wrongCount === 0);
+            this.telemetryService.trackProgress('dasdass', (currentText as any)._contentId, wrongCount === 0, this.mode());
         }
     }
 
@@ -468,7 +468,7 @@ export class DasdassComponent {
 
         const currentText = this.currentText() as any;
         if (currentText?._contentId) {
-            this.telemetryService.trackProgress('dasdass', currentText._contentId, wrong === 0);
+            this.telemetryService.trackProgress('dasdass', currentText._contentId, wrong === 0, this.mode());
         }
     }
 }

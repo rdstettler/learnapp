@@ -17,7 +17,7 @@ export class AppTelemetryService {
      * Track question-level progress (success/failure) for personalized content.
      * Only sends if user is logged in.
      */
-    async trackProgress(appId: string, appContentId: number, isCorrect: boolean): Promise<void> {
+    async trackProgress(appId: string, appContentId: number, isCorrect: boolean, mode?: string): Promise<void> {
         const user = this.authService.user();
         if (!user) return;
 
@@ -27,7 +27,8 @@ export class AppTelemetryService {
                     type: 'question_progress',
                     appId,
                     appContentId,
-                    isCorrect
+                    isCorrect,
+                    ...(mode ? { mode } : {})
                 })
             );
 
@@ -43,7 +44,7 @@ export class AppTelemetryService {
      * that generate questions dynamically instead of using app_content entries.
      * The backend auto-creates app_content entries per category.
      */
-    async trackCategoryProgress(appId: string, category: string, isCorrect: boolean): Promise<void> {
+    async trackCategoryProgress(appId: string, category: string, isCorrect: boolean, mode?: string): Promise<void> {
         const user = this.authService.user();
         if (!user) return;
 
@@ -53,7 +54,8 @@ export class AppTelemetryService {
                     type: 'question_progress',
                     appId,
                     category,
-                    isCorrect
+                    isCorrect,
+                    ...(mode ? { mode } : {})
                 })
             );
 

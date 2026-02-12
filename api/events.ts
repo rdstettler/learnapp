@@ -50,7 +50,7 @@ async function handleTelemetry(req: VercelRequest, res: VercelResponse, uid: str
 
 async function handleQuestionProgress(req: VercelRequest, res: VercelResponse, uid: string) {
     try {
-        const { appId, appContentId, category, isCorrect } = req.body;
+        const { appId, appContentId, category, isCorrect, mode } = req.body;
 
         if (!appId || isCorrect == null) {
             return res.status(400).json({
@@ -83,6 +83,15 @@ async function handleQuestionProgress(req: VercelRequest, res: VercelResponse, u
             args: [uid, appId, resolvedContentId, isCorrect ? 1 : 0, isCorrect ? 0 : 1]
         });
 
+        // Record mode usage as telemetry event (fire-and-forget)
+        if (mode) {
+            db.execute({
+                sql: `INSERT INTO telemetry_events (user_uid, app_id, event_type, metadata)
+                      VALUES (?, ?, ?, ?)`,
+                args: [uid, appId, 'question_progress', JSON.stringify({ mode, isCorrect, contentId: resolvedContentId })]
+            }).catch(e => console.error('Mode telemetry insert error:', e));
+        }
+
         // Record daily activity for streak tracking (fire-and-forget, ON CONFLICT ignores duplicates)
         const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
         db.execute({
@@ -96,6 +105,8 @@ async function handleQuestionProgress(req: VercelRequest, res: VercelResponse, u
         return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
 }
+
+
 
 // Cache for procedural category → app_content_id mappings (avoids repeated DB lookups)
 const categoryCache = new Map<string, number>();

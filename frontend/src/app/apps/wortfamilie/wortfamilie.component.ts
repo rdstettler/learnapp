@@ -205,7 +205,7 @@ export class WortfamilieComponent {
         // Track per-content progress
         const contentId = (problem.item as any)._contentId;
         if (contentId) {
-            this.telemetryService.trackProgress('wortfamilie', contentId, wrongCount === 0);
+            this.telemetryService.trackProgress('wortfamilie', contentId, wrongCount === 0, this.mode());
         }
     }
 

@@ -439,6 +439,16 @@ async function initDB() {
                     "icon": "🏷️",
                     "type": "learning",
                     "tags": ["deutsch", "grammatik", "wortarten", "nomen", "verben", "adjektive"]
+                },
+                {
+                    "id": "synant",
+                    "name": "Antonyme & Synonyme",
+                    "description": "Finde den Spion! Erkenne die Antonyme unter den Synonymen",
+                    "category": "Deutsch",
+                    "route": "/synant",
+                    "icon": "🕵️",
+                    "type": "learning",
+                    "tags": ["deutsch", "wortschatz", "synonyme", "antonyme", "spion"]
                 }
             ]
         };

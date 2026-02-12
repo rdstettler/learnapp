@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed, ChangeDetectorRef, OnInit, ViewChild, effect, AfterViewInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { OnboardingService } from '../services/onboarding.service';
 import { UserService } from '../services/user.service';
@@ -29,6 +29,7 @@ interface AppsConfig {
 })
 export class PlatformComponent implements OnInit, AfterViewInit {
     private router = inject(Router);
+    private route = inject(ActivatedRoute);
     private http = inject(HttpClient);
     userService = inject(UserService);
     private cdr = inject(ChangeDetectorRef);
@@ -110,10 +111,9 @@ export class PlatformComponent implements OnInit, AfterViewInit {
 
 
 
-    // View State
-    currentView = signal<'all' | 'favorites' | 'ai' | 'plan'>(
-        (typeof localStorage !== 'undefined' && localStorage.getItem('dashboard_view') as 'all' | 'favorites' | 'ai' | 'plan') || 'all'
-    );
+    // View State — initialized from URL query param, falls back to localStorage, then 'all'
+    private static readonly VALID_VIEWS = ['all', 'favorites', 'ai', 'plan'] as const;
+    currentView = signal<'all' | 'favorites' | 'ai' | 'plan'>('all');
 
     favorites = signal<Set<string>>(new Set());
 
@@ -165,6 +165,29 @@ export class PlatformComponent implements OnInit, AfterViewInit {
 
     ngOnInit(): void {
         this.loadAppsConfig();
+        this.initViewFromUrl();
+    }
+
+    private initViewFromUrl(): void {
+        // Read initial view from URL query param
+        const params = this.route.snapshot.queryParams;
+        const viewParam = params['view'] as string;
+
+        if (viewParam && PlatformComponent.VALID_VIEWS.includes(viewParam as any)) {
+            this.currentView.set(viewParam as 'all' | 'favorites' | 'ai' | 'plan');
+        } else {
+            // Fallback to localStorage
+            const stored = typeof localStorage !== 'undefined' ? localStorage.getItem('dashboard_view') : null;
+            if (stored && PlatformComponent.VALID_VIEWS.includes(stored as any)) {
+                this.currentView.set(stored as 'all' | 'favorites' | 'ai' | 'plan');
+                // Sync URL with the stored value
+                this.router.navigate([], {
+                    queryParams: { view: stored === 'all' ? null : stored },
+                    queryParamsHandling: 'merge',
+                    replaceUrl: true
+                });
+            }
+        }
     }
 
     ngAfterViewInit(): void {
@@ -253,6 +276,11 @@ export class PlatformComponent implements OnInit, AfterViewInit {
         if (typeof localStorage !== 'undefined') {
             localStorage.setItem('dashboard_view', view);
         }
+        // Sync URL — omit ?view= for 'all' to keep URL clean
+        this.router.navigate([], {
+            queryParams: { view: view === 'all' ? null : view },
+            queryParamsHandling: 'merge'
+        });
     }
 
     selectCategory(category: string): void {

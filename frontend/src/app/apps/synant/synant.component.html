@@ -1,0 +1,113 @@
+<app-learning-app-layout title="🕵️ Antonyme & Synonyme" appId="synant" [content]="currentRound()">
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+        <!-- Welcome Screen -->
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">🕵️</div>
+            <h2 style="margin-bottom: 10px;">Antonyme & Synonyme</h2>
+
+            <div class="mode-selector">
+                @for (m of modes; track m.id) {
+                <button class="mode-btn" [class.active]="mode() === m.id" (click)="setMode(m.id)">
+                    <span class="mode-icon">{{ m.icon }}</span>
+                    <span class="mode-label">{{ m.label }}</span>
+                    <span class="mode-desc">{{ m.description }}</span>
+                </button>
+                }
+            </div>
+
+            <button class="btn btn-primary" (click)="startQuiz()" [disabled]="!dataLoaded()">
+                Quiz starten
+            </button>
+        </div>
+        }
+
+        <!-- Quiz Screen -->
+        @if (screen() === 'quiz') {
+        <div class="quiz-content">
+            <div class="round-info">Aufgabe {{ currentIndex() + 1 }} / {{ ROUNDS_PER_GAME }}</div>
+            <div class="score-live">
+                <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
+                <div class="score-live-item wrong">✗ {{ totalWrong() }}</div>
+            </div>
+
+            @if (currentRound(); as round) {
+            <div class="words-container">
+                <div class="words-label">{{ getModeLabel() }}</div>
+                @if (!answered()) {
+                <div class="spy-hint">
+                    @if (mode() === 'spion') {
+                    {{ getTargetCount() }} {{ getTargetCount() === 1 ? 'Spion versteckt' : 'Spione versteckt' }} 🕵️
+                    } @else {
+                    Tippe auf das schwächste Wort
+                    }
+                </div>
+                }
+                <div class="word-grid">
+                    @for (word of round.words; track word) {
+                    <button class="word-chip-btn" [class]="getWordClass(word)" [disabled]="answered()"
+                        (click)="toggleWord(word)">
+                        {{ word }}
+                        @if (isMarked(word) && !answered()) {
+                        <span class="mark-indicator">🎯</span>
+                        }
+                    </button>
+                    }
+                </div>
+            </div>
+
+            @if (answered()) {
+            <div class="feedback-row">
+                @if (isRoundCorrect()) {
+                <span class="feedback correct">✓ Richtig! Alle Spione gefunden!</span>
+                } @else {
+                <span class="feedback incorrect">
+                    ✗ Nicht ganz!
+                    @if (mode() === 'spion') {
+                    Die Spione waren: {{ round.targets.join(', ') }}
+                    } @else {
+                    Das schwächste Wort war: {{ round.targets[0] }}
+                    }
+                </span>
+                }
+            </div>
+            }
+            }
+
+            @if (!answered()) {
+            <button class="btn btn-primary" [disabled]="!hasSelection" (click)="checkAnswer()">Überprüfen</button>
+            } @else {
+            <button class="btn btn-primary" (click)="nextRound()">
+                {{ currentIndex() + 1 >= ROUNDS_PER_GAME ? 'Ergebnis anzeigen' : 'Weiter' }}
+            </button>
+            }
+        </div>
+        }
+
+        <!-- Results Screen -->
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <p class="score-text">{{ totalCorrect() }} von {{ ROUNDS_PER_GAME }} richtig!</p>
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ totalCorrect() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ totalWrong() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
+            </div>
+            <div class="result-actions">
+                <button class="btn btn-primary" (click)="startQuiz()">Weiter üben</button>
+                <button class="btn btn-secondary" (click)="restartQuiz()">Zurück</button>
+            </div>
+        </div>
+        }
+    </div>
+</app-learning-app-layout>

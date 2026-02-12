@@ -300,7 +300,7 @@ export class AehnlichewoerterComponent {
         // Track per-sentence progress
         const pairItem = this.currentPair() as any;
         if (pairItem?._contentId) {
-            this.telemetryService.trackProgress('aehnlichewoerter', pairItem._contentId, allCorrect);
+            this.telemetryService.trackProgress('aehnlichewoerter', pairItem._contentId, allCorrect, this.mode());
         }
     }
 

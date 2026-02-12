@@ -149,7 +149,7 @@ export class RedewendungenComponent {
         // Track per-question progress
         const q = this.questions()[this.currentQuestion()] as any;
         if (q?._contentId) {
-            this.telemetryService.trackProgress('redewendungen', q._contentId, correct);
+            this.telemetryService.trackProgress('redewendungen', q._contentId, correct, this.mode());
         }
     }
 
@@ -179,7 +179,7 @@ export class RedewendungenComponent {
         // Track per-question progress
         const q = this.questions()[this.currentQuestion()] as any;
         if (q?._contentId) {
-            this.telemetryService.trackProgress('redewendungen', q._contentId, correct);
+            this.telemetryService.trackProgress('redewendungen', q._contentId, correct, this.mode());
         }
     }
 

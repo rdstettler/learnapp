@@ -241,7 +241,7 @@ export class KasusComponent {
         const exercise = this.rounds()[this.currentRound()] as any;
         if (exercise?._contentId) {
             const totalSlots = this.parts().filter(p => p.kasus).length;
-            this.telemetryService.trackProgress('kasus', exercise._contentId, correct === totalSlots);
+            this.telemetryService.trackProgress('kasus', exercise._contentId, correct === totalSlots, this.mode());
         }
     }
 
