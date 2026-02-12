@@ -48,6 +48,12 @@ interface EnhanceResult {
     error?: string;
 }
 
+interface GenerateResponse {
+    generated_count: number;
+    existing_count: number;
+    entries: Record<string, unknown>[];
+}
+
 @Component({
     selector: 'app-content-editor',
     standalone: true,
@@ -116,6 +122,22 @@ export class ContentEditorComponent implements OnInit {
     readonly acceptedIds = signal<Set<number>>(new Set());
     readonly rejectedIds = signal<Set<number>>(new Set());
     readonly savingEnhanced = signal(false);
+
+    // Editing enhanced results inline
+    readonly editingEnhancedId = signal<number | null>(null);
+    readonly editingEnhancedJson = signal('');
+
+    // Generate new content with AI
+    readonly showGeneratePanel = signal(false);
+    readonly generateCount = signal(5);
+    readonly generatePrompt = signal('');
+    readonly generating = signal(false);
+    readonly generateResults = signal<Record<string, unknown>[]>([]);
+    readonly acceptedGenerateIdxs = signal<Set<number>>(new Set());
+    readonly rejectedGenerateIdxs = signal<Set<number>>(new Set());
+    readonly editingGenerateIdx = signal<number | null>(null);
+    readonly editingGenerateJson = signal('');
+    readonly savingGenerated = signal(false);
 
     // Default prompts per app type
     readonly defaultPrompts: Record<string, string> = {
@@ -188,7 +210,9 @@ export class ContentEditorComponent implements OnInit {
         this.showAddForm.set(false);
         this.templateId.set(null);
         this.showEnhancePanel.set(false);
+        this.showGeneratePanel.set(false);
         this.enhanceResults.set([]);
+        this.generateResults.set([]);
         // Pre-fill custom prompt
         this.customPrompt.set(this.defaultPrompts[appId] ?? '');
         await this.loadContent();
@@ -330,6 +354,35 @@ export class ContentEditorComponent implements OnInit {
 
     isAccepted(id: number): boolean { return this.acceptedIds().has(id); }
     isRejected(id: number): boolean { return this.rejectedIds().has(id); }
+
+    // ── Editing Enhanced Results ──────────────────────────
+
+    startEditEnhanced(r: EnhanceResult): void {
+        this.editingEnhancedId.set(r.id);
+        this.editingEnhancedJson.set(JSON.stringify(r.enhanced, null, 2));
+    }
+
+    cancelEditEnhanced(): void {
+        this.editingEnhancedId.set(null);
+        this.editingEnhancedJson.set('');
+    }
+
+    saveEditEnhanced(r: EnhanceResult): void {
+        let parsed;
+        try {
+            parsed = JSON.parse(this.editingEnhancedJson());
+        } catch {
+            alert('Ungültiges JSON');
+            return;
+        }
+        // Update the enhanced data in-memory
+        this.enhanceResults.update(results =>
+            results.map(item => item.id === r.id ? { ...item, enhanced: parsed } : item)
+        );
+        this.editingEnhancedId.set(null);
+        // Auto-accept the edited version
+        this.acceptResult({ ...r, enhanced: parsed });
+    }
 
     async saveAcceptedEnhancements(): Promise<void> {
         const accepted = this.enhanceResults().filter(r => this.acceptedIds().has(r.id) && r.enhanced);
@@ -482,6 +535,106 @@ export class ContentEditorComponent implements OnInit {
         } catch (e: any) {
             this.error.set(e.error?.error || 'Löschen fehlgeschlagen');
         }
+    }
+
+    // ── Generate New Content ────────────────────────────
+
+    toggleGeneratePanel(): void {
+        this.showGeneratePanel.update(v => !v);
+        if (this.showGeneratePanel()) {
+            this.generateResults.set([]);
+            this.acceptedGenerateIdxs.set(new Set());
+            this.rejectedGenerateIdxs.set(new Set());
+        }
+    }
+
+    async runGenerate(): Promise<void> {
+        this.generating.set(true);
+        this.generateResults.set([]);
+        this.acceptedGenerateIdxs.set(new Set());
+        this.rejectedGenerateIdxs.set(new Set());
+
+        try {
+            const res = await firstValueFrom(
+                this.http.post<GenerateResponse>('/api/admin/add-content', {
+                    action: 'generate',
+                    app_id: this.selectedAppId(),
+                    count: this.generateCount(),
+                    customPrompt: this.generatePrompt() || undefined
+                })
+            );
+            this.generateResults.set(res.entries);
+            this.flashSuccess(`${res.generated_count} Einträge generiert (Basis: ${res.existing_count} bestehende)`);
+        } catch (e: any) {
+            this.error.set(e.error?.error || 'Generierung fehlgeschlagen');
+        } finally {
+            this.generating.set(false);
+        }
+    }
+
+    acceptGenerate(idx: number): void {
+        this.acceptedGenerateIdxs.update(s => { const n = new Set(s); n.add(idx); return n; });
+        this.rejectedGenerateIdxs.update(s => { const n = new Set(s); n.delete(idx); return n; });
+    }
+
+    rejectGenerate(idx: number): void {
+        this.rejectedGenerateIdxs.update(s => { const n = new Set(s); n.add(idx); return n; });
+        this.acceptedGenerateIdxs.update(s => { const n = new Set(s); n.delete(idx); return n; });
+    }
+
+    isGenerateAccepted(idx: number): boolean { return this.acceptedGenerateIdxs().has(idx); }
+    isGenerateRejected(idx: number): boolean { return this.rejectedGenerateIdxs().has(idx); }
+
+    startEditGenerate(idx: number): void {
+        this.editingGenerateIdx.set(idx);
+        this.editingGenerateJson.set(JSON.stringify(this.generateResults()[idx], null, 2));
+    }
+
+    cancelEditGenerate(): void {
+        this.editingGenerateIdx.set(null);
+        this.editingGenerateJson.set('');
+    }
+
+    saveEditGenerate(idx: number): void {
+        let parsed;
+        try {
+            parsed = JSON.parse(this.editingGenerateJson());
+        } catch {
+            alert('Ungültiges JSON');
+            return;
+        }
+        this.generateResults.update(list => list.map((item, i) => i === idx ? parsed : item));
+        this.editingGenerateIdx.set(null);
+        this.acceptGenerate(idx);
+    }
+
+    async saveAcceptedGenerated(): Promise<void> {
+        const accepted = this.generateResults().filter((_, i) => this.acceptedGenerateIdxs().has(i));
+        if (accepted.length === 0) return;
+
+        this.savingGenerated.set(true);
+        let saved = 0;
+
+        for (const entry of accepted) {
+            try {
+                await firstValueFrom(
+                    this.http.post('/api/admin/add-content', {
+                        app_id: this.selectedAppId(),
+                        content: entry,
+                    })
+                );
+                saved++;
+            } catch (e) {
+                console.error('Failed to save generated entry:', e);
+            }
+        }
+
+        this.savingGenerated.set(false);
+        this.flashSuccess(`${saved} neue Einträge gespeichert!`);
+        this.generateResults.set([]);
+        this.acceptedGenerateIdxs.set(new Set());
+        this.rejectedGenerateIdxs.set(new Set());
+        await this.loadContent();
     }
 
     // ── Helpers ──────────────────────────────────────────

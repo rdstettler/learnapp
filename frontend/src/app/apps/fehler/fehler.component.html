@@ -79,6 +79,36 @@
         </div>
         }
 
+        <!-- Quiz Screen: Sätze -->
+        @if (screen() === 'quiz' && mode() === 'saetze') {
+        <div class="quiz-content">
+            <div class="stats-bar">
+                <span>Satz <strong>{{ currentSentenceIndex() + 1 }}</strong> von <strong>{{ sentences().length }}</strong></span>
+                <span>✅ {{ sentenceCorrectCount() }}/{{ sentenceTotalCount() }}</span>
+            </div>
+
+            <p class="hunt-instruction">Welcher Satz ist grammatisch korrekt?</p>
+
+            <div class="sentence-options">
+                @for (option of sentenceOptions(); track $index) {
+                <button class="sentence-option" [class]="getSentenceClass($index)"
+                    (click)="selectSentence($index)">
+                    <span class="sentence-marker">{{ ['A', 'B', 'C', 'D'][$index] }}</span>
+                    <span class="sentence-text">{{ option.text }}</span>
+                </button>
+                }
+            </div>
+
+            <div class="actions">
+                @if (!sentenceChecked()) {
+                <button class="btn btn-check" (click)="checkSentence()" [disabled]="selectedSentence() === null">Überprüfen</button>
+                } @else {
+                <button class="btn btn-primary" (click)="nextSentence()">Weiter</button>
+                }
+            </div>
+        </div>
+        }
+
         <!-- Results Screen -->
         @if (screen() === 'results') {
         <div class="score-display">

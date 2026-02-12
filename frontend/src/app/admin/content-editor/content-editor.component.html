@@ -48,6 +48,10 @@
                     [class.active]="showEnhancePanel()">
                 🤖 KI-Erweiterung
             </button>
+            <button class="action-btn generate-btn" (click)="toggleGeneratePanel()"
+                    [class.active]="showGeneratePanel()">
+                ✨ Neue Einträge mit KI
+            </button>
             <select class="sort-select" [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)">
                 <option value="id">Sortierung: ID</option>
                 <option value="completeness-asc">Vollständigkeit ↑</option>
@@ -131,16 +135,31 @@
                     </div>
                     <div class="result-col">
                         <h5>Nachher (KI)</h5>
+                        @if (editingEnhancedId() === r.id) {
+                        <textarea class="json-editor" rows="14"
+                                  [ngModel]="editingEnhancedJson()"
+                                  (ngModelChange)="editingEnhancedJson.set($event)"></textarea>
+                        <div class="edit-actions" style="margin-top:6px;">
+                            <button class="save-btn" (click)="saveEditEnhanced(r)">✓ Übernehmen</button>
+                            <button class="cancel-btn" (click)="cancelEditEnhanced()">Abbrechen</button>
+                        </div>
+                        } @else {
                         <pre class="diff-pre enhanced">{{ r.enhanced | json }}</pre>
+                        }
                     </div>
                 </div>
                 <div class="result-actions">
+                    @if (editingEnhancedId() !== r.id) {
                     <button class="action-btn accept-btn" (click)="acceptResult(r)" [class.active]="isAccepted(r.id)">
                         ✓ Übernehmen
+                    </button>
+                    <button class="action-btn edit-enhanced-btn" (click)="startEditEnhanced(r)">
+                        ✏️ Bearbeiten
                     </button>
                     <button class="action-btn reject-btn" (click)="rejectResult(r)" [class.active]="isRejected(r.id)">
                         ✕ Ablehnen
                     </button>
+                    }
                 </div>
                 }
             </div>
@@ -151,6 +170,89 @@
             <div class="save-accepted-bar">
                 <button class="save-btn" (click)="saveAcceptedEnhancements()" [disabled]="savingEnhanced()">
                     {{ savingEnhanced() ? 'Speichert...' : '💾 ' + acceptedIds().size + ' Änderungen speichern' }}
+                </button>
+            </div>
+            }
+        </div>
+        }
+    </div>
+    }
+
+    <!-- Generate New Content Panel -->
+    @if (showGeneratePanel()) {
+    <div class="enhance-panel generate-panel">
+        <h3>✨ Neue Einträge mit KI erstellen</h3>
+        <p class="panel-desc">Die KI kennt alle bestehenden Einträge und generiert neue, einzigartige Inhalte.</p>
+
+        <div class="prompt-section">
+            <label>Anweisungen an die KI (optional):</label>
+            <textarea class="prompt-editor" rows="3"
+                      [ngModel]="generatePrompt()"
+                      (ngModelChange)="generatePrompt.set($event)"
+                      placeholder="z.B. 'Erstelle Einträge zu Tier-Themen' oder 'Schwierigkeitsgrad soll hoch sein'"></textarea>
+        </div>
+
+        <div class="batch-controls">
+            <div class="field-group">
+                <label>Anzahl:</label>
+                <input type="number" [ngModel]="generateCount()" (ngModelChange)="generateCount.set($event)" min="1" max="20">
+            </div>
+            <button class="save-btn" (click)="runGenerate()"
+                    [disabled]="generating()">
+                @if (generating()) {
+                <span>⏳ KI generiert...</span>
+                } @else {
+                <span>🚀 Generieren</span>
+                }
+            </button>
+        </div>
+
+        <!-- Generate Results -->
+        @if (generateResults().length > 0) {
+        <div class="enhance-results">
+            <h4>{{ generateResults().length }} neue Einträge — Prüfen & Übernehmen</h4>
+            @for (entry of generateResults(); track $index) {
+            <div class="result-card"
+                 [class.accepted]="isGenerateAccepted($index)"
+                 [class.rejected]="isGenerateRejected($index)">
+                <div class="result-header">
+                    <span class="result-id">Neu {{ $index + 1 }}</span>
+                    <span class="result-preview">{{ getPreview(entry) }}</span>
+                </div>
+                <div class="result-body" style="flex-direction:column;">
+                    @if (editingGenerateIdx() === $index) {
+                    <textarea class="json-editor" rows="14"
+                              [ngModel]="editingGenerateJson()"
+                              (ngModelChange)="editingGenerateJson.set($event)"></textarea>
+                    <div class="edit-actions" style="margin-top:6px;">
+                        <button class="save-btn" (click)="saveEditGenerate($index)">✓ Übernehmen</button>
+                        <button class="cancel-btn" (click)="cancelEditGenerate()">Abbrechen</button>
+                    </div>
+                    } @else {
+                    <pre class="diff-pre enhanced">{{ entry | json }}</pre>
+                    }
+                </div>
+                <div class="result-actions">
+                    @if (editingGenerateIdx() !== $index) {
+                    <button class="action-btn accept-btn" (click)="acceptGenerate($index)" [class.active]="isGenerateAccepted($index)">
+                        ✓ Übernehmen
+                    </button>
+                    <button class="action-btn edit-enhanced-btn" (click)="startEditGenerate($index)">
+                        ✏️ Bearbeiten
+                    </button>
+                    <button class="action-btn reject-btn" (click)="rejectGenerate($index)" [class.active]="isGenerateRejected($index)">
+                        ✕ Ablehnen
+                    </button>
+                    }
+                </div>
+            </div>
+            }
+
+            <!-- Save All Accepted Generated -->
+            @if (acceptedGenerateIdxs().size > 0) {
+            <div class="save-accepted-bar">
+                <button class="save-btn" (click)="saveAcceptedGenerated()" [disabled]="savingGenerated()">
+                    {{ savingGenerated() ? 'Speichert...' : '💾 ' + acceptedGenerateIdxs().size + ' neue Einträge speichern' }}
                 </button>
             </div>
             }

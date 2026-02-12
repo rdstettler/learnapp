@@ -23,7 +23,19 @@ interface ErrorItem {
     wordIndex: number;
 }
 
-type QuizMode = 'korrektur' | 'markieren';
+interface SentenceItem {
+    correct: string;
+    wrong: string[];
+    _contentId?: number;
+    _mastery?: string;
+}
+
+interface SentenceOption {
+    text: string;
+    isCorrect: boolean;
+}
+
+type QuizMode = 'korrektur' | 'markieren' | 'saetze';
 
 @Component({
     selector: 'app-fehler',
@@ -40,7 +52,8 @@ export class FehlerComponent {
 
     readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [
         { id: 'korrektur', label: 'Korrektur', icon: '✏️', description: 'Finde Fehler und tippe die Korrektur.' },
-        { id: 'markieren', label: 'Markieren', icon: '🎯', description: 'Klicke nur auf die falschen Wörter.' }
+        { id: 'markieren', label: 'Markieren', icon: '🎯', description: 'Klicke nur auf die falschen Wörter.' },
+        { id: 'saetze', label: 'Sätze', icon: '📝', description: 'Finde den richtigen Satz unter vier Varianten.' }
     ];
     mode = signal<QuizMode>('korrektur');
 
@@ -67,13 +80,31 @@ export class FehlerComponent {
     popupIsError = false;
     popupCorrect = '';
 
-    progress = computed(() => (this.currentTextIndex() / this.texts().length) * 100);
+    // ═══ SÄTZE MODE STATE ═══
+    allSentences = signal<SentenceItem[]>([]);
+    sentences = signal<SentenceItem[]>([]);
+    currentSentenceIndex = signal(0);
+    sentenceOptions = signal<SentenceOption[]>([]);
+    selectedSentence = signal<number | null>(null);
+    sentenceChecked = signal(false);
+    sentenceCorrectCount = signal(0);
+    sentenceTotalCount = signal(0);
+
+    progress = computed(() => {
+        if (this.mode() === 'saetze') {
+            return (this.currentSentenceIndex() / this.sentences().length) * 100;
+        }
+        return (this.currentTextIndex() / this.texts().length) * 100;
+    });
     percentage = computed(() => {
         const total = this.totalFound() + this.totalMissed();
         return total > 0 ? Math.round((this.totalFound() / total) * 100) : 0;
     });
 
-    dataLoaded = computed(() => this.allTexts().length > 0);
+    dataLoaded = computed(() => {
+        if (this.mode() === 'saetze') return this.allSentences().length > 0;
+        return this.allTexts().length > 0;
+    });
 
     constructor() {
         this.loadData();
@@ -84,6 +115,10 @@ export class FehlerComponent {
             next: (data) => this.allTexts.set(data),
             error: (err) => console.error('Error loading fehler data:', err)
         });
+        this.dataService.loadAppContent<SentenceItem>('fehlerfinden2').subscribe({
+            next: (data) => this.allSentences.set(data as SentenceItem[]),
+            error: (err) => console.error('Error loading fehlerfinden2 data:', err)
+        });
     }
 
     setMode(m: QuizMode): void {
@@ -91,6 +126,17 @@ export class FehlerComponent {
     }
 
     startQuiz(): void {
+        if (this.mode() === 'saetze') {
+            this.sentences.set(shuffle(this.allSentences()));
+            this.currentSentenceIndex.set(0);
+            this.sentenceCorrectCount.set(0);
+            this.sentenceTotalCount.set(0);
+            this.totalFound.set(0);
+            this.totalMissed.set(0);
+            this.screen.set('quiz');
+            this.renderSentence();
+            return;
+        }
         this.texts.set(shuffle(this.allTexts()));
         this.currentTextIndex.set(0);
         this.totalFound.set(0);
@@ -368,5 +414,72 @@ export class FehlerComponent {
         if (text?._contentId) {
             this.telemetryService.trackProgress('fehler', text._contentId, missed === 0);
         }
+    }
+
+    // ═══ MODE: SÄTZE ═══
+
+    private renderSentence(): void {
+        const item = this.sentences()[this.currentSentenceIndex()];
+        if (!item) return;
+
+        const options: SentenceOption[] = shuffle([
+            { text: item.correct, isCorrect: true },
+            ...item.wrong.map(w => ({ text: w, isCorrect: false }))
+        ]);
+
+        this.sentenceOptions.set(options);
+        this.selectedSentence.set(null);
+        this.sentenceChecked.set(false);
+        this.cdr.markForCheck();
+    }
+
+    selectSentence(index: number): void {
+        if (this.sentenceChecked()) return;
+        this.selectedSentence.set(index);
+    }
+
+    checkSentence(): void {
+        if (this.selectedSentence() === null) return;
+
+        const chosen = this.sentenceOptions()[this.selectedSentence()!];
+        const isCorrect = chosen.isCorrect;
+
+        this.sentenceTotalCount.update(c => c + 1);
+        if (isCorrect) {
+            this.sentenceCorrectCount.update(c => c + 1);
+            this.totalFound.update(f => f + 1);
+        } else {
+            this.totalMissed.update(m => m + 1);
+        }
+
+        this.sentenceChecked.set(true);
+
+        const item = this.sentences()[this.currentSentenceIndex()] as any;
+        if (item?._contentId) {
+            this.telemetryService.trackProgress('fehlerfinden2', item._contentId, isCorrect);
+        }
+    }
+
+    nextSentence(): void {
+        if (this.currentSentenceIndex() >= this.sentences().length - 1) {
+            this.screen.set('results');
+            if (this.percentage() === 100) launchConfetti();
+        } else {
+            this.currentSentenceIndex.update(i => i + 1);
+            this.renderSentence();
+        }
+    }
+
+    getSentenceClass(index: number): string {
+        const isSelected = this.selectedSentence() === index;
+        const option = this.sentenceOptions()[index];
+
+        if (!this.sentenceChecked()) {
+            return isSelected ? 'sentence-selected' : '';
+        }
+
+        if (option.isCorrect) return 'sentence-correct';
+        if (isSelected && !option.isCorrect) return 'sentence-wrong';
+        return 'sentence-dimmed';
     }
 }

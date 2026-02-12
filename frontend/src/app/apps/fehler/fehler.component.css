@@ -247,3 +247,90 @@
     padding: 2px 4px;
     text-decoration: line-through;
 }
+
+/* Sätze mode */
+.sentence-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.sentence-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    font-size: 0.95rem;
+    text-align: left;
+    line-height: 1.5;
+}
+
+.sentence-option:hover:not(.sentence-correct):not(.sentence-wrong):not(.sentence-dimmed) {
+    border-color: var(--accent-1);
+    transform: translateY(-1px);
+}
+
+.sentence-option.sentence-selected {
+    border-color: var(--accent-1);
+    background: rgba(99, 102, 241, 0.12);
+}
+
+.sentence-option.sentence-correct {
+    border-color: var(--success);
+    background: rgba(34, 197, 94, 0.15);
+}
+
+.sentence-option.sentence-wrong {
+    border-color: var(--error);
+    background: rgba(239, 68, 68, 0.15);
+}
+
+.sentence-option.sentence-dimmed {
+    opacity: 0.45;
+}
+
+.sentence-marker {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.sentence-selected .sentence-marker {
+    background: var(--accent-1);
+    border-color: var(--accent-1);
+    color: white;
+}
+
+.sentence-correct .sentence-marker {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+}
+
+.sentence-wrong .sentence-marker {
+    background: var(--error);
+    border-color: var(--error);
+    color: white;
+}
+
+.sentence-text {
+    flex: 1;
+    padding-top: 2px;
+}

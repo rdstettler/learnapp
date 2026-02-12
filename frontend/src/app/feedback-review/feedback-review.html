@@ -19,6 +19,81 @@
         <a routerLink="/admin/text-aufgaben" style="padding:8px 16px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:#a5b4fc; text-decoration:none; font-size:0.9rem;">📝 Textaufgaben</a>
     </div>
 
+    <!-- Targeted AI Review Panel -->
+    <div class="card" style="margin-bottom:2rem; border: 1px solid rgba(165,180,252,0.3);">
+        <h2 style="margin-top:0;">🎯 Gezieltes AI Review</h2>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+            <div>
+                <label style="display:block; font-size:0.85rem; margin-bottom:4px; opacity:0.7;">App auswählen (optional)</label>
+                <select [ngModel]="selectedAppId()" (ngModelChange)="selectedAppId.set($event)"
+                    style="width:100%; padding:8px 12px; border-radius:8px; background:#1e1e1e; color:#d4d4d4; border:1px solid #333; font-size:0.9rem;">
+                    <option value="">— Alle Apps (zufällig) —</option>
+                    @for (app of availableApps(); track app.id) {
+                        <option [value]="app.id">{{ app.icon }} {{ app.name }}</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label style="display:block; font-size:0.85rem; margin-bottom:4px; opacity:0.7;">Modus</label>
+                <select [ngModel]="reviewMode()" (ngModelChange)="reviewMode.set($event)"
+                    style="width:100%; padding:8px 12px; border-radius:8px; background:#1e1e1e; color:#d4d4d4; border:1px solid #333; font-size:0.9rem;">
+                    <option value="review">🔍 Review — nur Flaggen (manuell prüfen)</option>
+                    <option value="update">✏️ Update — AI korrigiert direkt in DB</option>
+                    <option value="extend">➕ Extend — AI generiert neue Inhalte</option>
+                </select>
+            </div>
+        </div>
+        <div style="margin-bottom:1rem;">
+            <label style="display:block; font-size:0.85rem; margin-bottom:4px; opacity:0.7;">Custom Prompt (optional — spezielle Prüfanweisungen)</label>
+            <textarea [ngModel]="customPrompt()" (ngModelChange)="customPrompt.set($event)"
+                placeholder="z.B. 'Prüfe ob die Verben wirklich zur selben Wortfamilie gehören. rennen und laufen sind NICHT verwandt.'"
+                style="width:100%; height:80px; padding:10px; border-radius:8px; background:#1e1e1e; color:#d4d4d4; border:1px solid #333; font-family:inherit; font-size:0.9rem; resize:vertical;"
+            ></textarea>
+        </div>
+        <div style="display:flex; align-items:center; gap:1rem;">
+            <button class="btn-approve" (click)="runTargetedReview()" [disabled]="targetedReviewRunning()">
+                @if (targetedReviewRunning()) {
+                    <span>⏳ AI arbeitet...</span>
+                } @else {
+                    <span>🚀 Gezieltes Review starten</span>
+                }
+            </button>
+            @if (selectedAppId()) {
+                <span style="font-size:0.8rem; opacity:0.5;">Prüft alle Einträge der App auf einmal</span>
+            } @else {
+                <span style="font-size:0.8rem; opacity:0.5;">Prüft 10 zufällige Einträge</span>
+            }
+        </div>
+
+        @if (targetedReviewSummary()) {
+            <div style="margin-top:1rem; padding:10px 14px; border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);">
+                <strong>{{ targetedReviewSummary() }}</strong>
+            </div>
+        }
+
+        @if (targetedReviewResults().length > 0) {
+            <div style="margin-top:1rem; max-height:400px; overflow-y:auto;">
+                @for (r of targetedReviewResults(); track r.id) {
+                    <div style="padding:8px 12px; margin-bottom:6px; border-radius:6px; font-size:0.85rem;"
+                         [style.background]="r.status === 'PASS' ? 'rgba(34,197,94,0.1)' : r.status === 'UPDATED' ? 'rgba(59,130,246,0.1)' : 'rgba(239,68,68,0.1)'"
+                         [style.border-left]="'3px solid ' + (r.status === 'PASS' ? '#22c55e' : r.status === 'UPDATED' ? '#3b82f6' : '#ef4444')">
+                        <span style="font-weight:bold;">{{ r.status }}</span>
+                        <span style="opacity:0.6;"> — #{{ r.id }} ({{ r.app_id }})</span>
+                        @if (r.reason) {
+                            <div style="margin-top:4px; opacity:0.8;">{{ r.reason }}</div>
+                        }
+                        @if (r.correction) {
+                            <details style="margin-top:4px;">
+                                <summary style="cursor:pointer; opacity:0.7;">Korrektur anzeigen</summary>
+                                <pre style="font-size:0.75rem; margin-top:4px;">{{ r.correction | json }}</pre>
+                            </details>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
     @if (loading()) {
         <div>Loading...</div>
     }

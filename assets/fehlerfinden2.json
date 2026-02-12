@@ -1,0 +1,402 @@
+[
+  {
+    "correct": "Der kleine Kater jagt den roten Ball im Garten.",
+    "wrong": [
+      "Der kleine Kater jagt den roten Ball im Gartens.",
+      "Der kleine Kater jagten den roten Ball im Garten.",
+      "Der kleine Kater jagt den roter Ball im Garten."
+    ]
+  },
+  {
+    "correct": "Gestern hat das Kind einen leckeren Kuchen gebacken.",
+    "wrong": [
+      "Gestern hat das Kind einen leckeren Kuchen backen.",
+      "Gestern hat das Kind ein leckeren Kuchen gebacken.",
+      "Gestern hatte das Kind einen leckeren Kuchen gebacken."
+    ]
+  },
+  {
+    "correct": "Morgen werden wir mit dem Fahrrad in den Park fahren.",
+    "wrong": [
+      "Morgen werden wir mit dem Fahrrad in dem Park fahren.",
+      "Morgen werde wir mit dem Fahrrad in den Park fahren.",
+      "Morgen werden wir mit das Fahrrad in den Park fahren."
+    ]
+  },
+  {
+    "correct": "Der bunte Vogel singt fröhlich auf dem hohen Baum.",
+    "wrong": [
+      "Der bunte Vogel singt fröhlich auf den hohen Baum.",
+      "Der bunte Vogel singen fröhlich auf dem hohen Baum.",
+      "Der bunte Vogel singt fröhlich auf dem hohe Baum."
+    ]
+  },
+  {
+    "correct": "Die Kinder spielen Verstecken im großen Park.",
+    "wrong": [
+      "Die Kinder spielen Verstecken im großen Parks.",
+      "Die Kinder spielt Verstecken im großen Park.",
+      "Die Kinder spielen Versteckens im großen Park."
+    ]
+  },
+  {
+    "correct": "Meine Schwester liest ein spannendes Buch über Tiere.",
+    "wrong": [
+      "Meine Schwester liest ein spannendes Buch über Tier.",
+      "Meine Schwester las ein spannendes Buch über Tiere.",
+      "Meine Schwester liest einen spannendes Buch über Tiere."
+    ]
+  },
+  {
+    "correct": "Der freundliche Lehrer erklärt die Matheaufgabe geduldig.",
+    "wrong": [
+      "Der freundliche Lehrer erklärt die Matheaufgabe geduldigs.",
+      "Der freundliche Lehrer erklärten die Matheaufgabe geduldig.",
+      "Der freundliche Lehrer erklärt der Matheaufgabe geduldig."
+    ]
+  },
+  {
+    "correct": "Im Sommer schwimmen wir gerne im kühlen See.",
+    "wrong": [
+      "Im Sommer schwimmen wir gerne in dem kühlen See.",
+      "Im Sommer schwimmt wir gerne im kühlen See.",
+      "Im Sommer schwimmen wir gerne im kühle See."
+    ]
+  },
+  {
+    "correct": "Der lustige Hund gräbt ein tiefes Loch im Sand.",
+    "wrong": [
+      "Der lustige Hund gräbt ein tiefes Loch im Sands.",
+      "Der lustige Hund graben ein tiefes Loch im Sand.",
+      "Der lustige Hund gräbt ein tiefe Loch im Sand."
+    ]
+  },
+  {
+    "correct": "Die schöne Blume wächst schnell in der warmen Sonne.",
+    "wrong": [
+      "Die schöne Blume wächst schnell in der warmen Sonnes.",
+      "Die schöne Blume wachsen schnell in der warmen Sonne.",
+      "Die schöne Blume wächst schnell in dem warmen Sonne."
+    ]
+  },
+  {
+    "correct": "Weil es regnet, bleiben wir zu Hause und spielen Brettspiele.",
+    "wrong": [
+      "Weil es regnet, bleiben wir zu Hause und spielen Brettspiels.",
+      "Weil es regnet, bleiben wir zu Hause und spielt Brettspiele.",
+      "Weil es regnet, wir bleiben zu Hause und spielen Brettspiele."
+    ]
+  },
+  {
+    "correct": "Gestern haben wir einen neuen Freund im Zoo getroffen.",
+    "wrong": [
+      "Gestern haben wir einen neuen Freund im Zoos getroffen.",
+      "Gestern hat wir einen neuen Freund im Zoo getroffen.",
+      "Gestern haben wir ein neuen Freund im Zoo getroffen."
+    ]
+  },
+  {
+    "correct": "Der neugierige Affe klettert auf den hohen Baum.",
+    "wrong": [
+      "Der neugierige Affe klettert auf dem hohen Baum.",
+      "Der neugierige Affe kletterten auf den hohen Baum.",
+      "Der neugierige Affe klettert auf den hohe Baum."
+    ]
+  },
+  {
+    "correct": "Meine Freunde und ich bauen eine große Sandburg am Strand.",
+    "wrong": [
+      "Meine Freunde und ich bauen eine große Sandburg am Strands.",
+      "Meine Freunde und ich baut eine große Sandburg am Strand.",
+      "Meine Freunde und ich bauen ein große Sandburg am Strand."
+    ]
+  },
+  {
+    "correct": "Das fröhliche Mädchen malt ein buntes Bild mit vielen Farben.",
+    "wrong": [
+      "Das fröhliche Mädchen malt ein buntes Bild mit vielen Farbens.",
+      "Das fröhliche Mädchen malten ein buntes Bild mit vielen Farben.",
+      "Das fröhliche Mädchen malt einen buntes Bild mit vielen Farben."
+    ]
+  },
+  {
+    "correct": "Der Vater kocht ein leckeres Abendessen für die ganze Familie.",
+    "wrong": [
+      "Der Vater kocht ein leckeres Abendessen für die ganze Familiens.",
+      "Der Vater kochen ein leckeres Abendessen für die ganze Familie.",
+      "Der Vater kocht einen leckeres Abendessen für die ganze Familie."
+    ]
+  },
+  {
+    "correct": "Die kleine Katze miaut laut, wenn sie Hunger hat.",
+    "wrong": [
+      "Die kleine Katze miaut laut, wenn sie Hunger habe.",
+      "Die kleine Katze miauten laut, wenn sie Hunger hat.",
+      "Die kleine Katze miaut laut, wenn sie Hungers hat."
+    ]
+  },
+  {
+    "correct": "Wir fahren jeden Morgen mit dem Fahrrad zur Schule.",
+    "wrong": [
+      "Wir fahren jeden Morgen mit dem Fahrrad zu der Schule.",
+      "Wir fahrt jeden Morgen mit dem Fahrrad zur Schule.",
+      "Wir fahren jeden Morgen mit das Fahrrad zur Schule."
+    ]
+  },
+  {
+    "correct": "Der freundliche Drache in der Geschichte spuckt bunte Funken.",
+    "wrong": [
+      "Der freundliche Drache in der Geschichte spuckt bunte Funkens.",
+      "Der freundliche Drache in der Geschichte spuckten bunte Funken.",
+      "Der freundliche Drache in der Geschichte spuckt bunten Funken."
+    ]
+  },
+  {
+    "correct": "Die fleißigen Bienen sammeln süßen Honig aus den Blumen.",
+    "wrong": [
+      "Die fleißigen Bienen sammeln süßen Honig aus der Blumen.",
+      "Die fleißigen Bienen sammelst süßen Honig aus den Blumen.",
+      "Die fleißigen Bienen sammeln süße Honig aus den Blumen."
+    ]
+  },
+  {
+    "correct": "Nach der Schule gehe ich zum spannenden Fußballtraining.",
+    "wrong": [
+      "Nach der Schule gehe ich zu dem spannenden Fußballtraining.",
+      "Nach der Schule gehst ich zum spannenden Fußballtraining.",
+      "Nach der Schule gehe ich zum spannende Fußballtraining."
+    ]
+  },
+  {
+    "correct": "Der starke Junge wirft den schweren Ball sehr weit.",
+    "wrong": [
+      "Der starke Junge wirft den schweren Ball sehr weits.",
+      "Der starke Junge werfen den schweren Ball sehr weit.",
+      "Der starke Junge wirft der schweren Ball sehr weit."
+    ]
+  },
+  {
+    "correct": "Meine liebe Oma erzählt spannende Geschichten am Abend.",
+    "wrong": [
+      "Meine liebe Oma erzählt spannende Geschichten am Abends.",
+      "Meine liebe Oma erzählten spannende Geschichten am Abend.",
+      "Meine liebe Oma erzählt spannendes Geschichten am Abend."
+    ]
+  },
+  {
+    "correct": "Im kalten Winter bauen wir einen großen Schneemann.",
+    "wrong": [
+      "Im kalten Winter bauen wir einen großen Schneemanns.",
+      "Im kalten Winter baut wir einen großen Schneemann.",
+      "Im kalten Winter bauen wir ein großen Schneemann."
+    ]
+  },
+  {
+    "correct": "Der bunte Papagei kann viele lustige Wörter sprechen.",
+    "wrong": [
+      "Der bunte Papagei kann viele lustige Wörter sprechen.",
+      "Der bunte Papagei kann viele lustige Wörter sprachen.",
+      "Der bunte Papagei kann vielen lustige Wörter sprechen."
+    ]
+  },
+  {
+    "correct": "Die Kinder lachen laut über den lustigen Clown im Zirkus.",
+    "wrong": [
+      "Die Kinder lachen laut über den lustigen Clown im Zirkuss.",
+      "Die Kinder lacht laut über den lustigen Clown im Zirkus.",
+      "Die Kinder lachen laut über der lustigen Clown im Zirkus."
+    ]
+  },
+  {
+    "correct": "Ich lerne gerade, wie man ein kaputtes Fahrrad repariert.",
+    "wrong": [
+      "Ich lerne gerade, wie man ein kaputtes Fahrrad repariert.",
+      "Ich lernen gerade, wie man ein kaputtes Fahrrad repariert.",
+      "Ich lerne gerade, wie man ein kaputtes Fahrrads repariert."
+    ]
+  },
+  {
+    "correct": "Der große Elefant trinkt kühles Wasser aus dem Fluss.",
+    "wrong": [
+      "Der große Elefant trinkt kühles Wasser aus den Fluss.",
+      "Der große Elefant tranken kühles Wasser aus dem Fluss.",
+      "Der große Elefant trinkt kühle Wasser aus dem Fluss."
+    ]
+  },
+  {
+    "correct": "Meine ganze Familie geht am Wochenende ins gemütliche Kino.",
+    "wrong": [
+      "Meine ganze Familie geht am Wochenende in dem gemütliche Kino.",
+      "Meine ganze Familie geht am Wochenende ins gemütliche Kinos.",
+      "Meine ganze Familie gehen am Wochenende ins gemütliche Kino."
+    ]
+  },
+  {
+    "correct": "Der grüne Frosch hüpft fröhlich über die glatten Steine.",
+    "wrong": [
+      "Der grüne Frosch hüpft fröhlich über den glatten Steine.",
+      "Der grüne Frosch hüpften fröhlich über die glatten Steine.",
+      "Der grüne Frosch hüpft fröhliche über die glatten Steine."
+    ]
+  },
+  {
+    "correct": "Weil der kleine Hund müde ist, schläft er auf dem weichen Sofa.",
+    "wrong": [
+      "Weil der kleine Hund müde ist, schläft er auf den weichen Sofa.",
+      "Weil der kleine Hund müde ist, schläft er auf dem weichen Sofas.",
+      "Weil der kleine Hund müde ist, schläft er auf dem weiche Sofa."
+    ]
+  },
+  {
+    "correct": "Gestern haben wir einen netten neuen Freund im Park getroffen.",
+    "wrong": [
+      "Gestern haben wir einen netten neuen Freund im Parks getroffen.",
+      "Gestern hat wir einen netten neuen Freund im Park getroffen.",
+      "Gestern haben wir ein netten neuen Freund im Park getroffen."
+    ]
+  },
+  {
+    "correct": "Morgen wird der nette Lehrer einen kurzen Test schreiben.",
+    "wrong": [
+      "Morgen wird der nette Lehrer einen kurzen Test schreiben.",
+      "Morgen werde der nette Lehrer einen kurzen Test schreiben.",
+      "Morgen wird der nette Lehrer ein kurzen Test schreiben."
+    ]
+  },
+  {
+    "correct": "Die helle Sonne scheint warm am blauen Himmel.",
+    "wrong": [
+      "Die helle Sonne scheint warm am blauen Himmels.",
+      "Die helle Sonne scheint warm am blauen Himmel.",
+      "Die helle Sonne scheint warme am blauen Himmel."
+    ]
+  },
+  {
+    "correct": "Der bunte Fisch schwimmt schnell im großen Aquarium.",
+    "wrong": [
+      "Der bunte Fisch schwimmt schnell in dem großen Aquarium.",
+      "Der bunte Fisch schwimmen schnell im großen Aquarium.",
+      "Der bunte Fisch schwimmt schnell im große Aquarium."
+    ]
+  },
+  {
+    "correct": "Meine Mutter kauft frisches Obst auf dem bunten Markt.",
+    "wrong": [
+      "Meine Mutter kauft frisches Obst auf den bunten Markt.",
+      "Meine Mutter kauften frisches Obst auf dem bunten Markt.",
+      "Meine Mutter kauft frische Obst auf dem bunten Markt."
+    ]
+  },
+  {
+    "correct": "Der lustige Zauberer zeigt einen coolen Trick auf der Bühne.",
+    "wrong": [
+      "Der lustige Zauberer zeigt einen coolen Trick auf der Bühnes.",
+      "Der lustige Zauberer zeigten einen coolen Trick auf der Bühne.",
+      "Der lustige Zauberer zeigt ein coolen Trick auf der Bühne."
+    ]
+  },
+  {
+    "correct": "Die weißen Vögel fliegen hoch in den blauen Himmel.",
+    "wrong": [
+      "Die weißen Vögel fliegen hoch in dem blauen Himmel.",
+      "Die weißen Vögel fliegt hoch in den blauen Himmel.",
+      "Die weißen Vögel fliegen hoch in den blaue Himmel."
+    ]
+  },
+  {
+    "correct": "Wir pflanzen bunte Blumen im sonnigen Garten.",
+    "wrong": [
+      "Wir pflanzen bunte Blumen im sonnigen Gartens.",
+      "Wir pflanzt bunte Blumen im sonnigen Garten.",
+      "Wir pflanzen bunten Blumen im sonnigen Garten."
+    ]
+  },
+  {
+    "correct": "Der braune Bär sucht süßen Honig im dunklen Wald.",
+    "wrong": [
+      "Der braune Bär sucht süßen Honig in dem dunklen Wald.",
+      "Der braune Bär suchen süßen Honig im dunklen Wald.",
+      "Der braune Bär sucht süße Honig im dunklen Wald."
+    ]
+  },
+  {
+    "correct": "Ich esse gerne kühle Eiscreme im heißen Sommer.",
+    "wrong": [
+      "Ich esse gerne kühle Eiscreme in dem heißen Sommer.",
+      "Ich isst gerne kühle Eiscreme im heißen Sommer.",
+      "Ich esse gerne kühlen Eiscreme im heißen Sommer."
+    ]
+  },
+  {
+    "correct": "Der rote Clown macht lustige Grimassen für die Kinder.",
+    "wrong": [
+      "Der rote Clown macht lustige Grimassen für den Kinder.",
+      "Der rote Clown machten lustige Grimassen für die Kinder.",
+      "Der rote Clown macht lustigen Grimassen für die Kinder."
+    ]
+  },
+  {
+    "correct": "Die fröhlichen Kinder tanzen zur lauten Musik im Saal.",
+    "wrong": [
+      "Die fröhlichen Kinder tanzen zur lauten Musik im Saals.",
+      "Die fröhlichen Kinder tanzt zur lauten Musik im Saal.",
+      "Die fröhlichen Kinder tanzen zu der lauten Musik im Saal."
+    ]
+  },
+  {
+    "correct": "Mein kleiner Bruder baut ein schnelles Modellflugzeug.",
+    "wrong": [
+      "Mein kleiner Bruder baut ein schnelles Modellflugzeug.",
+      "Mein kleiner Bruder bauen ein schnelles Modellflugzeug.",
+      "Mein kleiner Bruder baut ein schnelle Modellflugzeug."
+    ]
+  },
+  {
+    "correct": "Der schnelle Hase hoppelt fröhlich durch die grüne Wiese.",
+    "wrong": [
+      "Der schnelle Hase hoppelt fröhlich durch den grüne Wiese.",
+      "Der schnelle Hase hoppelten fröhlich durch die grüne Wiese.",
+      "Der schnelle Hase hoppelt fröhliche durch die grüne Wiese."
+    ]
+  },
+  {
+    "correct": "Wir backen knusprige Kekse für die fröhliche Party.",
+    "wrong": [
+      "Wir backen knusprige Kekse für den fröhliche Party.",
+      "Wir backt knusprige Kekse für die fröhliche Party.",
+      "Wir backen knusprigen Kekse für die fröhliche Party."
+    ]
+  },
+  {
+    "correct": "Der mutige Ritter rettet die schöne Prinzessin im Märchen.",
+    "wrong": [
+      "Der mutige Ritter rettet die schöne Prinzessin im Märchens.",
+      "Der mutige Ritter retteten die schöne Prinzessin im Märchen.",
+      "Der mutige Ritter rettet der schöne Prinzessin im Märchen."
+    ]
+  },
+  {
+    "correct": "Die hellen Sterne leuchten leise in der dunklen Nacht.",
+    "wrong": [
+      "Die hellen Sterne leuchten leise in den dunklen Nacht.",
+      "Die hellen Sterne leuchtet leise in der dunklen Nacht.",
+      "Die hellen Sterne leuchten leisen in der dunklen Nacht."
+    ]
+  },
+  {
+    "correct": "Der abenteuerliche Pirat sucht einen goldenen Schatz auf der Insel.",
+    "wrong": [
+      "Der abenteuerliche Pirat sucht einen goldenen Schatz auf der Insel.",
+      "Der abenteuerliche Pirat suchen einen goldenen Schatz auf der Insel.",
+      "Der abenteuerliche Pirat sucht ein goldenen Schatz auf der Insel."
+    ]
+  },
+  {
+    "correct": "Die netten Freunde teilen ihre bunten Spielsachen fair.",
+    "wrong": [
+      "Die netten Freunde teilen ihre bunten Spielsachen fairs.",
+      "Die netten Freunde teilt ihre bunten Spielsachen fair.",
+      "Die netten Freunde teilen ihren bunten Spielsachen fair."
+    ]
+  }
+]

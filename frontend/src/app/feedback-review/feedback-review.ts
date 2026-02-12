@@ -29,6 +29,32 @@ interface ReviewProgress {
   total: number;
 }
 
+interface AppConfig {
+  id: string;
+  name: string;
+  icon: string;
+  category: string;
+}
+
+interface AiReviewResponse {
+  mode: string;
+  checked_count?: number;
+  flagged_count?: number;
+  generated_count?: number;
+  inserted_ids?: number[];
+  results?: AiReviewResultItem[];
+  entries?: unknown[];
+}
+
+interface AiReviewResultItem {
+  id: number;
+  app_id: string;
+  status: string;
+  reason?: string;
+  original?: Record<string, unknown>;
+  correction?: unknown;
+}
+
 @Component({
   selector: 'app-feedback-review',
   standalone: true,
@@ -59,11 +85,28 @@ export class FeedbackReviewComponent {
   editingId = signal<number | null>(null);
   editContent = signal<string>('');
 
+  // Targeted AI Review State
+  availableApps = signal<AppConfig[]>([]);
+  selectedAppId = signal<string>('');
+  customPrompt = signal<string>('');
+  reviewMode = signal<'review' | 'update' | 'extend'>('review');
+  targetedReviewResults = signal<AiReviewResultItem[]>([]);
+  targetedReviewRunning = signal(false);
+  targetedReviewSummary = signal<string>('');
+
   constructor() {
     effect(() => {
       if (this.auth.user()) {
         this.loadItems();
+        this.loadApps();
       }
+    });
+  }
+
+  loadApps() {
+    this.http.get<{ apps: AppConfig[] }>('/assets/apps.config.json').subscribe({
+      next: (config) => this.availableApps.set(config.apps),
+      error: (e) => console.error('Failed to load apps config', e)
     });
   }
 
@@ -131,6 +174,54 @@ export class FeedbackReviewComponent {
 
   parseContent(json: string): unknown {
     try { return JSON.parse(json) as unknown; } catch { return json; }
+  }
+
+  async runTargetedReview() {
+    this.targetedReviewRunning.set(true);
+    this.targetedReviewResults.set([]);
+    this.targetedReviewSummary.set('');
+
+    try {
+      const body: Record<string, unknown> = {
+        action: 'ai-review',
+        mode: this.reviewMode()
+      };
+
+      if (this.selectedAppId()) {
+        body['app_id'] = this.selectedAppId();
+      }
+      if (this.customPrompt().trim()) {
+        body['customPrompt'] = this.customPrompt().trim();
+      }
+
+      const res = await firstValueFrom(
+        this.http.post<AiReviewResponse>('/api/admin/add-content', body)
+      );
+
+      if (res.mode === 'extend') {
+        this.targetedReviewSummary.set(
+          `✅ Generated ${res.generated_count} new entries (IDs: ${res.inserted_ids?.join(', ')})`
+        );
+      } else {
+        this.targetedReviewResults.set(res.results || []);
+        const flagged = res.flagged_count || 0;
+        const checked = res.checked_count || 0;
+        const modeLabel = res.mode === 'update' ? 'Updated' : 'Flagged';
+        this.targetedReviewSummary.set(
+          `✅ Checked ${checked} items. ${modeLabel}: ${flagged}`
+        );
+      }
+
+      // Refresh feedback list if we were in review mode (new flags)
+      if (this.reviewMode() === 'review') {
+        this.loadItems();
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof HttpErrorResponse ? (e.error?.error || e.message) : 'Unknown error';
+      this.targetedReviewSummary.set(`❌ Error: ${msg}`);
+    } finally {
+      this.targetedReviewRunning.set(false);
+    }
   }
 
   startEdit(item: FeedbackItem) {
