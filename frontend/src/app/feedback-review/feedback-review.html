@@ -4,19 +4,29 @@
         <p style="margin:0;">Review AI-flagged content corrections.</p>
         <button class="btn-approve" (click)="runAiReview()" [disabled]="loading()">
             @if (!reviewProgress() && !loading()) {
-                <span>🤖 Jetzt reviewen</span>
+            <span>🤖 Jetzt reviewen</span>
             }
             @if (reviewProgress(); as progress) {
-                <span>🤖 Reviewing... ({{ progress.current }}/{{ progress.total }})</span>
+            <span>🤖 Reviewing... ({{ progress.current }}/{{ progress.total }})</span>
             }
             @if (loading() && !reviewProgress()) {
-                <span>Loading...</span>
+            <span>Loading...</span>
             }
         </button>
     </div>
     <div style="display:flex; gap:10px; margin-bottom:2rem;">
-        <a routerLink="/admin/content" style="padding:8px 16px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:#a5b4fc; text-decoration:none; font-size:0.9rem;">📦 Inhalte verwalten</a>
-        <a routerLink="/admin/text-aufgaben" style="padding:8px 16px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:#a5b4fc; text-decoration:none; font-size:0.9rem;">📝 Textaufgaben</a>
+        <a routerLink="/admin/content"
+            style="padding:8px 16px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:#a5b4fc; text-decoration:none; font-size:0.9rem;">📦
+            Inhalte verwalten</a>
+        <a routerLink="/admin/text-aufgaben"
+            style="padding:8px 16px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:#a5b4fc; text-decoration:none; font-size:0.9rem;">📝
+            Textaufgaben</a>
+        <a routerLink="/admin/feedback-review"
+            style="padding:8px 16px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:#a5b4fc; text-decoration:none; font-size:0.9rem;">🤖
+            Feedback Review</a>
+        <a routerLink="/admin/reading-review"
+            style="padding:8px 16px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.12); color:#a5b4fc; text-decoration:none; font-size:0.9rem;">📖
+            Leseverständnis</a>
     </div>
 
     <!-- Targeted AI Review Panel -->
@@ -24,12 +34,13 @@
         <h2 style="margin-top:0;">🎯 Gezieltes AI Review</h2>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:1rem;">
             <div>
-                <label style="display:block; font-size:0.85rem; margin-bottom:4px; opacity:0.7;">App auswählen (optional)</label>
+                <label style="display:block; font-size:0.85rem; margin-bottom:4px; opacity:0.7;">App auswählen
+                    (optional)</label>
                 <select [ngModel]="selectedAppId()" (ngModelChange)="selectedAppId.set($event)"
                     style="width:100%; padding:8px 12px; border-radius:8px; background:#1e1e1e; color:#d4d4d4; border:1px solid #333; font-size:0.9rem;">
                     <option value="">— Alle Apps (zufällig) —</option>
                     @for (app of availableApps(); track app.id) {
-                        <option [value]="app.id">{{ app.icon }} {{ app.name }}</option>
+                    <option [value]="app.id">{{ app.icon }} {{ app.name }}</option>
                     }
                 </select>
             </div>
@@ -44,94 +55,96 @@
             </div>
         </div>
         <div style="margin-bottom:1rem;">
-            <label style="display:block; font-size:0.85rem; margin-bottom:4px; opacity:0.7;">Custom Prompt (optional — spezielle Prüfanweisungen)</label>
+            <label style="display:block; font-size:0.85rem; margin-bottom:4px; opacity:0.7;">Custom Prompt (optional —
+                spezielle Prüfanweisungen)</label>
             <textarea [ngModel]="customPrompt()" (ngModelChange)="customPrompt.set($event)"
                 placeholder="z.B. 'Prüfe ob die Verben wirklich zur selben Wortfamilie gehören. rennen und laufen sind NICHT verwandt.'"
-                style="width:100%; height:80px; padding:10px; border-radius:8px; background:#1e1e1e; color:#d4d4d4; border:1px solid #333; font-family:inherit; font-size:0.9rem; resize:vertical;"
-            ></textarea>
+                style="width:100%; height:80px; padding:10px; border-radius:8px; background:#1e1e1e; color:#d4d4d4; border:1px solid #333; font-family:inherit; font-size:0.9rem; resize:vertical;"></textarea>
         </div>
         <div style="display:flex; align-items:center; gap:1rem;">
             <button class="btn-approve" (click)="runTargetedReview()" [disabled]="targetedReviewRunning()">
                 @if (targetedReviewRunning()) {
-                    <span>⏳ AI arbeitet...</span>
+                <span>⏳ AI arbeitet...</span>
                 } @else {
-                    <span>🚀 Gezieltes Review starten</span>
+                <span>🚀 Gezieltes Review starten</span>
                 }
             </button>
             @if (selectedAppId()) {
-                <span style="font-size:0.8rem; opacity:0.5;">Prüft alle Einträge der App auf einmal</span>
+            <span style="font-size:0.8rem; opacity:0.5;">Prüft alle Einträge der App auf einmal</span>
             } @else {
-                <span style="font-size:0.8rem; opacity:0.5;">Prüft 10 zufällige Einträge</span>
+            <span style="font-size:0.8rem; opacity:0.5;">Prüft 10 zufällige Einträge</span>
             }
         </div>
 
         @if (targetedReviewSummary()) {
-            <div style="margin-top:1rem; padding:10px 14px; border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);">
-                <strong>{{ targetedReviewSummary() }}</strong>
-            </div>
+        <div
+            style="margin-top:1rem; padding:10px 14px; border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);">
+            <strong>{{ targetedReviewSummary() }}</strong>
+        </div>
         }
 
         @if (targetedReviewResults().length > 0) {
-            <div style="margin-top:1rem; max-height:400px; overflow-y:auto;">
-                @for (r of targetedReviewResults(); track r.id) {
-                    <div style="padding:8px 12px; margin-bottom:6px; border-radius:6px; font-size:0.85rem;"
-                         [style.background]="r.status === 'PASS' ? 'rgba(34,197,94,0.1)' : r.status === 'UPDATED' ? 'rgba(59,130,246,0.1)' : 'rgba(239,68,68,0.1)'"
-                         [style.border-left]="'3px solid ' + (r.status === 'PASS' ? '#22c55e' : r.status === 'UPDATED' ? '#3b82f6' : '#ef4444')">
-                        <span style="font-weight:bold;">{{ r.status }}</span>
-                        <span style="opacity:0.6;"> — #{{ r.id }} ({{ r.app_id }})</span>
-                        @if (r.reason) {
-                            <div style="margin-top:4px; opacity:0.8;">{{ r.reason }}</div>
-                        }
-                        @if (r.correction) {
-                            <details style="margin-top:4px;">
-                                <summary style="cursor:pointer; opacity:0.7;">Korrektur anzeigen</summary>
-                                <pre style="font-size:0.75rem; margin-top:4px;">{{ r.correction | json }}</pre>
-                            </details>
-                        }
-                    </div>
+        <div style="margin-top:1rem; max-height:400px; overflow-y:auto;">
+            @for (r of targetedReviewResults(); track r.id) {
+            <div style="padding:8px 12px; margin-bottom:6px; border-radius:6px; font-size:0.85rem;"
+                [style.background]="r.status === 'PASS' ? 'rgba(34,197,94,0.1)' : r.status === 'UPDATED' ? 'rgba(59,130,246,0.1)' : 'rgba(239,68,68,0.1)'"
+                [style.border-left]="'3px solid ' + (r.status === 'PASS' ? '#22c55e' : r.status === 'UPDATED' ? '#3b82f6' : '#ef4444')">
+                <span style="font-weight:bold;">{{ r.status }}</span>
+                <span style="opacity:0.6;"> — #{{ r.id }} ({{ r.app_id }})</span>
+                @if (r.reason) {
+                <div style="margin-top:4px; opacity:0.8;">{{ r.reason }}</div>
+                }
+                @if (r.correction) {
+                <details style="margin-top:4px;">
+                    <summary style="cursor:pointer; opacity:0.7;">Korrektur anzeigen</summary>
+                    <pre style="font-size:0.75rem; margin-top:4px;">{{ r.correction | json }}</pre>
+                </details>
                 }
             </div>
+            }
+        </div>
         }
     </div>
 
     @if (loading()) {
-        <div>Loading...</div>
+    <div>Loading...</div>
     }
     @if (items().length === 0 && !loading()) {
-        <div>No pending items. Great job!</div>
+    <div>No pending items. Great job!</div>
     }
 
     @for (item of items(); track item.id) {
-        <div class="card">
-            <h3>{{ item.app_id }} <small>(Target: {{ item.target_id }})</small></h3>
+    <div class="card">
+        <h3>{{ item.app_id }} <small>(Target: {{ item.target_id }})</small></h3>
 
-            <div class="reason">
-                <strong>Flagged Reason:</strong> {{ item.comment }}
-            </div>
-
-            <div class="row">
-                <div class="col">
-                    <h4>Original Content</h4>
-                    <pre>{{ parseContent(item.content) | json }}</pre>
-                </div>
-            </div>
-
-            @if (editingId() !== item.id) {
-                <div class="actions">
-                    <button class="btn-approve" (click)="startEdit(item)" [disabled]="loading()">Review & Fix</button>
-                    <button class="btn-dismiss" (click)="dismiss(item)" [disabled]="loading()">Dismiss (Ignore)</button>
-                </div>
-            }
-
-            @if (editingId() === item.id) {
-                <div class="editor" style="margin-top:1rem;">
-                    <textarea [ngModel]="editContent()" (ngModelChange)="editContent.set($event)" style="width:100%; height:200px; font-family:monospace;"></textarea>
-                    <div class="actions">
-                        <button class="btn-approve" (click)="saveEdit(item)" [disabled]="loading()">Approve Fix</button>
-                        <button class="btn-dismiss" (click)="cancelEdit()" [disabled]="loading()">Cancel</button>
-                    </div>
-                </div>
-            }
+        <div class="reason">
+            <strong>Flagged Reason:</strong> {{ item.comment }}
         </div>
+
+        <div class="row">
+            <div class="col">
+                <h4>Original Content</h4>
+                <pre>{{ parseContent(item.content) | json }}</pre>
+            </div>
+        </div>
+
+        @if (editingId() !== item.id) {
+        <div class="actions">
+            <button class="btn-approve" (click)="startEdit(item)" [disabled]="loading()">Review & Fix</button>
+            <button class="btn-dismiss" (click)="dismiss(item)" [disabled]="loading()">Dismiss (Ignore)</button>
+        </div>
+        }
+
+        @if (editingId() === item.id) {
+        <div class="editor" style="margin-top:1rem;">
+            <textarea [ngModel]="editContent()" (ngModelChange)="editContent.set($event)"
+                style="width:100%; height:200px; font-family:monospace;"></textarea>
+            <div class="actions">
+                <button class="btn-approve" (click)="saveEdit(item)" [disabled]="loading()">Approve Fix</button>
+                <button class="btn-dismiss" (click)="cancelEdit()" [disabled]="loading()">Cancel</button>
+            </div>
+        </div>
+        }
+    </div>
     }
 </div>

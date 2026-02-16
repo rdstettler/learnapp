@@ -1,0 +1,177 @@
+<div class="tv-container">
+    <!-- Header -->
+    <div class="header">
+        <button class="back-btn" (click)="goBack()">← Zurück</button>
+        <h1>📖 Textverständnis</h1>
+    </div>
+
+    <!-- Loading -->
+    @if (loading()) {
+    <div class="loading">
+        <div class="spinner"></div>
+        <p>Text wird geladen...</p>
+    </div>
+    }
+
+    <!-- Error -->
+    @if (error() && !loading()) {
+    <div class="error-msg">{{error()}}</div>
+    }
+
+    <!-- Text selector -->
+    @if (!loading() && availableTexts().length > 1) {
+    <div class="text-selector">
+        <span class="selector-label">Geschichte wählen:</span>
+        <div class="text-options">
+            @for (t of availableTexts(); track t.id) {
+            <button class="text-option" [class.active]="readingText()?.id === t.id" (click)="selectText(t.id)">
+                {{t.title}}
+                <span class="word-badge">{{t.wordCount}} Wörter</span>
+            </button>
+            }
+        </div>
+    </div>
+    }
+
+    @if (readingText() && !loading()) {
+    <!-- Title -->
+    <div class="text-title">
+        <h2>{{readingText()!.title}}</h2>
+        @if (readingText()!.sourceUrl) {
+        <a class="source-link" [href]="readingText()!.sourceUrl" target="_blank" rel="noopener">Quelle ↗</a>
+        }
+    </div>
+
+    <!-- CHUNKED MODE (levels 4-6) -->
+    @if (isChunkedMode()) {
+    <div class="chunked-view">
+        @for (chunk of chunks(); track $index; let i = $index) {
+        @if (i <= currentChunkIndex()) { <div class="text-chunk" [class.active-chunk]="i === currentChunkIndex()">
+            @for (para of chunk; track $index) {
+            <p class="text-paragraph">{{para}}</p>
+            }
+    </div>
+
+    <!-- Questions for this chunk -->
+    @if (i === currentChunkIndex()) {
+    <div class="chunk-questions">
+        @for (q of currentChunkQuestions(); track q.id) {
+        <ng-container *ngTemplateOutlet="questionCard; context: { $implicit: q }"></ng-container>
+        }
+
+        @if (currentChunkQuestions().length === 0 || canAdvanceChunk()) {
+        <button class="next-chunk-btn" (click)="nextChunk()" [disabled]="!canAdvanceChunk()">
+            @if (currentChunkIndex() < chunks().length - 1) { Weiter lesen → } @else { Fertig! 🎉 } </button>
+                }
+    </div>
+    }
+    }
+    }
+</div>
+} @else {
+<!-- FULL TEXT MODE (levels 7+) -->
+<div class="full-text-view">
+    <div class="text-body" id="text-body">
+        @for (para of paragraphs(); track $index) {
+        <p class="text-paragraph">{{para}}</p>
+        }
+    </div>
+
+    <!-- Questions below -->
+    @if (questions().length > 0) {
+    <div class="questions-section">
+        <h3 class="questions-header">Fragen zum Text</h3>
+        <button class="scroll-to-text" (click)="scrollToText()">
+            ↑ Zurück zum Text
+        </button>
+        @for (q of questions(); track q.id) {
+        <ng-container *ngTemplateOutlet="questionCard; context: { $implicit: q }"></ng-container>
+        }
+    </div>
+    }
+</div>
+}
+
+<!-- Score display -->
+@if (finished()) {
+<div class="score-card">
+    <h3>🏆 Ergebnis</h3>
+    <div class="score-value">{{score()}} / {{totalAnswered()}}</div>
+    <p class="score-percent">{{getScorePercent()}}% richtig</p>
+    <button class="next-text-btn" (click)="loadText()">Nächster Text →</button>
+</div>
+}
+}
+</div>
+
+<!-- Question card template -->
+<ng-template #questionCard let-q>
+    <div class="question-card" [class.answered]="getAnswer(q.id)" [class.correct]="isCorrect(q.id) === true"
+        [class.wrong]="isCorrect(q.id) === false">
+
+        <div class="question-tier">
+            <span class="tier-badge" [style.background]="getTierColor(q.tier)">
+                {{getTierLabel(q.tier)}}
+            </span>
+        </div>
+
+        <p class="question-text">{{q.question}}</p>
+
+        <div class="options">
+            @if (q.questionType === 'multiple_choice' && q.options) {
+            @for (opt of q.options; track $index) {
+            <button class="option-btn" [class.selected]="getAnswer(q.id) === opt"
+                [class.correct-option]="isRevealed(q.id) && opt === q.correctAnswer"
+                [class.wrong-option]="isRevealed(q.id) && getAnswer(q.id) === opt && opt !== q.correctAnswer"
+                [disabled]="!!getAnswer(q.id)" (click)="selectAnswer(q.id, opt)">
+                {{opt}}
+            </button>
+            }
+            }
+
+            @if (q.questionType === 'true_false') {
+            <button class="option-btn tf-btn" [class.selected]="getAnswer(q.id) === 'Stimmt'"
+                [class.correct-option]="isRevealed(q.id) && q.correctAnswer === 'Stimmt'"
+                [class.wrong-option]="isRevealed(q.id) && getAnswer(q.id) === 'Stimmt' && q.correctAnswer !== 'Stimmt'"
+                [disabled]="!!getAnswer(q.id)" (click)="selectAnswer(q.id, 'Stimmt')">
+                ✅ Stimmt
+            </button>
+            <button class="option-btn tf-btn" [class.selected]="getAnswer(q.id) === 'Stimmt nicht'"
+                [class.correct-option]="isRevealed(q.id) && q.correctAnswer === 'Stimmt nicht'"
+                [class.wrong-option]="isRevealed(q.id) && getAnswer(q.id) === 'Stimmt nicht' && q.correctAnswer !== 'Stimmt nicht'"
+                [disabled]="!!getAnswer(q.id)" (click)="selectAnswer(q.id, 'Stimmt nicht')">
+                ❌ Stimmt nicht
+            </button>
+            }
+
+            @if (q.questionType === 'true_false_unknown') {
+            <button class="option-btn tf-btn" [class.selected]="getAnswer(q.id) === 'Stimmt'"
+                [class.correct-option]="isRevealed(q.id) && q.correctAnswer === 'Stimmt'"
+                [class.wrong-option]="isRevealed(q.id) && getAnswer(q.id) === 'Stimmt' && q.correctAnswer !== 'Stimmt'"
+                [disabled]="!!getAnswer(q.id)" (click)="selectAnswer(q.id, 'Stimmt')">
+                ✅ Stimmt
+            </button>
+            <button class="option-btn tf-btn" [class.selected]="getAnswer(q.id) === 'Stimmt nicht'"
+                [class.correct-option]="isRevealed(q.id) && q.correctAnswer === 'Stimmt nicht'"
+                [class.wrong-option]="isRevealed(q.id) && getAnswer(q.id) === 'Stimmt nicht' && q.correctAnswer !== 'Stimmt nicht'"
+                [disabled]="!!getAnswer(q.id)" (click)="selectAnswer(q.id, 'Stimmt nicht')">
+                ❌ Stimmt nicht
+            </button>
+            <button class="option-btn tf-btn unknown-btn" [class.selected]="getAnswer(q.id) === 'Kann man nicht wissen'"
+                [class.correct-option]="isRevealed(q.id) && q.correctAnswer === 'Kann man nicht wissen'"
+                [class.wrong-option]="isRevealed(q.id) && getAnswer(q.id) === 'Kann man nicht wissen' && q.correctAnswer !== 'Kann man nicht wissen'"
+                [disabled]="!!getAnswer(q.id)" (click)="selectAnswer(q.id, 'Kann man nicht wissen')">
+                🤷 Kann man nicht wissen
+            </button>
+            }
+        </div>
+
+        <!-- Explanation -->
+        @if (isRevealed(q.id) && q.explanation) {
+        <div class="explanation" [class.correct-exp]="isCorrect(q.id)" [class.wrong-exp]="!isCorrect(q.id)">
+            <span class="exp-icon">{{isCorrect(q.id) ? '✅' : '❌'}}</span>
+            {{q.explanation}}
+        </div>
+        }
+    </div>
+</ng-template>

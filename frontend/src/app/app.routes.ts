@@ -6,6 +6,7 @@ export const routes: Routes = [
     { path: 'settings', loadComponent: () => import('./settings/settings.component').then(m => m.SettingsComponent) },
     { path: 'stats', loadComponent: () => import('./stats/stats.component').then(m => m.StatsComponent) },
     { path: 'about', loadComponent: () => import('./about/about.component').then(m => m.AboutComponent) },
+    { path: 'lehrplan', loadComponent: () => import('./lehrplan/lehrplan.component').then(m => m.LehrplanComponent) },
     { path: 'aehnlichewoerter', loadComponent: () => import('./apps/aehnlichewoerter/aehnlichewoerter.component').then(m => m.AehnlichewoerterComponent) },
     { path: 'oberbegriffe', loadComponent: () => import('./apps/oberbegriffe/oberbegriffe.component').then(m => m.OberbegriffeComponent) },
     { path: 'wortfamilie', loadComponent: () => import('./apps/wortfamilie/wortfamilie.component').then(m => m.WortfamilieComponent) },
@@ -26,8 +27,10 @@ export const routes: Routes = [
     { path: 'quarto', loadComponent: () => import('./apps/quarto/quarto.component').then(m => m.QuartoComponent) },
     { path: 'wortarten', loadComponent: () => import('./apps/wortarten/wortarten.component').then(m => m.WortartenComponent) },
     { path: 'synant', loadComponent: () => import('./apps/synant/synant.component').then(m => m.SynantComponent) },
+    { path: 'textverstaendnis', loadComponent: () => import('./apps/textverstaendnis/textverstaendnis.component').then(m => m.TextverstaendnisComponent) },
     { path: 'admin/text-aufgaben', canActivate: [authGuard], loadComponent: () => import('./admin/text-aufgaben-admin/text-aufgaben-admin.component').then(m => m.TextAufgabenAdminComponent) },
     { path: 'admin/content', canActivate: [authGuard], loadComponent: () => import('./admin/content-editor/content-editor.component').then(m => m.ContentEditorComponent) },
+    { path: 'admin/reading-review', canActivate: [authGuard], loadComponent: () => import('./admin/reading-review/reading-review.component').then(m => m.ReadingReviewComponent) },
     { path: 'admin', canActivate: [authGuard], loadComponent: () => import('./feedback-review/feedback-review').then(m => m.FeedbackReviewComponent) },
     { path: '**', redirectTo: '' }
 ];

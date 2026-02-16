@@ -1,0 +1,139 @@
+<div class="review-container">
+    <!-- Header -->
+    <div class="header">
+        <button class="back-btn" (click)="goBack()">← Zurück</button>
+        <h1>📖 Textverständnis — Fragen-Review</h1>
+    </div>
+
+    <!-- Toast message -->
+    @if (actionMessage()) {
+    <div class="toast">{{actionMessage()}}</div>
+    }
+
+    <!-- Stats -->
+    @if (!loading()) {
+    <div class="stats-bar">
+        <div class="stat">
+            <span class="stat-value">{{texts().length}}</span>
+            <span class="stat-label">Texte</span>
+        </div>
+        <div class="stat">
+            <span class="stat-value pending">{{pendingCount()}}</span>
+            <span class="stat-label">Offen</span>
+        </div>
+        <div class="stat">
+            <span class="stat-value approved">{{approvedCount()}}</span>
+            <span class="stat-label">Genehmigt</span>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+        <button class="filter-btn" [class.active]="filterReviewed() === 'all'" (click)="setFilter('all')">Alle</button>
+        <button class="filter-btn" [class.active]="filterReviewed() === '0'" (click)="setFilter('0')">⏳ Offen</button>
+        <button class="filter-btn" [class.active]="filterReviewed() === '1'" (click)="setFilter('1')">✅
+            Genehmigt</button>
+    </div>
+
+    <!-- Text list -->
+    <div class="text-list">
+        @for (t of texts(); track t.id) {
+        <div class="text-row" [class.selected]="selectedTextId() === t.id" (click)="selectText(t.id)">
+            <div class="text-info">
+                <strong>{{t.title}}</strong>
+                @if (t.autor) {
+                <span class="text-autor">— {{t.autor}}</span>
+                }
+                <span class="text-meta">Z{{t.zyklus}} · {{t.wordCount}} Wörter</span>
+            </div>
+            <div class="text-counts">
+                @if (t.pendingQuestions) {
+                <span class="badge pending">{{t.pendingQuestions}} offen</span>
+                }
+                <span class="badge approved">{{t.approvedQuestions}} ✓</span>
+                <button class="approve-all-btn" (click)="approveAllForText(t.id); $event.stopPropagation()"
+                    title="Alle offenen genehmigen">✅ Alle</button>
+            </div>
+        </div>
+        }
+    </div>
+
+    <!-- Questions -->
+    <div class="questions-list">
+        <h3>{{filteredQuestions().length}} Fragen
+            @if (selectedTextId()) {
+            <span class="filtered-note">
+                (Text #{{selectedTextId()}})
+            </span>
+            }
+        </h3>
+
+        @for (q of filteredQuestions(); track q.id) {
+        <div class="question-row" [class.pending]="q.reviewed === 0" [class.approved]="q.reviewed === 1">
+            <!-- Editing mode -->
+            @if (editingQuestion()?.id === q.id) {
+            <div class="edit-form">
+                <label>Frage:</label>
+                <textarea [(ngModel)]="editQuestion" rows="2"></textarea>
+
+                @if (editOptions.length > 0) {
+                <label>Optionen:</label>
+                @for (opt of editOptions; track $index; let i = $index) {
+                <input type="text" [(ngModel)]="editOptions[i]" class="option-input" />
+                }
+                }
+
+                <label>Korrekte Antwort:</label>
+                <input type="text" [(ngModel)]="editCorrectAnswer" />
+
+                <label>Erklärung:</label>
+                <textarea [(ngModel)]="editExplanation" rows="2"></textarea>
+
+                <div class="edit-actions">
+                    <button class="save-btn" (click)="saveEdit()">💾 Speichern & Genehmigen</button>
+                    <button class="cancel-btn" (click)="cancelEdit()">Abbrechen</button>
+                </div>
+            </div>
+            } @else {
+            <!-- Display mode -->
+            <div class="q-header">
+                <span class="tier-badge" [style.background]="getTierColor(q.tier)">T{{q.tier}}
+                    {{getTierLabel(q.tier)}}</span>
+                <span class="type-badge">{{getTypeLabel(q.questionType)}}</span>
+                @if (q.paragraphIndex) {
+                <span class="para-badge">¶{{q.paragraphIndex}}</span>
+                }
+                <span class="status-badge" [class.pending]="q.reviewed === 0" [class.approved]="q.reviewed === 1">
+                    {{q.reviewed === 1 ? '✅' : '⏳'}}
+                </span>
+            </div>
+            <p class="q-text">{{q.question}}</p>
+            @if (q.options) {
+            <div class="q-options">
+                @for (opt of q.options; track $index) {
+                <span class="q-option" [class.correct]="opt === q.correctAnswer">{{opt}}</span>
+                }
+            </div>
+            } @else {
+            <div class="q-answer">Antwort: <strong>{{q.correctAnswer}}</strong></div>
+            }
+            @if (q.explanation) {
+            <p class="q-explanation">💡 {{q.explanation}}</p>
+            }
+            <div class="q-actions">
+                @if (q.reviewed === 0) {
+                <button class="action-btn approve" (click)="approveQuestion(q)">✅ Genehmigen</button>
+                }
+                <button class="action-btn edit" (click)="startEdit(q)">✏️ Bearbeiten</button>
+                <button class="action-btn delete" (click)="deleteQuestion(q)">🗑️</button>
+            </div>
+            }
+        </div>
+        }
+    </div>
+    }
+
+    @if (loading()) {
+    <div class="loading">Lade Fragen...</div>
+    }
+</div>

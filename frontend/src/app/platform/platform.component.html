@@ -52,11 +52,14 @@
                 <button class="auth-btn badge-btn" (click)="openBadgeShowcase()" title="Abzeichen">
                     <span class="badge-btn-icon">🏆</span>
                     @if (badgeService.badges().length > 0) {
-                        <span class="badge-count">{{ badgeService.earnedCount }}</span>
+                    <span class="badge-count">{{ badgeService.earnedCount }}</span>
                     }
                 </button>
                 <button class="auth-btn stats-btn" (click)="openStats()" title="Statistiken">
                     <span class="stats-icon">📊</span>
+                </button>
+                <button class="auth-btn lehrplan-btn" (click)="openLehrplan()" title="Lehrplan">
+                    <span class="lehrplan-icon">📘</span>
                 </button>
                 <button id="settings-btn" class="auth-btn settings-btn" (click)="openSettings()"
                     title="Einstellungen"><span class="settings-icon">⚙️</span></button>

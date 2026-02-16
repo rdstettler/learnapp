@@ -58,6 +58,28 @@ async function handleQuestionProgress(req: VercelRequest, res: VercelResponse, u
             });
         }
 
+        const db = getTursoClient();
+
+        // 1. Track Curriculum Mastery if category matches 'curriculum-{nodeId}'
+        if (category && typeof category === 'string' && category.startsWith('curriculum-')) {
+            const nodeId = parseInt(category.split('-')[1]);
+            if (!isNaN(nodeId)) {
+                // Calculate mastery change: +5 for correct, -2 for wrong
+                // Clamp between 0 and 100
+                const delta = isCorrect ? 5 : -2;
+
+                await db.execute({
+                    sql: `INSERT INTO user_curriculum_progress (user_uid, curriculum_node_id, status, mastery_level, last_activity)
+                          VALUES (?, ?, 'started', ?, CURRENT_TIMESTAMP)
+                          ON CONFLICT(user_uid, curriculum_node_id) DO UPDATE SET
+                          mastery_level = MAX(0, MIN(100, mastery_level + ?)),
+                          status = CASE WHEN mastery_level >= 100 THEN 'completed' ELSE 'started' END,
+                          last_activity = CURRENT_TIMESTAMP`,
+                    args: [uid, nodeId, isCorrect ? 5 : 0, delta]
+                }).catch(e => console.error('Curriculum progress error:', e));
+            }
+        }
+
         // Resolve content ID: either directly provided, or via category for procedural apps
         let resolvedContentId = appContentId;
 
@@ -71,7 +93,6 @@ async function handleQuestionProgress(req: VercelRequest, res: VercelResponse, u
             });
         }
 
-        const db = getTursoClient();
         const col = isCorrect ? 'success_count' : 'failure_count';
 
         await db.execute({

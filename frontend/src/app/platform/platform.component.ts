@@ -171,6 +171,14 @@ export class PlatformComponent implements OnInit, AfterViewInit {
     private initViewFromUrl(): void {
         // Read initial view from URL query param
         const params = this.route.snapshot.queryParams;
+
+        // Check for 'all-apps' param first - this overrides view preference and forces 'all'
+        if (params['all-apps'] !== undefined) {
+            this.currentView.set('all');
+            // We don't save this to localStorage as it might be a temporary override link
+            return;
+        }
+
         const viewParam = params['view'] as string;
 
         if (viewParam && PlatformComponent.VALID_VIEWS.includes(viewParam as any)) {
@@ -230,7 +238,11 @@ export class PlatformComponent implements OnInit, AfterViewInit {
 
                 // If we have favorites and current view is default 'all', switch to favorites
                 // Only do this on initial load to avoid jumping around if user is browsing
-                if (favSet.size > 0 && this.currentView() === 'all') {
+                // IMPORTANT: Do NOT switch if user explicitly requested 'all-apps' or 'view=all'
+                const params = this.route.snapshot.queryParams;
+                const explicitAll = params['all-apps'] !== undefined || params['view'] === 'all';
+
+                if (favSet.size > 0 && this.currentView() === 'all' && !explicitAll) {
                     this.setView('favorites');
                 }
                 this.favoritesLoading.set(false);
@@ -337,6 +349,10 @@ export class PlatformComponent implements OnInit, AfterViewInit {
 
     openStats(): void {
         this.router.navigate(['/stats']);
+    }
+
+    openLehrplan(): void {
+        this.router.navigate(['/lehrplan']);
     }
 
     openBadgeShowcase(): void {

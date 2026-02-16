@@ -1,0 +1,78 @@
+Total links: 821
+
+Content per Kompetenz:
+  ❌ D.1.A.1: 0 items — Die Schülerinnen und Schüler können Laute, Silben, Stimmen, Geräusche und Töne wahrnehmen, einordnen und vergleichen. Sie können ihren rezeptiven Wortschatz aktivieren, um das Gehörte angemessen schnell zu verstehen.
+  ❌ D.1.B.1: 0 items — Die Schülerinnen und Schüler können wichtige Informationen aus Hörtexten entnehmen.
+  ❌ D.1.C.1: 0 items — Die Schülerinnen und Schüler können Gesprächen folgen und ihre Aufmerksamkeit zeigen.
+  ❌ D.1.D.1: 0 items — Die Schülerinnen und Schüler können ihr Hörverhalten und ihr Hörinteresse reflektieren.
+  ✅ D.2.A.1: 163 items — Die Schülerinnen und Schüler verfügen über Grundfertigkeiten des Lesens. Sie können ihren rezeptiven Wortschatz aktivieren, um das Gelesene schnell zu verstehen.
+  ✅ D.2.B.1: 12 items — Die Schülerinnen und Schüler können wichtige Informationen aus Sachtexten entnehmen.
+  ✅ D.2.C.1: 12 items — Die Schülerinnen und Schüler können literarische Texte lesen und verstehen.
+  ❌ D.2.D.1: 0 items — Die Schülerinnen und Schüler können ihr Leseverhalten und ihre Leseinteressen reflektieren.
+  ❌ D.3.A.1: 0 items — Die Schülerinnen und Schüler können ihre Sprechmotorik, Artikulation, Stimmführung angemessen nutzen. Sie können ihren produktiven Wortschatz und Satzmuster aktivieren, um angemessen flüssig zu sprechen.
+  ❌ D.3.B.1: 0 items — Die Schülerinnen und Schüler können sich in monologischen Situationen angemessen und verständlich ausdrücken.
+  ❌ D.3.C.1: 0 items — Die Schülerinnen und Schüler können sich aktiv an einem Dialog beteiligen.
+  ❌ D.3.D.1: 0 items — Die Schülerinnen und Schüler können ihr Sprech-, Präsentations- und Gesprächsverhalten reflektieren.
+  ❌ D.4.A.1: 0 items — Die Schülerinnen und Schüler können in einer persönlichen Handschrift leserlich und geläufig schreiben und die Tastatur geläufig nutzen. Sie entwickeln eine ausreichende Schreibflüssigkeit, um genügend Kapazität für die höheren Schreibprozesse zu haben. Sie können ihren produktiven Wortschatz und Satzmuster aktivieren, um flüssig formulieren und schreiben zu können.
+  ❌ D.4.B.1: 0 items — Die Schülerinnen und Schüler kennen vielfältige Textmuster und können sie entsprechend ihrem Schreibziel in Bezug auf Struktur, Inhalt, Sprache und Form für die eigene Textproduktion nutzen.
+  ❌ D.4.C.1: 0 items — Die Schülerinnen und Schüler können ein Repertoire an angemessenen Vorgehensweisen zum Ideenfinden und Planen aufbauen und dieses im Schreibprozess zielführend einsetzen.
+  ✅ D.4.D.1: 7 items — Die Schülerinnen und Schüler können ihre Ideen und Gedanken in eine sinnvolle und verständliche Abfolge bringen. Sie können in einen Schreibfluss kommen und ihre Formulierungen auf ihr Schreibziel ausrichten.
+  ❌ D.4.E.1: 0 items — Die Schülerinnen und Schüler können ihren Text in Bezug auf Schreibziel und Textsortenvorgaben inhaltlich überarbeiten.
+  ✅ D.4.F.1: 105 items — Die Schülerinnen und Schüler können ihren Text in Bezug auf Rechtschreibung und Grammatik überarbeiten.
+  ❌ D.4.G.1: 0 items — Die Schülerinnen und Schüler können über ihren Schreibprozess und ihre Schreibprodukte nachdenken und deren Qualität einschätzen.
+  ✅ D.5.A.1: 48 items — Die Schülerinnen und Schüler können Sprache erforschen und Sprachen vergleichen.
+  ✅ D.5.B.1: 116 items — Die Schülerinnen und Schüler können den Gebrauch und die Wirkung von Sprache untersuchen.
+  ✅ D.5.C.1: 65 items — Die Schülerinnen und Schüler können Sprachstrukturen in Wörtern und Sätzen untersuchen.
+  ✅ D.5.D.1: 160 items — Die Schülerinnen und Schüler können Grammatikbegriffe für die Analyse von Sprachstrukturen anwenden.
+  ✅ D.5.E.1: 37 items — Die Schülerinnen und Schüler können ihr orthografisches Regelwissen in auf die Regel konstruierten Übungen anwenden.
+  ❌ D.6.A.1: 0 items — Die Schülerinnen und Schüler können spielerisch und kreativ gestaltend mit literarischen Texten umgehen.
+  ❌ D.6.A.2: 0 items — Die Schülerinnen und Schüler können über literarische Texte und die Art, wie sie die Texte lesen, ein literarisches Gespräch führen. Sie reflektieren dabei, wie sie die Texte verstehen und die Texte auf sie wirken.
+  ❌ D.6.B.1: 0 items — Die Schülerinnen und Schüler kennen einzelne Autor/innen der Kinder-, Jugend- und Erwachsenenliteratur und können Texte aus verschiedenen Kulturen lesen, hören, sehen und deren Besonderheiten erkennen und wertschätzen.
+  ❌ D.6.C.1: 0 items — Die Schülerinnen und Schüler erfahren, erkennen und reflektieren, dass literarische Texte in Bezug auf Inhalt, Form und Sprache bewusst gestaltet sind, um eine ästhetische Wirkung zu erzielen. Sie kennen wesentliche Merkmale von Genres und literarischen Gattungen.
+  ✅ MA.1.A.1: 14 items — Die Schülerinnen und Schüler verstehen und verwenden arithmetische Begriffe und Symbole. Sie lesen und schreiben Zahlen.
+  ✅ MA.1.A.2: 14 items — Die Schülerinnen und Schüler können flexibel zählen, Zahlen nach der Grösse ordnen und Ergebnisse überschlagen.
+  ✅ MA.1.A.3: 14 items — Die Schülerinnen und Schüler können addieren, subtrahieren, multiplizieren, dividieren und potenzieren.
+  ✅ MA.1.A.4: 14 items — Die Schülerinnen und Schüler können Terme vergleichen und umformen, Gleichungen lösen, Gesetze und Regeln anwenden.
+  ❌ MA.1.B.1: 0 items — Die Schülerinnen und Schüler können Zahl- und Operationsbeziehungen sowie arithmetische Muster erforschen und Erkenntnisse austauschen.
+  ❌ MA.1.B.2: 0 items — Die Schülerinnen und Schüler können Aussagen, Vermutungen und Ergebnisse zu Zahlen und Variablen erläutern, überprüfen, begründen.
+  ❌ MA.1.B.3: 0 items — Die Schülerinnen und Schüler können beim Erforschen arithmetischer Muster Hilfsmittel nutzen.
+  ✅ MA.1.C.1: 8 items — Die Schülerinnen und Schüler können Rechenwege darstellen, beschreiben, austauschen und nachvollziehen.
+  ✅ MA.1.C.2: 8 items — Die Schülerinnen und Schüler können Anzahlen, Zahlenfolgen und Terme veranschaulichen, beschreiben und verallgemeinern.
+  ❌ MA.2.A.1: 0 items — Die Schülerinnen und Schüler verstehen und verwenden Begriffe und Symbole.
+  ❌ MA.2.A.2: 0 items — Die Schülerinnen und Schüler können Figuren und Körper abbilden, zerlegen und zusammensetzen.
+  ❌ MA.2.A.3: 0 items — Die Schülerinnen und Schüler können Längen, Flächen und Volumen bestimmen und berechnen.
+  ❌ MA.2.B.1: 0 items — Die Schülerinnen und Schüler können geometrische Beziehungen, insbesondere zwischen Längen, Flächen und Volumen, erforschen, Vermutungen formulieren und Erkenntnisse austauschen.
+  ❌ MA.2.B.2: 0 items — Die Schülerinnen und Schüler können Aussagen und Formeln zu geometrischen Beziehungen überprüfen, mit Beispielen belegen und begründen.
+  ❌ MA.2.C.1: 0 items — Die Schülerinnen und Schüler können Körper und räumliche Beziehungen darstellen.
+  ❌ MA.2.C.2: 0 items — Die Schülerinnen und Schüler können Figuren falten, skizzieren, zeichnen und konstruieren sowie Darstellungen zur ebenen Geometrie austauschen und überprüfen.
+  ❌ MA.2.C.3: 0 items — Die Schülerinnen und Schüler können sich Figuren und Körper in verschiedenen Lagen vorstellen, Veränderungen darstellen und beschreiben (Kopfgeometrie).
+  ❌ MA.2.C.4: 0 items — Die Schülerinnen und Schüler können in einem Koordinatensystem die Koordinaten von Figuren und Körpern bestimmen bzw. Figuren und Körper aufgrund ihrer Koordinaten darstellen sowie Pläne lesen und zeichnen.
+  ✅ MA.3.A.1: 8 items — Die Schülerinnen und Schüler verstehen und verwenden Begriffe und Symbole zu Grössen, Funktionen, Daten und Zufall.
+  ✅ MA.3.A.2: 8 items — Die Schülerinnen und Schüler können Grössen schätzen, messen, umwandeln, runden und mit ihnen rechnen.
+  ✅ MA.3.A.3: 8 items — Die Schülerinnen und Schüler können funktionale Zusammenhänge beschreiben und Funktionswerte bestimmen.
+  ❌ MA.3.B.1: 0 items — Die Schülerinnen und Schüler können zu Grössenbeziehungen und funktionalen Zusammenhängen Fragen formulieren, diese erforschen sowie Ergebnisse überprüfen und begründen.
+  ❌ MA.3.B.2: 0 items — Die Schülerinnen und Schüler können Sachsituationen zur Statistik, Kombinatorik und Wahrscheinlichkeit erforschen, Vermutungen formulieren und überprüfen.
+  ❌ MA.3.C.1: 0 items — Die Schülerinnen und Schüler können Daten zu Statistik, Kombinatorik und Wahrscheinlichkeit erheben, ordnen, darstellen, auswerten und interpretieren.
+  ❌ MA.3.C.2: 0 items — Die Schülerinnen und Schüler können Sachsituationen mathematisieren, darstellen, berechnen sowie Ergebnisse interpretieren und überprüfen.
+  ❌ MA.3.C.3: 0 items — Die Schülerinnen und Schüler können Terme, Formeln, Gleichungen und Tabellen mit Sachsituationen konkretisieren.
+
+Covered: 19, Uncovered: 35
+
+Links per app:
+  redewendungen: 163 links to 1 nodes
+  satzzeichen: 98 links to 1 nodes
+  wortfamilie: 96 links to 2 nodes
+  wortarten: 56 links to 1 nodes
+  verben: 54 links to 1 nodes
+  synant: 54 links to 1 nodes
+  oberbegriffe: 50 links to 1 nodes
+  kasus: 50 links to 1 nodes
+  textaufgaben: 48 links to 6 nodes
+  aehnlichewoerter: 36 links to 3 nodes
+  dasdass: 30 links to 1 nodes
+  kopfrechnen: 24 links to 4 nodes
+  fehler: 21 links to 3 nodes
+  wortstaemme: 17 links to 1 nodes
+  umrechnen: 15 links to 3 nodes
+  zeitrechnen: 9 links to 3 nodes
+  fehlerfinden2: 0 links to 0 nodes

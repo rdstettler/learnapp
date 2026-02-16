@@ -228,6 +228,77 @@ async function initDB() {
                 PRIMARY KEY (user_uid, activity_date),
                 FOREIGN KEY (user_uid) REFERENCES users(uid)
             )`
+        },
+        {
+            name: "curriculum_nodes",
+            sql: `CREATE TABLE IF NOT EXISTS curriculum_nodes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                code TEXT NOT NULL UNIQUE,
+                fachbereich TEXT NOT NULL,
+                level TEXT NOT NULL,
+                parent_code TEXT,
+                zyklus INTEGER,
+                title TEXT NOT NULL,
+                description TEXT,
+                lp21_url TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`
+        },
+        {
+            name: "app_content_curriculum",
+            sql: `CREATE TABLE IF NOT EXISTS app_content_curriculum (
+                app_content_id INTEGER NOT NULL,
+                curriculum_node_id INTEGER NOT NULL,
+                PRIMARY KEY (app_content_id, curriculum_node_id),
+                FOREIGN KEY (app_content_id) REFERENCES app_content(id),
+                FOREIGN KEY (curriculum_node_id) REFERENCES curriculum_nodes(id)
+            )`
+        },
+        {
+            name: "reading_texts",
+            sql: `CREATE TABLE IF NOT EXISTS reading_texts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                text TEXT NOT NULL,
+                source_url TEXT,
+                autor TEXT,
+                thema TEXT,
+                min_age INTEGER DEFAULT 4,
+                zyklus INTEGER DEFAULT 1,
+                word_count INTEGER,
+                created_at TEXT DEFAULT (datetime('now'))
+            )`
+        },
+        {
+            name: "app_config",
+            sql: `CREATE TABLE IF NOT EXISTS app_config (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                app_id TEXT NOT NULL,
+                curriculum_node_id INTEGER NOT NULL,
+                config_json TEXT NOT NULL,
+                difficulty_score REAL DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (app_id) REFERENCES apps(id),
+                FOREIGN KEY (curriculum_node_id) REFERENCES curriculum_nodes(id)
+            )`
+        },
+        {
+            name: "reading_questions",
+            sql: `CREATE TABLE IF NOT EXISTS reading_questions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                text_id INTEGER NOT NULL,
+                tier INTEGER NOT NULL DEFAULT 1,
+                question_type TEXT NOT NULL,
+                question TEXT NOT NULL,
+                options TEXT,
+                correct_answer TEXT NOT NULL,
+                explanation TEXT,
+                paragraph_index INTEGER,
+                ai_generated INTEGER DEFAULT 1,
+                reviewed INTEGER DEFAULT 0,
+                created_at TEXT DEFAULT (datetime('now')),
+                FOREIGN KEY (text_id) REFERENCES reading_texts(id)
+            )`
         }
     ];
 
@@ -449,6 +520,16 @@ async function initDB() {
                     "icon": "🕵️",
                     "type": "learning",
                     "tags": ["deutsch", "wortschatz", "synonyme", "antonyme", "spion"]
+                },
+                {
+                    "id": "textverstaendnis",
+                    "name": "Textverständnis",
+                    "description": "Lies Geschichten und beantworte Verständnisfragen in drei Schwierigkeitsstufen",
+                    "category": "Deutsch",
+                    "route": "/textverstaendnis",
+                    "icon": "📖",
+                    "type": "learning",
+                    "tags": ["deutsch", "lesen", "textverständnis", "leseverständnis", "geschichten"]
                 }
             ]
         };

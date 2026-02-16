@@ -49,3 +49,6 @@ Thumbs.db
 .env.local
 .vercel
 .env*.local
+/assets/ZH_DE_Gesamtausgabe.pdf
+assets/geschichten/16_Kurzgeschichten.pdf
+assets/geschichten/*.txt

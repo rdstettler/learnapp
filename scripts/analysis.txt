@@ -1,0 +1,63 @@
+=== CONTENT PER APP ===
+  redewendungen: 163 items
+  satzzeichen: 98 items
+  wortarten: 56 items
+  verben: 54 items
+  synant: 54 items
+  oberbegriffe: 50 items
+  kasus: 50 items
+  fehlerfinden2: 50 items
+  wortfamilie: 48 items
+  dasdass: 30 items
+  wortstaemme: 17 items
+  aehnlichewoerter: 12 items
+  textaufgaben: 8 items
+  fehler: 7 items
+  kopfrechnen: 6 items
+  umrechnen: 5 items
+  zeitrechnen: 3 items
+  TOTAL: 711
+
+=== SAMPLE: dasdass ===
+  id=503 level=null skill=null
+  {"id":1,"sentences":"Emma hatte gehört, [dass] der neue Freizeitpark endlich eröffnet wurde. [Das] Erste, [das] sie sehen wollte, war die grosse Achterbahn. Sie wusste, [dass] [das] der aufregendste Tag des Sommers werden würde."}
+  id=504 level=null skill=null
+  {"id":2,"sentences":"[Das] Buch, [das] auf dem Tisch liegt, gehört meiner Schwester. Sie erzählte mir, [dass] es [das] spannendste Buch sei, [das] sie je gelesen hat. Ich bin sicher, [dass] ich es auch mögen werde."}
+
+=== SAMPLE: fehler ===
+  id=533 level=null skill=null
+  "Anna, die in der Stadt lebt, geht jeden Morgen in [die/der] Schule, wo sie ihre Freunde trifft und spannende Geschichten austauscht. Ihr Lehrer, der sehr [streng/strenk] ist, erklärt den Schülern den komplizierten Mathe-Stoff, den sie mit Aufmerksamkeit verfolgen. Nach dem Unterricht, wenn die Gloc
+  id=534 level=null skill=null
+  "Der Junge namens Tim, der leidenschaftlich Fußball spielt, trainiert jeden [Nachmittag/Nachmitag] mit seinem Team auf dem Platz. Sein Trainer, der erfahrene Mann, gibt [den/der] Spielern Tipps, wie sie besser dribbeln können. Nach dem Training, das anstrengend ist, trinkt er aus [der/die] Flasche f
+
+=== SAMPLE: kopfrechnen ===
+  id=1023 level=null skill=null
+  {"category":"add-easy","procedural":true}
+  id=1024 level=null skill=null
+  {"category":"add-medium","procedural":true}
+
+=== SAMPLE: verben ===
+  id=903 level=null skill=null
+  {"verb":"dürfen","category":"Modalverben","typicalMistakes":{"praeteritum":{"ich":"dürfte","du":"durftestes"},"perfekt":{"ich":"habe gedürft","wir":"haben gedürftet"},"plusquamperfekt":{"ich":"hatte gedürft","ihr":"hattet gedürft"}},"praeteritum":{"ich":"durfte","du":"durftest","er/sie/es":"durfte",
+  id=904 level=null skill=null
+  {"verb":"können","category":"Modalverben","typicalMistakes":{"praeteritum":{"ich":"könnte"},"perfekt":{"ich":"habe können"},"plusquamperfekt":{"ich":"hatte können"}},"praeteritum":{"ich":"konnte","du":"konntest","er/sie/es":"konnte","wir":"konnten","ihr":"konntet","sie/Sie":"konnten"},"perfekt":{"ic
+
+=== SAMPLE: synant ===
+  id=1150 level=null skill=null
+  {"firstGroup":{"strong":["jammern","nörgeln","klagen"],"weak":["weinen","heulen","schluchzen"]},"secondGroup":{"strong":["lachen","kichern","grölen"],"weak":["amüsieren","feiern","witzeln","spassen"]}}
+  id=1151 level=null skill=null
+  {"firstGroup":{"strong":["freuen","jubeln","frohlocken"],"weak":["strahlen","lächeln","begeistern"]},"secondGroup":{"strong":["ärgern","wüten","toben"],"weak":["klagen","verzweifeln","trauern"]}}
+
+=== SAMPLE: wortarten ===
+  id=1094 level=null skill=8
+  "Der [n]Hund[/n] [v]spielt[/v] im [n]Garten[/n] mit einem [n]Ball[/n]. [pr]Er[/pr] [v]rennt[/v] [a]schnell[/a] herum, weil [pr]er[/pr] [a]glücklich[/a] [v]ist[/v]. Wenn [pr]es[/pr] [a]dunkel[/a] [v]wird[/v], [v]geht[/v] [pr]er[/pr] ins [n]Haus[/n]."
+  id=1095 level=null skill=8
+  "Die [n]Katze[/n] [v]jagt[/v] eine [n]Maus[/n] im [n]Haus[/n]. [pr]Sie[/pr] [v]springt[/v] [a]hoch[/a] und [v]fängt[/v] [pr]sie[/pr] [pa]fast[/pa]. [pa]Doch[/pa] die [n]Maus[/n] [v]entkommt[/v] [a]schnell[/a]."
+
+=== SAMPLE: kasus ===
+  id=540 level=null skill=null
+  {"id":1,"text":"[N]Der Hund[/N] beißt [A]den Mann[/A], der neben [D]dem Zaun[/D] steht."}
+  id=541 level=null skill=null
+  {"id":2,"text":"[N]Die Mutter[/N] gibt [D]dem Kind[/D] [A]einen Apfel[/A] aus [D]dem Korb[/D]."}
+
+=== EXISTING LINKS: 0 ===

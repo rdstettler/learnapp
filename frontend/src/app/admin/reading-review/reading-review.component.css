@@ -1,0 +1,467 @@
+:host {
+    display: block;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+    color: #e0e0e0;
+    font-family: 'Inter', sans-serif;
+}
+
+.review-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.header h1 {
+    font-size: 1.3rem;
+    margin: 0;
+    background: linear-gradient(135deg, #f0c27f, #fc5c7d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.back-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ccc;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+/* Toast */
+.toast {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    background: rgba(74, 222, 128, 0.2);
+    border: 1px solid rgba(74, 222, 128, 0.4);
+    color: #4ade80;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 500;
+    z-index: 100;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Stats Bar */
+.stats-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.stat {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 12px 20px;
+    text-align: center;
+    flex: 1;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.stat-value.pending {
+    color: #facc15;
+}
+
+.stat-value.approved {
+    color: #4ade80;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Filter Bar */
+.filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.filter-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.filter-btn.active {
+    background: rgba(252, 92, 125, 0.2);
+    border-color: #fc5c7d;
+    color: #fff;
+}
+
+/* Text List */
+.text-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 24px;
+}
+
+.text-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.text-row:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.text-row.selected {
+    background: rgba(102, 126, 234, 0.15);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.text-info {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.text-info strong {
+    color: #e0e0e0;
+    font-size: 0.9rem;
+}
+
+.text-autor {
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.text-meta {
+    color: #666;
+    font-size: 0.75rem;
+}
+
+.text-counts {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.badge {
+    font-size: 0.72rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.badge.pending {
+    background: rgba(250, 204, 21, 0.15);
+    color: #facc15;
+}
+
+.badge.approved {
+    background: rgba(74, 222, 128, 0.15);
+    color: #4ade80;
+}
+
+.approve-all-btn {
+    background: rgba(74, 222, 128, 0.15);
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    color: #4ade80;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.approve-all-btn:hover {
+    background: rgba(74, 222, 128, 0.3);
+}
+
+/* Questions List */
+.questions-list h3 {
+    font-size: 1rem;
+    color: #ccc;
+    margin: 0 0 12px;
+}
+
+.filtered-note {
+    color: #888;
+    font-weight: 400;
+}
+
+.question-row {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+}
+
+.question-row.pending {
+    border-left: 3px solid #facc15;
+}
+
+.question-row.approved {
+    border-left: 3px solid #4ade80;
+}
+
+.q-header {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.tier-badge {
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #000;
+}
+
+.type-badge,
+.para-badge {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    color: #aaa;
+}
+
+.status-badge {
+    font-size: 0.8rem;
+}
+
+.q-text {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: #d0d0d0;
+    margin: 0 0 8px;
+}
+
+.q-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.q-option {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: #bbb;
+}
+
+.q-option.correct {
+    background: rgba(74, 222, 128, 0.15);
+    border-color: rgba(74, 222, 128, 0.3);
+    color: #4ade80;
+    font-weight: 600;
+}
+
+.q-answer {
+    font-size: 0.85rem;
+    color: #aaa;
+    margin-bottom: 8px;
+}
+
+.q-explanation {
+    font-size: 0.82rem;
+    color: #888;
+    margin: 0 0 8px;
+    line-height: 1.4;
+}
+
+.q-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ccc;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.action-btn.approve {
+    border-color: rgba(74, 222, 128, 0.3);
+    color: #4ade80;
+}
+
+.action-btn.approve:hover {
+    background: rgba(74, 222, 128, 0.15);
+}
+
+.action-btn.delete {
+    border-color: rgba(248, 113, 113, 0.3);
+    color: #f87171;
+}
+
+.action-btn.delete:hover {
+    background: rgba(248, 113, 113, 0.15);
+}
+
+/* Edit form */
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.edit-form label {
+    font-size: 0.78rem;
+    color: #888;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.edit-form textarea,
+.edit-form input {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.edit-form textarea:focus,
+.edit-form input:focus {
+    outline: none;
+    border-color: rgba(102, 126, 234, 0.5);
+}
+
+.option-input {
+    margin-bottom: 4px;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.save-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.save-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+}
+
+.cancel-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+}
+
+@media (max-width: 600px) {
+    .review-container {
+        padding: 12px 10px 40px;
+    }
+
+    .header h1 {
+        font-size: 1rem;
+    }
+
+    .stats-bar {
+        gap: 8px;
+    }
+
+    .text-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .text-counts {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}

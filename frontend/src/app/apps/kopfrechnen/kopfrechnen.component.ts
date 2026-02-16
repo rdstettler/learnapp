@@ -1,9 +1,19 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, Input, OnInit, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 interface DifficultySettings {
     addMax: number;
     divMax: number;
     divDivisorMax: number;
+}
+
+interface AppConfig {
+    addMax?: number;
+    divMax?: number;
+    divDivisorMax?: number;
+    operations?: ('add' | 'div')[];
+    // Add other config props as needed
 }
 
 interface Question {
@@ -15,7 +25,6 @@ interface Question {
 }
 
 import { AppTelemetryService } from '../../services/app-telemetry.service';
-import { inject } from '@angular/core';
 
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
@@ -30,10 +39,16 @@ import { launchConfetti } from '../../shared/confetti';
         '(document:keydown.enter)': 'onEnterKey()'
     }
 })
-export class KopfrechnenComponent {
+export class KopfrechnenComponent implements OnInit {
+    private http = inject(HttpClient);
     private telemetryService = inject(AppTelemetryService);
     private sessionId = this.telemetryService.generateSessionId();
     readonly QUESTIONS_PER_ROUND = 10;
+
+    @Input() curriculum_node_id?: string;
+
+    // Loaded config from API
+    private curriculumConfig = signal<AppConfig | null>(null);
 
     readonly difficultySettings: Record<string, DifficultySettings> = {
         easy: { addMax: 20, divMax: 50, divDivisorMax: 10 },
@@ -67,11 +82,41 @@ export class KopfrechnenComponent {
         return total > 0 ? Math.round((this.correctCount() / total) * 100) : 0;
     });
 
+    // Check if we are in strict curriculum mode
+    isCurriculumMode = computed(() => !!this.curriculumConfig());
+
+    async ngOnInit() {
+        if (this.curriculum_node_id) {
+            await this.loadCurriculumConfig();
+        }
+    }
+
+    async loadCurriculumConfig() {
+        try {
+            const res: any = await firstValueFrom(
+                this.http.get(`/api/apps?app_id=kopfrechnen&curriculum_node_id=${this.curriculum_node_id}`)
+            );
+            if (res.config) {
+                this.curriculumConfig.set(res.config);
+                // Override operations if specified
+                if (res.config.operations && Array.isArray(res.config.operations)) {
+                    this.operations.set(res.config.operations);
+                }
+                // Auto-start or just prepare? Let's stay on welcome screen but show "Curriculum Mode"
+            }
+        } catch (e) {
+            console.error('Error loading config:', e);
+        }
+    }
+
     setDifficulty(level: 'easy' | 'medium' | 'hard'): void {
+        if (this.isCurriculumMode()) return;
         this.difficulty.set(level);
     }
 
     toggleOperation(op: 'add' | 'div'): void {
+        if (this.isCurriculumMode()) return;
+
         const current = this.operations();
         if (current.includes(op)) {
             if (current.length > 1) {
@@ -97,7 +142,15 @@ export class KopfrechnenComponent {
     }
 
     private generateQuestion(): Question {
+        // Use config if available, fallback to manual settings
+        const config = this.curriculumConfig();
         const settings = this.difficultySettings[this.difficulty()];
+
+        // Determine limits
+        const addMax = config?.addMax ?? settings.addMax;
+        const divMax = config?.divMax ?? settings.divMax;
+        const divDivisorMax = config?.divDivisorMax ?? settings.divDivisorMax;
+
         const ops = this.operations();
         const operation = ops[this.randInt(0, ops.length - 1)];
 
@@ -105,12 +158,12 @@ export class KopfrechnenComponent {
         const blankPosition = this.randInt(0, 2) as 0 | 1 | 2;
 
         if (operation === 'add') {
-            a = this.randInt(1, settings.addMax);
-            b = this.randInt(1, settings.addMax);
+            a = this.randInt(1, addMax);
+            b = this.randInt(1, addMax);
             result = a + b;
         } else {
-            b = this.randInt(2, settings.divDivisorMax);
-            result = this.randInt(1, Math.floor(settings.divMax / b));
+            b = this.randInt(2, divDivisorMax);
+            result = this.randInt(1, Math.floor(divMax / b));
             a = b * result;
         }
 
@@ -164,10 +217,14 @@ export class KopfrechnenComponent {
             this.streak.set(0);
         }
 
-        // Track per-question progress with operation+difficulty category
+        // Track per-question progress
+        // In curriculum mode, category = curriculum_node_id
+        // In manual mode, category = operation-difficulty
         const q = this.question();
         if (q) {
-            const category = `${q.operation}-${this.difficulty()}`;
+            const category = this.curriculum_node_id
+                ? `curriculum-${this.curriculum_node_id}`
+                : `${q.operation}-${this.difficulty()}`;
             this.telemetryService.trackCategoryProgress('kopfrechnen', category, correct);
         }
 

@@ -1,0 +1,101 @@
+<div class="lehrplan-container">
+    <!-- Header -->
+    <div class="header">
+        <button class="back-btn" (click)="goBack()">← Zurück</button>
+        <h1>📘 Lehrplan 21</h1>
+        <p class="subtitle">{{zyklusLabel()}}</p>
+    </div>
+
+    <!-- Fachbereich Tabs -->
+    <div class="tabs">
+        <button class="tab" [class.active]="activeFachbereich() === 'deutsch'" (click)="setFachbereich('deutsch')">
+            📖 Deutsch
+        </button>
+        <button class="tab" [class.active]="activeFachbereich() === 'mathematik'"
+            (click)="setFachbereich('mathematik')">
+            🔢 Mathematik
+        </button>
+    </div>
+
+    <!-- Loading -->
+    @if (loading()) {
+    <div class="loading">
+        <div class="spinner"></div>
+        <p>Lehrplan wird geladen...</p>
+    </div>
+    }
+
+    <!-- Error -->
+    @if (error()) {
+    <div class="error-msg">{{error()}}</div>
+    }
+
+    <!-- Tree -->
+    @if (!loading() && !error()) {
+    <div class="tree">
+        @for (node of tree(); track node.code) {
+        <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: node, depth: 0 }"></ng-container>
+        }
+    </div>
+    }
+</div>
+
+<!-- Recursive tree template -->
+<ng-template #treeNode let-node let-depth="depth">
+    <div class="node" [class]="'node-' + node.level" [style.padding-left.px]="depth * 16 + 8">
+        <!-- Node header -->
+        <div class="node-header" (click)="node.children.length ? toggleNode(node) : null"
+            [class.expandable]="node.children.length > 0" [class.leaf]="node.children.length === 0">
+
+            @if (node.children.length > 0) {
+            <span class="expand-icon">{{node.expanded ? '▾' : '▸'}}</span>
+            } @else {
+            <span class="expand-icon leaf-dot">·</span>
+            }
+
+            <span class="node-icon">{{getLevelIcon(node.level)}}</span>
+
+            <div class="node-content">
+                <span class="node-code">{{node.code}}</span>
+                <span class="node-title">{{node.title}}</span>
+
+                @if (node.zyklus) {
+                <span class="zyklus-badge">Z{{node.zyklus}}</span>
+                }
+
+                @if (node.mastery !== undefined && node.mastery > 0) {
+                <span class="mastery-badge" [class.completed]="node.mastery >= 100"
+                    [title]="'Mastery: ' + node.mastery + '%'">
+                    {{node.mastery >= 100 ? '⭐' : node.mastery + '%'}}
+                </span>
+                }
+            </div>
+
+            <!-- App chips -->
+            @if (node.apps && node.apps.length > 0)
+            {
+            <div class="app-chips">
+                @for (appId of node.apps; track appId) {
+                <button class="app-chip" (click)="navigateToApp(appId, node.id); $event.stopPropagation()">
+                    {{getAppInfo(appId).icon}} {{getAppInfo(appId).name}}
+                </button>
+                }
+            </div>
+            }
+        </div>
+
+        <!-- Description for Kompetenzstufen -->
+        @if (node.level === 'kompetenzstufe' && node.description) {
+        <div class="node-description" [style.padding-left.px]="depth * 16 + 48">
+            {{node.description}}
+        </div>
+        }
+
+        <!-- Children (recursive) -->
+        @if (node.expanded && node.children.length > 0) {
+        @for (child of node.children; track child.code) {
+        <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: child, depth: depth + 1 }"></ng-container>
+        }
+        }
+    </div>
+</ng-template>

@@ -1,0 +1,330 @@
+.lehrplan-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 16px;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+    color: #e0e0f0;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: 24px;
+    position: relative;
+}
+
+.back-btn {
+    position: absolute;
+    left: 0;
+    top: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #a0a0d0;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+.header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(135deg, #7c8cf8, #b87cf8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #8888aa;
+    margin-top: 4px;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.tab {
+    padding: 10px 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    color: #a0a0c0;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s;
+}
+
+.tab:hover {
+    background: rgba(124, 140, 248, 0.1);
+    border-color: rgba(124, 140, 248, 0.3);
+}
+
+.tab.active {
+    background: linear-gradient(135deg, rgba(124, 140, 248, 0.2), rgba(184, 124, 248, 0.2));
+    border-color: rgba(124, 140, 248, 0.5);
+    color: #d0d0ff;
+}
+
+/* Loading */
+.loading {
+    text-align: center;
+    padding: 60px 0;
+    color: #8888aa;
+}
+
+.spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(124, 140, 248, 0.2);
+    border-top-color: #7c8cf8;
+    border-radius: 50%;
+    margin: 0 auto 12px;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.error-msg {
+    text-align: center;
+    padding: 20px;
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+/* Tree */
+.tree {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+}
+
+/* Node */
+.node {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.node:last-child {
+    border-bottom: none;
+}
+
+.node-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    transition: background 0.15s;
+    flex-wrap: wrap;
+}
+
+.node-header.expandable {
+    cursor: pointer;
+}
+
+.node-header.expandable:hover {
+    background: rgba(124, 140, 248, 0.06);
+}
+
+.expand-icon {
+    width: 16px;
+    font-size: 14px;
+    color: #6666aa;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.expand-icon.leaf-dot {
+    color: #444466;
+}
+
+.node-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.node-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    flex-wrap: wrap;
+}
+
+.node-code {
+    font-size: 12px;
+    font-weight: 600;
+    color: #7c8cf8;
+    background: rgba(124, 140, 248, 0.1);
+    padding: 2px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.node-title {
+    font-size: 14px;
+    color: #c8c8e0;
+    line-height: 1.3;
+}
+
+.zyklus-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.12);
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.mastery-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: #ffd700;
+    background: rgba(255, 215, 0, 0.15);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    flex-shrink: 0;
+    margin-left: 4px;
+}
+
+.mastery-badge.completed {
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    padding: 0;
+}
+
+/* Level-specific styling */
+.node-kompetenzbereich>.node-header {
+    background: rgba(124, 140, 248, 0.06);
+    border-left: 3px solid #7c8cf8;
+}
+
+.node-kompetenzbereich>.node-header .node-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #e0e0ff;
+}
+
+.node-handlungsaspekt>.node-header {
+    background: rgba(184, 124, 248, 0.04);
+    border-left: 3px solid rgba(184, 124, 248, 0.4);
+}
+
+.node-handlungsaspekt>.node-header .node-title {
+    font-weight: 500;
+}
+
+.node-kompetenz>.node-header .node-title {
+    font-size: 13px;
+    color: #a0a0c0;
+}
+
+.node-kompetenzstufe>.node-header {
+    padding: 6px 12px;
+}
+
+.node-kompetenzstufe>.node-header .node-title {
+    font-size: 12px;
+    color: #8888aa;
+}
+
+/* Description */
+.node-description {
+    font-size: 12px;
+    color: #7777aa;
+    padding: 0 12px 8px;
+    line-height: 1.5;
+}
+
+/* App Chips */
+.app-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+.app-chip {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    background: rgba(34, 197, 94, 0.08);
+    color: #4ade80;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.app-chip:hover {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.5);
+    transform: translateY(-1px);
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+    .lehrplan-container {
+        padding: 12px 8px;
+    }
+
+    .header h1 {
+        font-size: 22px;
+    }
+
+    .back-btn {
+        position: static;
+        margin-bottom: 12px;
+    }
+
+    .tabs {
+        flex-direction: row;
+    }
+
+    .tab {
+        flex: 1;
+        text-align: center;
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .node-header {
+        padding: 8px 8px;
+    }
+
+    .node-content {
+        gap: 4px;
+    }
+
+    .app-chips {
+        width: 100%;
+        margin-left: 24px;
+        margin-top: 4px;
+    }
+}
