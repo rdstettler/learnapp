@@ -76,7 +76,7 @@ export class VerbenComponent {
     private dataService = inject(DataService);
     private telemetryService = inject(AppTelemetryService);
     private userService = inject(UserService);
-    private sessionId = this.telemetryService.generateSessionId();
+
 
     readonly tenseNames: Record<string, string> = {
         praeteritum: 'Präteritum',

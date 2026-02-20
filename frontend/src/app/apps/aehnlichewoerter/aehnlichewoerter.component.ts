@@ -34,7 +34,7 @@ export class AehnlichewoerterComponent {
     private telemetryService = inject(AppTelemetryService);
 
     // Session ID for telemetry
-    private sessionId = this.telemetryService.generateSessionId();
+
 
     readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [
         { id: 'einzeln', label: 'Einzeln', icon: '🔤', description: 'Übe ein Wortpaar gezielt.' },

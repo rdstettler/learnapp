@@ -25,7 +25,7 @@ import { launchConfetti } from '../../shared/confetti';
 export class RedewendungenComponent {
     private dataService = inject(DataService);
     private telemetryService = inject(AppTelemetryService);
-    private sessionId = this.telemetryService.generateSessionId();
+
 
     readonly QUESTIONS_PER_ROUND = 10;
     readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [

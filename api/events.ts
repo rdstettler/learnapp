@@ -1,5 +1,6 @@
+
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTursoClient } from './_lib/turso.js';
+import { getSupabaseClient } from './_lib/supabase.js';
 import { requireAuth, handleCors } from './_lib/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -14,37 +15,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const type = req.body.type;
 
-    if (type === 'telemetry') {
-        return handleTelemetry(req, res, decoded.uid);
-    } else if (type === 'question_progress') {
+    if (type === 'question_progress') {
         return handleQuestionProgress(req, res, decoded.uid);
     } else {
-        return res.status(400).json({ error: "Missing or invalid 'type' in body (telemetry|question_progress)" });
-    }
-}
-
-async function handleTelemetry(req: VercelRequest, res: VercelResponse, uid: string) {
-    try {
-        const { appId, eventType, metadata } = req.body;
-
-        if (!appId || !eventType) {
-            return res.status(400).json({ error: 'appId and eventType are required' });
-        }
-
-        const db = getTursoClient();
-
-        await db.execute({
-            sql: `
-                INSERT INTO telemetry_events (user_uid, app_id, event_type, metadata)
-                VALUES (?, ?, ?, ?)
-            `,
-            args: [uid, appId, eventType, metadata ? JSON.stringify(metadata) : null]
-        });
-
-        return res.status(200).json({ success: true });
-    } catch (error: unknown) {
-        console.error('Telemetry error:', error);
-        return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+        return res.status(400).json({ error: "Missing or invalid 'type' in body (question_progress)" });
     }
 }
 
@@ -58,25 +32,35 @@ async function handleQuestionProgress(req: VercelRequest, res: VercelResponse, u
             });
         }
 
-        const db = getTursoClient();
+        const db = getSupabaseClient();
 
         // 1. Track Curriculum Mastery if category matches 'curriculum-{nodeId}'
         if (category && typeof category === 'string' && category.startsWith('curriculum-')) {
-            const nodeId = parseInt(category.split('-')[1]);
-            if (!isNaN(nodeId)) {
-                // Calculate mastery change: +5 for correct, -2 for wrong
-                // Clamp between 0 and 100
-                const delta = isCorrect ? 5 : -2;
+            const nodeIdParts = category.split('-');
+            if (nodeIdParts.length > 1) {
+                const nodeId = parseInt(nodeIdParts[1]);
+                if (!isNaN(nodeId)) {
+                    // Read-modify-write for mastery level
+                    const { data: existing } = await db.from('user_curriculum_progress')
+                        .select('mastery_level')
+                        .eq('user_uid', uid)
+                        .eq('curriculum_node_id', nodeId)
+                        .single();
 
-                await db.execute({
-                    sql: `INSERT INTO user_curriculum_progress (user_uid, curriculum_node_id, status, mastery_level, last_activity)
-                          VALUES (?, ?, 'started', ?, CURRENT_TIMESTAMP)
-                          ON CONFLICT(user_uid, curriculum_node_id) DO UPDATE SET
-                          mastery_level = MAX(0, MIN(100, mastery_level + ?)),
-                          status = CASE WHEN mastery_level >= 100 THEN 'completed' ELSE 'started' END,
-                          last_activity = CURRENT_TIMESTAMP`,
-                    args: [uid, nodeId, isCorrect ? 5 : 0, delta]
-                }).catch(e => console.error('Curriculum progress error:', e));
+                    const currentMastery = existing ? (existing.mastery_level || 0) : 0;
+                    // Calculate mastery change: +5 for correct, -2 for wrong
+                    const delta = isCorrect ? 5 : -2;
+                    const newMastery = Math.max(0, Math.min(100, currentMastery + delta));
+                    const newStatus = newMastery >= 100 ? 'completed' : 'started';
+
+                    await db.from('user_curriculum_progress').upsert({
+                        user_uid: uid,
+                        curriculum_node_id: nodeId,
+                        mastery_level: newMastery,
+                        status: newStatus,
+                        last_activity: new Date().toISOString()
+                    }, { onConflict: 'user_uid, curriculum_node_id' });
+                }
             }
         }
 
@@ -84,7 +68,13 @@ async function handleQuestionProgress(req: VercelRequest, res: VercelResponse, u
         let resolvedContentId = appContentId;
 
         if (resolvedContentId == null && category && appId) {
-            resolvedContentId = await resolveCategory(appId, category);
+            try {
+                resolvedContentId = await resolveCategory(db, appId, category);
+            } catch (err) {
+                console.error("Error resolving category:", err);
+                // Continue? Or return error? If we can't resolve content ID, we can't track specific progress.
+                // But existing code returned error if null.
+            }
         }
 
         if (resolvedContentId == null) {
@@ -93,32 +83,40 @@ async function handleQuestionProgress(req: VercelRequest, res: VercelResponse, u
             });
         }
 
-        const col = isCorrect ? 'success_count' : 'failure_count';
+        // 2. Track Question Progress (Read-Modify-Write)
+        const { data: progressExisting } = await db.from('user_question_progress')
+            .select('success_count, failure_count')
+            .eq('user_uid', uid)
+            .eq('app_id', appId)
+            .eq('app_content_id', resolvedContentId)
+            .single();
 
-        await db.execute({
-            sql: `INSERT INTO user_question_progress (user_uid, app_id, app_content_id, success_count, failure_count, last_attempt_at)
-                  VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                  ON CONFLICT(user_uid, app_content_id) DO UPDATE SET
-                  ${col} = ${col} + 1,
-                  last_attempt_at = CURRENT_TIMESTAMP`,
-            args: [uid, appId, resolvedContentId, isCorrect ? 1 : 0, isCorrect ? 0 : 1]
-        });
+        let success = progressExisting?.success_count || 0;
+        let failure = progressExisting?.failure_count || 0;
 
-        // Record mode usage as telemetry event (fire-and-forget)
-        if (mode) {
-            db.execute({
-                sql: `INSERT INTO telemetry_events (user_uid, app_id, event_type, metadata)
-                      VALUES (?, ?, ?, ?)`,
-                args: [uid, appId, 'question_progress', JSON.stringify({ mode, isCorrect, contentId: resolvedContentId })]
-            }).catch(e => console.error('Mode telemetry insert error:', e));
-        }
+        if (isCorrect) success++;
+        else failure++;
 
-        // Record daily activity for streak tracking (fire-and-forget, ON CONFLICT ignores duplicates)
+        await db.from('user_question_progress').upsert({
+            user_uid: uid,
+            app_id: appId,
+            app_content_id: resolvedContentId,
+            success_count: success,
+            failure_count: failure,
+            last_attempt_at: new Date().toISOString()
+        }, { onConflict: 'user_uid, app_content_id' });
+
+
+        // Record daily activity for streak tracking (fire-and-forget)
         const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-        db.execute({
-            sql: `INSERT INTO user_daily_activity (user_uid, activity_date) VALUES (?, ?) ON CONFLICT DO NOTHING`,
-            args: [uid, today]
-        }).catch(e => console.error('Daily activity insert error:', e));
+        db.from('user_daily_activity').upsert({
+            user_uid: uid,
+            activity_date: today
+        }, { onConflict: 'user_uid, activity_date' }).then(({ error }) => {
+            // Ignore duplicate key error if upsert handles it (it does), or if we used insert and ignore.
+            // Upsert is safer.
+            if (error) console.error('Daily activity insert error:', error);
+        });
 
         return res.status(200).json({ success: true });
     } catch (error: unknown) {
@@ -127,38 +125,53 @@ async function handleQuestionProgress(req: VercelRequest, res: VercelResponse, u
     }
 }
 
-
-
 // Cache for procedural category → app_content_id mappings (avoids repeated DB lookups)
 const categoryCache = new Map<string, number>();
 
-async function resolveCategory(appId: string, category: string): Promise<number> {
+async function resolveCategory(db: any, appId: string, category: string): Promise<number> {
     const cacheKey = `${appId}:${category}`;
     const cached = categoryCache.get(cacheKey);
     if (cached) return cached;
 
-    const db = getTursoClient();
     const categoryData = JSON.stringify({ category, procedural: true });
 
     // Try to find existing entry
-    const existing = await db.execute({
-        sql: `SELECT id FROM app_content WHERE app_id = ? AND data = ?`,
-        args: [appId, categoryData]
-    });
+    // NOTE: 'data' is text in Supabase/Postgres.
+    const { data: existing } = await db.from('app_content')
+        .select('id')
+        .eq('app_id', appId)
+        .eq('data', categoryData)
+        .limit(1);
 
-    if (existing.rows.length > 0) {
-        const id = existing.rows[0].id as number;
+    if (existing && existing.length > 0) {
+        const id = existing[0].id as number;
         categoryCache.set(cacheKey, id);
         return id;
     }
 
     // Auto-create entry for this category
-    const result = await db.execute({
-        sql: `INSERT INTO app_content (app_id, data, human_verified) VALUES (?, ?, 1)`,
-        args: [appId, categoryData]
-    });
+    const { data: inserted, error } = await db.from('app_content')
+        .insert({ app_id: appId, data: categoryData, human_verified: true })
+        .select('id')
+        .single();
 
-    const newId = Number(result.lastInsertRowid);
+    if (error) {
+        // Handle race condition: check again if it was inserted by another process
+        const { data: retry } = await db.from('app_content')
+            .select('id')
+            .eq('app_id', appId)
+            .eq('data', categoryData)
+            .limit(1);
+
+        if (retry && retry.length > 0) {
+            const id = retry[0].id as number;
+            categoryCache.set(cacheKey, id);
+            return id;
+        }
+        throw error;
+    }
+
+    const newId = inserted.id;
     categoryCache.set(cacheKey, newId);
     return newId;
 }

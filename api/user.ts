@@ -1,6 +1,6 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTursoClient, type TursoClient } from './_lib/turso.js';
+import { getSupabaseClient, type DbClient } from './_lib/supabase.js';
 import { requireAuth, handleCors } from './_lib/auth.js';
 import { BADGE_DEFINITIONS, getBadgeInfoList } from './_lib/badges.js';
 
@@ -11,7 +11,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!decoded) return;
 
     try {
-        const db = getTursoClient();
+        const db = getSupabaseClient();
 
         const type = req.query.type || req.body?.type;
 
@@ -37,201 +37,136 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 }
 
-async function handleProfile(req: VercelRequest, res: VercelResponse, db: TursoClient, uid: string) {
+async function handleProfile(req: VercelRequest, res: VercelResponse, db: DbClient, uid: string) {
     if (req.method === 'GET') {
         // Get user profile — uid from verified token
-
-        const result = await db.execute({
-            sql: `SELECT display_name, avatar_config, avatar_svg, skill_level, learn_level FROM users WHERE uid = ?`,
-            args: [uid]
-        });
-
-        if (result.rows.length === 0) {
-            return res.status(200).json({ profile: null });
-        }
-
-        const row = result.rows[0];
+        const { data, error } = await db.from('users').select('display_name, avatar_config, avatar_svg, skill_level, learn_level, is_admin').eq('uid', uid).single();
+        if (error) return res.status(500).json({ error: error.message });
+        if (!data) return res.status(200).json({ profile: null });
         const profile = {
-            displayName: row.display_name as string | null,
-            avatarConfig: row.avatar_config ? JSON.parse(row.avatar_config as string) : null,
-            avatarSvg: row.avatar_svg as string | null,
-            skillLevel: row.skill_level as number | null,
-            learnLevel: row.learn_level as number | null
+            displayName: data.display_name,
+            avatarConfig: data.avatar_config ? JSON.parse(data.avatar_config) : null,
+            avatarSvg: data.avatar_svg,
+            skillLevel: data.skill_level,
+            learnLevel: data.learn_level,
+            isAdmin: !!data.is_admin
         };
-
         return res.status(200).json({ profile });
     }
-
     if (req.method === 'POST') {
         // Save/update user profile — uid from verified token
         const { profile } = req.body;
-
-        if (!profile) {
-            return res.status(400).json({ error: 'profile is required' });
-        }
-
+        if (!profile) return res.status(400).json({ error: 'profile is required' });
         const { displayName, avatarConfig, avatarSvg, skillLevel, learnLevel } = profile;
-
-        // Update user profile fields
-        await db.execute({
-            sql: `
-                UPDATE users 
-                SET display_name = ?,
-                    avatar_config = ?,
-                    avatar_svg = ?,
-                    skill_level = ?,
-                    learn_level = ?
-                WHERE uid = ?
-            `,
-            args: [
-                displayName || null,
-                avatarConfig ? JSON.stringify(avatarConfig) : null,
-                avatarSvg || null,
-                skillLevel !== undefined ? skillLevel : null,
-                learnLevel !== undefined ? learnLevel : null,
-                uid
-            ]
-        });
-
+        const { error } = await db.from('users').update({
+            display_name: displayName || null,
+            avatar_config: avatarConfig ? JSON.stringify(avatarConfig) : null,
+            avatar_svg: avatarSvg || null,
+            skill_level: skillLevel ?? null,
+            learn_level: learnLevel ?? null
+        }).eq('uid', uid);
+        if (error) return res.status(500).json({ error: error.message });
         return res.status(200).json({ success: true });
     }
-
     return res.status(405).json({ error: 'Method not allowed for profile' });
 }
 
-async function handleMetrics(req: VercelRequest, res: VercelResponse, db: TursoClient, uid: string) {
+async function handleMetrics(req: VercelRequest, res: VercelResponse, db: DbClient, uid: string) {
     if (req.method === 'GET') {
         // Get user metrics — uid from verified token
-
-        const result = await db.execute({
-            sql: `SELECT app_id, open_count, last_opened FROM user_metrics WHERE user_uid = ?`,
-            args: [uid]
-        });
-
-        // Transform to metrics object
+        const { data, error } = await db.from('user_metrics').select('app_id, open_count, last_opened').eq('user_uid', uid);
+        if (error) return res.status(500).json({ error: error.message });
         const metrics: Record<string, { openCount: number; lastOpened: string | null }> = {};
-        for (const row of result.rows) {
-            metrics[row.app_id as string] = {
-                openCount: row.open_count as number,
-                lastOpened: row.last_opened as string | null
+        for (const row of data || []) {
+            metrics[row.app_id] = {
+                openCount: row.open_count,
+                lastOpened: row.last_opened
             };
         }
-
         return res.status(200).json({ metrics });
     }
-
     if (req.method === 'POST') {
         // Save/update user metrics — uid from verified token
         const { metrics } = req.body;
-
-        if (!metrics || typeof metrics !== 'object') {
-            return res.status(400).json({ error: 'metrics object is required' });
-        }
-
-        // Upsert each app's metrics
+        if (!metrics || typeof metrics !== 'object') return res.status(400).json({ error: 'metrics object is required' });
         for (const [appId, appMetrics] of Object.entries(metrics)) {
             const { openCount, lastOpened } = appMetrics as { openCount: number; lastOpened: string | null };
-
-            await db.execute({
-                sql: `
-                    INSERT INTO user_metrics (user_uid, app_id, open_count, last_opened)
-                    VALUES (?, ?, ?, ?)
-                    ON CONFLICT(user_uid, app_id) DO UPDATE SET
-                        open_count = excluded.open_count,
-                        last_opened = excluded.last_opened
-                `,
-                args: [uid, appId, openCount, lastOpened]
-            });
+            await db.from('user_metrics').upsert({
+                user_uid: uid,
+                app_id: appId,
+                open_count: openCount,
+                last_opened: lastOpened
+            }, { onConflict: 'user_uid, app_id' });
         }
-
         return res.status(200).json({ success: true });
     }
-
     return res.status(405).json({ error: 'Method not allowed for metrics' });
 }
 
-async function handleSync(req: VercelRequest, res: VercelResponse, db: TursoClient, decoded: { uid: string; email?: string }) {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed for sync' });
-    }
-
+async function handleSync(req: VercelRequest, res: VercelResponse, db: DbClient, decoded: { uid: string; email?: string }) {
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed for sync' });
     const uid = decoded.uid;
     const email = decoded.email || req.body.email;
     const { displayName, photoUrl } = req.body;
-
-    if (!email) {
-        return res.status(400).json({ error: 'email is required' });
-    }
-
-    await db.execute({
-        sql: `
-            INSERT INTO users (uid, email, display_name, photo_url) 
-            VALUES (?, ?, ?, ?)
-            ON CONFLICT(uid) DO UPDATE SET
-                email = excluded.email,
-                photo_url = excluded.photo_url
-        `,
-        args: [uid, email, displayName || null, photoUrl || null]
+    if (!email) return res.status(400).json({ error: 'email is required' });
+    const { error } = await db.rpc('sync_user', {
+        p_uid: uid,
+        p_email: email,
+        p_display_name: displayName || null,
+        p_photo_url: photoUrl || null
     });
-
+    if (error) return res.status(500).json({ error: error.message });
     return res.status(200).json({ success: true, uid });
 }
 
-async function handleBadges(req: VercelRequest, res: VercelResponse, db: TursoClient, uid: string) {
+async function handleBadges(req: VercelRequest, res: VercelResponse, db: DbClient, uid: string) {
     if (req.method === 'GET') {
         // Return all badge definitions + which ones this user has earned
         try {
-            const earned = await db.execute({
-                sql: `SELECT badge_id, awarded_at FROM user_badges WHERE user_uid = ?`,
-                args: [uid]
-            });
-
+            const { data, error } = await db.from('user_badges').select('badge_id, awarded_at').eq('user_uid', uid);
+            if (error) return res.status(500).json({ error: error.message });
             const earnedMap: Record<string, string> = {};
-            for (const row of earned.rows) {
-                earnedMap[row.badge_id as string] = row.awarded_at as string;
+            for (const row of data || []) {
+                earnedMap[row.badge_id] = row.awarded_at;
             }
-
             const allBadges = getBadgeInfoList().map(badge => ({
                 ...badge,
                 earned: !!earnedMap[badge.id],
                 awardedAt: earnedMap[badge.id] || null
             }));
-
             return res.status(200).json({ badges: allBadges });
         } catch (error: unknown) {
             console.error('Error fetching badges:', error);
             return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
         }
     }
-
     if (req.method === 'POST') {
         // Check all badges and award any newly earned ones.
         // Returns the list of NEWLY awarded badges (for toast notifications).
         try {
-            const earned = await db.execute({
-                sql: `SELECT badge_id FROM user_badges WHERE user_uid = ?`,
-                args: [uid]
-            });
-            const earnedSet = new Set(earned.rows.map(r => r.badge_id as string));
+            const { data: earnedRows, error: earnedError } = await db.from('user_badges').select('badge_id').eq('user_uid', uid);
+            if (earnedError) return res.status(500).json({ error: earnedError.message });
+
+            const existingBadgeIds = new Set((earnedRows || []).map(r => r.badge_id));
+            const newlyAwardedIds = await import('./_lib/badges.js').then(m => m.checkAllBadges(db, uid, existingBadgeIds));
 
             const newlyAwarded: { id: string; name: string; icon: string; tier: string }[] = [];
 
-            for (const badge of BADGE_DEFINITIONS) {
-                if (earnedSet.has(badge.id)) continue; // Already earned
+            if (newlyAwardedIds.length > 0) {
+                // Insert new badges
+                const inserts = newlyAwardedIds.map(id => ({ user_uid: uid, badge_id: id }));
+                const { error: insertError } = await db.from('user_badges').upsert(inserts, { onConflict: 'user_uid, badge_id' });
+                if (insertError) console.error("Error inserting badges", insertError);
 
-                const result = await db.execute({
-                    sql: badge.check.query,
-                    args: [uid]
-                });
+                // Prepare response
+                const defs = await import('./_lib/badges.js').then(m => m.BADGE_DEFINITIONS);
+                const defMap = new Map(defs.map(d => [d.id, d]));
 
-                const count = (result.rows[0]?.count as number) || 0;
-                if (count >= badge.check.threshold) {
-                    // Award!
-                    await db.execute({
-                        sql: `INSERT INTO user_badges (user_uid, badge_id) VALUES (?, ?) ON CONFLICT DO NOTHING`,
-                        args: [uid, badge.id]
-                    });
-                    newlyAwarded.push({ id: badge.id, name: badge.name, icon: badge.icon, tier: badge.tier });
+                for (const id of newlyAwardedIds) {
+                    const badge = defMap.get(id);
+                    if (badge) {
+                        newlyAwarded.push({ id: badge.id, name: badge.name, icon: badge.icon, tier: badge.tier });
+                    }
                 }
             }
 
@@ -241,25 +176,17 @@ async function handleBadges(req: VercelRequest, res: VercelResponse, db: TursoCl
             return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
         }
     }
-
     return res.status(405).json({ error: 'Method not allowed for badges' });
 }
 
-async function handleStreak(req: VercelRequest, res: VercelResponse, db: TursoClient, uid: string) {
-    if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Method not allowed for streak' });
-    }
-
+async function handleStreak(req: VercelRequest, res: VercelResponse, db: DbClient, uid: string) {
+    if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed for streak' });
     try {
         // Fetch all active dates for this user, ordered descending
-        const result = await db.execute({
-            sql: `SELECT activity_date FROM user_daily_activity WHERE user_uid = ? ORDER BY activity_date DESC`,
-            args: [uid]
-        });
-
-        const dates = result.rows.map(r => r.activity_date as string); // YYYY-MM-DD, descending
+        const { data, error } = await db.from('user_daily_activity').select('activity_date').eq('user_uid', uid).order('activity_date', { ascending: false });
+        if (error) return res.status(500).json({ error: error.message });
+        const dates = (data || []).map(r => r.activity_date);
         const totalActiveDays = dates.length;
-
         if (totalActiveDays === 0) {
             return res.status(200).json({
                 currentStreak: 0,
@@ -268,16 +195,12 @@ async function handleStreak(req: VercelRequest, res: VercelResponse, db: TursoCl
                 lastActivityDate: null
             });
         }
-
         const lastActivityDate = dates[0];
-
         // Compute current streak: consecutive days ending today or yesterday
         const today = new Date().toISOString().slice(0, 10);
         const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-
         let currentStreak = 0;
         if (dates[0] === today || dates[0] === yesterday) {
-            // Walk backwards from most recent date
             currentStreak = 1;
             for (let i = 1; i < dates.length; i++) {
                 const prev = new Date(dates[i - 1] + 'T00:00:00Z');
@@ -290,7 +213,6 @@ async function handleStreak(req: VercelRequest, res: VercelResponse, db: TursoCl
                 }
             }
         }
-
         // Compute longest streak from all dates (reversed to ascending)
         const ascending = [...dates].reverse();
         let longestStreak = 1;
@@ -306,7 +228,6 @@ async function handleStreak(req: VercelRequest, res: VercelResponse, db: TursoCl
                 runLength = 1;
             }
         }
-
         return res.status(200).json({
             currentStreak,
             longestStreak,
@@ -319,120 +240,59 @@ async function handleStreak(req: VercelRequest, res: VercelResponse, db: TursoCl
     }
 }
 
-async function handleStats(req: VercelRequest, res: VercelResponse, db: TursoClient, uid: string) {
-    if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Method not allowed for stats' });
-    }
-
+async function handleStats(req: VercelRequest, res: VercelResponse, db: DbClient, uid: string) {
+    if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed for stats' });
     try {
         // Run all queries in parallel for speed
         const [appAccuracy, activityDays, weakAreas, overallTotals] = await Promise.all([
-            // 1. Per-app accuracy
-            db.execute({
-                sql: `SELECT uqp.app_id,
-                             a.name as app_name,
-                             a.icon as app_icon,
-                             COALESCE(SUM(uqp.success_count), 0) as correct,
-                             COALESCE(SUM(uqp.success_count + uqp.failure_count), 0) as total
-                      FROM user_question_progress uqp
-                      JOIN apps a ON uqp.app_id = a.id
-                      WHERE uqp.user_uid = ?
-                      GROUP BY uqp.app_id
-                      ORDER BY CASE WHEN SUM(uqp.success_count + uqp.failure_count) > 0
-                                    THEN CAST(SUM(uqp.success_count) AS REAL) / SUM(uqp.success_count + uqp.failure_count)
-                                    ELSE 0 END ASC`,
-                args: [uid]
-            }),
-            // 2. Activity heatmap (last 90 days)
-            db.execute({
-                sql: `SELECT activity_date FROM user_daily_activity
-                      WHERE user_uid = ? AND activity_date >= DATE('now', '-90 days')
-                      ORDER BY activity_date ASC`,
-                args: [uid]
-            }),
-            // 3. Weakest content areas (top 10 by failure rate)
-            db.execute({
-                sql: `SELECT uqp.app_id,
-                             a.name as app_name,
-                             a.icon as app_icon,
-                             ac.data as content_data,
-                             uqp.success_count,
-                             uqp.failure_count
-                      FROM user_question_progress uqp
-                      JOIN app_content ac ON uqp.app_content_id = ac.id
-                      JOIN apps a ON uqp.app_id = a.id
-                      WHERE uqp.user_uid = ? AND uqp.failure_count > 0
-                      ORDER BY uqp.failure_count DESC, uqp.success_count ASC
-                      LIMIT 10`,
-                args: [uid]
-            }),
-            // 4. Overall totals
-            db.execute({
-                sql: `SELECT COALESCE(SUM(success_count + failure_count), 0) as total_answers,
-                             COALESCE(SUM(success_count), 0) as total_correct,
-                             COUNT(DISTINCT app_id) as apps_used
-                      FROM user_question_progress
-                      WHERE user_uid = ?`,
-                args: [uid]
-            })
+            db.rpc('get_user_app_stats', { p_user_uid: uid }),
+            db.from('user_daily_activity').select('activity_date').eq('user_uid', uid).gte('activity_date', new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10)).order('activity_date', { ascending: true }),
+            db.rpc('get_user_weak_areas', { p_user_uid: uid }),
+            db.rpc('get_user_overall_totals', { p_user_uid: uid })
         ]);
-
         // Format per-app accuracy
-        const perApp = appAccuracy.rows.map(r => ({
-            appId: r.app_id as string,
-            appName: r.app_name as string,
-            appIcon: r.app_icon as string,
-            correct: r.correct as number,
-            total: r.total as number,
-            accuracy: (r.total as number) > 0
-                ? Math.round(((r.correct as number) / (r.total as number)) * 100)
-                : 0
+        const perApp = (appAccuracy.data || []).map((r: any) => ({
+            appId: r.app_id,
+            appName: r.app_name,
+            appIcon: r.app_icon,
+            correct: r.correct,
+            total: r.total,
+            accuracy: r.total > 0 ? Math.round((r.correct / r.total) * 100) : 0
         }));
-
         // Format heatmap
-        const heatmap = activityDays.rows.map(r => r.activity_date as string);
-
+        const heatmap = (activityDays.data || []).map((r: any) => r.activity_date);
         // Format weak areas
-        const weak = weakAreas.rows.map(r => {
+        const weak = (weakAreas.data || []).map((r: any) => {
             let preview = '';
             try {
-                const parsed = JSON.parse(r.content_data as string);
-                // Try to extract a meaningful preview from the content
-                if (parsed.category) {
-                    preview = parsed.category;
-                } else if (parsed.question) {
-                    preview = (parsed.question as string).slice(0, 80);
-                } else if (parsed.sentences) {
-                    preview = ((parsed.sentences as string[])[0] || '').slice(0, 80);
-                } else if (parsed.pairs) {
+                const parsed = JSON.parse(r.content_data);
+                if (parsed.category) preview = parsed.category;
+                else if (parsed.question) preview = (parsed.question as string).slice(0, 80);
+                else if (parsed.sentences) preview = ((parsed.sentences as string[])[0] || '').slice(0, 80);
+                else if (parsed.pairs) {
                     const pair = (parsed.pairs as { word1: string; word2: string }[])[0];
                     preview = pair ? `${pair.word1} / ${pair.word2}` : '';
-                } else {
-                    preview = JSON.stringify(parsed).slice(0, 80);
-                }
+                } else preview = JSON.stringify(parsed).slice(0, 80);
             } catch { }
-
             return {
-                appId: r.app_id as string,
-                appName: r.app_name as string,
-                appIcon: r.app_icon as string,
+                appId: r.app_id,
+                appName: r.app_name,
+                appIcon: r.app_icon,
                 preview,
-                successCount: r.success_count as number,
-                failureCount: r.failure_count as number
+                successCount: r.success_count,
+                failureCount: r.failure_count
             };
         });
-
         // Overall
-        const totals = overallTotals.rows[0];
-        const totalAnswers = (totals.total_answers as number) || 0;
-        const totalCorrect = (totals.total_correct as number) || 0;
-
+        const totals = (overallTotals.data && overallTotals.data[0]) || { total_answers: 0, total_correct: 0, apps_used: 0 };
+        const totalAnswers = totals.total_answers || 0;
+        const totalCorrect = totals.total_correct || 0;
         return res.status(200).json({
             overview: {
                 totalAnswers,
                 totalCorrect,
                 accuracy: totalAnswers > 0 ? Math.round((totalCorrect / totalAnswers) * 100) : 0,
-                appsUsed: (totals.apps_used as number) || 0,
+                appsUsed: totals.apps_used || 0,
                 totalActiveDays: heatmap.length
             },
             perApp,

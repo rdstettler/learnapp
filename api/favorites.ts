@@ -1,6 +1,6 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTursoClient } from './_lib/turso.js';
+import { getSupabaseClient } from './_lib/supabase.js';
 import { requireAuth, handleCors } from './_lib/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -9,17 +9,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const decoded = await requireAuth(req, res);
     if (!decoded) return;
 
-    const db = getTursoClient();
+    const db = getSupabaseClient();
     const user_uid = decoded.uid;
 
     if (req.method === 'GET') {
-
         try {
-            const result = await db.execute({
-                sql: "SELECT app_id FROM user_apps WHERE user_uid = ? AND is_favorite = 1",
-                args: [user_uid]
-            });
-            const favoriteIds = result.rows.map(r => r.app_id);
+            const { data, error } = await db
+                .from('user_apps')
+                .select('app_id')
+                .eq('user_uid', user_uid)
+                .eq('is_favorite', true);
+
+            if (error) throw error;
+
+            const favoriteIds = data.map(r => r.app_id);
             return res.status(200).json({ favorites: favoriteIds });
         } catch (e: unknown) {
             return res.status(500).json({ error: e instanceof Error ? e.message : 'Unknown error' });
@@ -33,13 +36,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         try {
-            await db.execute({
-                sql: `INSERT INTO user_apps (user_uid, app_id, is_favorite, created_at)
-                      VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-                      ON CONFLICT(user_uid, app_id) DO UPDATE SET
-                      is_favorite = excluded.is_favorite`,
-                args: [user_uid, app_id, is_favorite ? 1 : 0]
-            });
+            // Upsert: Insert or Update
+            // constraint 'user_apps_pkey' or unique index on (user_uid, app_id) is expected
+            // If the table doesn't have a unique constraint on these two columns, upsert might require explicit conflict target
+            const { error } = await db
+                .from('user_apps')
+                .upsert({
+                    user_uid,
+                    app_id,
+                    is_favorite: is_favorite ? true : false,
+                    // We don't explicitly set created_at, relying on DB default for new rows
+                    // It won't update created_at for existing rows unless specified
+                }, { onConflict: 'user_uid, app_id' });
+
+            if (error) throw error;
+
             return res.status(200).json({ success: true });
         } catch (e: unknown) {
             return res.status(500).json({ error: e instanceof Error ? e.message : 'Unknown error' });

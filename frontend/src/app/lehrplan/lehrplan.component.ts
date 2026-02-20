@@ -15,6 +15,7 @@ interface CurriculumNode {
     title: string;
     description: string | null;
     apps?: string[];
+    appConfigs?: { appId: string, [key: string]: any }[];
     mastery?: number;
     status?: 'started' | 'completed' | 'not_started';
 }
@@ -79,6 +80,7 @@ export class LehrplanComponent implements OnInit {
     });
 
     ngOnInit(): void {
+        this.userService.loadProfileFromBackend();
         this.loadCurriculum();
     }
 
@@ -138,10 +140,18 @@ export class LehrplanComponent implements OnInit {
         node.expanded = !node.expanded;
     }
 
-    navigateToApp(appId: string, nodeId?: number): void {
+    navigateToApp(appId: string, nodeId?: number, config?: any): void {
         const queryParams: any = {};
         if (nodeId) {
             queryParams.curriculum_node_id = nodeId;
+        }
+        // Forward app config keys as query params (e.g. { tags: "n,v" })
+        if (config) {
+            for (const [key, value] of Object.entries(config)) {
+                if (!key.startsWith('_') && key !== 'appId') {
+                    queryParams[key] = value;
+                }
+            }
         }
         this.router.navigate(['/' + appId], { queryParams });
     }
@@ -163,6 +173,98 @@ export class LehrplanComponent implements OnInit {
             default: return '📁';
         }
     }
+
+    isAdmin = this.userService.isAdmin;
+    editMode = signal(false);
+    showModal = signal(false);
+    availableApps = signal<any[]>([]);
+
+    // Modal state
+    selectedNode = signal<TreeNode | null>(null);
+    selectedAppId = signal<string>('');
+    jsonConfig = signal<string>('{}');
+    isEditingExisting = signal(false);
+
+
+    toggleEditMode(): void {
+        this.editMode.set(!this.editMode());
+        if (this.editMode() && this.availableApps().length === 0) {
+            this.loadApps();
+        }
+    }
+
+    async loadApps(): Promise<void> {
+        try {
+            const res = await firstValueFrom(this.http.get<{ apps: any[] }>('/api/apps'));
+            this.availableApps.set(res.apps);
+        } catch (e) {
+            console.error('Failed to load apps', e);
+        }
+    }
+
+    openAddModal(node: TreeNode): void {
+        this.selectedNode.set(node);
+        this.selectedAppId.set(this.availableApps()[0]?.id || '');
+        this.jsonConfig.set('{}');
+        this.isEditingExisting.set(false);
+        this.showModal.set(true);
+    }
+
+    openEditModal(node: TreeNode, appId: string, config: any): void {
+        this.selectedNode.set(node);
+        this.selectedAppId.set(appId);
+        this.jsonConfig.set(JSON.stringify(config, null, 2));
+        this.isEditingExisting.set(true);
+        this.showModal.set(true);
+    }
+
+    closeModal(): void {
+        this.showModal.set(false);
+        this.selectedNode.set(null);
+    }
+
+    async saveLink(): Promise<void> {
+        const node = this.selectedNode();
+        const appId = this.selectedAppId();
+        const configStr = this.jsonConfig();
+
+        if (!node || !appId) return;
+
+        try {
+            const config = JSON.parse(configStr);
+
+            await firstValueFrom(this.http.post('/api/apps?curriculum=true', {
+                action: 'update_link',
+                appId,
+                nodeId: node.id,
+                config
+            }));
+
+            this.closeModal();
+            this.loadCurriculum(); // Reload tree
+        } catch (e) {
+            alert('Error saving link: ' + e);
+        }
+    }
+
+    async removeLink(node: TreeNode, appId: string): Promise<void> {
+        if (!confirm(`Link zu "${appId}" wirklich entfernen?`)) return;
+
+        try {
+            await firstValueFrom(this.http.post('/api/apps?curriculum=true', {
+                action: 'remove_link',
+                appId,
+                nodeId: node.id
+            }));
+            this.loadCurriculum();
+        } catch (e) {
+            alert('Error removing link: ' + e);
+        }
+    }
+
+    // Bindings for modal inputs
+    setAppId(id: string) { this.selectedAppId.set(id); }
+    setConfig(val: string) { this.jsonConfig.set(val); }
 
     goBack(): void {
         this.router.navigate(['/']);

@@ -15,7 +15,15 @@ interface WortfamilieItem {
 }
 
 type WordType = 'nomen' | 'verb' | 'adjektiv';
-type QuizMode = 'tippen' | 'zuordnen';
+type QuizMode = 'tippen' | 'zuordnen' | 'paare';
+
+interface PairItem {
+    id: number;
+    left: string;
+    right: string;
+    leftType: WordType;
+    rightType: WordType;
+}
 
 interface Problem {
     item: WortfamilieItem;
@@ -37,13 +45,14 @@ interface Problem {
 export class WortfamilieComponent {
     private dataService = inject(DataService);
     private telemetryService = inject(AppTelemetryService);
-    private sessionId = this.telemetryService.generateSessionId();
+
 
     readonly PROBLEMS_PER_ROUND = 10;
 
     readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [
         { id: 'tippen', label: 'Tippen', icon: '✍️', description: 'Ergänze die fehlenden Wortformen.' },
-        { id: 'zuordnen', label: 'Zuordnen', icon: '🏷️', description: 'Ordne Wörter als Nomen, Verb oder Adjektiv zu.' }
+        { id: 'zuordnen', label: 'Zuordnen', icon: '🏷️', description: 'Ordne Wörter als Nomen, Verb oder Adjektiv zu.' },
+        { id: 'paare', label: 'Paare finden', icon: '🔗', description: 'Verbinde Wörter aus der gleichen Wortfamilie.' }
     ];
     mode = signal<QuizMode>('tippen');
     readonly ARTICLES = ['der', 'die', 'das', 'den', 'dem', 'des', 'ein', 'eine', 'einer', 'einem', 'einen', 'eines'];
@@ -71,10 +80,24 @@ export class WortfamilieComponent {
     classSelected = signal('');
     classIsCorrect = signal(false);
 
+    // Pair-matching mode
+    pairItems = signal<PairItem[]>([]);
+    leftColumn = signal<{ word: string; pairId: number }[]>([]);
+    rightColumn = signal<{ word: string; pairId: number }[]>([]);
+    selectedLeft = signal<number | null>(null);
+    selectedRight = signal<number | null>(null);
+    matchedPairs = signal<Set<number>>(new Set());
+    wrongPair = signal(false);
+    private wrongTimeout: any = null;
+
     progress = computed(() => {
         if (this.mode() === 'zuordnen') {
             const total = this.classWords().length;
             return total > 0 ? (this.classIndex() / total) * 100 : 0;
+        }
+        if (this.mode() === 'paare') {
+            const total = this.pairItems().length;
+            return total > 0 ? (this.matchedPairs().size / total) * 100 : 0;
         }
         return (this.currentIndex() / this.PROBLEMS_PER_ROUND) * 100;
     });
@@ -108,6 +131,11 @@ export class WortfamilieComponent {
 
         if (this.mode() === 'zuordnen') {
             this.startClassification();
+            return;
+        }
+
+        if (this.mode() === 'paare') {
+            this.startPairMatching();
             return;
         }
 
@@ -254,6 +282,7 @@ export class WortfamilieComponent {
     }
 
     handleEnter(event: Event) {
+        if (this.mode() === 'paare') return; // click-only mode
         if (this.mode() === 'zuordnen') {
             if (this.classAnswered()) this.nextClassWord();
             return;
@@ -320,5 +349,112 @@ export class WortfamilieComponent {
             this.classAnswered.set(false);
             this.classSelected.set('');
         }
+    }
+
+    // ═══ MODE: PAARE FINDEN ═══
+
+    private startPairMatching(): void {
+        const items = shuffle(this.allItems());
+        const count = Math.min(items.length, 8 + Math.floor(Math.random() * 3)); // 8-10
+        const selected = items.slice(0, count);
+        const types: WordType[] = ['nomen', 'verb', 'adjektiv'];
+
+        const pairs: PairItem[] = selected.map(item => {
+            // Pick 2 random types for the pair
+            const shuffledTypes = shuffle([...types]);
+            const leftType = shuffledTypes[0];
+            const rightType = shuffledTypes[1];
+
+            const leftWords = item[leftType].split(',').map(w => w.trim());
+            const rightWords = item[rightType].split(',').map(w => w.trim());
+
+            return {
+                id: item.id,
+                left: leftWords[Math.floor(Math.random() * leftWords.length)],
+                right: rightWords[Math.floor(Math.random() * rightWords.length)],
+                leftType,
+                rightType
+            };
+        });
+
+        this.pairItems.set(pairs);
+        this.leftColumn.set(shuffle(pairs.map(p => ({ word: p.left, pairId: p.id }))));
+        this.rightColumn.set(shuffle(pairs.map(p => ({ word: p.right, pairId: p.id }))));
+        this.selectedLeft.set(null);
+        this.selectedRight.set(null);
+        this.matchedPairs.set(new Set());
+        this.wrongPair.set(false);
+    }
+
+    selectPairLeft(index: number): void {
+        if (this.matchedPairs().has(this.leftColumn()[index].pairId)) return;
+        this.selectedLeft.set(index);
+        this.tryMatchPair();
+    }
+
+    selectPairRight(index: number): void {
+        if (this.matchedPairs().has(this.rightColumn()[index].pairId)) return;
+        this.selectedRight.set(index);
+        this.tryMatchPair();
+    }
+
+    private tryMatchPair(): void {
+        const leftIdx = this.selectedLeft();
+        const rightIdx = this.selectedRight();
+        if (leftIdx === null || rightIdx === null) return;
+
+        const leftItem = this.leftColumn()[leftIdx];
+        const rightItem = this.rightColumn()[rightIdx];
+
+        if (leftItem.pairId === rightItem.pairId) {
+            // Correct match
+            const newMatched = new Set(this.matchedPairs());
+            newMatched.add(leftItem.pairId);
+            this.matchedPairs.set(newMatched);
+            this.totalCorrect.update(c => c + 1);
+            this.selectedLeft.set(null);
+            this.selectedRight.set(null);
+
+            // Check if all pairs matched
+            if (newMatched.size >= this.pairItems().length) {
+                // Small delay to show last match animation
+                setTimeout(() => {
+                    this.screen.set('results');
+                    if (this.percentage() === 100) launchConfetti();
+                }, 500);
+            }
+        } else {
+            // Wrong match
+            this.totalWrong.update(w => w + 1);
+            this.wrongPair.set(true);
+            if (this.wrongTimeout) clearTimeout(this.wrongTimeout);
+            this.wrongTimeout = setTimeout(() => {
+                this.wrongPair.set(false);
+                this.selectedLeft.set(null);
+                this.selectedRight.set(null);
+            }, 600);
+        }
+    }
+
+    getPairWordClass(column: 'left' | 'right', index: number): string {
+        const item = column === 'left' ? this.leftColumn()[index] : this.rightColumn()[index];
+        if (!item) return '';
+
+        if (this.matchedPairs().has(item.pairId)) return 'matched';
+
+        const isSelected = column === 'left'
+            ? this.selectedLeft() === index
+            : this.selectedRight() === index;
+
+        if (isSelected && this.wrongPair()) return 'selected wrong';
+        if (isSelected) return 'selected';
+        return '';
+    }
+
+    getPairTypeLabel(column: 'left' | 'right'): string {
+        if (this.pairItems().length === 0) return '';
+        // All items in a column share the same type logic, but types vary per item.
+        // Show a generic column label instead.
+        return column === 'left' ? 'Wort A' : 'Wort B';
     }
 }

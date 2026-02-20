@@ -23,7 +23,7 @@ interface TimeProblem {
 })
 export class ZeitrechnenComponent {
     private telemetryService = inject(AppTelemetryService);
-    private sessionId = this.telemetryService.generateSessionId();
+
     readonly PROBLEMS_PER_ROUND = 10;
 
     screen = signal<'welcome' | 'quiz' | 'results'>('welcome');

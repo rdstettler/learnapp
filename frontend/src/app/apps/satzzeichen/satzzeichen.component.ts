@@ -26,7 +26,7 @@ export class SatzzeichenComponent {
     private cdr = inject(ChangeDetectorRef);
 
     // Session ID for telemetry
-    private sessionId = this.telemetryService.generateSessionId();
+
 
     // Punctuation characters to detect (including German quotes)
     readonly punctSet = new Set(['.', ',', '?', ':', '\u201E', '\u201C']);

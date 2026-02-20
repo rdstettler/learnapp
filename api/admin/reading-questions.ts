@@ -1,6 +1,6 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTursoClient } from '../_lib/turso.js';
+import { getSupabaseClient } from '../_lib/supabase.js';
 import { requireAuth, handleCors } from '../_lib/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -9,14 +9,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const decoded = await requireAuth(req, res);
     if (!decoded) return;
 
-    const db = getTursoClient();
+    const db = getSupabaseClient();
 
     // Check Admin Status
-    const user = await db.execute({
-        sql: "SELECT is_admin FROM users WHERE uid = ?",
-        args: [decoded.uid as string]
-    });
-    if (user.rows.length === 0 || !user.rows[0].is_admin) {
+    const { data: user, error: userError } = await db
+        .from('users')
+        .select('is_admin')
+        .eq('uid', decoded.uid)
+        .single();
+    if (userError || !user || !user.is_admin) {
         return res.status(403).json({ error: 'Forbidden' });
     }
 
@@ -39,146 +40,160 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 }
 
-type DB = ReturnType<typeof getTursoClient>;
-
-// GET — List texts with their questions, grouped by text
-async function handleGetQuestions(req: VercelRequest, res: VercelResponse, db: DB) {
+async function handleGetQuestions(req: VercelRequest, res: VercelResponse, db: any) {
     const filterReviewed = req.query.reviewed; // 'all', '0', '1'
     const textId = req.query.text_id ? parseInt(req.query.text_id as string) : null;
 
-    // Get all texts with question counts
-    const textsResult = await db.execute(
-        `SELECT rt.*, 
-                COUNT(rq.id) as total_questions,
-                SUM(CASE WHEN rq.reviewed = 1 THEN 1 ELSE 0 END) as approved_questions,
-                SUM(CASE WHEN rq.reviewed = 0 THEN 1 ELSE 0 END) as pending_questions
-         FROM reading_texts rt
-         LEFT JOIN reading_questions rq ON rt.id = rq.text_id
-         GROUP BY rt.id
-         ORDER BY rt.id`
-    );
+    // Get all texts
+    const { data: texts, error: textsError } = await db
+        .from('reading_texts')
+        .select('*')
+        .order('id');
 
-    // Get questions (optionally filtered)
-    let questionsSql = `SELECT rq.*, rt.title as text_title 
-                         FROM reading_questions rq 
-                         JOIN reading_texts rt ON rq.text_id = rt.id`;
-    const args: (string | number)[] = [];
+    if (textsError) throw textsError;
 
-    const conditions: string[] = [];
-    if (filterReviewed === '0' || filterReviewed === '1') {
-        conditions.push('rq.reviewed = ?');
-        args.push(parseInt(filterReviewed as string));
+    // Get stats for texts (aggregate query workaround)
+    // We fetch all questions (lightweight props) to count them, or use a separate stats query if volume is high.
+    // Given the admin nature, fetching all questions ID/text_id/reviewed is likely fine.
+    const { data: questionStats, error: statsError } = await db
+        .from('reading_questions')
+        .select('id, text_id, reviewed');
+
+    if (statsError) throw statsError;
+
+    const statsMap = new Map<number, { total: number, approved: number, pending: number }>();
+    for (const q of questionStats || []) {
+        const tid = q.text_id;
+        const entry = statsMap.get(tid) || { total: 0, approved: 0, pending: 0 };
+        entry.total++;
+        if (q.reviewed) entry.approved++;
+        else entry.pending++;
+        statsMap.set(tid, entry);
     }
-    if (textId) {
-        conditions.push('rq.text_id = ?');
-        args.push(textId);
-    }
-    if (conditions.length > 0) {
-        questionsSql += ' WHERE ' + conditions.join(' AND ');
-    }
-    questionsSql += ' ORDER BY rq.text_id, rq.paragraph_index, rq.tier, rq.id';
 
-    const questionsResult = await db.execute({ sql: questionsSql, args });
-
-    return res.status(200).json({
-        texts: textsResult.rows.map(t => ({
+    const enrichedTexts = texts.map((t: any) => {
+        const s = statsMap.get(t.id) || { total: 0, approved: 0, pending: 0 };
+        return {
             id: t.id,
             title: t.title,
             autor: t.autor,
             zyklus: t.zyklus,
             minAge: t.min_age,
             wordCount: t.word_count,
-            totalQuestions: t.total_questions,
-            approvedQuestions: t.approved_questions,
-            pendingQuestions: t.pending_questions,
-        })),
-        questions: questionsResult.rows.map(q => ({
+            totalQuestions: s.total,
+            approvedQuestions: s.approved,
+            pendingQuestions: s.pending,
+        };
+    });
+
+    // Get questions filtered
+    let query = db.from('reading_questions').select('*, reading_texts(title)');
+
+    if (filterReviewed === '0' || filterReviewed === '1') {
+        query = query.eq('reviewed', filterReviewed === '1');
+    }
+    if (textId) {
+        query = query.eq('text_id', textId);
+    }
+
+    query = query.order('text_id').order('paragraph_index').order('tier').order('id');
+
+    const { data: questions, error: questionsError } = await query;
+    if (questionsError) throw questionsError;
+
+    return res.status(200).json({
+        texts: enrichedTexts,
+        questions: questions.map((q: any) => ({
             id: q.id,
             textId: q.text_id,
-            textTitle: q.text_title,
+            textTitle: q.reading_texts?.title, // Join result
             tier: q.tier,
             questionType: q.question_type,
             question: q.question,
-            options: q.options ? JSON.parse(q.options as string) : null,
+            options: typeof q.options === 'string' ? JSON.parse(q.options) : q.options,
             correctAnswer: q.correct_answer,
             explanation: q.explanation,
             paragraphIndex: q.paragraph_index,
-            aiGenerated: q.ai_generated,
-            reviewed: q.reviewed,
+            aiGenerated: Boolean(q.ai_generated),
+            reviewed: Boolean(q.reviewed),
             createdAt: q.created_at,
         })),
     });
 }
 
-// PUT — Update a question (edit text, approve, etc.)
-async function handleUpdateQuestion(req: VercelRequest, res: VercelResponse, db: DB) {
+async function handleUpdateQuestion(req: VercelRequest, res: VercelResponse, db: any) {
     const { id, question, options, correctAnswer, explanation, reviewed, tier, questionType } = req.body;
 
-    if (!id) {
-        return res.status(400).json({ error: 'Missing id' });
-    }
+    if (!id) return res.status(400).json({ error: 'Missing id' });
 
-    const updates: string[] = [];
-    const args: (string | number | null)[] = [];
+    const updates: any = { updated_at: new Date().toISOString() };
+    if (question !== undefined) updates.question = question;
+    if (options !== undefined) updates.options = JSON.stringify(options);
+    if (correctAnswer !== undefined) updates.correct_answer = correctAnswer;
+    if (explanation !== undefined) updates.explanation = explanation;
+    if (reviewed !== undefined) updates.reviewed = reviewed;
+    if (tier !== undefined) updates.tier = tier;
+    if (questionType !== undefined) updates.question_type = questionType;
 
-    if (question !== undefined) { updates.push('question = ?'); args.push(question); }
-    if (options !== undefined) { updates.push('options = ?'); args.push(JSON.stringify(options)); }
-    if (correctAnswer !== undefined) { updates.push('correct_answer = ?'); args.push(correctAnswer); }
-    if (explanation !== undefined) { updates.push('explanation = ?'); args.push(explanation); }
-    if (reviewed !== undefined) { updates.push('reviewed = ?'); args.push(reviewed); }
-    if (tier !== undefined) { updates.push('tier = ?'); args.push(tier); }
-    if (questionType !== undefined) { updates.push('question_type = ?'); args.push(questionType); }
-
-    if (updates.length === 0) {
-        return res.status(400).json({ error: 'No fields to update' });
-    }
-
-    updates.push('updated_at = CURRENT_TIMESTAMP');
-    args.push(id);
-
-    await db.execute({
-        sql: `UPDATE reading_questions SET ${updates.join(', ')} WHERE id = ?`,
-        args
-    });
+    const { error } = await db.from('reading_questions').update(updates).eq('id', id);
+    if (error) throw error;
 
     return res.status(200).json({ success: true });
 }
 
-// DELETE — Remove a question
-async function handleDeleteQuestion(req: VercelRequest, res: VercelResponse, db: DB) {
+async function handleDeleteQuestion(req: VercelRequest, res: VercelResponse, db: any) {
     const id = req.query.id ? parseInt(req.query.id as string) : req.body?.id;
-    if (!id) {
-        return res.status(400).json({ error: 'Missing id' });
-    }
+    if (!id) return res.status(400).json({ error: 'Missing id' });
 
-    await db.execute({ sql: 'DELETE FROM reading_questions WHERE id = ?', args: [id] });
+    const { error } = await db.from('reading_questions').delete().eq('id', id);
+    if (error) throw error;
+
     return res.status(200).json({ success: true });
 }
 
-// POST — Bulk actions (approve all, reject all, regenerate)
-async function handleBulkAction(req: VercelRequest, res: VercelResponse, db: DB) {
+async function handleBulkAction(req: VercelRequest, res: VercelResponse, db: any) {
     const { action, textId, questionIds } = req.body;
 
-    switch (action) {
-        case 'approve-all': {
-            const sql = textId
-                ? 'UPDATE reading_questions SET reviewed = 1, updated_at = CURRENT_TIMESTAMP WHERE text_id = ? AND reviewed = 0'
-                : 'UPDATE reading_questions SET reviewed = 1, updated_at = CURRENT_TIMESTAMP WHERE id IN (' + (questionIds || []).map(() => '?').join(',') + ')';
-            const args = textId ? [textId] : (questionIds || []);
-            const result = await db.execute({ sql, args });
-            return res.status(200).json({ success: true, affected: result.rowsAffected });
-        }
+    // Helper to get query builder
+    const getQuery = () => db.from('reading_questions');
 
-        case 'reject-all': {
-            const sql = textId
-                ? 'DELETE FROM reading_questions WHERE text_id = ? AND reviewed = 0'
-                : 'DELETE FROM reading_questions WHERE id IN (' + (questionIds || []).map(() => '?').join(',') + ')';
-            const args = textId ? [textId] : (questionIds || []);
-            const result = await db.execute({ sql, args });
-            return res.status(200).json({ success: true, affected: result.rowsAffected });
-        }
+    try {
+        if (action === 'approve-all') {
+            let query = getQuery().update({ reviewed: true, updated_at: new Date().toISOString() });
 
-        default:
+            if (textId) {
+                query = query.eq('text_id', textId).eq('reviewed', false);
+            } else if (questionIds && questionIds.length > 0) {
+                query = query.in('id', questionIds);
+            } else {
+                return res.status(400).json({ error: 'Missing filter for approve-all' });
+            }
+
+            const { error, count } = await query.select('id', { count: 'exact' }); // Select to return count if possible, or just execution
+            // update doesn't return count directly in JS client v2 unless select is chained?
+            // Actually it just returns data/error. 
+            if (error) throw error;
+            return res.status(200).json({ success: true, affected: count || 'unknown' });
+        }
+        else if (action === 'reject-all') {
+            let query = getQuery().delete();
+
+            if (textId) {
+                query = query.eq('text_id', textId).eq('reviewed', false);
+            } else if (questionIds && questionIds.length > 0) {
+                query = query.in('id', questionIds);
+            } else {
+                return res.status(400).json({ error: 'Missing filter for reject-all' });
+            }
+
+            const { error, count } = await query.select('id', { count: 'exact' });
+            if (error) throw error;
+            return res.status(200).json({ success: true, affected: count || 'unknown' });
+        }
+        else {
             return res.status(400).json({ error: `Unknown action: ${action}` });
+        }
+    } catch (e: unknown) {
+        throw e;
     }
 }

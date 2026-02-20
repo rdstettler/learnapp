@@ -34,7 +34,7 @@ interface Problem {
 })
 export class UmrechnenComponent {
     private telemetryService = inject(AppTelemetryService);
-    private sessionId = this.telemetryService.generateSessionId();
+
     readonly PROBLEMS_PER_ROUND = 10;
     readonly MIN_VALUE = 0.0001; // Max 3 Nullen nach Komma
     readonly MAX_VALUE = 9999999; // Unter 10 Millionen

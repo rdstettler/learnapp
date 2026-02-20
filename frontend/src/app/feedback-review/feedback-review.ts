@@ -104,9 +104,9 @@ export class FeedbackReviewComponent {
   }
 
   loadApps() {
-    this.http.get<{ apps: AppConfig[] }>('/assets/apps.config.json').subscribe({
-      next: (config) => this.availableApps.set(config.apps),
-      error: (e) => console.error('Failed to load apps config', e)
+    this.http.get<{ apps: AppConfig[] }>('/api/apps').subscribe({
+      next: (res) => this.availableApps.set(res.apps),
+      error: (e) => console.error('Failed to load apps', e)
     });
   }
 

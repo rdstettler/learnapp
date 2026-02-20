@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject, ChangeDetectorRef } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs';
 import { shuffle } from '../../shared/utils/array.utils';
@@ -55,8 +56,12 @@ const EXTENDED_TAGS: WordTag[] = ['n', 'v', 'a', 'av', 'pr', 'pa'];
 export class WortartenComponent {
     private http = inject(HttpClient);
     private cdr = inject(ChangeDetectorRef);
+    private route = inject(ActivatedRoute);
     private telemetryService = inject(AppTelemetryService);
     private userService = inject(UserService);
+
+    /** Whether tags were pre-set via query params (hides toggle, auto-starts) */
+    presetMode = signal(false);
 
     /** Level <= 3 keeps capitalization; > 3 or null → lowercase */
     lowercaseMode = computed(() => {
@@ -107,7 +112,21 @@ export class WortartenComponent {
     dataLoaded = computed(() => this.allTexts().length > 0);
 
     constructor() {
+        this.applyQueryParams();
         this.loadData();
+    }
+
+    private applyQueryParams(): void {
+        const tagsParam = this.route.snapshot.queryParamMap.get('tags');
+        if (tagsParam) {
+            const validTags = ALL_CATEGORIES.map(c => c.tag);
+            const requestedTags = tagsParam.split(',').filter(t => validTags.includes(t as WordTag)) as WordTag[];
+            if (requestedTags.length > 0) {
+                this.enabledTags.set(requestedTags);
+                this.advancedMode.set(requestedTags.some(t => !BASE_TAGS.includes(t)));
+                this.presetMode.set(true);
+            }
+        }
     }
 
     private loadData(): void {
@@ -117,7 +136,13 @@ export class WortartenComponent {
                 _contentId: row.id
             })))
         ).subscribe({
-            next: (data) => this.allTexts.set(data),
+            next: (data) => {
+                this.allTexts.set(data);
+                // Auto-start quiz if tags were pre-set via query params
+                if (this.presetMode() && data.length > 0) {
+                    this.startQuiz();
+                }
+            },
             error: (err) => console.error('Error loading wortarten data:', err)
         });
     }

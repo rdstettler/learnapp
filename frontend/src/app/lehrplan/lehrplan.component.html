@@ -32,10 +32,61 @@
 
     <!-- Tree -->
     @if (!loading() && !error()) {
+
+    <!-- Admin Bar -->
+    @if (isAdmin()) {
+    <div class="admin-bar">
+        <label class="toggle">
+            <input type="checkbox" [checked]="editMode()" (change)="toggleEditMode()">
+            <span class="slider"></span>
+            Admin Mode (Edit Links)
+        </label>
+    </div>
+    }
+
     <div class="tree">
         @for (node of tree(); track node.code) {
         <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: node, depth: 0 }"></ng-container>
         }
+    </div>
+    }
+
+    <!-- Modal -->
+    @if (showModal()) {
+    <div class="modal-backdrop" (click)="closeModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <h3>{{ isEditingExisting() ? 'Link bearbeiten' : 'App verknüpfen' }}</h3>
+
+            <div class="form-group">
+                <label>Node:</label>
+                <div class="node-preview">{{selectedNode()?.code}} - {{selectedNode()?.title}}</div>
+            </div>
+
+            <div class="form-group">
+                <label>App:</label>
+                <select [value]="selectedAppId()" (change)="setAppId($any($event.target).value)"
+                    [disabled]="isEditingExisting()">
+                    @for (app of availableApps(); track app.id) {
+                    <option [value]="app.id">{{app.name}} ({{app.id}})</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Konfiguration (JSON):</label>
+                <textarea [value]="jsonConfig()" (input)="setConfig($any($event.target).value)" rows="5"></textarea>
+                <small class="hint">
+                    Gültige Parameter:
+                    <br>- Kopfrechnen: &#123; "addMax": 20, "subMax": 20, "operations": ["add", "sub"] &#125;
+                    <br>- Textaufgaben: &#123; "level": 1 &#125;
+                </small>
+            </div>
+
+            <div class="modal-actions">
+                <button (click)="closeModal()" class="cancel-btn">Abbrechen</button>
+                <button (click)="saveLink()" class="save-btn">Speichern</button>
+            </div>
+        </div>
     </div>
     }
 </div>
@@ -44,11 +95,12 @@
 <ng-template #treeNode let-node let-depth="depth">
     <div class="node" [class]="'node-' + node.level" [style.padding-left.px]="depth * 16 + 8">
         <!-- Node header -->
-        <div class="node-header" (click)="node.children.length ? toggleNode(node) : null"
+        <div class="node-header" (click)="!editMode() && node.children.length ? toggleNode(node) : null"
             [class.expandable]="node.children.length > 0" [class.leaf]="node.children.length === 0">
 
             @if (node.children.length > 0) {
-            <span class="expand-icon">{{node.expanded ? '▾' : '▸'}}</span>
+            <span class="expand-icon" (click)="editMode() ? toggleNode(node) : null">{{node.expanded ? '▾' :
+                '▸'}}</span>
             } @else {
             <span class="expand-icon leaf-dot">·</span>
             }
@@ -72,26 +124,39 @@
             </div>
 
             <!-- App chips -->
-            @if (node.apps && node.apps.length > 0)
-            {
             <div class="app-chips">
-                @for (appId of node.apps; track appId) {
-                <button class="app-chip" (click)="navigateToApp(appId, node.id); $event.stopPropagation()">
-                    {{getAppInfo(appId).icon}} {{getAppInfo(appId).name}}
+                @if (node.apps && node.apps.length > 0) {
+                @for (config of node.appConfigs; track config.appId) {
+                <button class="app-chip" [class.direct-link]="config._isDirect"
+                    (click)="editMode() && config._isDirect ? openEditModal(node, config.appId, config) : navigateToApp(config.appId, node.id, config); $event.stopPropagation()">
+                    <span class="icon">{{getAppInfo(config.appId).icon}}</span>
+                    <span class="name">{{getAppInfo(config.appId).name}}</span>
+                    @if (editMode()) {
+                    @if (config._isDirect) { <span class="edit-badge">✎</span> }
+                    @else { <span class="inherit-badge">↳</span> }
+                    }
                 </button>
+                <!-- Removing separate delete button to keep UI clean, edit modal has delete? Or add delete btn? -->
+                <!-- Let's add delete X if direct link -->
+                @if (editMode() && config._isDirect) {
+                <span class="delete-x" (click)="removeLink(node, config.appId); $event.stopPropagation()">×</span>
+                }
+                }
+                }
+
+                @if (editMode()) {
+                <button class="add-btn" (click)="openAddModal(node); $event.stopPropagation()">+</button>
                 }
             </div>
-            }
         </div>
 
-        <!-- Description for Kompetenzstufen -->
+        <!-- Description and Children ... -->
         @if (node.level === 'kompetenzstufe' && node.description) {
         <div class="node-description" [style.padding-left.px]="depth * 16 + 48">
             {{node.description}}
         </div>
         }
 
-        <!-- Children (recursive) -->
         @if (node.expanded && node.children.length > 0) {
         @for (child of node.children; track child.code) {
         <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: child, depth: depth + 1 }"></ng-container>

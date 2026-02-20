@@ -23,15 +23,18 @@
                 }
             </div>
 
+            @if (!presetMode()) {
             <label class="toggle-row" (click)="toggleAdvanced()">
                 <span class="toggle-track" [class.active]="advancedMode()">
                     <span class="toggle-thumb"></span>
                 </span>
                 <span>Erweitert (+ Pronomen, Partikel)</span>
             </label>
+            }
 
             @if (lowercaseMode()) {
-            <p class="lowercase-note">⚠️ Achtung: Alle Wörter werden kleingeschrieben – du kannst dich nicht auf Grossbuchstaben verlassen!</p>
+            <p class="lowercase-note">⚠️ Achtung: Alle Wörter werden kleingeschrieben – du kannst dich nicht auf
+                Grossbuchstaben verlassen!</p>
             }
 
             <button class="btn btn-primary" style="margin-top: 20px;" (click)="startQuiz()" [disabled]="!dataLoaded()">
@@ -51,10 +54,8 @@
             <!-- Category pill selector -->
             <div class="category-bar">
                 @for (cat of categories(); track cat.tag) {
-                <button class="cat-pill {{ cat.bgClass }}"
-                    [class.active]="activeTag() === cat.tag"
-                    [class.disabled]="checked()"
-                    (click)="selectCategory(cat.tag)">
+                <button class="cat-pill {{ cat.bgClass }}" [class.active]="activeTag() === cat.tag"
+                    [class.disabled]="checked()" (click)="selectCategory(cat.tag)">
                     {{ cat.label }}
                 </button>
                 }
@@ -67,8 +68,7 @@
             <!-- Sentence display -->
             <div class="text-display">
                 @for (token of tokens(); track token.index) {
-                <span class="token" [class]="getTokenClass(token)"
-                    [attr.data-hint]="getTokenHint(token)"
+                <span class="token" [class]="getTokenClass(token)" [attr.data-hint]="getTokenHint(token)"
                     (click)="toggleWord(token)">{{ token.text }}</span>{{ ' ' }}
                 }
             </div>

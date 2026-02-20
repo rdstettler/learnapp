@@ -34,7 +34,7 @@ export class KasusComponent {
     private dataService = inject(DataService);
     private apiService = inject(ApiService);
     private telemetryService = inject(AppTelemetryService);
-    private sessionId = this.telemetryService.generateSessionId();
+
 
     readonly kasusOptions = ['Nominativ', 'Akkusativ', 'Dativ', 'Genitiv'];
     readonly kasusMap: Record<string, string> = {

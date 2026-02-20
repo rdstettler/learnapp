@@ -26,8 +26,8 @@
         </div>
         }
 
-        <!-- Quiz Screen -->
-        @if (screen() === 'quiz') {
+        <!-- Quiz Screen: Spion / Schwach -->
+        @if (screen() === 'quiz' && (mode() === 'spion' || mode() === 'schwach')) {
         <div class="quiz-content">
             <div class="round-info">Aufgabe {{ currentIndex() + 1 }} / {{ ROUNDS_PER_GAME }}</div>
             <div class="score-live">
@@ -85,6 +85,36 @@
                 {{ currentIndex() + 1 >= ROUNDS_PER_GAME ? 'Ergebnis anzeigen' : 'Weiter' }}
             </button>
             }
+        </div>
+        }
+
+        <!-- Quiz Screen: Paare finden -->
+        @if (screen() === 'quiz' && (mode() === 'syn-paare' || mode() === 'ant-paare')) {
+        <div class="quiz-content">
+            <div class="round-info">{{ matchedPairs().size }} / {{ pairItems().length }} Paare gefunden</div>
+            <div class="score-live">
+                <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
+                <div class="score-live-item wrong">✗ {{ totalWrong() }}</div>
+            </div>
+
+            <div class="pair-container">
+                <div class="pair-column">
+                    @for (item of leftColumn(); track item.pairId; let i = $index) {
+                    <button class="pair-word" [class]="getPairWordClass('left', i)" (click)="selectPairLeft(i)"
+                        [disabled]="matchedPairs().has(item.pairId)">
+                        {{ item.word }}
+                    </button>
+                    }
+                </div>
+                <div class="pair-column">
+                    @for (item of rightColumn(); track item.pairId; let i = $index) {
+                    <button class="pair-word" [class]="getPairWordClass('right', i)" (click)="selectPairRight(i)"
+                        [disabled]="matchedPairs().has(item.pairId)">
+                        {{ item.word }}
+                    </button>
+                    }
+                </div>
+            </div>
         </div>
         }
 

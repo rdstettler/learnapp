@@ -48,7 +48,7 @@ export class FehlerComponent {
     private dataService = inject(DataService);
     private cdr = inject(ChangeDetectorRef);
     private telemetryService = inject(AppTelemetryService);
-    private sessionId = this.telemetryService.generateSessionId();
+
 
     readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [
         { id: 'korrektur', label: 'Korrektur', icon: '✏️', description: 'Finde Fehler und tippe die Korrektur.' },
@@ -115,9 +115,9 @@ export class FehlerComponent {
             next: (data) => this.allTexts.set(data),
             error: (err) => console.error('Error loading fehler data:', err)
         });
-        this.dataService.loadAppContent<SentenceItem>('fehlerfinden2').subscribe({
+        this.dataService.loadAppContent<SentenceItem>('fehler', 'saetze').subscribe({
             next: (data) => this.allSentences.set(data as SentenceItem[]),
-            error: (err) => console.error('Error loading fehlerfinden2 data:', err)
+            error: (err) => console.error('Error loading fehler saetze data:', err)
         });
     }
 
@@ -456,7 +456,7 @@ export class FehlerComponent {
 
         const item = this.sentences()[this.currentSentenceIndex()] as any;
         if (item?._contentId) {
-            this.telemetryService.trackProgress('fehlerfinden2', item._contentId, isCorrect, this.mode());
+            this.telemetryService.trackProgress('fehler', item._contentId, isCorrect, this.mode());
         }
     }
 

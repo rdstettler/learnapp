@@ -15,12 +15,6 @@ export interface LearnResult {
     details?: Record<string, unknown>;
 }
 
-export interface TelemetryEvent {
-    appId: string;
-    eventType: 'app_open' | 'app_close' | 'quiz_start' | 'quiz_complete' | string;
-    metadata?: Record<string, unknown>;
-}
-
 @Injectable({
     providedIn: 'root'
 })
@@ -61,33 +55,6 @@ export class ApiService {
         }
     }
 
-    /**
-     * Track telemetry event
-     */
-    async trackEvent(event: TelemetryEvent): Promise<boolean> {
-        const user = this.authService.user();
-        if (!user) return false;
-
-        try {
-            await firstValueFrom(this.http.post(`${this.API_BASE}/events`, {
-                type: 'telemetry',
-                appId: event.appId,
-                eventType: event.eventType,
-                metadata: event.metadata
-            }));
-            return true;
-        } catch (error) {
-            console.error('Failed to track event:', error);
-            return false;
-        }
-    }
-
-    /**
-     * Track app open
-     */
-    async trackAppOpen(appId: string): Promise<boolean> {
-        return this.trackEvent({ appId, eventType: 'app_open' });
-    }
 
     // State for the active learning session
     activeSession = signal<LearningSession | null>(null);
@@ -256,29 +223,6 @@ export class ApiService {
         }
     }
 
-    /**
-     * Submit question progress and check for new badges.
-     * Call this after a user answers a question.
-     */
-    async submitQuestionProgress(appId: string, appContentId: number, isCorrect: boolean): Promise<void> {
-        const user = this.authService.user();
-        if (!user) return;
-
-        try {
-            await firstValueFrom(this.http.post(`${this.API_BASE}/events`, {
-                type: 'question_progress',
-                appId,
-                appContentId,
-                isCorrect
-            }));
-
-            // Fire-and-forget badge check after a short delay
-            // (gives DB a moment to settle, avoids blocking the UI)
-            setTimeout(() => this.badgeService.checkBadges(), 500);
-        } catch (error) {
-            console.error('Failed to submit question progress:', error);
-        }
-    }
 
     // ═══════════════════════════════════════
     //  Learning Plan

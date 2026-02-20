@@ -121,16 +121,16 @@
             </div>
 
             <div class="class-options">
-                <button class="class-option" [class]="getClassOptionClass('nomen')"
-                    [disabled]="classAnswered()" (click)="selectClassType('nomen')">
+                <button class="class-option" [class]="getClassOptionClass('nomen')" [disabled]="classAnswered()"
+                    (click)="selectClassType('nomen')">
                     📦 Nomen
                 </button>
-                <button class="class-option" [class]="getClassOptionClass('verb')"
-                    [disabled]="classAnswered()" (click)="selectClassType('verb')">
+                <button class="class-option" [class]="getClassOptionClass('verb')" [disabled]="classAnswered()"
+                    (click)="selectClassType('verb')">
                     🏃 Verb
                 </button>
-                <button class="class-option" [class]="getClassOptionClass('adjektiv')"
-                    [disabled]="classAnswered()" (click)="selectClassType('adjektiv')">
+                <button class="class-option" [class]="getClassOptionClass('adjektiv')" [disabled]="classAnswered()"
+                    (click)="selectClassType('adjektiv')">
                     🎨 Adjektiv
                 </button>
             </div>
@@ -141,6 +141,36 @@
                 {{ classIndex() >= classWords().length - 1 ? 'Ergebnis anzeigen' : 'Weiter' }}
             </button>
             }
+        </div>
+        }
+
+        <!-- Quiz Screen: Paare finden -->
+        @if (screen() === 'quiz' && mode() === 'paare') {
+        <div class="quiz-content">
+            <div class="round-info">{{ matchedPairs().size }} / {{ pairItems().length }} Paare gefunden</div>
+            <div class="score-live">
+                <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
+                <div class="score-live-item wrong">✗ {{ totalWrong() }}</div>
+            </div>
+
+            <div class="pair-container">
+                <div class="pair-column">
+                    @for (item of leftColumn(); track item.pairId; let i = $index) {
+                    <button class="pair-word" [class]="getPairWordClass('left', i)" (click)="selectPairLeft(i)"
+                        [disabled]="matchedPairs().has(item.pairId)">
+                        {{ item.word }}
+                    </button>
+                    }
+                </div>
+                <div class="pair-column">
+                    @for (item of rightColumn(); track item.pairId; let i = $index) {
+                    <button class="pair-word" [class]="getPairWordClass('right', i)" (click)="selectPairRight(i)"
+                        [disabled]="matchedPairs().has(item.pairId)">
+                        {{ item.word }}
+                    </button>
+                    }
+                </div>
+            </div>
         </div>
         }
 

@@ -8,8 +8,10 @@
  *  - icon: emoji icon
  *  - category: grouping for UI display
  *  - tier: visual tier (bronze | silver | gold | diamond)
- *  - check: SQL query + threshold logic (used server-side only)
+ *  - check: async function + threshold (used server-side only)
  */
+
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export interface BadgeDefinition {
     id: string;
@@ -18,15 +20,18 @@ export interface BadgeDefinition {
     icon: string;
     category: 'first-steps' | 'streak' | 'mastery' | 'explorer' | 'special';
     tier: 'bronze' | 'silver' | 'gold' | 'diamond';
-    /** 
-     * Server-side check descriptor.
-     * - query: SQL with ? placeholder for user_uid
-     * - threshold: the count value the query result must reach (>=)
-     */
     check: {
-        query: string;
+        fn: (db: SupabaseClient, uid: string) => Promise<number>;
         threshold: number;
     };
+}
+
+// --- Helper: count rows with simple filters ---
+async function countRows(db: SupabaseClient, table: string, uid: string, extraFilters?: (q: any) => any): Promise<number> {
+    let query = db.from(table).select('*', { count: 'exact', head: true }).eq('user_uid', uid);
+    if (extraFilters) query = extraFilters(query);
+    const { count } = await query;
+    return count || 0;
 }
 
 export const BADGE_DEFINITIONS: BadgeDefinition[] = [
@@ -41,7 +46,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'first-steps',
         tier: 'bronze',
         check: {
-            query: `SELECT COUNT(*) as count FROM user_question_progress WHERE user_uid = ?`,
+            fn: (db, uid) => countRows(db, 'user_question_progress', uid),
             threshold: 1
         }
     },
@@ -53,7 +58,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'first-steps',
         tier: 'bronze',
         check: {
-            query: `SELECT COUNT(*) as count FROM user_question_progress WHERE user_uid = ? AND success_count >= 1 AND failure_count = 0`,
+            fn: (db, uid) => countRows(db, 'user_question_progress', uid, q => q.gte('success_count', 1).eq('failure_count', 0)),
             threshold: 1
         }
     },
@@ -65,7 +70,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'first-steps',
         tier: 'bronze',
         check: {
-            query: `SELECT COUNT(DISTINCT session_id) as count FROM learning_session WHERE user_uid = ? AND pristine = 0`,
+            fn: async (db, uid) => {
+                const { data } = await db.rpc('fn_count_distinct_sessions', { p_user_uid: uid });
+                return (data as number) || 0;
+            },
             threshold: 1
         }
     },
@@ -81,7 +89,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'mastery',
         tier: 'bronze',
         check: {
-            query: `SELECT COALESCE(SUM(success_count + failure_count), 0) as count FROM user_question_progress WHERE user_uid = ?`,
+            fn: async (db, uid) => {
+                const { data } = await db.rpc('fn_total_answers', { p_user_uid: uid });
+                return Number(data) || 0;
+            },
             threshold: 10
         }
     },
@@ -93,7 +104,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'mastery',
         tier: 'silver',
         check: {
-            query: `SELECT COALESCE(SUM(success_count + failure_count), 0) as count FROM user_question_progress WHERE user_uid = ?`,
+            fn: async (db, uid) => {
+                const { data } = await db.rpc('fn_total_answers', { p_user_uid: uid });
+                return Number(data) || 0;
+            },
             threshold: 50
         }
     },
@@ -105,7 +119,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'mastery',
         tier: 'gold',
         check: {
-            query: `SELECT COALESCE(SUM(success_count + failure_count), 0) as count FROM user_question_progress WHERE user_uid = ?`,
+            fn: async (db, uid) => {
+                const { data } = await db.rpc('fn_total_answers', { p_user_uid: uid });
+                return Number(data) || 0;
+            },
             threshold: 200
         }
     },
@@ -117,7 +134,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'mastery',
         tier: 'diamond',
         check: {
-            query: `SELECT COALESCE(SUM(success_count + failure_count), 0) as count FROM user_question_progress WHERE user_uid = ?`,
+            fn: async (db, uid) => {
+                const { data } = await db.rpc('fn_total_answers', { p_user_uid: uid });
+                return Number(data) || 0;
+            },
             threshold: 500
         }
     },
@@ -133,7 +153,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'mastery',
         tier: 'bronze',
         check: {
-            query: `SELECT COALESCE(SUM(success_count), 0) as count FROM user_question_progress WHERE user_uid = ?`,
+            fn: async (db, uid) => {
+                const { data } = await db.rpc('fn_total_correct', { p_user_uid: uid });
+                return Number(data) || 0;
+            },
             threshold: 10
         }
     },
@@ -145,7 +168,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'mastery',
         tier: 'gold',
         check: {
-            query: `SELECT COALESCE(SUM(success_count), 0) as count FROM user_question_progress WHERE user_uid = ?`,
+            fn: async (db, uid) => {
+                const { data } = await db.rpc('fn_total_correct', { p_user_uid: uid });
+                return Number(data) || 0;
+            },
             threshold: 100
         }
     },
@@ -161,7 +187,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'explorer',
         tier: 'bronze',
         check: {
-            query: `SELECT COUNT(DISTINCT app_id) as count FROM user_question_progress WHERE user_uid = ?`,
+            fn: async (db, uid) => {
+                const { data } = await db.rpc('fn_count_distinct_apps', { p_user_uid: uid });
+                return (data as number) || 0;
+            },
             threshold: 3
         }
     },
@@ -173,7 +202,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'explorer',
         tier: 'silver',
         check: {
-            query: `SELECT COUNT(DISTINCT app_id) as count FROM user_question_progress WHERE user_uid = ?`,
+            fn: async (db, uid) => {
+                const { data } = await db.rpc('fn_count_distinct_apps', { p_user_uid: uid });
+                return (data as number) || 0;
+            },
             threshold: 7
         }
     },
@@ -185,7 +217,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'explorer',
         tier: 'diamond',
         check: {
-            query: `SELECT COUNT(DISTINCT app_id) as count FROM user_question_progress WHERE user_uid = ?`,
+            fn: async (db, uid) => {
+                const { data } = await db.rpc('fn_count_distinct_apps', { p_user_uid: uid });
+                return (data as number) || 0;
+            },
             threshold: 12
         }
     },
@@ -201,14 +236,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'streak',
         tier: 'bronze',
         check: {
-            query: `WITH dates AS (
-                SELECT activity_date, ROW_NUMBER() OVER (ORDER BY activity_date) as rn
-                FROM user_daily_activity WHERE user_uid = ?
-            ),
-            groups AS (
-                SELECT activity_date, DATE(activity_date, '-' || rn || ' days') as grp FROM dates
-            )
-            SELECT MAX(cnt) as count FROM (SELECT COUNT(*) as cnt FROM groups GROUP BY grp)`,
+            fn: async (db, uid) => {
+                const { data } = await db.rpc('fn_max_streak', { p_user_uid: uid });
+                return (data as number) || 0;
+            },
             threshold: 3
         }
     },
@@ -220,14 +251,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'streak',
         tier: 'silver',
         check: {
-            query: `WITH dates AS (
-                SELECT activity_date, ROW_NUMBER() OVER (ORDER BY activity_date) as rn
-                FROM user_daily_activity WHERE user_uid = ?
-            ),
-            groups AS (
-                SELECT activity_date, DATE(activity_date, '-' || rn || ' days') as grp FROM dates
-            )
-            SELECT MAX(cnt) as count FROM (SELECT COUNT(*) as cnt FROM groups GROUP BY grp)`,
+            fn: async (db, uid) => {
+                const { data } = await db.rpc('fn_max_streak', { p_user_uid: uid });
+                return (data as number) || 0;
+            },
             threshold: 7
         }
     },
@@ -239,14 +266,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'streak',
         tier: 'gold',
         check: {
-            query: `WITH dates AS (
-                SELECT activity_date, ROW_NUMBER() OVER (ORDER BY activity_date) as rn
-                FROM user_daily_activity WHERE user_uid = ?
-            ),
-            groups AS (
-                SELECT activity_date, DATE(activity_date, '-' || rn || ' days') as grp FROM dates
-            )
-            SELECT MAX(cnt) as count FROM (SELECT COUNT(*) as cnt FROM groups GROUP BY grp)`,
+            fn: async (db, uid) => {
+                const { data } = await db.rpc('fn_max_streak', { p_user_uid: uid });
+                return (data as number) || 0;
+            },
             threshold: 14
         }
     },
@@ -258,14 +281,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'streak',
         tier: 'diamond',
         check: {
-            query: `WITH dates AS (
-                SELECT activity_date, ROW_NUMBER() OVER (ORDER BY activity_date) as rn
-                FROM user_daily_activity WHERE user_uid = ?
-            ),
-            groups AS (
-                SELECT activity_date, DATE(activity_date, '-' || rn || ' days') as grp FROM dates
-            )
-            SELECT MAX(cnt) as count FROM (SELECT COUNT(*) as cnt FROM groups GROUP BY grp)`,
+            fn: async (db, uid) => {
+                const { data } = await db.rpc('fn_max_streak', { p_user_uid: uid });
+                return (data as number) || 0;
+            },
             threshold: 30
         }
     },
@@ -277,7 +296,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'streak',
         tier: 'silver',
         check: {
-            query: `SELECT COUNT(DISTINCT session_id) as count FROM learning_session WHERE user_uid = ? AND pristine = 0`,
+            fn: async (db, uid) => {
+                const { data } = await db.rpc('fn_count_distinct_sessions', { p_user_uid: uid });
+                return (data as number) || 0;
+            },
             threshold: 5
         }
     },
@@ -289,7 +311,10 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'streak',
         tier: 'gold',
         check: {
-            query: `SELECT COUNT(DISTINCT session_id) as count FROM learning_session WHERE user_uid = ? AND pristine = 0`,
+            fn: async (db, uid) => {
+                const { data } = await db.rpc('fn_count_distinct_sessions', { p_user_uid: uid });
+                return (data as number) || 0;
+            },
             threshold: 20
         }
     },
@@ -305,7 +330,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'special',
         tier: 'bronze',
         check: {
-            query: `SELECT COUNT(*) as count FROM feedback WHERE user_uid = ?`,
+            fn: (db, uid) => countRows(db, 'feedback', uid),
             threshold: 1
         }
     },
@@ -317,7 +342,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'mastery',
         tier: 'silver',
         check: {
-            query: `SELECT COUNT(*) as count FROM user_question_progress WHERE user_uid = ? AND success_count >= 3 AND failure_count = 0`,
+            fn: (db, uid) => countRows(db, 'user_question_progress', uid, q => q.gte('success_count', 3).eq('failure_count', 0)),
             threshold: 5
         }
     },
@@ -329,11 +354,92 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
         category: 'mastery',
         tier: 'diamond',
         check: {
-            query: `SELECT COUNT(*) as count FROM user_question_progress WHERE user_uid = ? AND success_count >= 3 AND failure_count = 0`,
+            fn: (db, uid) => countRows(db, 'user_question_progress', uid, q => q.gte('success_count', 3).eq('failure_count', 0)),
             threshold: 25
         }
     }
 ];
+
+/**
+ * Batched badge checking.
+ * Instead of N separate queries, we fetch all necessary stats in one go
+ * and then evaluate the badges in memory.
+ */
+export async function checkAllBadges(db: SupabaseClient, uid: string, existingBadgeIds: Set<string>): Promise<string[]> {
+    // 1. Fetch all stats in parallel
+    const [
+        totalAnswersRes,
+        totalCorrectRes,
+        distinctAppsRes,
+        maxStreakRes,
+        distinctSessionsRes,
+        feedbackCountRes, // countRows(db, 'feedback', uid)
+        perfectQuestionsRes, // countRows(db, 'user_question_progress', uid, q => q.gte('success_count', 1).eq('failure_count', 0))
+        masteredQuestionsRes, // countRows(db, 'user_question_progress', uid, q => q.gte('success_count', 3).eq('failure_count', 0))
+        totalQuestionsRes // countRows(db, 'user_question_progress', uid)
+    ] = await Promise.all([
+        db.rpc('fn_total_answers', { p_user_uid: uid }),
+        db.rpc('fn_total_correct', { p_user_uid: uid }),
+        db.rpc('fn_count_distinct_apps', { p_user_uid: uid }),
+        db.rpc('fn_max_streak', { p_user_uid: uid }),
+        db.rpc('fn_count_distinct_sessions', { p_user_uid: uid }),
+        db.from('feedback').select('*', { count: 'exact', head: true }).eq('user_uid', uid),
+        db.from('user_question_progress').select('*', { count: 'exact', head: true }).eq('user_uid', uid).gte('success_count', 1).eq('failure_count', 0),
+        db.from('user_question_progress').select('*', { count: 'exact', head: true }).eq('user_uid', uid).gte('success_count', 3).eq('failure_count', 0),
+        db.from('user_question_progress').select('*', { count: 'exact', head: true }).eq('user_uid', uid)
+    ]);
+
+    const stats = {
+        totalAnswers: Number(totalAnswersRes.data) || 0,
+        totalCorrect: Number(totalCorrectRes.data) || 0,
+        distinctApps: Number(distinctAppsRes.data) || 0,
+        maxStreak: Number(maxStreakRes.data) || 0,
+        distinctSessions: Number(distinctSessionsRes.data) || 0,
+        feedbackCount: feedbackCountRes.count || 0,
+        perfectQuestions: perfectQuestionsRes.count || 0,
+        masteredQuestions: masteredQuestionsRes.count || 0,
+        totalQuestions: totalQuestionsRes.count || 0
+    };
+
+    const newlyAwarded: string[] = [];
+
+    // 2. Evaluators (sync)
+    const EVALUATORS: Record<string, (s: typeof stats) => boolean> = {
+        'first_question': s => s.totalQuestions >= 1,
+        'first_perfect': s => s.perfectQuestions >= 1,
+        'first_session': s => s.distinctSessions >= 1,
+        'questions_10': s => s.totalAnswers >= 10,
+        'questions_50': s => s.totalAnswers >= 50,
+        'questions_200': s => s.totalAnswers >= 200,
+        'questions_500': s => s.totalAnswers >= 500,
+        'correct_10': s => s.totalCorrect >= 10,
+        'correct_100': s => s.totalCorrect >= 100,
+        'explorer_3': s => s.distinctApps >= 3,
+        'explorer_7': s => s.distinctApps >= 7,
+        'explorer_all': s => s.distinctApps >= 12, // TODO: Dynamic app count?
+        'streak_3': s => s.maxStreak >= 3,
+        'streak_7': s => s.maxStreak >= 7,
+        'streak_14': s => s.maxStreak >= 14,
+        'streak_30': s => s.maxStreak >= 30,
+        'sessions_5': s => s.distinctSessions >= 5,
+        'sessions_20': s => s.distinctSessions >= 20,
+        'feedback_hero': s => s.feedbackCount >= 1,
+        'mastery_5': s => s.masteredQuestions >= 5,
+        'mastery_25': s => s.masteredQuestions >= 25
+    };
+
+    // 3. Check all badges
+    for (const badge of BADGE_DEFINITIONS) {
+        if (existingBadgeIds.has(badge.id)) continue;
+
+        const evaluator = EVALUATORS[badge.id];
+        if (evaluator && evaluator(stats)) {
+            newlyAwarded.push(badge.id);
+        }
+    }
+
+    return newlyAwarded;
+}
 
 /**
  * Lightweight badge info for the frontend (no SQL queries).

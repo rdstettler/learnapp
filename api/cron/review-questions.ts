@@ -1,5 +1,6 @@
+
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTursoClient } from '../_lib/turso.js';
+import { getSupabaseClient } from '../_lib/supabase.js';
 import { requireAuth, handleCors } from '../_lib/auth.js';
 import { xai } from '@ai-sdk/xai';
 import { generateText } from 'ai';
@@ -15,14 +16,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const decoded = await requireAuth(req, res);
     if (!decoded) return;
 
-    const db = getTursoClient();
+    const db = getSupabaseClient();
 
-    const user = await db.execute({
-        sql: "SELECT is_admin FROM users WHERE uid = ?",
-        args: [decoded.uid]
-    });
+    const { data: user, error: userError } = await db
+        .from('users')
+        .select('is_admin')
+        .eq('uid', decoded.uid)
+        .single();
 
-    if (user.rows.length === 0 || !user.rows[0].is_admin) {
+    if (userError || !user || !user.is_admin) {
         return res.status(403).json({ error: 'Forbidden: Admins only' });
     }
 
@@ -30,26 +32,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     try {
         const updates = [];
-        const appContents = await db.execute({
-            sql: `
-            SELECT * FROM app_content 
-            WHERE ai_generated = 1 AND human_verified = 0 AND app_id NOT IN ('kopfrechnen', 'zeitrechnen', 'umrechnen', 'zahlen-raten', 'flaeche-umfang')
-            ORDER BY ai_reviewed_counter ASC, flag_counter DESC, RANDOM()
-            LIMIT ?
-        `,
-            args: [limit]
-        });
 
-        for (const row of appContents.rows) {
+        // Fetch candidates. 
+        // Supabase doesn't support RANDOM() sort easily. 
+        // We fetch a larger batch sorted by priority (least reviewed, most flagged) and shuffle in memory.
+        const excludedApps = ['kopfrechnen', 'zeitrechnen', 'umrechnen', 'zahlen-raten', 'flaeche-umfang'];
+
+        const { data: candidates, error } = await db.from('app_content')
+            .select('*')
+            .eq('ai_generated', true)
+            .eq('human_verified', false)
+            .not('app_id', 'in', `(${excludedApps.join(',')})`)
+            .order('ai_reviewed_counter', { ascending: true })
+            .order('flag_counter', { ascending: false })
+            .limit(limit * 5); // Fetch 5x needed to allow some randomization
+
+        if (error) throw error;
+
+        if (!candidates || candidates.length === 0) {
+            return res.status(200).json({ checked_count: 0, results: [] });
+        }
+
+        // Shuffle in memory
+        const shuffled = candidates.sort(() => 0.5 - Math.random()).slice(0, limit);
+
+        for (const row of shuffled) {
             let content = null;
             try { content = JSON.parse(row.data as string); } catch (e) { }
             const app_id = row.app_id as string;
 
-            // Always increment review counter
-            await db.execute({
-                sql: "UPDATE app_content SET ai_reviewed_counter = COALESCE(ai_reviewed_counter, 0) + 1 WHERE id = ?",
-                args: [row.id]
-            });
+            // Always increment review counter (Read-Modify-Write)
+            const newReviewCount = (row.ai_reviewed_counter || 0) + 1;
+            await db.from('app_content').update({ ai_reviewed_counter: newReviewCount }).eq('id', row.id);
 
             if (!content) continue;
 
@@ -59,16 +73,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 console.warn(`[Quality Check] Flagging app_content ${row.id}: ${result.reason}`);
 
                 // Increment flag_counter
-                await db.execute({
-                    sql: "UPDATE app_content SET flag_counter = flag_counter + 1 WHERE id = ?",
-                    args: [row.id]
-                });
+                const newFlagCount = (row.flag_counter || 0) + 1;
+                await db.from('app_content').update({ flag_counter: newFlagCount }).eq('id', row.id);
 
                 // Log the correction/issue for human review
-                await db.execute({
-                    sql: `INSERT INTO feedback (user_uid, app_id, session_id, target_id, content, comment, error_type, resolved)
-                          VALUES ('system', ?, ?, ?, ?, ?, 'ai_review_flag', 0)`,
-                    args: [app_id, 'cron-job', `app_content:${row.id}`, JSON.stringify(content), `AI Review: ${result.reason}. Suggestion: ${JSON.stringify(result.correction)}`]
+                await db.from('feedback').insert({
+                    user_uid: 'system',
+                    app_id: app_id,
+                    session_id: 'cron-job',
+                    target_id: `app_content:${row.id}`,
+                    content: JSON.stringify(content),
+                    comment: `AI Review: ${result.reason}. Suggestion: ${JSON.stringify(result.correction)}`,
+                    error_type: 'ai_review_flag',
+                    resolved: false
                 });
 
                 updates.push({ source: 'app_content', id: row.id, status: "FAILED", reason: result.reason });
@@ -78,7 +95,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         return res.status(200).json({
-            checked_count: appContents.rows.length,
+            checked_count: shuffled.length,
             results: updates
         });
 

@@ -26,7 +26,7 @@ export class TextaufgabenComponent {
     private dataService = inject(DataService);
     private apiService = inject(ApiService);
     private telemetryService = inject(AppTelemetryService);
-    private sessionId = this.telemetryService.generateSessionId();
+
 
     screen = signal<'welcome' | 'quiz' | 'results'>('welcome');
     items = signal<TextaufgabeItem[]>([]);

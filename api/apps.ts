@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTursoClient, type TursoClient } from './_lib/turso.js';
+import { getSupabaseClient } from './_lib/supabase.js';
 import { handleCors, verifyAuth } from './_lib/auth.js';
 import { replaceEszett } from './_lib/text-utils.js';
 
@@ -45,15 +45,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 }
 
 async function handleAppsList(req: VercelRequest, res: VercelResponse) {
-    const db = getTursoClient();
+    const db = getSupabaseClient();
 
     // Cache for 1 hour, reuse stale for 10 mins
     res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=600');
 
     try {
-        const result = await db.execute("SELECT * FROM apps");
+        const { data: apps, error } = await db.from('apps').select('*');
+        if (error) throw error;
 
-        const apps = result.rows.map(row => {
+        const processedApps = apps.map(row => {
             // Parse tags from JSON string
             let tags = [];
             try {
@@ -70,7 +71,7 @@ async function handleAppsList(req: VercelRequest, res: VercelResponse) {
             };
         });
 
-        return res.status(200).json({ apps });
+        return res.status(200).json({ apps: processedApps });
     } catch (e: unknown) {
         console.error("Error fetching apps:", e);
         return res.status(500).json({ error: e instanceof Error ? e.message : 'Unknown error' });
@@ -78,7 +79,7 @@ async function handleAppsList(req: VercelRequest, res: VercelResponse) {
 }
 
 async function handleAppContent(req: VercelRequest, res: VercelResponse, app_id: string) {
-    const db = getTursoClient();
+    const db = getSupabaseClient();
     const { skill_level, level, curriculum_node_id } = req.query;
 
     // Optional auth — personalize if logged in, anonymous fallback otherwise
@@ -88,63 +89,29 @@ async function handleAppContent(req: VercelRequest, res: VercelResponse, app_id:
     try {
         // 1. Check for Procedural Config (app_config) if curriculum node is provided
         let appConfig = null;
+        // Moved to parallel execution below
+
+
+
+        // 2. Prepare Content Query
+        let query = db.from('app_content').select('*').eq('app_id', app_id);
+
+        // Filter by mode (for apps with multiple modes sharing the same app_id)
+        if (req.query.mode) {
+            query = query.eq('mode', req.query.mode as string);
+        }
+
+        // Filter by Curriculum Node
         if (curriculum_node_id) {
             const nodeId = parseInt(curriculum_node_id as string);
-            const configResult = await db.execute({
-                sql: "SELECT config_json FROM app_config WHERE app_id = ? AND curriculum_node_id = ?",
-                args: [app_id, nodeId]
-            });
-            if (configResult.rows.length > 0) {
-                try {
-                    appConfig = JSON.parse(configResult.rows[0].config_json as string);
-                } catch (e) {
-                    console.error("Error parsing app_config", e);
-                }
-            }
-        }
-
-        // 2. Fetch Content (Static)
-        let sql: string;
-        const args: (string | number)[] = [];
-
-        if (user_uid) {
-            // Personalized query: LEFT JOIN with user progress
-            sql = `SELECT ac.*, 
-                          uqp.success_count, 
-                          uqp.failure_count, 
-                          uqp.last_attempt_at
-                   FROM app_content ac
-                   LEFT JOIN user_question_progress uqp 
-                     ON ac.id = uqp.app_content_id AND uqp.user_uid = ?`;
-
-            // Add filtering joins depending on mode
-            if (curriculum_node_id) {
-                sql += ` JOIN app_content_curriculum acc ON ac.id = acc.app_content_id`;
-            }
-
-            sql += ` WHERE ac.app_id = ?`;
-            args.push(user_uid); // for join
-            // args.push(app_id); // pushed later
-        } else {
-            sql = "SELECT ac.* FROM app_content ac";
-            if (curriculum_node_id) {
-                sql += ` JOIN app_content_curriculum acc ON ac.id = acc.app_content_id`;
-            }
-            sql += ` WHERE ac.app_id = ?`;
-        }
-        args.push(app_id);
-
-        // Filter by Curriculum Node if provided
-        if (curriculum_node_id) {
-            sql += " AND acc.curriculum_node_id = ?";
-            args.push(parseInt(curriculum_node_id as string));
+            query = query.select('*, app_content_curriculum!inner(curriculum_node_id)')
+                .eq('app_content_curriculum.curriculum_node_id', nodeId);
         }
 
         if (skill_level) {
             const skillVal = parseFloat(skill_level as string);
             if (!isNaN(skillVal)) {
-                sql += " AND (ac.skill_level IS NULL OR ac.skill_level <= ?)";
-                args.push(skillVal);
+                query = query.or(`skill_level.is.null,skill_level.lte.${skillVal}`);
             }
         }
 
@@ -152,14 +119,44 @@ async function handleAppContent(req: VercelRequest, res: VercelResponse, app_id:
         if (level && !curriculum_node_id) {
             const levelVal = parseInt(level as string);
             if (!isNaN(levelVal)) {
-                sql += " AND (ac.level IS NULL OR ac.level = ?)";
-                args.push(levelVal);
+                query = query.or(`level.is.null,level.eq.${levelVal}`);
             }
         }
 
-        const result = await db.execute({ sql, args });
+        // Execute queries in parallel
+        const [appConfigData, contentResult, userProgressData] = await Promise.all([
+            // Config query
+            (curriculum_node_id ? db.from('app_config').select('config_json').eq('app_id', app_id).eq('curriculum_node_id', parseInt(curriculum_node_id as string)).single() : Promise.resolve({ data: null })),
 
-        const content = result.rows.map(row => {
+            // Content query
+            query,
+
+            // User progress query
+            (user_uid ? db.from('user_question_progress').select('app_content_id, success_count, failure_count, last_attempt_at').eq('user_uid', user_uid).eq('app_id', app_id) : Promise.resolve({ data: [] }))
+        ]);
+
+        const { data: contentRows, error: contentError } = contentResult;
+        if (contentError) throw contentError;
+
+        // Process Config
+        if (appConfigData.data) {
+            try {
+                appConfig = JSON.parse(appConfigData.data.config_json);
+            } catch (e) {
+                console.error("Error parsing app_config", e);
+            }
+        }
+
+        // Process Progress
+        let userProgressMap = new Map();
+        if (userProgressData.data) {
+            userProgressData.data.forEach((p: any) => userProgressMap.set(p.app_content_id, p));
+        }
+
+        // Fetch User Progress separately if logged in
+        // Moved to parallel execution above
+
+        const content = contentRows.map(row => {
             let data = null;
             try {
                 data = JSON.parse(row.data as string);
@@ -168,8 +165,11 @@ async function handleAppContent(req: VercelRequest, res: VercelResponse, app_id:
             }
 
             if (user_uid) {
-                const s = (row.success_count as number) ?? 0;
-                const f = (row.failure_count as number) ?? 0;
+                const progress = userProgressMap.get(row.id);
+                const s = (progress?.success_count as number) ?? 0;
+                const f = (progress?.failure_count as number) ?? 0;
+                const lastAttempt = progress?.last_attempt_at;
+
                 const total = s + f;
 
                 let mastery: 'new' | 'struggling' | 'improving' | 'mastered' = 'new';
@@ -187,8 +187,8 @@ async function handleAppContent(req: VercelRequest, res: VercelResponse, app_id:
                     }
 
                     // Recency boost: questions attempted recently get higher priority
-                    if (row.last_attempt_at) {
-                        const daysSince = (Date.now() - new Date(row.last_attempt_at as string).getTime()) / 86400000;
+                    if (lastAttempt) {
+                        const daysSince = (Date.now() - new Date(lastAttempt as string).getTime()) / 86400000;
                         const recencyBoost = Math.exp(-0.1 * daysSince);
                         priority *= (0.3 + 0.7 * recencyBoost);
                     }
@@ -238,7 +238,7 @@ async function handleAppContent(req: VercelRequest, res: VercelResponse, app_id:
  *   - fachbereich (optional): 'deutsch' | 'mathematik'
  */
 async function handleCurriculum(req: VercelRequest, res: VercelResponse) {
-    const db = getTursoClient();
+    const db = getSupabaseClient();
 
     // Cache for 24 hours (curriculum doesn't change)
     // Adjusted cache policy: shorter stale time to reflect progress updates faster?
@@ -262,45 +262,30 @@ async function handleCurriculum(req: VercelRequest, res: VercelResponse) {
     const fachbereich = req.query.fachbereich as string | undefined;
 
     try {
-        let sql = `SELECT id, code, fachbereich, level, parent_code, zyklus, title, description
-                   FROM curriculum_nodes`;
-        const conditions: string[] = [];
-        const args: (string | number)[] = [];
-
-        if (fachbereich) {
-            conditions.push('fachbereich = ?');
-            args.push(fachbereich);
-        }
-
-        if (maxZyklus) {
-            conditions.push('(zyklus IS NULL OR zyklus <= ?)');
-            args.push(maxZyklus);
-        }
-
-        if (conditions.length > 0) {
-            sql += ' WHERE ' + conditions.join(' AND ');
-        }
-
-        sql += ' ORDER BY code';
+        let query = db.from('curriculum_nodes').select('id, code, fachbereich, level, parent_code, zyklus, title, description');
+        if (fachbereich) query = query.eq('fachbereich', fachbereich);
+        if (maxZyklus) query = query.or(`zyklus.is.null,zyklus.lte.${maxZyklus}`);
+        query = query.order('code');
 
         // Parallel fetch: nodes + user progress
         const [nodesResult, progressResult] = await Promise.all([
-            db.execute({ sql, args }),
-            user_uid ? db.execute({
-                sql: "SELECT curriculum_node_id, mastery_level, status FROM user_curriculum_progress WHERE user_uid = ?",
-                args: [user_uid]
-            }) : Promise.resolve({ rows: [] })
+            query,
+            user_uid ? db.from('user_curriculum_progress')
+                .select('curriculum_node_id, mastery_level, status')
+                .eq('user_uid', user_uid)
+                : Promise.resolve({ data: [] })
         ]);
 
+        const nodesRows = nodesResult.data || [];
+        const progressRows = progressResult.data || [];
+
         const progressMap = new Map();
-        if (progressResult.rows) {
-            for (const row of progressResult.rows) {
-                progressMap.set(row.curriculum_node_id, row);
-            }
+        for (const row of progressRows) {
+            progressMap.set(row.curriculum_node_id, row);
         }
 
         // Attach app mappings to nodes
-        const nodes = nodesResult.rows.map(row => {
+        const nodes = nodesRows.map(row => {
             const code = row.code as string;
             // Find matching apps: check the code itself and parent prefixes
             let apps: string[] = [];
@@ -335,26 +320,32 @@ async function handleCurriculum(req: VercelRequest, res: VercelResponse) {
 }
 
 async function handleReadingText(req: VercelRequest, res: VercelResponse) {
-    const db = getTursoClient();
+    const db = getSupabaseClient();
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=120');
 
     const textId = req.query.text_id ? parseInt(req.query.text_id as string) : null;
     const maxZyklus = req.query.max_zyklus ? parseInt(req.query.max_zyklus as string) : 3;
 
     try {
-        let textRow;
+        let textRow: any;
 
         if (textId) {
             // Fetch specific text
-            const result = await db.execute({ sql: 'SELECT * FROM reading_texts WHERE id = ?', args: [textId] });
-            textRow = result.rows[0];
+            const { data } = await db.from('reading_texts').select('*').eq('id', textId).single();
+            textRow = data;
         } else {
             // Fetch random text for the user's Zyklus level
-            const result = await db.execute({
-                sql: 'SELECT * FROM reading_texts WHERE zyklus <= ? ORDER BY RANDOM() LIMIT 1',
-                args: [maxZyklus]
-            });
-            textRow = result.rows[0];
+            // Workaround for random order: fetch all IDs, pick one, then fetch details
+            // Or since dataset is small, fetch all texts and pick random in JS
+            const { data: allTexts } = await db
+                .from('reading_texts')
+                .select('*')
+                .lte('zyklus', maxZyklus);
+
+            if (allTexts && allTexts.length > 0) {
+                const randomIndex = Math.floor(Math.random() * allTexts.length);
+                textRow = allTexts[randomIndex];
+            }
         }
 
         if (!textRow) {
@@ -362,15 +353,16 @@ async function handleReadingText(req: VercelRequest, res: VercelResponse) {
         }
 
         // Fetch reviewed questions for this text
-        const questionsResult = await db.execute({
-            sql: `SELECT id, tier, question_type, question, options, correct_answer, explanation, paragraph_index
-                  FROM reading_questions 
-                  WHERE text_id = ? AND reviewed = 1
-                  ORDER BY paragraph_index, tier, id`,
-            args: [textRow.id as number]
-        });
+        const { data: questionsData } = await db
+            .from('reading_questions')
+            .select('id, tier, question_type, question, options, correct_answer, explanation, paragraph_index')
+            .eq('text_id', textRow.id)
+            .eq('reviewed', true)
+            .order('paragraph_index', { ascending: true })
+            .order('tier', { ascending: true })
+            .order('id', { ascending: true });
 
-        const questions = questionsResult.rows.map(q => ({
+        const questions = (questionsData || []).map(q => ({
             id: q.id,
             tier: q.tier,
             questionType: q.question_type,
@@ -382,10 +374,11 @@ async function handleReadingText(req: VercelRequest, res: VercelResponse) {
         }));
 
         // Get all available text IDs for navigation
-        const allTexts = await db.execute({
-            sql: 'SELECT id, title, zyklus, word_count FROM reading_texts WHERE zyklus <= ? ORDER BY id',
-            args: [maxZyklus]
-        });
+        const { data: allTextsData } = await db
+            .from('reading_texts')
+            .select('id, title, zyklus, word_count')
+            .lte('zyklus', maxZyklus)
+            .order('id', { ascending: true });
 
         return res.status(200).json({
             text: {
@@ -399,7 +392,7 @@ async function handleReadingText(req: VercelRequest, res: VercelResponse) {
                 wordCount: textRow.word_count,
             },
             questions,
-            availableTexts: allTexts.rows.map(t => ({
+            availableTexts: (allTextsData || []).map(t => ({
                 id: t.id,
                 title: t.title,
                 zyklus: t.zyklus,

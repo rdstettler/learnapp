@@ -116,8 +116,7 @@
 
             <div class="build-input-row">
                 <input type="text" class="build-input" [value]="buildInput()"
-                    (input)="buildInput.set($any($event.target).value)"
-                    (keyup.enter)="submitBuildWord()"
+                    (input)="buildInput.set($any($event.target).value)" (keyup.enter)="submitBuildWord()"
                     placeholder="Zusammengesetztes Wort..." autocomplete="off">
                 <button class="btn btn-primary btn-sm" (click)="submitBuildWord()">+</button>
             </div>
@@ -132,6 +131,115 @@
             </div>
 
             <button class="btn btn-secondary" style="margin-top: 20px;" (click)="finishBuild()">Fertig</button>
+        </div>
+        }
+
+        <!-- ═══ SATZAUSWAHL MODE ═══ -->
+        @if (screen() === 'sentence' || screen() === 'sentence-result') {
+        <div class="quiz-content">
+            <div class="progress-bar-container">
+                <div class="progress-info">
+                    <span>Frage {{ sentenceIndex() + 1 }} von {{ sentenceQuestions().length }}</span>
+                    <span>{{ totalCorrect() }} richtig</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill"
+                        [style.width.%]="((sentenceIndex() + (sentenceChecked() ? 1 : 0)) / sentenceQuestions().length) * 100">
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="stage-title">🔤 Satzauswahl</h2>
+            <div class="sentence-display">
+                @if (currentSentenceQ(); as q) {
+                <p class="sentence-text">{{ q.sentence }}</p>
+                <p class="sentence-hint">Wortstamm: <strong>{{ currentStem()?.stem }}</strong></p>
+                }
+            </div>
+
+            @if (currentSentenceQ(); as q) {
+            <div class="options-list">
+                @for (option of q.options; track option) {
+                <div class="option-item sentence-option" [class]="getSentenceOptionClass(option)"
+                    (click)="selectSentenceOption(option)">
+                    <div class="radio-dot"></div>
+                    <span>{{ option }}</span>
+                </div>
+                }
+            </div>
+
+            @if (!sentenceChecked()) {
+            <button class="btn btn-primary" [disabled]="!sentenceSelected()"
+                (click)="checkSentenceAnswer()">Überprüfen</button>
+            } @else {
+            <div class="feedback-box" [class.correct]="sentenceSelected() === q.answerDisplay"
+                [class.wrong]="sentenceSelected() !== q.answerDisplay">
+                @if (sentenceSelected() === q.answerDisplay) {
+                <span class="feedback-icon">✓</span> Richtig!
+                } @else {
+                <span class="feedback-icon">✗</span> Falsch — Richtige Antwort: <strong>{{ q.answerDisplay }}</strong>
+                }
+            </div>
+            <button class="btn btn-primary" (click)="nextSentence()">Weiter</button>
+            }
+            }
+        </div>
+        }
+
+        <!-- ═══ SCHREIBEN MODE ═══ -->
+        @if (screen() === 'write' || screen() === 'write-result') {
+        <div class="quiz-content">
+            <div class="progress-bar-container">
+                <div class="progress-info">
+                    <span>Frage {{ writeIndex() + 1 }} von {{ writeQuestions().length }}</span>
+                    <span>{{ totalCorrect() }} richtig</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill"
+                        [style.width.%]="((writeIndex() + (writeChecked() ? 1 : 0)) / writeQuestions().length) * 100">
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="stage-title">✍️ Schreiben</h2>
+
+            @if (currentWriteQ(); as q) {
+            <div class="sentence-display">
+                <p class="sentence-text">
+                    @for (part of getSentenceParts(q.sentence); track $index) {
+                    <span>{{ part }}</span>
+                    @if ($index < q.answerParts.length) { @if (!writeChecked()) { <input type="text"
+                        class="inline-input" [value]="writeInputs()[$index] || ''"
+                        (input)="updateWriteInput($index, $any($event.target).value)" (keyup.enter)="checkWriteAnswer()"
+                        [placeholder]="'...'" autocomplete="off">
+                        } @else {
+                        <span class="inline-answer"
+                            [class.correct]="normalizeGerman(writeInputs()[$index] || '') === normalizeGerman(q.answerParts[$index])"
+                            [class.wrong]="normalizeGerman(writeInputs()[$index] || '') !== normalizeGerman(q.answerParts[$index])">
+                            {{ writeInputs()[$index] || '—' }}
+                        </span>
+                        }
+                        }
+                        }
+                </p>
+                <p class="sentence-hint">Wortstamm: <strong>{{ q.stem }}</strong> · Wort: <strong>{{ q.compositeWord
+                        }}</strong></p>
+            </div>
+
+            @if (!writeChecked()) {
+            <button class="btn btn-primary" (click)="checkWriteAnswer()">Überprüfen</button>
+            } @else {
+            <div class="feedback-box" [class.correct]="writeCorrect()" [class.wrong]="!writeCorrect()">
+                @if (writeCorrect()) {
+                <span class="feedback-icon">✓</span> Richtig!
+                } @else {
+                <span class="feedback-icon">✗</span> Richtige Antwort: <strong>{{ q.answerParts.join(' ... ')
+                    }}</strong>
+                }
+            </div>
+            <button class="btn btn-primary" (click)="nextWriteQuestion()">Weiter</button>
+            }
+            }
         </div>
         }
 

@@ -15,6 +15,7 @@ import { PropertiesModalComponent } from './properties-modal/properties-modal.co
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { catchError, of } from 'rxjs';
 import { AppInfo } from '../shared/components/app-card/app-card.component'; // Import from shared
+// import { FederationRouteLoaderService } from '../federation-route-loader.service';
 
 interface AppsConfig {
     apps: AppInfo[];
@@ -36,6 +37,7 @@ export class PlatformComponent implements OnInit, AfterViewInit {
     private apiService = inject(ApiService);
     private sanitizer = inject(DomSanitizer);
     private onboardingService = inject(OnboardingService);
+    // private federationLoader = inject(FederationRouteLoaderService);
     badgeService = inject(BadgeService);
     streakService = inject(StreakService);
 
@@ -290,7 +292,7 @@ export class PlatformComponent implements OnInit, AfterViewInit {
         }
         // Sync URL — omit ?view= for 'all' to keep URL clean
         this.router.navigate([], {
-            queryParams: { view: view === 'all' ? null : view },
+            queryParams: { view },
             queryParamsHandling: 'merge'
         });
     }
@@ -307,9 +309,6 @@ export class PlatformComponent implements OnInit, AfterViewInit {
     navigateToApp(app: AppInfo): void {
         const uid = this.authService.user()?.uid;
         this.userService.recordAppOpen(app.id, uid);
-
-        // Track in database if user is authenticated
-        this.apiService.trackAppOpen(app.id);
 
         // Use the router properly - navigate returns a promise
         this.router.navigate([app.route]).then(success => {

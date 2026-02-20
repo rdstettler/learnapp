@@ -34,7 +34,7 @@ export class DasdassComponent {
     private cdr = inject(ChangeDetectorRef);
     private apiService = inject(ApiService); // Public so we can bind to it if needed
     private telemetryService = inject(AppTelemetryService);
-    private sessionId = this.telemetryService.generateSessionId();
+
 
     private quizStartTime = 0;
 

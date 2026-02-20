@@ -15,7 +15,13 @@ interface SynAntPair {
     secondGroup: SynAntGroup;
 }
 
-type QuizMode = 'spion' | 'schwach';
+type QuizMode = 'spion' | 'schwach' | 'syn-paare' | 'ant-paare';
+
+interface PairMatchItem {
+    id: number;
+    left: string;
+    right: string;
+}
 
 interface QuizRound {
     /** All words displayed (shuffled mix of synonyms + spies or strong + weak) */
@@ -39,13 +45,15 @@ interface QuizRound {
 export class SynantComponent {
     private dataService = inject(DataService);
     private telemetryService = inject(AppTelemetryService);
-    private sessionId = this.telemetryService.generateSessionId();
+
 
     readonly ROUNDS_PER_GAME = 10;
 
     readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [
         { id: 'spion', label: 'Spion finden', icon: '🕵️', description: 'Finde die Antonyme unter den Synonymen!' },
-        { id: 'schwach', label: 'Schwächstes Synonym', icon: '🎯', description: 'Welches Wort passt am wenigsten?' }
+        { id: 'schwach', label: 'Schwächstes Synonym', icon: '🎯', description: 'Welches Wort passt am wenigsten?' },
+        { id: 'syn-paare', label: 'Synonym-Paare', icon: '🔗', description: 'Verbinde Synonyme aus der gleichen Gruppe.' },
+        { id: 'ant-paare', label: 'Antonym-Paare', icon: '⚡', description: 'Verbinde Wörter mit ihren Gegenteilen.' }
     ];
 
     mode = signal<QuizMode>('spion');
@@ -59,10 +67,26 @@ export class SynantComponent {
     markedWords = signal<Set<string>>(new Set());
     answered = signal(false);
 
+    // Pair-matching mode
+    pairItems = signal<PairMatchItem[]>([]);
+    leftColumn = signal<{ word: string; pairId: number }[]>([]);
+    rightColumn = signal<{ word: string; pairId: number }[]>([]);
+    selectedLeft = signal<number | null>(null);
+    selectedRight = signal<number | null>(null);
+    matchedPairs = signal<Set<number>>(new Set());
+    wrongPair = signal(false);
+    private wrongTimeout: any = null;
+
     totalCorrect = signal(0);
     totalWrong = signal(0);
 
-    progress = computed(() => (this.currentIndex() / this.ROUNDS_PER_GAME) * 100);
+    progress = computed(() => {
+        if (this.mode() === 'syn-paare' || this.mode() === 'ant-paare') {
+            const total = this.pairItems().length;
+            return total > 0 ? (this.matchedPairs().size / total) * 100 : 0;
+        }
+        return (this.currentIndex() / this.ROUNDS_PER_GAME) * 100;
+    });
     percentage = computed(() => {
         const total = this.totalCorrect() + this.totalWrong();
         return total > 0 ? Math.round((this.totalCorrect() / total) * 100) : 0;
@@ -87,6 +111,15 @@ export class SynantComponent {
     }
 
     startQuiz(): void {
+        this.totalCorrect.set(0);
+        this.totalWrong.set(0);
+        this.screen.set('quiz');
+
+        if (this.mode() === 'syn-paare' || this.mode() === 'ant-paare') {
+            this.startPairMatching();
+            return;
+        }
+
         const pairs = shuffle(this.allPairs());
         const selected = pairs.slice(0, this.ROUNDS_PER_GAME);
 
@@ -100,10 +133,7 @@ export class SynantComponent {
 
         this.rounds.set(rounds);
         this.currentIndex.set(0);
-        this.totalCorrect.set(0);
-        this.totalWrong.set(0);
         this.resetRound();
-        this.screen.set('quiz');
     }
 
     private buildSpionRound(pair: SynAntPair & { _contentId?: number }): QuizRound {
@@ -233,6 +263,7 @@ export class SynantComponent {
 
     handleEnter(): void {
         if (this.screen() !== 'quiz') return;
+        if (this.mode() === 'syn-paare' || this.mode() === 'ant-paare') return;
         if (this.answered()) {
             this.nextRound();
         } else if (this.hasSelection) {
@@ -248,5 +279,101 @@ export class SynantComponent {
 
     getTargetCount(): number {
         return this.currentRound()?.targets.length ?? 0;
+    }
+
+    // ═══ MODE: PAARE FINDEN ═══
+
+    private startPairMatching(): void {
+        const allData = shuffle(this.allPairs());
+        const count = Math.min(allData.length, 8 + Math.floor(Math.random() * 3)); // 8-10
+        const selected = allData.slice(0, count);
+
+        const pairs: PairMatchItem[] = selected.map((pair, idx) => {
+            if (this.mode() === 'syn-paare') {
+                // Synonym pairs: one strong word from firstGroup, one from weak or another strong
+                const leftWord = shuffle(pair.firstGroup.strong)[0];
+                // Use a different strong synonym or weak synonym as the match
+                const candidates = [
+                    ...pair.firstGroup.strong.filter(w => w !== leftWord),
+                    ...pair.firstGroup.weak
+                ];
+                const rightWord = shuffle(candidates)[0] || pair.firstGroup.strong[0];
+                return { id: idx, left: leftWord, right: rightWord };
+            } else {
+                // Antonym pairs: one word from firstGroup, one from secondGroup
+                const leftWord = shuffle([...pair.firstGroup.strong, ...pair.firstGroup.weak])[0];
+                const rightWord = shuffle([...pair.secondGroup.strong, ...pair.secondGroup.weak])[0];
+                return { id: idx, left: leftWord, right: rightWord };
+            }
+        });
+
+        this.pairItems.set(pairs);
+        this.leftColumn.set(shuffle(pairs.map(p => ({ word: p.left, pairId: p.id }))));
+        this.rightColumn.set(shuffle(pairs.map(p => ({ word: p.right, pairId: p.id }))));
+        this.selectedLeft.set(null);
+        this.selectedRight.set(null);
+        this.matchedPairs.set(new Set());
+        this.wrongPair.set(false);
+    }
+
+    selectPairLeft(index: number): void {
+        if (this.matchedPairs().has(this.leftColumn()[index].pairId)) return;
+        this.selectedLeft.set(index);
+        this.tryMatchPair();
+    }
+
+    selectPairRight(index: number): void {
+        if (this.matchedPairs().has(this.rightColumn()[index].pairId)) return;
+        this.selectedRight.set(index);
+        this.tryMatchPair();
+    }
+
+    private tryMatchPair(): void {
+        const leftIdx = this.selectedLeft();
+        const rightIdx = this.selectedRight();
+        if (leftIdx === null || rightIdx === null) return;
+
+        const leftItem = this.leftColumn()[leftIdx];
+        const rightItem = this.rightColumn()[rightIdx];
+
+        if (leftItem.pairId === rightItem.pairId) {
+            const newMatched = new Set(this.matchedPairs());
+            newMatched.add(leftItem.pairId);
+            this.matchedPairs.set(newMatched);
+            this.totalCorrect.update(c => c + 1);
+            this.selectedLeft.set(null);
+            this.selectedRight.set(null);
+
+            if (newMatched.size >= this.pairItems().length) {
+                setTimeout(() => {
+                    this.screen.set('results');
+                    if (this.percentage() === 100) launchConfetti();
+                }, 500);
+            }
+        } else {
+            this.totalWrong.update(w => w + 1);
+            this.wrongPair.set(true);
+            if (this.wrongTimeout) clearTimeout(this.wrongTimeout);
+            this.wrongTimeout = setTimeout(() => {
+                this.wrongPair.set(false);
+                this.selectedLeft.set(null);
+                this.selectedRight.set(null);
+            }, 600);
+        }
+    }
+
+    getPairWordClass(column: 'left' | 'right', index: number): string {
+        const item = column === 'left' ? this.leftColumn()[index] : this.rightColumn()[index];
+        if (!item) return '';
+
+        if (this.matchedPairs().has(item.pairId)) return 'matched';
+
+        const isSelected = column === 'left'
+            ? this.selectedLeft() === index
+            : this.selectedRight() === index;
+
+        if (isSelected && this.wrongPair()) return 'selected wrong';
+        if (isSelected) return 'selected';
+        return '';
     }
 }

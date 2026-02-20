@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTursoClient } from './_lib/turso.js';
+import { getSupabaseClient } from './_lib/supabase.js';
 import { requireAuth, handleCors } from './_lib/auth.js';
 import { replaceEszett } from './_lib/text-utils.js';
 import crypto from 'node:crypto';
@@ -27,42 +27,46 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const decoded = await requireAuth(req, res);
     if (!decoded) return;
 
-    const db = getTursoClient();
+    const db = getSupabaseClient();
     const user_uid = decoded.uid;
 
     // Route: plan vs session
     const type = req.query.type || req.body?.type;
     if (type === 'plan') {
-        return handlePlan(req, res, db, user_uid);
+        return handlePlan(req, res, user_uid);
     }
 
     if (req.method === 'GET') {
         try {
             // 1. Find the active session (latest session that has at least one pristine task)
-            const activeSessionResult = await db.execute({
-                sql: `SELECT session_id FROM learning_session 
-                      WHERE user_uid = ? AND pristine = 1 
-                      ORDER BY created_at DESC LIMIT 1`,
-                args: [user_uid as string]
-            });
+            const { data: activeSessionData } = await db
+                .from('learning_session')
+                .select('session_id')
+                .eq('user_uid', user_uid)
+                .eq('pristine', true)
+                .order('created_at', { ascending: false })
+                .limit(1);
 
-            if (activeSessionResult.rows.length > 0) {
-                const sessionId = activeSessionResult.rows[0].session_id;
+            if (activeSessionData && activeSessionData.length > 0) {
+                const sessionId = activeSessionData[0].session_id;
 
                 // 2. Fetch ALL tasks for this session (both done and todo)
-                const sessionRows = await db.execute({
-                    sql: "SELECT * FROM learning_session WHERE session_id = ? ORDER BY order_index ASC",
-                    args: [sessionId]
-                });
+                const { data: sessionRows, error: sessionError } = await db
+                    .from('learning_session')
+                    .select('*')
+                    .eq('session_id', sessionId)
+                    .order('order_index', { ascending: true });
 
-                const firstRow = sessionRows.rows[0];
+                if (sessionError) throw sessionError;
+
+                const firstRow = sessionRows[0];
                 const sessionData = {
                     session_id: sessionId,
                     topic: firstRow.topic,
                     text: firstRow.text,
                     theory: firstRow.theory ? JSON.parse(firstRow.theory as string) : [],
                     created_at: firstRow.created_at,
-                    tasks: sessionRows.rows.map(row => ({
+                    tasks: sessionRows.map(row => ({
                         id: row.id, // ID needed for completion
                         app_id: row.app_id,
                         pristine: row.pristine,
@@ -76,38 +80,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     return res.status(200).json(replaceEszett(sessionData));
                 }
 
-                // TODO: Verify if we should also check user.language_variant from DB here. 
-                // For now, adhering strictly to "if query param... is set" as per user request, 
-                // but checking DB is safer for consistent user experience.
-                // However, fetching user prefs here might be an extra DB call. 
-                // Let's stick to the explicit param for now as requested.
-
                 return res.status(200).json(sessionData);
             }
 
             // Check if user has enough question progress data to generate a session
-            const progressCount = await db.execute({
-                sql: "SELECT COUNT(*) as count FROM user_question_progress WHERE user_uid = ?",
-                args: [user_uid as string]
-            });
+            const { count, error: countError } = await db
+                .from('user_question_progress')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_uid', user_uid);
 
-            const count = progressCount.rows[0].count as number;
+            if (countError) throw countError;
 
-            if (count < 3) {
-                const learningApps = await db.execute({
-                    sql: "SELECT * FROM apps WHERE type = 'learning' ORDER BY RANDOM() LIMIT 5",
-                    args: []
-                });
+            if ((count || 0) < 3) {
+                // Determine suggested apps: fetch all learning apps and pick 5 random
+                const { data: learningApps } = await db
+                    .from('apps')
+                    .select('*')
+                    .eq('type', 'learning');
 
-                const suggestedApps = learningApps.rows.map(row => {
-                    let tags = [];
-                    try {
-                        tags = JSON.parse(row.tags as string);
-                    } catch (e) {
-                        // ignore
-                    }
-                    return { ...row, tags, featured: Boolean(row.featured) };
-                });
+                let suggestedApps: any[] = [];
+                if (learningApps) {
+                    // Shuffle and take 5
+                    suggestedApps = learningApps
+                        .sort(() => 0.5 - Math.random())
+                        .slice(0, 5)
+                        .map(row => {
+                            let tags = [];
+                            try {
+                                tags = JSON.parse(row.tags as string);
+                            } catch (e) {
+                                // ignore
+                            }
+                            return { ...row, tags, featured: Boolean(row.featured) };
+                        });
+                }
 
                 return res.status(404).json({
                     message: "Not enough data",
@@ -133,16 +139,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         try {
             if (taskIds && Array.isArray(taskIds) && taskIds.length > 0) {
-                const placeholders = taskIds.map(() => '?').join(',');
-                await db.execute({
-                    sql: `UPDATE learning_session SET pristine = 0 WHERE id IN (${placeholders}) AND user_uid = ?`,
-                    args: [...taskIds, user_uid as string]
-                });
+                const { error } = await db.from('learning_session')
+                    .update({ pristine: false })
+                    .in('id', taskIds)
+                    .eq('user_uid', user_uid);
+                if (error) throw error;
             } else {
-                await db.execute({
-                    sql: "UPDATE learning_session SET pristine = 0 WHERE id = ? AND user_uid = ?",
-                    args: [taskId, user_uid as string]
-                });
+                const { error } = await db.from('learning_session')
+                    .update({ pristine: false })
+                    .eq('id', taskId)
+                    .eq('user_uid', user_uid);
+                if (error) throw error;
             }
 
             return res.status(200).json({ success: true });
@@ -155,28 +162,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method === 'POST') {
         try {
             // 1-2. Fetch progress, apps, and language preference in parallel
-            const [progress, apps, userLangRes] = await Promise.all([
-                db.execute({
-                    sql: `SELECT uqp.app_id, uqp.app_content_id, uqp.success_count, uqp.failure_count,
-                                 ac.data as content_data
-                          FROM user_question_progress uqp
-                          JOIN app_content ac ON uqp.app_content_id = ac.id
-                          WHERE uqp.user_uid = ?
-                          ORDER BY uqp.failure_count DESC, uqp.success_count ASC`,
-                    args: [user_uid as string]
-                }),
-                db.execute("SELECT id, name, description, data_structure FROM apps WHERE type = 'learning'"),
-                db.execute({ sql: "SELECT language_variant FROM users WHERE uid = ?", args: [user_uid] })
+            const [progressResult, appsResult, userLangRes] = await Promise.all([
+                db.from('user_question_progress')
+                    .select(`
+                    app_id, app_content_id, success_count, failure_count,
+                    app_content!inner(data)
+                  `)
+                    .eq('user_uid', user_uid)
+                    .order('failure_count', { ascending: false })
+                    .order('success_count', { ascending: true }),
+
+                db.from('apps').select('id, name, description, data_structure').eq('type', 'learning'),
+
+                db.from('users').select('language_variant').eq('uid', user_uid).single()
             ]);
 
-            if (progress.rows.length === 0) {
+            const progressRows = progressResult.data || [];
+            const appsRows = appsResult.data || [];
+
+            if (progressRows.length === 0) {
                 return res.status(400).json({ error: "Keine Lerndaten vorhanden. Beantworte zuerst ein paar Fragen in den Apps." });
             }
-            const appsMap = new Map(apps.rows.map(a => [a.id, a]));
+            const appsMap = new Map(appsRows.map(a => [a.id, a]));
 
             // 3. Analyze weak areas from question progress
             const weakAreas: { app_id: string; app_name: string; failures: number; successes: number; preview: string }[] = [];
-            for (const row of progress.rows) {
+            for (const row of progressRows) {
                 const failures = row.failure_count as number;
                 const successes = row.success_count as number;
                 const app = appsMap.get(row.app_id as string);
@@ -186,7 +197,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 if (failures > 0 || successes < 3) {
                     let preview = '';
                     try {
-                        const parsed = JSON.parse(row.content_data as string);
+                        const contentData = (row.app_content as any)?.data;
+                        const parsed = JSON.parse(contentData as string);
                         preview = JSON.stringify(parsed).slice(0, 120);
                     } catch { }
 
@@ -202,7 +214,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             // Summarize per-app stats
             const appStats = new Map<string, { total: number; weak: number; mastered: number }>();
-            for (const row of progress.rows) {
+            for (const row of progressRows) {
                 const appId = row.app_id as string;
                 const stats = appStats.get(appId) || { total: 0, weak: 0, mastered: 0 };
                 stats.total++;
@@ -222,13 +234,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 `${i + 1}. App: ${w.app_name} (${w.app_id}), Failures: ${w.failures}, Successes: ${w.successes}, Content: ${w.preview}`
             ).join("\n");
 
-            const availableApps = apps.rows.map(a =>
+            const availableApps = appsRows.map(a =>
                 `- ID: ${a.id}, Name: ${a.name}, Description: ${a.description}, Target Structure JSON Schema: ${a.data_structure || '{}'}`
             ).join("\n");
 
             // 4. Use pre-fetched language preference
             let languageInstruction = "IMPORTANT: Use Swiss German spelling conventions (e.g., 'ss' instead of 'ß').";
-            if (userLangRes.rows.length > 0 && userLangRes.rows[0].language_variant === 'standard') {
+            if (userLangRes.data && userLangRes.data.language_variant === 'standard') {
                 languageInstruction = "IMPORTANT: Use Standard German spelling conventions (e.g., use 'ß' where appropriate).";
             }
 
@@ -311,41 +323,39 @@ ADDITIONALLY, provide "theory" cards that explain the concepts the user struggle
             const theoryStr = JSON.stringify(object.theory || []);
             const validTasks = (object.tasks || []).filter(t => t.content);
 
-            let taskIds: (bigint | undefined)[] = [];
+            let taskIds: number[] = [];
             if (validTasks.length > 0) {
-                const batchResults = await db.batch(
-                    validTasks.map((task, idx) => ({
-                        sql: `INSERT INTO learning_session (user_uid, session_id, app_id, content, order_index, pristine, topic, text, theory)
-                              VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?)`,
-                        args: [
-                            user_uid,
-                            sessionId,
-                            task.app_id,
-                            JSON.stringify(task.content),
-                            idx + 1,
-                            object.topic,
-                            object.text,
-                            theoryStr
-                        ]
-                    }))
-                );
-                taskIds = batchResults.map(r => r.lastInsertRowid);
+                const tasksToInsert = validTasks.map((task, idx) => ({
+                    user_uid,
+                    session_id: sessionId,
+                    app_id: task.app_id,
+                    content: JSON.stringify(task.content),
+                    order_index: idx + 1,
+                    pristine: true,
+                    topic: object.topic,
+                    text: object.text,
+                    theory: theoryStr
+                }));
+
+                const { data: insertedTasks, error } = await db
+                    .from('learning_session')
+                    .insert(tasksToInsert)
+                    .select('id');
+
+                if (error) throw error;
+                taskIds = insertedTasks.map(r => r.id);
             }
 
             // 8. Log to ai_logs
             try {
-                await db.execute({
-                    sql: `INSERT INTO ai_logs (user_uid, session_id, prompt, system_prompt, response, provider, model)
-                          VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                    args: [
-                        user_uid,
-                        sessionId,
-                        userPrompt,
-                        systemPrompt,
-                        text,
-                        'xai',
-                        'grok-4-1-fast-reasoning'
-                    ]
+                await db.from('ai_logs').insert({
+                    user_uid,
+                    session_id: sessionId,
+                    prompt: userPrompt,
+                    system_prompt: systemPrompt,
+                    response: text,
+                    provider: 'xai',
+                    model: 'grok-4-1-fast-reasoning'
                 });
             } catch (logError) {
                 console.error("Failed to log AI interaction:", logError);
@@ -395,7 +405,8 @@ ADDITIONALLY, provide "theory" cards that explain the concepts the user struggle
 //  LEARNING PLAN — AI-curated plan from EXISTING questions
 // ═══════════════════════════════════════════════════════════════
 
-async function handlePlan(req: VercelRequest, res: VercelResponse, db: ReturnType<typeof getTursoClient>, user_uid: string) {
+async function handlePlan(req: VercelRequest, res: VercelResponse, user_uid: string) {
+    const db = getSupabaseClient();
     // GET  → fetch active plan (or return null / not-enough-data)
     // POST → generate a new plan via AI
     // PUT  → mark task(s) as completed
@@ -403,20 +414,22 @@ async function handlePlan(req: VercelRequest, res: VercelResponse, db: ReturnTyp
     if (req.method === 'GET') {
         try {
             // 1. Find active plan
-            const activePlan = await db.execute({
-                sql: `SELECT * FROM learning_plans WHERE user_uid = ? AND status = 'active' ORDER BY created_at DESC LIMIT 1`,
-                args: [user_uid]
-            });
+            const { data: activePlanData } = await db
+                .from('learning_plans')
+                .select('*')
+                .eq('user_uid', user_uid)
+                .eq('status', 'active')
+                .order('created_at', { ascending: false })
+                .limit(1);
 
-            if (activePlan.rows.length === 0) {
+            if (!activePlanData || activePlanData.length === 0) {
                 // Check if there's enough data to generate
-                const progressCount = await db.execute({
-                    sql: `SELECT COUNT(*) as count FROM user_question_progress WHERE user_uid = ?`,
-                    args: [user_uid]
-                });
-                const count = progressCount.rows[0].count as number;
+                const { count } = await db
+                    .from('user_question_progress')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('user_uid', user_uid);
 
-                if (count < 5) {
+                if ((count || 0) < 5) {
                     return res.status(404).json({
                         message: "not_enough_data",
                         hint: "Beantworte mindestens 5 Fragen in verschiedenen Apps, damit ein Lernplan erstellt werden kann."
@@ -426,28 +439,41 @@ async function handlePlan(req: VercelRequest, res: VercelResponse, db: ReturnTyp
                 return res.status(200).json(null); // Ready to generate
             }
 
-            const plan = activePlan.rows[0];
+            const plan = activePlanData[0];
             const planId = plan.plan_id as string;
 
-            // 2. Fetch all tasks for this plan, joined with app_content for the actual data
-            const tasks = await db.execute({
-                sql: `SELECT lpt.*, ac.data as content_data, ac.app_id as content_app_id, a.name as app_name, a.icon as app_icon, a.route as app_route
-                      FROM learning_plan_tasks lpt
-                      JOIN app_content ac ON lpt.app_content_id = ac.id
-                      JOIN apps a ON lpt.app_id = a.id
-                      WHERE lpt.plan_id = ?
-                      ORDER BY lpt.day_number ASC, lpt.order_index ASC`,
-                args: [planId]
-            });
+            // 2. Parallel Fetch: Plan tasks and underlying content/apps
+            const [tasksResult] = await Promise.all([
+                db.from('learning_plan_tasks')
+                    .select(`
+                    *,
+                    app_content!inner(data, app_id),
+                    apps!inner(name, icon, route)
+                `)
+                    .eq('plan_id', planId)
+                    .order('day_number', { ascending: true })
+                    .order('order_index', { ascending: true })
+            ]);
+
+            const tasksRows = tasksResult.data;
+            const tasksError = tasksResult.error;
+
+            if (tasksError) throw tasksError;
+
+            if (!tasksRows) return res.status(200).json({ plan_id: planId, days: [] }); // Start with empty if no tasks? Or handle gracefully.
 
             // 3. Group by day
             const days: Record<number, unknown[]> = {};
-            for (const row of tasks.rows) {
+            for (const row of tasksRows) {
                 const day = row.day_number as number;
                 if (!days[day]) days[day] = [];
 
                 let contentData = {};
-                try { contentData = JSON.parse(row.content_data as string); } catch { }
+                const appContentData = (row.app_content as any)?.data;
+                try { contentData = JSON.parse(appContentData as string); } catch { }
+
+                // Apps join data
+                const appData = row.apps as any;
 
                 days[day].push({
                     id: row.id,
@@ -458,9 +484,9 @@ async function handlePlan(req: VercelRequest, res: VercelResponse, db: ReturnTyp
                     completed: Boolean(row.completed),
                     completed_at: row.completed_at,
                     content: contentData,
-                    app_name: row.app_name,
-                    app_icon: row.app_icon,
-                    app_route: row.app_route
+                    app_name: appData?.name,
+                    app_icon: appData?.icon,
+                    app_route: appData?.route
                 });
             }
 
@@ -503,34 +529,35 @@ async function handlePlan(req: VercelRequest, res: VercelResponse, db: ReturnTyp
         }
 
         try {
-            const placeholders = ids.map(() => '?').join(',');
-            await db.execute({
-                sql: `UPDATE learning_plan_tasks SET completed = 1, completed_at = CURRENT_TIMESTAMP 
-                      WHERE id IN (${placeholders})
-                      AND plan_id IN (SELECT plan_id FROM learning_plans WHERE user_uid = ?)`,
-                args: [...ids, user_uid]
-            });
+            // First get active plan ID to ensure ownership
+            const { data: activePlan } = await db
+                .from('learning_plans')
+                .select('plan_id')
+                .eq('user_uid', user_uid)
+                .eq('status', 'active')
+                .limit(1)
+                .single();
 
-            // Check if all tasks in the plan are completed → mark plan completed
-            const activePlan = await db.execute({
-                sql: `SELECT plan_id FROM learning_plans WHERE user_uid = ? AND status = 'active' ORDER BY created_at DESC LIMIT 1`,
-                args: [user_uid]
-            });
+            if (activePlan) {
+                // Update tasks
+                await db.from('learning_plan_tasks')
+                    .update({ completed: true, completed_at: new Date().toISOString() })
+                    .in('id', ids)
+                    .eq('plan_id', activePlan.plan_id);
 
-            if (activePlan.rows.length > 0) {
-                const planId = activePlan.rows[0].plan_id as string;
-                const remaining = await db.execute({
-                    sql: `SELECT COUNT(*) as count FROM learning_plan_tasks WHERE plan_id = ? AND completed = 0`,
-                    args: [planId]
-                });
-                if ((remaining.rows[0].count as number) === 0) {
-                    await db.execute({
-                        sql: `UPDATE learning_plans SET status = 'completed', completed_at = CURRENT_TIMESTAMP WHERE plan_id = ?`,
-                        args: [planId]
-                    });
+                // Check remaining
+                const { count } = await db
+                    .from('learning_plan_tasks')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('plan_id', activePlan.plan_id)
+                    .eq('completed', false);
+
+                if ((count || 0) === 0) {
+                    await db.from('learning_plans')
+                        .update({ status: 'completed', completed_at: new Date().toISOString() })
+                        .eq('plan_id', activePlan.plan_id);
                 }
             }
-
             return res.status(200).json({ success: true });
         } catch (e: unknown) {
             console.error("Error in PUT plan:", e);
@@ -541,10 +568,11 @@ async function handlePlan(req: VercelRequest, res: VercelResponse, db: ReturnTyp
     if (req.method === 'DELETE') {
         // Archive (abandon) the active plan
         try {
-            await db.execute({
-                sql: `UPDATE learning_plans SET status = 'abandoned' WHERE user_uid = ? AND status = 'active'`,
-                args: [user_uid]
-            });
+            await db.from('learning_plans')
+                .update({ status: 'abandoned' })
+                .eq('user_uid', user_uid)
+                .eq('status', 'active');
+
             return res.status(200).json({ success: true });
         } catch (e: unknown) {
             console.error("Error in DELETE plan:", e);
@@ -555,38 +583,59 @@ async function handlePlan(req: VercelRequest, res: VercelResponse, db: ReturnTyp
     if (req.method === 'POST') {
         try {
             // 0. Abandon any existing active plan
-            await db.execute({
-                sql: `UPDATE learning_plans SET status = 'abandoned' WHERE user_uid = ? AND status = 'active'`,
-                args: [user_uid]
-            });
+            await db.from('learning_plans')
+                .update({ status: 'abandoned' })
+                .eq('user_uid', user_uid)
+                .eq('status', 'active');
 
-            // 1-3. Fetch progress, unseen questions, apps, and language preference in parallel
-            const [progress, unseenQuestions, apps, planUserLangRes] = await Promise.all([
-                db.execute({
-                    sql: `SELECT uqp.app_id, uqp.app_content_id, uqp.success_count, uqp.failure_count,
-                                 ac.data as content_data
-                          FROM user_question_progress uqp
-                          JOIN app_content ac ON uqp.app_content_id = ac.id
-                          WHERE uqp.user_uid = ?
-                          ORDER BY uqp.failure_count DESC, uqp.success_count ASC`,
-                    args: [user_uid]
-                }),
-                db.execute({
-                    sql: `SELECT ac.id, ac.app_id, ac.data as content_data
-                          FROM app_content ac
-                          JOIN apps a ON ac.app_id = a.id
-                          WHERE a.type = 'learning'
-                            AND ac.id NOT IN (
-                                SELECT app_content_id FROM user_question_progress WHERE user_uid = ?
-                            )
-                          ORDER BY RANDOM()
-                          LIMIT 30`,
-                    args: [user_uid]
-                }),
-                db.execute("SELECT id, name, description FROM apps WHERE type = 'learning'"),
-                db.execute({ sql: "SELECT language_variant FROM users WHERE uid = ?", args: [user_uid] })
-            ]);
-            const appsMap = new Map(apps.rows.map(a => [a.id as string, { name: a.name as string, description: a.description as string }]));
+            // 1. Fetch user progress
+            const { data: progressRows } = await db
+                .from('user_question_progress')
+                .select(`
+                    app_id, app_content_id, success_count, failure_count,
+                    app_content!inner(data)
+                `)
+                .eq('user_uid', user_uid)
+                .order('failure_count', { ascending: false })
+                .order('success_count', { ascending: true });
+
+            // 2. Fetch apps
+            const { data: appsRows } = await db
+                .from('apps')
+                .select('id, name, description')
+                .eq('type', 'learning');
+
+            const appsMap = new Map((appsRows || []).map(a => [a.id, { name: a.name, description: a.description }]));
+
+            // 3. Fetch unseen content
+            // Need to fetch random content that is NOT in user_question_progress
+            // Strategy: Get all seen IDs from progress, then fetch random content excluding those
+            const seenIds = (progressRows || []).map(p => p.app_content_id);
+
+            let unseenContentQuery = db
+                .from('app_content')
+                .select('id, app_id, data')
+                .not('id', 'in', seenIds.length > 0 ? `(${seenIds.join(',')})` : '(-1)'); // empty list workaround
+
+            // Supabase doesn't support random() sort standardly. 
+            // We'll fetch a batch (e.g. 200) and pick random 30 in JS if needed, or just fetch first 30?
+            // Since we want random unseen, and app_content is not huge, we can fetch all and shuffle.
+            // Or use a limit and assume index randomization.
+            // Let's fetch more and shuffle in memory.
+            const { data: allUnseen } = await unseenContentQuery.limit(200);
+
+            let unseenRows: any[] = [];
+            if (allUnseen) {
+                // Filter ensuring app is learning type (joined in original query, but we can filter by app_id in memory since we have apps list)
+                const learningAppIds = new Set((appsRows || []).map(a => a.id));
+                unseenRows = allUnseen
+                    .filter(r => learningAppIds.has(r.app_id))
+                    .sort(() => 0.5 - Math.random()) // Shuffle
+                    .slice(0, 30);
+            }
+
+            // 4. Fetch user language
+            const { data: userLangData } = await db.from('users').select('language_variant').eq('uid', user_uid).single();
 
             // 4. Build candidate pool with scoring
             interface Candidate {
@@ -602,7 +651,7 @@ async function handlePlan(req: VercelRequest, res: VercelResponse, db: ReturnTyp
             const candidates: Candidate[] = [];
 
             // Weak questions (failed a lot, or low success rate)
-            for (const row of progress.rows) {
+            for (const row of (progressRows || [])) {
                 const failures = row.failure_count as number;
                 const successes = row.success_count as number;
                 const appInfo = appsMap.get(row.app_id as string);
@@ -615,7 +664,8 @@ async function handlePlan(req: VercelRequest, res: VercelResponse, db: ReturnTyp
 
                 let preview = '';
                 try {
-                    const parsed = JSON.parse(row.content_data as string);
+                    const contentData = (row.app_content as any)?.data;
+                    const parsed = JSON.parse(contentData as string);
                     preview = JSON.stringify(parsed).slice(0, 100);
                 } catch { }
 
@@ -631,13 +681,13 @@ async function handlePlan(req: VercelRequest, res: VercelResponse, db: ReturnTyp
             }
 
             // Unseen questions
-            for (const row of unseenQuestions.rows) {
+            for (const row of unseenRows) {
                 const appInfo = appsMap.get(row.app_id as string);
                 if (!appInfo) continue;
 
                 let preview = '';
                 try {
-                    const parsed = JSON.parse(row.content_data as string);
+                    const parsed = JSON.parse(row.data as string);
                     preview = JSON.stringify(parsed).slice(0, 100);
                 } catch { }
 
@@ -658,7 +708,7 @@ async function handlePlan(req: VercelRequest, res: VercelResponse, db: ReturnTyp
 
             // 5. Use pre-fetched language preference
             let languageInstruction = "IMPORTANT: Use Swiss German spelling conventions (e.g., 'ss' instead of 'ß').";
-            if (planUserLangRes.rows.length > 0 && planUserLangRes.rows[0].language_variant === 'standard') {
+            if (userLangData && userLangData.language_variant === 'standard') {
                 languageInstruction = "IMPORTANT: Use Standard German spelling conventions (e.g., use 'ß' where appropriate).";
             }
 
@@ -667,7 +717,7 @@ async function handlePlan(req: VercelRequest, res: VercelResponse, db: ReturnTyp
                 `${i + 1}. [ID:${c.app_content_id}] App: ${c.app_name} (${c.app_id}), Priority: ${c.priority}, Failures: ${c.failure_count}, Successes: ${c.success_count}, Preview: ${c.content_preview}`
             ).join("\n");
 
-            const appsList = apps.rows.map(a => `- ${a.name} (${a.id}): ${a.description}`).join("\n");
+            const appsList = (appsRows || []).map(a => `- ${a.name} (${a.id}): ${a.description}`).join("\n");
 
             // Get requested number of days (default 3)
             const requestedDays = Math.min(Math.max(req.body.days || 3, 1), 7);
@@ -756,96 +806,103 @@ Return ONLY valid JSON:
             // 10. Save plan
             const planId = crypto.randomUUID();
 
-            await db.execute({
-                sql: `INSERT INTO learning_plans (user_uid, plan_id, title, description, status, total_days, plan_data)
-                      VALUES (?, ?, ?, ?, 'active', ?, ?)`,
-                args: [
-                    user_uid,
-                    planId,
-                    planResponse.title,
-                    planResponse.description,
-                    planResponse.days.length,
-                    JSON.stringify(planResponse.days.map(d => ({ day: d.day, focus: d.focus })))
-                ]
+            await db.from('learning_plans').insert({
+                user_uid,
+                plan_id: planId,
+                title: planResponse.title,
+                description: planResponse.description,
+                status: 'active',
+                total_days: planResponse.days.length,
+                plan_data: JSON.stringify(planResponse.days.map(d => ({ day: d.day, focus: d.focus })))
             });
 
-            // 11. Save individual tasks (batched — single round-trip)
-            const planTaskInserts: { sql: string; args: (string | number)[] }[] = [];
+            // 11. Save individual tasks (batched)
+            const tasksToInsert = [];
             for (const day of planResponse.days) {
                 let orderIdx = 1;
                 for (const contentId of day.task_ids) {
                     const candidate = candidateMap.get(contentId);
                     if (!candidate) continue;
 
-                    planTaskInserts.push({
-                        sql: `INSERT INTO learning_plan_tasks (plan_id, day_number, order_index, app_id, app_content_id)
-                              VALUES (?, ?, ?, ?, ?)`,
-                        args: [planId, day.day, orderIdx++, candidate.app_id, contentId]
+                    tasksToInsert.push({
+                        plan_id: planId,
+                        day_number: day.day,
+                        order_index: orderIdx++,
+                        app_id: candidate.app_id,
+                        app_content_id: contentId
                     });
                 }
             }
-            if (planTaskInserts.length > 0) {
-                await db.batch(planTaskInserts);
+            if (tasksToInsert.length > 0) {
+                await db.from('learning_plan_tasks').insert(tasksToInsert);
             }
 
-            // 12-13. Log AI interaction and re-fetch plan + tasks in parallel
-            const [, savedPlan, savedTasks] = await Promise.all([
-                db.execute({
-                    sql: `INSERT INTO ai_logs (user_uid, session_id, prompt, system_prompt, response, provider, model)
-                          VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                    args: [user_uid, planId, userPrompt, systemPrompt, text, 'xai', 'grok-4-1-fast-reasoning']
-                }).catch(logError => { console.error("Failed to log AI plan interaction:", logError); return null; }),
-                db.execute({
-                    sql: `SELECT * FROM learning_plans WHERE plan_id = ?`,
-                    args: [planId]
-                }),
-                db.execute({
-                    sql: `SELECT lpt.*, ac.data as content_data, a.name as app_name, a.icon as app_icon, a.route as app_route
-                          FROM learning_plan_tasks lpt
-                          JOIN app_content ac ON lpt.app_content_id = ac.id
-                          JOIN apps a ON lpt.app_id = a.id
-                          WHERE lpt.plan_id = ?
-                          ORDER BY lpt.day_number ASC, lpt.order_index ASC`,
-                    args: [planId]
-                })
-            ]);
+            // 12-13. Log AI interaction
+            const { error: aiLogError } = await db.from('ai_logs').insert({
+                user_uid,
+                session_id: planId,
+                prompt: userPrompt,
+                system_prompt: systemPrompt,
+                response: text,
+                provider: 'xai',
+                model: 'grok-4-1-fast-reasoning'
+            });
+            if (aiLogError) console.error("Failed to log AI plan interaction", aiLogError);
 
-            const daysMap: Record<number, unknown[]> = {};
-            for (const row of savedTasks.rows) {
-                const dayNum = row.day_number as number;
-                if (!daysMap[dayNum]) daysMap[dayNum] = [];
+            // Re-fetch plan for return (Supabase could have returned it on insert, but we need tasks too)
+            const { data: savedPlanData } = await db.from('learning_plans').select('*').eq('plan_id', planId).single();
+            const savedPlan = savedPlanData;
+
+            const { data: returnedTasksRows } = await db
+                .from('learning_plan_tasks')
+                .select(`
+                    *,
+                    app_content!inner(data, app_id),
+                    apps!inner(name, icon, route)
+                `)
+                .eq('plan_id', planId)
+                .order('day_number', { ascending: true })
+                .order('order_index', { ascending: true });
+
+            const days: Record<number, unknown[]> = {};
+            for (const row of (returnedTasksRows || [])) {
+                const day = row.day_number as number;
+                if (!days[day]) days[day] = [];
 
                 let contentData = {};
-                try { contentData = JSON.parse(row.content_data as string); } catch { }
+                const appContentData = (row.app_content as any)?.data;
+                try { contentData = JSON.parse(appContentData as string); } catch { }
 
-                daysMap[dayNum].push({
+                // Apps join data
+                const appData = row.apps as any;
+
+                days[day].push({
                     id: row.id,
-                    day_number: dayNum,
+                    day_number: day,
                     order_index: row.order_index,
                     app_id: row.app_id,
                     app_content_id: row.app_content_id,
-                    completed: false,
-                    completed_at: null,
+                    completed: Boolean(row.completed),
+                    completed_at: row.completed_at,
                     content: contentData,
-                    app_name: row.app_name,
-                    app_icon: row.app_icon,
-                    app_route: row.app_route
+                    app_name: appData?.name,
+                    app_icon: appData?.icon,
+                    app_route: appData?.route
                 });
             }
 
-            const sp = savedPlan.rows[0];
-            let savedPlanData = {};
-            try { savedPlanData = JSON.parse(sp.plan_data as string); } catch { }
+            let planData = {};
+            try { planData = JSON.parse(savedPlan?.plan_data as string); } catch { }
 
-            const finalResult = {
-                plan_id: planId,
-                title: sp.title,
-                description: sp.description,
-                status: sp.status,
-                total_days: sp.total_days,
-                created_at: sp.created_at,
-                plan_data: savedPlanData,
-                days: Object.entries(daysMap).map(([dayNum, dayTasks]) => ({
+            const result = {
+                plan_id: savedPlan?.plan_id,
+                title: savedPlan?.title,
+                description: savedPlan?.description,
+                status: savedPlan?.status,
+                total_days: savedPlan?.total_days,
+                created_at: savedPlan?.created_at,
+                plan_data: planData,
+                days: Object.entries(days).map(([dayNum, dayTasks]) => ({
                     day: parseInt(dayNum),
                     tasks: dayTasks
                 }))
@@ -853,16 +910,13 @@ Return ONLY valid JSON:
 
             const langFormat = req.query['language-format'] || req.body?.['language-format'];
             if (langFormat === 'swiss') {
-                return res.status(200).json(replaceEszett(finalResult));
+                return res.status(200).json(replaceEszett(result));
             }
-            return res.status(200).json(finalResult);
+            return res.status(200).json(result);
 
         } catch (e: unknown) {
-            console.error("Error generating plan:", e);
-            const msg = e instanceof Error ? e.message : String(e);
-            return res.status(500).json({ error: `Server Error: ${msg}` });
+            console.error("Error in POST plan:", e);
+            return res.status(500).json({ error: e instanceof Error ? e.message : 'Unknown error' });
         }
     }
-
-    return res.status(405).json({ error: "Method not allowed" });
 }

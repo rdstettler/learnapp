@@ -28,7 +28,7 @@ import { launchConfetti } from '../../shared/confetti';
 export class OberbegriffeComponent {
     private dataService = inject(DataService);
     private telemetryService = inject(AppTelemetryService);
-    private sessionId = this.telemetryService.generateSessionId();
+
 
     readonly PROBLEMS_PER_ROUND = 10;
 

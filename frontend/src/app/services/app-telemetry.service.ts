@@ -64,11 +64,4 @@ export class AppTelemetryService {
             console.error('Failed to track category progress:', error);
         }
     }
-
-    /**
-     * Generates a simple session ID for an app session
-     */
-    generateSessionId(): string {
-        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    }
 }

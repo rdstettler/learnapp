@@ -42,7 +42,7 @@ import { launchConfetti } from '../../shared/confetti';
 export class KopfrechnenComponent implements OnInit {
     private http = inject(HttpClient);
     private telemetryService = inject(AppTelemetryService);
-    private sessionId = this.telemetryService.generateSessionId();
+
     readonly QUESTIONS_PER_ROUND = 10;
 
     @Input() curriculum_node_id?: string;

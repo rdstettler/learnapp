@@ -30,6 +30,7 @@ export interface UserProfile {
     skillLevel?: number | null;
     learnLevel?: number | null;
     languageVariant?: 'swiss' | 'standard';
+    isAdmin?: boolean;
 }
 
 @Injectable({
@@ -60,6 +61,8 @@ export class UserService {
         }
         return profile.learnLevel > 0;
     });
+
+    readonly isAdmin = computed(() => !!this._profile()?.isAdmin);
 
 
 
