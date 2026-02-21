@@ -39,7 +39,7 @@
 
             <button class="btn btn-primary" style="margin-top: 24px;" (click)="startQuiz()"
                 [disabled]="!dataLoaded() || (mode() === 'einzeln' && !selectedPairId())">
-                Quiz starten
+                {{ mode() === 'zufall' ? 'Zufälliges Paar starten' : 'Quiz starten' }}
             </button>
         </div>
         }

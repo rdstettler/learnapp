@@ -20,7 +20,7 @@ interface WordPair {
     sentences: Sentence[];
 }
 
-type QuizMode = 'einzeln' | 'gemischt';
+type QuizMode = 'einzeln' | 'zufall' | 'gemischt';
 
 @Component({
     selector: 'app-aehnlichewoerter',
@@ -38,6 +38,7 @@ export class AehnlichewoerterComponent {
 
     readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [
         { id: 'einzeln', label: 'Einzeln', icon: '🔤', description: 'Übe ein Wortpaar gezielt.' },
+        { id: 'zufall', label: 'Zufall', icon: '🎯', description: 'Zufälliges Wortpaar.' },
         { id: 'gemischt', label: 'Gemischt', icon: '🎲', description: 'Sätze aus mehreren Paaren gemischt!' }
     ];
     mode = signal<QuizMode>('einzeln');
@@ -134,6 +135,13 @@ export class AehnlichewoerterComponent {
         if (this.mode() === 'gemischt') {
             this.startMixed();
             return;
+        }
+
+        if (this.mode() === 'zufall') {
+            const allPairs = this.pairs();
+            const randomPair = allPairs[Math.floor(Math.random() * allPairs.length)];
+            if (!randomPair) return;
+            this.selectedPairId.set(randomPair.id);
         }
 
         const pair = this.pairs().find(p => p.id === this.selectedPairId());

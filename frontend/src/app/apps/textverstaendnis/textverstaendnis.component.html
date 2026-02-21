@@ -18,17 +18,35 @@
     <div class="error-msg">{{error()}}</div>
     }
 
-    <!-- Text selector -->
+    <!-- Text action buttons -->
     @if (!loading() && availableTexts().length > 1) {
-    <div class="text-selector">
-        <span class="selector-label">Geschichte wählen:</span>
-        <div class="text-options">
-            @for (t of availableTexts(); track t.id) {
-            <button class="text-option" [class.active]="readingText()?.id === t.id" (click)="selectText(t.id)">
-                {{t.title}}
-                <span class="word-badge">{{t.wordCount}} Wörter</span>
-            </button>
-            }
+    <div class="text-actions">
+        <button class="action-btn" (click)="openTextModal()">
+            📚 Geschichte wählen
+        </button>
+        <button class="action-btn random-btn" (click)="loadRandomText()">
+            🎲 Zufälliger Text
+        </button>
+    </div>
+    }
+
+    <!-- Text selection modal -->
+    @if (showTextModal()) {
+    <div class="modal-overlay" (click)="closeTextModal()">
+        <div class="modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h3>📚 Geschichte wählen</h3>
+                <button class="modal-close" (click)="closeTextModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                @for (t of availableTexts(); track t.id) {
+                <button class="modal-text-option" [class.active]="readingText()?.id === t.id"
+                    (click)="selectText(t.id)">
+                    <span class="modal-text-title">{{t.title}}</span>
+                    <span class="modal-word-badge">{{t.wordCount}} Wörter</span>
+                </button>
+                }
+            </div>
         </div>
     </div>
     }

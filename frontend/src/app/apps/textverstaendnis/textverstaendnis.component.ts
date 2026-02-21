@@ -51,6 +51,7 @@ export class TextverstaendnisComponent implements OnInit {
     readingText = signal<ReadingText | null>(null);
     questions = signal<ReadingQuestion[]>([]);
     availableTexts = signal<AvailableText[]>([]);
+    showTextModal = signal(false);
 
     // User progress state
     currentQuestionIndex = signal(0);
@@ -225,7 +226,20 @@ export class TextverstaendnisComponent implements OnInit {
     }
 
     selectText(textId: number): void {
+        this.showTextModal.set(false);
         this.loadText(textId);
+    }
+
+    openTextModal(): void {
+        this.showTextModal.set(true);
+    }
+
+    closeTextModal(): void {
+        this.showTextModal.set(false);
+    }
+
+    loadRandomText(): void {
+        this.loadText();
     }
 
     getTierLabel(tier: number): string {
