@@ -62,6 +62,9 @@
         <a class="source-link" [href]="readingText()!.sourceUrl" target="_blank" rel="noopener">Quelle ↗</a>
         }
     </div>
+    @if (readingText()!.autor) {
+    <p class="text-author">von {{readingText()!.autor}}</p>
+    }
 
     <!-- CHUNKED MODE (levels 4-6) -->
     @if (isChunkedMode()) {

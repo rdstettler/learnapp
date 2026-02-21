@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
@@ -25,6 +25,7 @@ interface ReadingText {
     minAge: number;
     zyklus: number;
     wordCount: number;
+    autor: string | null;
 }
 
 interface AvailableText {
@@ -45,6 +46,7 @@ interface AvailableText {
 export class TextverstaendnisComponent implements OnInit {
     private http = inject(HttpClient);
     private router = inject(Router);
+    private route = inject(ActivatedRoute);
     private userService = inject(UserService);
 
     loading = signal(true);
@@ -125,7 +127,9 @@ export class TextverstaendnisComponent implements OnInit {
     });
 
     ngOnInit(): void {
-        this.loadText();
+        const textIdParam = this.route.snapshot.queryParamMap.get('text_id');
+        const textId = textIdParam ? parseInt(textIdParam) : undefined;
+        this.loadText(textId);
     }
 
     async loadText(textId?: number): Promise<void> {
@@ -150,6 +154,14 @@ export class TextverstaendnisComponent implements OnInit {
             }));
             this.questions.set(shuffledQuestions);
             this.availableTexts.set(response.availableTexts);
+
+            // Update URL with text_id query param for shareable links
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { text_id: response.text.id },
+                queryParamsHandling: 'merge',
+                replaceUrl: true,
+            });
 
             if (response.questions.length === 0) {
                 this.error.set('Für diesen Text sind noch keine Fragen verfügbar.');

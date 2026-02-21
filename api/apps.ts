@@ -401,6 +401,7 @@ async function handleReadingText(req: VercelRequest, res: VercelResponse) {
                 minAge: textRow.min_age,
                 zyklus: textRow.zyklus,
                 wordCount: textRow.word_count,
+                autor: textRow.autor || null,
             },
             questions,
             availableTexts: allTexts.map((t: any) => ({
