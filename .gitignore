@@ -23,6 +23,7 @@ yarn-error.log
 .settings/
 *.sublime-workspace
 .angular
+.grokmcp/*
 
 # Visual Studio Code
 .vscode/*

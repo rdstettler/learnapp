@@ -33,6 +33,16 @@ interface ReviewQuestion {
     createdAt: string;
 }
 
+interface GeneratedQuestion {
+    tier: number;
+    questionType: string;
+    question: string;
+    options: string[] | null;
+    correctAnswer: string;
+    explanation: string | null;
+    paragraphIndex: number | null;
+}
+
 @Component({
     selector: 'app-reading-review',
     standalone: true,
@@ -51,6 +61,24 @@ export class ReadingReviewComponent implements OnInit {
     filterReviewed = signal<string>('all');
     editingQuestion = signal<ReviewQuestion | null>(null);
     actionMessage = signal<string | null>(null);
+
+    // Add Text state
+    showAddText = signal(false);
+    newTitle = '';
+    newText = '';
+    newZyklus = 2;
+    newMinAge = 8;
+    newThema = '';
+    newSourceUrl = '';
+    newAutor = '';
+    generatedQuestions = signal<GeneratedQuestion[]>([]);
+    generating = signal(false);
+    savingText = signal(false);
+    editingGenIdx = signal<number | null>(null);
+    editGenQuestion = '';
+    editGenCorrectAnswer = '';
+    editGenExplanation = '';
+    editGenOptions: string[] = [];
 
     // Editing state
     editQuestion = '';
@@ -229,6 +257,139 @@ export class ReadingReviewComponent implements OnInit {
     private showMessage(msg: string): void {
         this.actionMessage.set(msg);
         setTimeout(() => this.actionMessage.set(null), 3000);
+    }
+
+    // ── Add Text Workflow ─────────────────────────────────
+
+    toggleAddText(): void {
+        this.showAddText.update(v => !v);
+        if (this.showAddText()) {
+            this.resetAddTextForm();
+        }
+    }
+
+    get newWordCount(): number {
+        if (!this.newText.trim()) return 0;
+        return this.newText.trim().split(/\s+/).length;
+    }
+
+    async generateQuestions(): Promise<void> {
+        if (!this.newTitle.trim() || !this.newText.trim()) {
+            this.showMessage('⚠️ Titel und Text sind erforderlich');
+            return;
+        }
+
+        this.generating.set(true);
+        this.generatedQuestions.set([]);
+
+        try {
+            const res = await firstValueFrom(
+                this.http.post<{ generatedQuestions: GeneratedQuestion[]; textMeta: any }>(
+                    '/api/admin/reading-questions',
+                    {
+                        action: 'generate-questions',
+                        title: this.newTitle.trim(),
+                        text: this.newText.trim(),
+                        zyklus: this.newZyklus,
+                        minAge: this.newMinAge,
+                        thema: this.newThema.trim() || undefined,
+                    }
+                )
+            );
+            this.generatedQuestions.set(res.generatedQuestions);
+            this.showMessage(`🤖 ${res.generatedQuestions.length} Fragen generiert`);
+        } catch (e: any) {
+            console.error('Error generating questions:', e);
+            this.showMessage('❌ Fehler beim Generieren: ' + (e.error?.error || e.message));
+        } finally {
+            this.generating.set(false);
+        }
+    }
+
+    removeGeneratedQuestion(index: number): void {
+        this.generatedQuestions.update(qs => qs.filter((_, i) => i !== index));
+    }
+
+    startEditGenerated(index: number): void {
+        const q = this.generatedQuestions()[index];
+        this.editingGenIdx.set(index);
+        this.editGenQuestion = q.question;
+        this.editGenCorrectAnswer = q.correctAnswer;
+        this.editGenExplanation = q.explanation || '';
+        this.editGenOptions = q.options ? [...q.options] : [];
+    }
+
+    cancelEditGenerated(): void {
+        this.editingGenIdx.set(null);
+    }
+
+    saveEditGenerated(index: number): void {
+        this.generatedQuestions.update(qs => qs.map((q, i) => {
+            if (i === index) {
+                return {
+                    ...q,
+                    question: this.editGenQuestion,
+                    correctAnswer: this.editGenCorrectAnswer,
+                    explanation: this.editGenExplanation || null,
+                    options: this.editGenOptions.length > 0 ? [...this.editGenOptions] : null,
+                };
+            }
+            return q;
+        }));
+        this.editingGenIdx.set(null);
+        this.showMessage('✅ Frage aktualisiert');
+    }
+
+    async saveTextWithQuestions(): Promise<void> {
+        const qs = this.generatedQuestions();
+        if (qs.length === 0) {
+            this.showMessage('⚠️ Keine Fragen zum Speichern');
+            return;
+        }
+
+        this.savingText.set(true);
+
+        try {
+            const res = await firstValueFrom(
+                this.http.post<{ textId: number; insertedQuestionCount: number }>(
+                    '/api/admin/reading-questions',
+                    {
+                        action: 'save-text-with-questions',
+                        text: {
+                            title: this.newTitle.trim(),
+                            text: this.newText.trim(),
+                            zyklus: this.newZyklus,
+                            minAge: this.newMinAge,
+                            thema: this.newThema.trim() || undefined,
+                            sourceUrl: this.newSourceUrl.trim() || undefined,
+                            autor: this.newAutor.trim() || undefined,
+                        },
+                        questions: qs,
+                    }
+                )
+            );
+            this.showMessage(`✅ Text #${res.textId} mit ${res.insertedQuestionCount} Fragen gespeichert`);
+            this.showAddText.set(false);
+            this.resetAddTextForm();
+            await this.loadData();
+        } catch (e: any) {
+            console.error('Error saving text:', e);
+            this.showMessage('❌ Fehler beim Speichern: ' + (e.error?.error || e.message));
+        } finally {
+            this.savingText.set(false);
+        }
+    }
+
+    private resetAddTextForm(): void {
+        this.newTitle = '';
+        this.newText = '';
+        this.newZyklus = 2;
+        this.newMinAge = 8;
+        this.newThema = '';
+        this.newSourceUrl = '';
+        this.newAutor = '';
+        this.generatedQuestions.set([]);
+        this.editingGenIdx.set(null);
     }
 
     goBack(): void {

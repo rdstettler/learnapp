@@ -10,6 +10,144 @@
     <div class="toast">{{actionMessage()}}</div>
     }
 
+    <!-- Add Text Panel -->
+    <div class="add-text-section">
+        <button class="add-text-toggle" (click)="toggleAddText()">
+            {{showAddText() ? '✕ Schliessen' : '➕ Neuen Text hinzufügen'}}
+        </button>
+
+        @if (showAddText()) {
+        <div class="add-text-panel">
+            <h2>Neuen Text erfassen</h2>
+
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>Titel *</label>
+                    <input type="text" [(ngModel)]="newTitle" placeholder="Titel des Textes" />
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Text * <span class="word-count">{{newWordCount}} Wörter</span></label>
+                    <textarea [(ngModel)]="newText" rows="12" placeholder="Text hier einfügen..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Zyklus</label>
+                    <select [(ngModel)]="newZyklus">
+                        <option [value]="1">Zyklus 1</option>
+                        <option [value]="2">Zyklus 2</option>
+                        <option [value]="3">Zyklus 3</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Min. Alter</label>
+                    <input type="number" [(ngModel)]="newMinAge" min="4" max="16" />
+                </div>
+
+                <div class="form-group">
+                    <label>Thema</label>
+                    <input type="text" [(ngModel)]="newThema" placeholder="z.B. Natur, Geschichte..." />
+                </div>
+
+                <div class="form-group">
+                    <label>Autor</label>
+                    <input type="text" [(ngModel)]="newAutor" placeholder="Autor/Quelle" />
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Quell-URL</label>
+                    <input type="text" [(ngModel)]="newSourceUrl" placeholder="https://..." />
+                </div>
+            </div>
+
+            <div class="generate-section">
+                <button class="generate-btn" (click)="generateQuestions()" [disabled]="generating()">
+                    @if (generating()) {
+                    <span class="spinner"></span> Generiere Fragen...
+                    } @else {
+                    🤖 Fragen generieren
+                    }
+                </button>
+            </div>
+
+            <!-- Generated Questions Review -->
+            @if (generatedQuestions().length > 0) {
+            <div class="generated-questions">
+                <h3>{{generatedQuestions().length}} generierte Fragen</h3>
+
+                @for (q of generatedQuestions(); track $index; let i = $index) {
+                <div class="gen-question-card">
+                    @if (editingGenIdx() === i) {
+                    <!-- Editing mode -->
+                    <div class="edit-form">
+                        <label>Frage:</label>
+                        <textarea [(ngModel)]="editGenQuestion" rows="2"></textarea>
+
+                        @if (editGenOptions.length > 0) {
+                        <label>Optionen:</label>
+                        @for (opt of editGenOptions; track $index; let j = $index) {
+                        <input type="text" [(ngModel)]="editGenOptions[j]" class="option-input" />
+                        }
+                        }
+
+                        <label>Korrekte Antwort:</label>
+                        <input type="text" [(ngModel)]="editGenCorrectAnswer" />
+
+                        <label>Erklärung:</label>
+                        <textarea [(ngModel)]="editGenExplanation" rows="2"></textarea>
+
+                        <div class="edit-actions">
+                            <button class="save-btn" (click)="saveEditGenerated(i)">💾 Übernehmen</button>
+                            <button class="cancel-btn" (click)="cancelEditGenerated()">Abbrechen</button>
+                        </div>
+                    </div>
+                    } @else {
+                    <!-- Display mode -->
+                    <div class="q-header">
+                        <span class="tier-badge" [style.background]="getTierColor(q.tier)">T{{q.tier}}
+                            {{getTierLabel(q.tier)}}</span>
+                        <span class="type-badge">{{getTypeLabel(q.questionType)}}</span>
+                        @if (q.paragraphIndex) {
+                        <span class="para-badge">¶{{q.paragraphIndex}}</span>
+                        }
+                    </div>
+                    <p class="q-text">{{q.question}}</p>
+                    @if (q.options) {
+                    <div class="q-options">
+                        @for (opt of q.options; track $index) {
+                        <span class="q-option" [class.correct]="opt === q.correctAnswer">{{opt}}</span>
+                        }
+                    </div>
+                    } @else {
+                    <div class="q-answer">Antwort: <strong>{{q.correctAnswer}}</strong></div>
+                    }
+                    @if (q.explanation) {
+                    <p class="q-explanation">💡 {{q.explanation}}</p>
+                    }
+                    <div class="q-actions">
+                        <button class="action-btn edit" (click)="startEditGenerated(i)">✏️ Bearbeiten</button>
+                        <button class="action-btn delete" (click)="removeGeneratedQuestion(i)">🗑️ Entfernen</button>
+                    </div>
+                    }
+                </div>
+                }
+
+                <div class="save-all-section">
+                    <button class="save-all-btn" (click)="saveTextWithQuestions()" [disabled]="savingText()">
+                        @if (savingText()) {
+                        <span class="spinner"></span> Speichere...
+                        } @else {
+                        💾 Text + {{generatedQuestions().length}} Fragen speichern
+                        }
+                    </button>
+                </div>
+            </div>
+            }
+        </div>
+        }
+    </div>
+
     <!-- Stats -->
     @if (!loading()) {
     <div class="stats-bar">

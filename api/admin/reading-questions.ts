@@ -2,6 +2,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getSupabaseClient } from '../_lib/supabase.js';
 import { requireAuth, handleCors } from '../_lib/auth.js';
+import { xai } from '@ai-sdk/xai';
+import { generateText } from 'ai';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (handleCors(req, res)) return;
@@ -169,9 +171,7 @@ async function handleBulkAction(req: VercelRequest, res: VercelResponse, db: any
                 return res.status(400).json({ error: 'Missing filter for approve-all' });
             }
 
-            const { error, count } = await query.select('id', { count: 'exact' }); // Select to return count if possible, or just execution
-            // update doesn't return count directly in JS client v2 unless select is chained?
-            // Actually it just returns data/error. 
+            const { error, count } = await query.select('id', { count: 'exact' });
             if (error) throw error;
             return res.status(200).json({ success: true, affected: count || 'unknown' });
         }
@@ -190,10 +190,163 @@ async function handleBulkAction(req: VercelRequest, res: VercelResponse, db: any
             if (error) throw error;
             return res.status(200).json({ success: true, affected: count || 'unknown' });
         }
+        else if (action === 'generate-questions') {
+            return handleGenerateQuestions(req, res, db);
+        }
+        else if (action === 'save-text-with-questions') {
+            return handleSaveTextWithQuestions(req, res, db);
+        }
         else {
             return res.status(400).json({ error: `Unknown action: ${action}` });
         }
     } catch (e: unknown) {
         throw e;
+    }
+}
+
+async function handleGenerateQuestions(req: VercelRequest, res: VercelResponse, db: any) {
+    const { title, text, zyklus, minAge, thema } = req.body;
+
+    if (!title || !text) {
+        return res.status(400).json({ error: 'title and text are required' });
+    }
+
+    const wordCount = text.trim().split(/\s+/).length;
+    const paragraphs = text.split('\n').filter((p: string) => p.trim().length > 0);
+
+    const systemPrompt = `You are an expert reading comprehension question creator for a Swiss/German children's learning platform.
+You create questions at 3 tiers:
+- Tier 1 (Grundwissen): Direct factual recall from the text
+- Tier 2 (Schlussfolgerung): Inference and deduction
+- Tier 3 (Analyse): Critical analysis, evaluation, author's intent
+
+Question types:
+- "multiple_choice": 4 options, exactly one correct
+- "true_false": Statement is "Wahr" or "Falsch"
+- "true_false_unknown": Statement is "Wahr", "Falsch", or "Steht nicht im Text"
+
+Rules:
+- Use Standard German spelling (with ß where appropriate)
+- Questions must be answerable from the text alone
+- Provide clear explanations referencing the text
+- paragraphIndex should reference the 1-based paragraph number the question relates to (or null for whole-text questions)
+- For multiple_choice, correctAnswer must exactly match one of the options
+- Return ONLY valid JSON, no markdown fences`;
+
+    const userPrompt = `TEXT TITLE: ${title}
+ZYKLUS: ${zyklus || 2}
+MIN AGE: ${minAge || 8}
+${thema ? `THEMA: ${thema}` : ''}
+
+TEXT (${paragraphs.length} paragraphs, ${wordCount} words):
+${paragraphs.map((p: string, i: number) => `[Paragraph ${i + 1}] ${p}`).join('\n\n')}
+
+TASK: Generate 8-12 comprehension questions spread across all 3 tiers and question types.
+Aim for: ~4 Tier 1, ~4 Tier 2, ~3 Tier 3.
+Mix question types: use multiple_choice, true_false, and true_false_unknown.
+Distribute paragraphIndex across the text paragraphs.
+
+Return a JSON array where each element has:
+{
+  "tier": 1|2|3,
+  "questionType": "multiple_choice"|"true_false"|"true_false_unknown",
+  "question": "...",
+  "options": ["A", "B", "C", "D"] | null,
+  "correctAnswer": "...",
+  "explanation": "...",
+  "paragraphIndex": number|null
+}`;
+
+    try {
+        const aiRes = await generateText({
+            model: xai('grok-4-1-fast-reasoning'),
+            system: systemPrompt,
+            prompt: userPrompt
+        });
+
+        const cleaned = aiRes.text.replace(/```json\n?|```/g, '').trim();
+        const questions = JSON.parse(cleaned);
+
+        if (!Array.isArray(questions)) {
+            return res.status(500).json({ error: 'AI returned invalid format (not an array)' });
+        }
+
+        return res.status(200).json({
+            generatedQuestions: questions,
+            textMeta: {
+                title,
+                wordCount,
+                paragraphCount: paragraphs.length,
+                zyklus: zyklus || 2,
+                minAge: minAge || 8,
+            }
+        });
+    } catch (e: unknown) {
+        console.error('[GENERATE-QUESTIONS] Error:', e);
+        return res.status(500).json({ error: e instanceof Error ? e.message : 'AI generation failed' });
+    }
+}
+
+async function handleSaveTextWithQuestions(req: VercelRequest, res: VercelResponse, db: any) {
+    const { text: textData, questions } = req.body;
+
+    if (!textData || !textData.title || !textData.text) {
+        return res.status(400).json({ error: 'text.title and text.text are required' });
+    }
+    if (!questions || !Array.isArray(questions) || questions.length === 0) {
+        return res.status(400).json({ error: 'At least one question is required' });
+    }
+
+    const wordCount = textData.text.trim().split(/\s+/).length;
+
+    try {
+        // 1. Insert the text
+        const { data: insertedText, error: textError } = await db
+            .from('reading_texts')
+            .insert({
+                title: textData.title,
+                text: textData.text,
+                zyklus: textData.zyklus || 2,
+                min_age: textData.minAge || 8,
+                thema: textData.thema || null,
+                source_url: textData.sourceUrl || null,
+                autor: textData.autor || null,
+                word_count: wordCount,
+            })
+            .select('id')
+            .single();
+
+        if (textError) throw textError;
+
+        const textId = insertedText.id;
+
+        // 2. Insert questions
+        const questionRows = questions.map((q: any) => ({
+            text_id: textId,
+            tier: q.tier,
+            question_type: q.questionType,
+            question: q.question,
+            options: q.options ? JSON.stringify(q.options) : null,
+            correct_answer: q.correctAnswer,
+            explanation: q.explanation || null,
+            paragraph_index: q.paragraphIndex || null,
+            ai_generated: true,
+            reviewed: false,
+        }));
+
+        const { error: qError } = await db
+            .from('reading_questions')
+            .insert(questionRows);
+
+        if (qError) throw qError;
+
+        return res.status(200).json({
+            success: true,
+            textId,
+            insertedQuestionCount: questionRows.length,
+        });
+    } catch (e: unknown) {
+        console.error('[SAVE-TEXT-WITH-QUESTIONS] Error:', e);
+        return res.status(500).json({ error: e instanceof Error ? e.message : 'Save failed' });
     }
 }

@@ -32,6 +32,7 @@ interface AvailableText {
     title: string;
     zyklus: number;
     wordCount: number;
+    solved: boolean;
 }
 
 @Component({
@@ -142,7 +143,12 @@ export class TextverstaendnisComponent implements OnInit {
             );
 
             this.readingText.set(response.text);
-            this.questions.set(response.questions);
+            // Shuffle multiple-choice options so they don't appear in the same order
+            const shuffledQuestions = response.questions.map(q => ({
+                ...q,
+                options: q.options ? this.shuffleArray([...q.options]) : null
+            }));
+            this.questions.set(shuffledQuestions);
             this.availableTexts.set(response.availableTexts);
 
             if (response.questions.length === 0) {
@@ -190,6 +196,7 @@ export class TextverstaendnisComponent implements OnInit {
         const answeredInView = this.visibleQuestions().filter(q => answers.has(q.id)).length;
         if (answeredInView === total && !this.isChunkedMode()) {
             this.finished.set(true);
+            this.reportCompletion();
         }
     }
 
@@ -216,6 +223,7 @@ export class TextverstaendnisComponent implements OnInit {
             this.currentChunkIndex.set(current + 1);
         } else {
             this.finished.set(true);
+            this.reportCompletion();
         }
     }
 
@@ -272,5 +280,34 @@ export class TextverstaendnisComponent implements OnInit {
 
     goBack(): void {
         this.router.navigate(['/']);
+    }
+
+    private shuffleArray<T>(arr: T[]): T[] {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    private reportCompletion(): void {
+        const text = this.readingText();
+        if (!text) return;
+
+        firstValueFrom(
+            this.http.post('/api/events', {
+                type: 'reading_complete',
+                textId: text.id,
+                score: this.score(),
+                total: this.totalAnswered(),
+            })
+        ).then(() => {
+            // Mark this text as solved in the available texts list
+            this.availableTexts.update(texts =>
+                texts.map(t => t.id === text.id ? { ...t, solved: true } : t)
+            );
+        }).catch(err => {
+            console.error('Error reporting reading completion:', err);
+        });
     }
 }

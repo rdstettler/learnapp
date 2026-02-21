@@ -321,31 +321,49 @@ async function handleCurriculum(req: VercelRequest, res: VercelResponse) {
 
 async function handleReadingText(req: VercelRequest, res: VercelResponse) {
     const db = getSupabaseClient();
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=120');
+    res.setHeader('Cache-Control', 'no-cache');
 
     const textId = req.query.text_id ? parseInt(req.query.text_id as string) : null;
     const maxZyklus = req.query.max_zyklus ? parseInt(req.query.max_zyklus as string) : 3;
 
+    // Optional auth — if logged in, we can return solved status
+    const decoded = await verifyAuth(req);
+    const userUid = decoded?.uid || null;
+
     try {
+        // Fetch all texts for this zyklus level (needed for both random selection and available list)
+        const { data: allTexts } = await db
+            .from('reading_texts')
+            .select('*')
+            .lte('zyklus', maxZyklus);
+
+        if (!allTexts || allTexts.length === 0) {
+            return res.status(404).json({ error: 'No texts found' });
+        }
+
+        // Get solved text IDs for this user
+        let solvedTextIds: Set<number> = new Set();
+        if (userUid) {
+            const { data: progress } = await db
+                .from('user_reading_progress')
+                .select('text_id')
+                .eq('user_uid', userUid);
+            if (progress) {
+                solvedTextIds = new Set(progress.map((p: any) => p.text_id));
+            }
+        }
+
         let textRow: any;
 
         if (textId) {
             // Fetch specific text
-            const { data } = await db.from('reading_texts').select('*').eq('id', textId).single();
-            textRow = data;
+            textRow = allTexts.find((t: any) => t.id === textId);
         } else {
-            // Fetch random text for the user's Zyklus level
-            // Workaround for random order: fetch all IDs, pick one, then fetch details
-            // Or since dataset is small, fetch all texts and pick random in JS
-            const { data: allTexts } = await db
-                .from('reading_texts')
-                .select('*')
-                .lte('zyklus', maxZyklus);
-
-            if (allTexts && allTexts.length > 0) {
-                const randomIndex = Math.floor(Math.random() * allTexts.length);
-                textRow = allTexts[randomIndex];
-            }
+            // Prefer unsolved texts for random selection
+            const unsolved = allTexts.filter((t: any) => !solvedTextIds.has(t.id));
+            const pool = unsolved.length > 0 ? unsolved : allTexts;
+            const randomIndex = Math.floor(Math.random() * pool.length);
+            textRow = pool[randomIndex];
         }
 
         if (!textRow) {
@@ -373,13 +391,6 @@ async function handleReadingText(req: VercelRequest, res: VercelResponse) {
             paragraphIndex: q.paragraph_index,
         }));
 
-        // Get all available text IDs for navigation
-        const { data: allTextsData } = await db
-            .from('reading_texts')
-            .select('id, title, zyklus, word_count')
-            .lte('zyklus', maxZyklus)
-            .order('id', { ascending: true });
-
         return res.status(200).json({
             text: {
                 id: textRow.id,
@@ -392,11 +403,12 @@ async function handleReadingText(req: VercelRequest, res: VercelResponse) {
                 wordCount: textRow.word_count,
             },
             questions,
-            availableTexts: (allTextsData || []).map(t => ({
+            availableTexts: allTexts.map((t: any) => ({
                 id: t.id,
                 title: t.title,
                 zyklus: t.zyklus,
                 wordCount: t.word_count,
+                solved: solvedTextIds.has(t.id),
             })),
         });
     } catch (e: unknown) {

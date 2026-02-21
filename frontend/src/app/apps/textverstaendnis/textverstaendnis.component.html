@@ -40,9 +40,12 @@
             </div>
             <div class="modal-body">
                 @for (t of availableTexts(); track t.id) {
-                <button class="modal-text-option" [class.active]="readingText()?.id === t.id"
+                <button class="modal-text-option" [class.active]="readingText()?.id === t.id" [class.solved]="t.solved"
                     (click)="selectText(t.id)">
-                    <span class="modal-text-title">{{t.title}}</span>
+                    <span class="modal-text-title">
+                        @if (t.solved) { <span class="solved-badge">✅</span> }
+                        {{t.title}}
+                    </span>
                     <span class="modal-word-badge">{{t.wordCount}} Wörter</span>
                 </button>
                 }

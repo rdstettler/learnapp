@@ -17,8 +17,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (type === 'question_progress') {
         return handleQuestionProgress(req, res, decoded.uid);
+    } else if (type === 'reading_complete') {
+        return handleReadingComplete(req, res, decoded.uid);
     } else {
-        return res.status(400).json({ error: "Missing or invalid 'type' in body (question_progress)" });
+        return res.status(400).json({ error: "Missing or invalid 'type' in body" });
     }
 }
 
@@ -174,4 +176,38 @@ async function resolveCategory(db: any, appId: string, category: string): Promis
     const newId = inserted.id;
     categoryCache.set(cacheKey, newId);
     return newId;
+}
+
+async function handleReadingComplete(req: VercelRequest, res: VercelResponse, uid: string) {
+    try {
+        const { textId, score, total } = req.body;
+
+        if (!textId || score == null || total == null) {
+            return res.status(400).json({ error: 'textId, score, and total are required' });
+        }
+
+        const db = getSupabaseClient();
+
+        await db.from('user_reading_progress').upsert({
+            user_uid: uid,
+            text_id: textId,
+            score,
+            total,
+            completed_at: new Date().toISOString(),
+        }, { onConflict: 'user_uid, text_id' });
+
+        // Record daily activity for streak tracking
+        const today = new Date().toISOString().slice(0, 10);
+        db.from('user_daily_activity').upsert({
+            user_uid: uid,
+            activity_date: today
+        }, { onConflict: 'user_uid, activity_date' }).then(({ error }: any) => {
+            if (error) console.error('Daily activity insert error:', error);
+        });
+
+        return res.status(200).json({ success: true });
+    } catch (error: unknown) {
+        console.error('Reading complete error:', error);
+        return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
+    }
 }

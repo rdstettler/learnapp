@@ -233,6 +233,21 @@
     margin-left: 12px;
 }
 
+.modal-text-option.solved {
+    background: rgba(74, 222, 128, 0.06);
+    border-color: rgba(74, 222, 128, 0.15);
+    opacity: 0.75;
+}
+
+.modal-text-option.solved:hover {
+    opacity: 1;
+}
+
+.solved-badge {
+    font-size: 0.85rem;
+    margin-right: 4px;
+}
+
 /* Text Title */
 .text-title {
     display: flex;
