@@ -60,8 +60,12 @@ interface FehlerQuestion {
     correctForm: string;
     options: { person: string; form: string; isMistake: boolean; selected: boolean; disabled: boolean }[];
     isCorrect?: boolean;
+    isCorrectForm?: boolean; // Hard mode: whether the shown form is correct
+    hardAnswer?: 'richtig' | 'falsch'; // Hard mode: user's answer
     _verbData?: VerbData;
 }
+
+type FehlerDifficulty = 'easy' | 'medium' | 'hard';
 
 type QuizMode = 'konjugation' | 'zeitform' | 'multiplechoice' | 'fehlerfinden';
 
@@ -120,6 +124,7 @@ export class VerbenComponent {
     fehlerQuestions = signal<FehlerQuestion[]>([]);
     currentFehlerIndex = signal(0);
     fehlerAnswered = signal(false);
+    fehlerDifficulty = signal<FehlerDifficulty>('easy');
 
     totalCorrect = signal(0);
     totalQuestions = signal(15);
@@ -162,6 +167,10 @@ export class VerbenComponent {
 
     setMode(m: QuizMode): void {
         this.mode.set(m);
+    }
+
+    setFehlerDifficulty(d: FehlerDifficulty): void {
+        this.fehlerDifficulty.set(d);
     }
 
     startQuiz(): void {
@@ -423,12 +432,12 @@ export class VerbenComponent {
     private startFehlerFinden(): void {
         const eligible = this.verbsWithMistakes();
         if (eligible.length === 0) {
-            // Fallback if no verbs have typicalMistakes yet
             this.startMultipleChoice();
             return;
         }
 
-        const count = Math.min(10, eligible.length * 3); // At most 3 questions per verb
+        const difficulty = this.fehlerDifficulty();
+        const count = Math.min(10, eligible.length * 3);
         this.totalQuestions.set(count);
         const questions: FehlerQuestion[] = [];
         const shuffledVerbs = shuffle(eligible);
@@ -437,7 +446,6 @@ export class VerbenComponent {
             const verb = shuffledVerbs[i % shuffledVerbs.length];
             const mistakes = verb.typicalMistakes!;
 
-            // Pick a tense that has a mistake defined
             const availableTenses = this.tenses.filter(t => mistakes[t] && Object.keys(mistakes[t]!).length > 0);
             if (availableTenses.length === 0) continue;
 
@@ -446,36 +454,70 @@ export class VerbenComponent {
             const [mistakePerson, mistakeForm] = mistakeEntries[Math.floor(Math.random() * mistakeEntries.length)];
             const correctForm = verb[tense][mistakePerson];
 
-            // Build options: 4 correct conjugations + 1 mistake
-            const correctPersons = shuffle(this.persons.filter(p => p !== mistakePerson)).slice(0, 4);
-            const options: FehlerQuestion['options'] = correctPersons.map(p => ({
-                person: p,
-                form: verb[tense][p],
-                isMistake: false,
-                selected: false,
-                disabled: false
-            }));
-
-            // Insert the mistake at a random position
-            const mistakeOption = {
-                person: mistakePerson,
-                form: mistakeForm,
-                isMistake: true,
-                selected: false,
-                disabled: false
-            };
-            const insertIdx = Math.floor(Math.random() * (options.length + 1));
-            options.splice(insertIdx, 0, mistakeOption);
-
-            questions.push({
-                verb: verb.verb,
-                tense,
-                mistakePerson,
-                mistakeForm,
-                correctForm,
-                options,
-                _verbData: verb
-            });
+            if (difficulty === 'hard') {
+                // Hard: show a single form, 50/50 chance it's correct or the mistake
+                const showCorrect = Math.random() < 0.5;
+                questions.push({
+                    verb: verb.verb,
+                    tense,
+                    mistakePerson,
+                    mistakeForm,
+                    correctForm,
+                    options: [{
+                        person: mistakePerson,
+                        form: showCorrect ? correctForm : mistakeForm,
+                        isMistake: !showCorrect,
+                        selected: false,
+                        disabled: false
+                    }],
+                    isCorrectForm: showCorrect,
+                    _verbData: verb
+                });
+            } else if (difficulty === 'medium') {
+                // Medium: 1 correct + 1 mistake = 2 options
+                const correctPerson = shuffle(this.persons.filter(p => p !== mistakePerson))[0];
+                const options: FehlerQuestion['options'] = shuffle([
+                    { person: correctPerson, form: verb[tense][correctPerson], isMistake: false, selected: false, disabled: false },
+                    { person: mistakePerson, form: mistakeForm, isMistake: true, selected: false, disabled: false }
+                ]);
+                questions.push({
+                    verb: verb.verb,
+                    tense,
+                    mistakePerson,
+                    mistakeForm,
+                    correctForm,
+                    options,
+                    _verbData: verb
+                });
+            } else {
+                // Easy: 4 correct + 1 mistake = 5 options (original)
+                const correctPersons = shuffle(this.persons.filter(p => p !== mistakePerson)).slice(0, 4);
+                const options: FehlerQuestion['options'] = correctPersons.map(p => ({
+                    person: p,
+                    form: verb[tense][p],
+                    isMistake: false,
+                    selected: false,
+                    disabled: false
+                }));
+                const mistakeOption = {
+                    person: mistakePerson,
+                    form: mistakeForm,
+                    isMistake: true,
+                    selected: false,
+                    disabled: false
+                };
+                const insertIdx = Math.floor(Math.random() * (options.length + 1));
+                options.splice(insertIdx, 0, mistakeOption);
+                questions.push({
+                    verb: verb.verb,
+                    tense,
+                    mistakePerson,
+                    mistakeForm,
+                    correctForm,
+                    options,
+                    _verbData: verb
+                });
+            }
         }
 
         this.fehlerQuestions.set(questions);
@@ -500,6 +542,29 @@ export class VerbenComponent {
 
         const updated = [...this.fehlerQuestions()];
         updated[this.currentFehlerIndex()] = { ...q, options: updatedOptions, isCorrect };
+        this.fehlerQuestions.set(updated);
+        this.fehlerAnswered.set(true);
+
+        if (isCorrect) this.totalCorrect.update(c => c + 1);
+
+        const verb = q._verbData as any;
+        if (verb?._contentId) {
+            this.telemetryService.trackProgress('verben', verb._contentId, isCorrect, this.mode());
+        }
+    }
+
+    selectFehlerHardOption(answer: 'richtig' | 'falsch'): void {
+        if (this.fehlerAnswered()) return;
+
+        const q = this.currentFehlerQuestion();
+        if (!q) return;
+
+        // User says "richtig" if they think the form is correct, "falsch" if they think it's wrong
+        const isCorrect = (answer === 'richtig' && q.isCorrectForm === true) ||
+            (answer === 'falsch' && q.isCorrectForm === false);
+
+        const updated = [...this.fehlerQuestions()];
+        updated[this.currentFehlerIndex()] = { ...q, hardAnswer: answer, isCorrect };
         this.fehlerQuestions.set(updated);
         this.fehlerAnswered.set(true);
 

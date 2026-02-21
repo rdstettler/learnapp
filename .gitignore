@@ -39,6 +39,7 @@ coverage/
 libpeerconnection.log
 testem.log
 typings/
+.continue/*
 
 # System files
 .DS_Store

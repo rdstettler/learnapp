@@ -243,56 +243,113 @@ async function handleStreak(req: VercelRequest, res: VercelResponse, db: DbClien
 async function handleStats(req: VercelRequest, res: VercelResponse, db: DbClient, uid: string) {
     if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed for stats' });
     try {
-        // Run all queries in parallel for speed
-        const [appAccuracy, activityDays, weakAreas, overallTotals] = await Promise.all([
-            db.rpc('get_user_app_stats', { p_user_uid: uid }),
-            db.from('user_daily_activity').select('activity_date').eq('user_uid', uid).gte('activity_date', new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10)).order('activity_date', { ascending: true }),
-            db.rpc('get_user_weak_areas', { p_user_uid: uid }),
-            db.rpc('get_user_overall_totals', { p_user_uid: uid })
+        // Run all queries in parallel — no more RPCs, just direct queries
+        const [progressResult, activityDays, appsResult] = await Promise.all([
+            db.from('user_question_progress')
+                .select('app_id, app_content_id, success_count, failure_count')
+                .eq('user_uid', uid),
+            db.from('user_daily_activity')
+                .select('activity_date')
+                .eq('user_uid', uid)
+                .gte('activity_date', new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10))
+                .order('activity_date', { ascending: true }),
+            db.from('apps').select('id, name, icon')
         ]);
-        // Format per-app accuracy
-        const perApp = (appAccuracy.data || []).map((r: any) => ({
-            appId: r.app_id,
-            appName: r.app_name,
-            appIcon: r.app_icon,
-            correct: r.correct,
-            total: r.total,
-            accuracy: r.total > 0 ? Math.round((r.correct / r.total) * 100) : 0
-        }));
+
+        const progressRows = progressResult.data || [];
+        const appsRows = appsResult.data || [];
+
+        // Build app lookup map
+        const appMap = new Map<string, { name: string; icon: string }>();
+        for (const app of appsRows) {
+            appMap.set(app.id, { name: app.name, icon: app.icon || '📱' });
+        }
+
+        // Aggregate per-app stats
+        const appAgg = new Map<string, { correct: number; total: number }>();
+        let totalAnswers = 0;
+        let totalCorrect = 0;
+
+        for (const row of progressRows) {
+            const s = row.success_count || 0;
+            const f = row.failure_count || 0;
+            const total = s + f;
+            totalAnswers += total;
+            totalCorrect += s;
+
+            const existing = appAgg.get(row.app_id) || { correct: 0, total: 0 };
+            existing.correct += s;
+            existing.total += total;
+            appAgg.set(row.app_id, existing);
+        }
+
+        const perApp = Array.from(appAgg.entries()).map(([appId, agg]) => {
+            const appInfo = appMap.get(appId);
+            return {
+                appId,
+                appName: appInfo?.name || appId,
+                appIcon: appInfo?.icon || '📱',
+                correct: agg.correct,
+                total: agg.total,
+                accuracy: agg.total > 0 ? Math.round((agg.correct / agg.total) * 100) : 0
+            };
+        }).sort((a, b) => b.total - a.total); // Sort by most used
+
         // Format heatmap
         const heatmap = (activityDays.data || []).map((r: any) => r.activity_date);
-        // Format weak areas
-        const weak = (weakAreas.data || []).map((r: any) => {
-            let preview = '';
-            try {
-                const parsed = JSON.parse(r.content_data);
-                if (parsed.category) preview = parsed.category;
-                else if (parsed.question) preview = (parsed.question as string).slice(0, 80);
-                else if (parsed.sentences) preview = ((parsed.sentences as string[])[0] || '').slice(0, 80);
-                else if (parsed.pairs) {
-                    const pair = (parsed.pairs as { word1: string; word2: string }[])[0];
-                    preview = pair ? `${pair.word1} / ${pair.word2}` : '';
-                } else preview = JSON.stringify(parsed).slice(0, 80);
-            } catch { }
-            return {
-                appId: r.app_id,
-                appName: r.app_name,
-                appIcon: r.app_icon,
-                preview,
-                successCount: r.success_count,
-                failureCount: r.failure_count
-            };
-        });
-        // Overall
-        const totals = (overallTotals.data && overallTotals.data[0]) || { total_answers: 0, total_correct: 0, apps_used: 0 };
-        const totalAnswers = totals.total_answers || 0;
-        const totalCorrect = totals.total_correct || 0;
+
+        // Weak areas: find content items with highest failure rate (min 2 attempts)
+        const weakItems = progressRows
+            .filter(r => (r.failure_count || 0) > (r.success_count || 0) && ((r.success_count || 0) + (r.failure_count || 0)) >= 2)
+            .sort((a, b) => (b.failure_count || 0) - (a.failure_count || 0))
+            .slice(0, 10);
+
+        // Fetch content data for weak items
+        let weak: any[] = [];
+        if (weakItems.length > 0) {
+            const contentIds = weakItems.map(w => w.app_content_id);
+            const { data: contentRows } = await db.from('app_content')
+                .select('id, app_id, data')
+                .in('id', contentIds);
+
+            const contentMap = new Map<number, any>();
+            for (const c of contentRows || []) {
+                contentMap.set(c.id, c);
+            }
+
+            weak = weakItems.map(w => {
+                const content = contentMap.get(w.app_content_id);
+                const appInfo = appMap.get(w.app_id);
+                let preview = '';
+                if (content?.data) {
+                    try {
+                        const parsed = JSON.parse(content.data);
+                        if (parsed.category) preview = parsed.category;
+                        else if (parsed.question) preview = (parsed.question as string).slice(0, 80);
+                        else if (parsed.sentences) preview = ((parsed.sentences as string[])[0] || '').slice(0, 80);
+                        else if (parsed.pairs) {
+                            const pair = (parsed.pairs as { word1: string; word2: string }[])[0];
+                            preview = pair ? `${pair.word1} / ${pair.word2}` : '';
+                        } else preview = JSON.stringify(parsed).slice(0, 80);
+                    } catch { }
+                }
+                return {
+                    appId: w.app_id,
+                    appName: appInfo?.name || w.app_id,
+                    appIcon: appInfo?.icon || '📱',
+                    preview,
+                    successCount: w.success_count || 0,
+                    failureCount: w.failure_count || 0
+                };
+            });
+        }
+
         return res.status(200).json({
             overview: {
                 totalAnswers,
                 totalCorrect,
                 accuracy: totalAnswers > 0 ? Math.round((totalCorrect / totalAnswers) * 100) : 0,
-                appsUsed: totals.apps_used || 0,
+                appsUsed: appAgg.size,
                 totalActiveDays: heatmap.length
             },
             perApp,

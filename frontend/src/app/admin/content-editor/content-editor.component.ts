@@ -197,7 +197,10 @@ export class ContentEditorComponent implements OnInit {
             const res = await firstValueFrom(
                 this.http.get<{ apps: AppOption[] }>('/api/apps')
             );
-            this.apps.set(res.apps.filter((a: any) => a.type !== 'game'));
+            const filtered = res.apps
+                .filter((a: any) => a.type !== 'game' && a.type !== 'simulation')
+                .sort((a: any, b: any) => a.name.localeCompare(b.name, 'de'));
+            this.apps.set(filtered);
         } catch (e) {
             console.error('Failed to load apps:', e);
         }

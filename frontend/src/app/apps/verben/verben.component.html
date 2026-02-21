@@ -28,6 +28,26 @@
                 }
             </div>
 
+            @if (mode() === 'fehlerfinden') {
+            <div class="difficulty-selector">
+                <span class="difficulty-label">Schwierigkeit:</span>
+                <div class="difficulty-buttons">
+                    <button class="diff-btn" [class.active]="fehlerDifficulty() === 'easy'"
+                        (click)="setFehlerDifficulty('easy')">
+                        <span class="diff-icon">🟢</span> Einfach
+                    </button>
+                    <button class="diff-btn" [class.active]="fehlerDifficulty() === 'medium'"
+                        (click)="setFehlerDifficulty('medium')">
+                        <span class="diff-icon">🟡</span> Mittel
+                    </button>
+                    <button class="diff-btn" [class.active]="fehlerDifficulty() === 'hard'"
+                        (click)="setFehlerDifficulty('hard')">
+                        <span class="diff-icon">🔴</span> Schwer
+                    </button>
+                </div>
+            </div>
+            }
+
             <button class="btn btn-primary" (click)="startQuiz()" [disabled]="verbs().length === 0">
                 Quiz starten
             </button>
@@ -80,12 +100,10 @@
                 <p class="tense-prompt">Welche Zeitform ist das?</p>
                 <div class="tense-options">
                     @for (opt of q.options; track opt) {
-                    <button class="tense-option-btn"
-                        [class.selected]="q.selectedOption === opt"
+                    <button class="tense-option-btn" [class.selected]="q.selectedOption === opt"
                         [class.correct]="tenseAnswered() && opt === q.correctTense"
                         [class.incorrect]="tenseAnswered() && q.selectedOption === opt && opt !== q.correctTense"
-                        [disabled]="tenseAnswered()"
-                        (click)="selectTense(opt)">
+                        [disabled]="tenseAnswered()" (click)="selectTense(opt)">
                         {{ tenseNames[opt] }}
                     </button>
                     }
@@ -120,11 +138,9 @@
                 </div>
                 <div class="mc-options">
                     @for (opt of q.options; track $index) {
-                    <button class="mc-option-btn"
-                        [class.selected]="opt.selected"
+                    <button class="mc-option-btn" [class.selected]="opt.selected"
                         [class.correct]="mcAnswered() && opt.isCorrect"
-                        [class.incorrect]="mcAnswered() && opt.selected && !opt.isCorrect"
-                        [disabled]="mcAnswered()"
+                        [class.incorrect]="mcAnswered() && opt.selected && !opt.isCorrect" [disabled]="mcAnswered()"
                         (click)="selectMCOption($index)">
                         {{ opt.text }}
                     </button>
@@ -157,30 +173,64 @@
                     <span class="verb-badge">{{ q.verb }}</span>
                     <span class="tense-badge">{{ tenseNames[q.tense] }}</span>
                 </div>
+
+                @if (fehlerDifficulty() === 'hard') {
+                <!-- Hard mode: single form with Richtig/Falsch -->
+                <p class="fehler-prompt">🤔 Ist diese Form richtig?</p>
+                <div class="hard-display">
+                    <span class="hard-person">{{ q.options[0].person }}</span>
+                    <span class="hard-form">{{ q.options[0].form }}</span>
+                </div>
+                <div class="hard-buttons">
+                    <button class="hard-btn richtig" [class.selected]="q.hardAnswer === 'richtig'"
+                        [class.correct]="fehlerAnswered() && q.isCorrectForm"
+                        [class.incorrect]="fehlerAnswered() && q.hardAnswer === 'richtig' && !q.isCorrectForm"
+                        [disabled]="fehlerAnswered()" (click)="selectFehlerHardOption('richtig')">
+                        ✓ Richtig
+                    </button>
+                    <button class="hard-btn falsch" [class.selected]="q.hardAnswer === 'falsch'"
+                        [class.correct]="fehlerAnswered() && !q.isCorrectForm"
+                        [class.incorrect]="fehlerAnswered() && q.hardAnswer === 'falsch' && q.isCorrectForm"
+                        [disabled]="fehlerAnswered()" (click)="selectFehlerHardOption('falsch')">
+                        ✗ Falsch
+                    </button>
+                </div>
+                } @else {
+                <!-- Easy / Medium mode: option list -->
                 <p class="fehler-prompt">🔍 Welche Form ist falsch?</p>
                 <div class="fehler-options">
                     @for (opt of q.options; track $index) {
-                    <button class="fehler-option-btn"
-                        [class.selected]="opt.selected"
+                    <button class="fehler-option-btn" [class.selected]="opt.selected"
                         [class.is-mistake]="fehlerAnswered() && opt.isMistake"
                         [class.correct-pick]="fehlerAnswered() && opt.selected && opt.isMistake"
                         [class.wrong-pick]="fehlerAnswered() && opt.selected && !opt.isMistake"
-                        [class.safe]="fehlerAnswered() && !opt.isMistake && !opt.selected"
-                        [disabled]="fehlerAnswered()"
+                        [class.safe]="fehlerAnswered() && !opt.isMistake && !opt.selected" [disabled]="fehlerAnswered()"
                         (click)="selectFehlerOption($index)">
                         <span class="fehler-person">{{ opt.person }}</span>
                         <span class="fehler-form">{{ opt.form }}</span>
                     </button>
                     }
                 </div>
+                }
             </div>
 
             @if (fehlerAnswered()) {
             <div class="feedback-row">
                 @if (q.isCorrect) {
-                <span class="feedback correct">✓ Richtig! «{{ q.mistakeForm }}» ist falsch.</span>
+                @if (fehlerDifficulty() === 'hard') {
+                <span class="feedback correct">✓ Richtig! Die Form «{{ q.options[0].form }}» ist {{ q.isCorrectForm ?
+                    'korrekt' : 'falsch' }}.</span>
                 } @else {
-                <span class="feedback incorrect">✗ «{{ q.mistakePerson }}: {{ q.mistakeForm }}» war der Fehler. Richtig: {{ q.correctForm }}</span>
+                <span class="feedback correct">✓ Richtig! «{{ q.mistakeForm }}» ist falsch.</span>
+                }
+                } @else {
+                @if (fehlerDifficulty() === 'hard') {
+                <span class="feedback incorrect">✗ Die Form «{{ q.options[0].form }}» ist {{ q.isCorrectForm ? 'korrekt'
+                    : 'falsch' }}. Richtig: {{ q.correctForm }}</span>
+                } @else {
+                <span class="feedback incorrect">✗ «{{ q.mistakePerson }}: {{ q.mistakeForm }}» war der Fehler. Richtig:
+                    {{ q.correctForm }}</span>
+                }
                 }
             </div>
             <button class="btn btn-primary" (click)="nextFehlerQuestion()">Weiter</button>

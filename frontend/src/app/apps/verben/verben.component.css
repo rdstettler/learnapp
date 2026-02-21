@@ -40,6 +40,7 @@
     cursor: not-allowed;
     border-style: dashed;
 }
+
 .mode-btn.locked:hover {
     transform: none;
 }
@@ -372,5 +373,138 @@
 
 .fehler-option-btn.correct-pick:disabled,
 .fehler-option-btn.is-mistake:disabled {
+    opacity: 1;
+}
+
+/* ═══ DIFFICULTY SELECTOR ═══ */
+.difficulty-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin: -10px 0 20px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.difficulty-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.difficulty-buttons {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.diff-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.diff-btn:hover {
+    border-color: var(--accent-1);
+    transform: translateY(-1px);
+}
+
+.diff-btn.active {
+    border-color: var(--accent-1);
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.diff-icon {
+    font-size: 0.8rem;
+}
+
+/* ═══ HARD MODE ═══ */
+.hard-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 28px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+}
+
+.hard-person {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.hard-form {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.hard-buttons {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.hard-btn {
+    flex: 1;
+    padding: 16px 20px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.hard-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.hard-btn.richtig:hover:not(:disabled) {
+    border-color: var(--success);
+}
+
+.hard-btn.falsch:hover:not(:disabled) {
+    border-color: var(--error);
+}
+
+.hard-btn.correct {
+    border-color: var(--success);
+    background: rgba(34, 197, 94, 0.15);
+}
+
+.hard-btn.incorrect {
+    border-color: var(--error);
+    background: rgba(239, 68, 68, 0.15);
+}
+
+.hard-btn:disabled {
+    cursor: default;
+    opacity: 0.7;
+}
+
+.hard-btn.correct:disabled,
+.hard-btn.incorrect:disabled {
     opacity: 1;
 }
