@@ -1,0 +1,49 @@
+<app-learning-app-layout title="🧩 Flächen finden" appId="flaechenfinden" [content]="'Finde die gesuchte Fläche'">
+    <div class="controls">
+        <button class="btn btn-tool" [class.active]="currentTool() === 'mittelsenkrechte'"
+            (click)="setTool('mittelsenkrechte')">
+            Mittelsenkrechte
+        </button>
+        <button class="btn btn-tool" [class.active]="currentTool() === 'parallele'" (click)="setTool('parallele')">
+            Parallele
+        </button>
+        <button class="btn btn-tool" [class.active]="currentTool() === 'winkelhalbierende'"
+            (click)="setTool('winkelhalbierende')">
+            Winkelhalbierende
+        </button>
+        <button class="btn btn-tool" [class.active]="currentTool() === 'kreis'" (click)="setTool('kreis')">
+            Kreis
+        </button>
+        <button class="btn btn-tool btn-fill" [class.active]="currentTool() === 'fuellen'" (click)="setTool('fuellen')">
+            Fläche markieren
+        </button>
+        <button class="btn btn-tool btn-clear" (click)="clearAll()">
+            Löschen
+        </button>
+        <button class="btn btn-tool btn-check" (click)="checkSolution()">
+            Prüfen
+        </button>
+        <button class="btn btn-tool btn-new" (click)="generateNewPuzzle()">
+            Neu erstellen
+        </button>
+    </div>
+
+    <div class="status">{{ status() }}</div>
+
+    <div class="task-description">
+        <h3>Teilvoraussetzungen</h3>
+        <ul>
+            @for(cond of conditionsText(); track cond) {
+            <li>{{ cond }}</li>
+            }
+        </ul>
+    </div>
+
+    <div class="canvas-container">
+        <canvas #canvas (pointerdown)="onPointerDown($event)" (pointermove)="onPointerMove($event)"
+            (pointerup)="onPointerUp()" (pointerleave)="onPointerUp()" role="img"
+            aria-label="Zeichenfläche für Flächen finden">
+            Dein Browser unterstützt kein Canvas.
+        </canvas>
+    </div>
+</app-learning-app-layout>

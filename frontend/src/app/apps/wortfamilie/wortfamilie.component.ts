@@ -5,6 +5,7 @@ import { DataService } from '../../services/data.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
+import { ModeSelectorComponent } from "../../shared/components/mode-btn";
 
 
 interface WortfamilieItem {
@@ -35,7 +36,7 @@ interface Problem {
 @Component({
     selector: 'app-wortfamilie',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, ModeSelectorComponent],
     templateUrl: './wortfamilie.component.html',
     styleUrl: './wortfamilie.component.css',
     host: {
@@ -118,10 +119,6 @@ export class WortfamilieComponent {
             next: (data) => this.allItems.set(data),
             error: (err) => console.error('Error loading wortfamilie data:', err)
         });
-    }
-
-    setMode(m: QuizMode): void {
-        this.mode.set(m);
     }
 
     startQuiz(): void {

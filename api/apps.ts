@@ -19,7 +19,7 @@ const CURRICULUM_APP_MAP: Record<string, string[]> = {
     // Mathematik
     'MA.1.A': ['kopfrechnen', 'textaufgaben'],    // Zahl: Operieren und Benennen
     'MA.1.C': ['textaufgaben'],                   // Zahl: Mathematisieren
-    'MA.2.A': ['symmetrien'],                     // Form: Operieren
+    'MA.2.A': ['symmetrien', 'flaechenfinden'],   // Form: Operieren
     'MA.3.A': ['umrechnen', 'zeitrechnen'],       // Grössen: Operieren
 };
 

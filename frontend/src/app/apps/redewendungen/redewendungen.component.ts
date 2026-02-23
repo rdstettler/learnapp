@@ -14,11 +14,12 @@ import { AppTelemetryService } from '../../services/app-telemetry.service';
 
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
+import { ModeSelectorComponent } from "../../shared/components/mode-btn";
 
 @Component({
     selector: 'app-redewendungen',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, ModeSelectorComponent],
     templateUrl: './redewendungen.component.html',
     styleUrl: './redewendungen.component.css'
 })
@@ -68,10 +69,6 @@ export class RedewendungenComponent {
             next: (data) => this.redewendungen.set(data),
             error: (err) => console.error('Error loading redewendungen data:', err)
         });
-    }
-
-    setMode(m: QuizMode): void {
-        this.mode.set(m);
     }
 
     startQuiz(): void {

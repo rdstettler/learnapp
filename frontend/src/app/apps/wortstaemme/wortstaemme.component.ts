@@ -2,6 +2,7 @@ import { Component, signal, computed, inject } from '@angular/core';
 import { DataService } from '../../services/data.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { ModeSelectorComponent } from "../../shared/components/mode-btn";
 
 
 interface MeaningOption {
@@ -44,7 +45,7 @@ type Screen = 'welcome' | 'stage1' | 'results1' | 'stage2' | 'results2' | 'final
 @Component({
     selector: 'app-wortstaemme',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, ModeSelectorComponent],
     templateUrl: './wortstaemme.component.html',
     styleUrl: './wortstaemme.component.css'
 })
@@ -125,10 +126,6 @@ export class WortstaemmeComponent {
 
     selectStem(event: Event): void {
         this.selectedStemValue.set((event.target as HTMLSelectElement).value);
-    }
-
-    setMode(m: QuizMode): void {
-        this.mode.set(m);
     }
 
     startQuiz(): void {

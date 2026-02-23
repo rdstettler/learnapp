@@ -6,6 +6,7 @@ import { DataService } from '../../services/data.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
+import { ModeSelectorComponent } from "../../shared/components/mode-btn";
 
 
 interface DisplayWord {
@@ -40,7 +41,7 @@ type QuizMode = 'korrektur' | 'markieren' | 'saetze';
 @Component({
     selector: 'app-fehler',
     standalone: true,
-    imports: [FormsModule, LearningAppLayoutComponent],
+    imports: [FormsModule, LearningAppLayoutComponent, ModeSelectorComponent],
     templateUrl: './fehler.component.html',
     styleUrl: './fehler.component.css'
 })
@@ -119,10 +120,6 @@ export class FehlerComponent {
             next: (data) => this.allSentences.set(data as SentenceItem[]),
             error: (err) => console.error('Error loading fehler saetze data:', err)
         });
-    }
-
-    setMode(m: QuizMode): void {
-        this.mode.set(m);
     }
 
     startQuiz(): void {

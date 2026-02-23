@@ -19,11 +19,12 @@ type QuizMode = 'klassisch' | 'schnell';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
+import { ModeSelectorComponent } from "../../shared/components/mode-btn";
 
 @Component({
     selector: 'app-kasus',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, ModeSelectorComponent],
     templateUrl: './kasus.component.html',
     styleUrl: './kasus.component.css',
     host: {
@@ -161,10 +162,6 @@ export class KasusComponent {
         }
 
         return parts;
-    }
-
-    setMode(m: QuizMode): void {
-        this.mode.set(m);
     }
 
     startQuiz(): void {

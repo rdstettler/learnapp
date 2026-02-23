@@ -1,0 +1,126 @@
+.controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-tool {
+    width: auto !important;
+    flex: 0 1 auto;
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    background: white;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-tool:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+}
+
+.btn-tool.active {
+    background: #eef2ff;
+    border-color: #6366f1;
+    color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.btn-clear {
+    border-color: #fca5a5;
+    color: #ef4444;
+}
+
+.btn-clear:hover {
+    background: #fef2f2;
+    border-color: #ef4444;
+}
+
+.btn-fill {
+    border-color: #93c5fd;
+    color: #3b82f6;
+}
+
+.btn-fill.active {
+    background: #eff6ff;
+    border-color: #2563eb;
+    color: #1d4ed8;
+}
+
+.btn-check {
+    border-color: #6ee7b7;
+    background: #10b981;
+    color: white;
+}
+
+.btn-check:hover {
+    background: #059669;
+    border-color: #059669;
+}
+
+.btn-new {
+    border-color: #94a3b8;
+    background: #475569;
+    color: white;
+}
+
+.btn-new:hover {
+    background: #334155;
+    border-color: #334155;
+    color: white;
+}
+
+.status {
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: 0.5rem;
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.task-description {
+    padding: 1rem;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    color: #166534;
+}
+
+.task-description h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.task-description ul {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.canvas-container {
+    border: 2px solid #e2e8f0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    position: relative;
+    cursor: crosshair;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    max-width: 900px;
+    height: auto;
+    touch-action: none;
+}

@@ -96,51 +96,6 @@
     color: var(--error);
 }
 
-/* Mode Selector */
-.mode-selector {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-bottom: 12px;
-}
-
-.mode-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
-    border-radius: 14px;
-    border: 2px solid var(--border-color);
-    background: var(--bg-card);
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: inherit;
-}
-
-.mode-btn:hover {
-    border-color: var(--accent-1);
-    background: rgba(99, 102, 241, 0.08);
-}
-
-.mode-btn.active {
-    border-color: var(--accent-1);
-    background: rgba(99, 102, 241, 0.15);
-    color: var(--text-primary);
-    font-weight: 600;
-}
-
-.mode-icon {
-    font-size: 1.2rem;
-}
-
-.mode-description {
-    margin-bottom: 24px;
-    min-height: 1.5em;
-}
-
 /* Ergänze Mode */
 .idiom-container.ergaenze {
     background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(249, 115, 22, 0.15));

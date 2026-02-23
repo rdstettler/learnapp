@@ -4,6 +4,7 @@ import { DataService } from '../../services/data.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
+import { ModeSelectorComponent } from "../../shared/components/mode-btn";
 
 interface SynAntGroup {
     strong: string[];
@@ -35,7 +36,7 @@ interface QuizRound {
 @Component({
     selector: 'app-synant',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, ModeSelectorComponent],
     templateUrl: './synant.component.html',
     styleUrl: './synant.component.css',
     host: {
@@ -104,10 +105,6 @@ export class SynantComponent {
             next: (data) => this.allPairs.set(data),
             error: (err) => console.error('Error loading synant data:', err)
         });
-    }
-
-    setMode(m: QuizMode): void {
-        this.mode.set(m);
     }
 
     startQuiz(): void {

@@ -5,6 +5,7 @@ import { UserService } from '../../services/user.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
 import { shuffle } from '../../shared/utils/array.utils';
+import { ModeSelectorComponent } from "../../shared/components/mode-btn";
 
 interface VerbData {
     verb: string;
@@ -72,7 +73,7 @@ type QuizMode = 'konjugation' | 'zeitform' | 'multiplechoice' | 'fehlerfinden';
 @Component({
     selector: 'app-verben',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, ModeSelectorComponent],
     templateUrl: './verben.component.html',
     styleUrl: './verben.component.css'
 })
@@ -163,10 +164,6 @@ export class VerbenComponent {
             next: (data) => this.verbs.set(data),
             error: (err) => console.error('Error loading verben data:', err)
         });
-    }
-
-    setMode(m: QuizMode): void {
-        this.mode.set(m);
     }
 
     setFehlerDifficulty(d: FehlerDifficulty): void {

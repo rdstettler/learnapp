@@ -20,11 +20,12 @@ type QuizMode = 'standard' | 'fehlerjagd';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
+import { ModeSelectorComponent } from "../../shared/components/mode-btn";
 
 @Component({
     selector: 'app-dasdass',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, ModeSelectorComponent],
     templateUrl: './dasdass.component.html',
     styleUrl: './dasdass.component.css'
 })
@@ -158,10 +159,6 @@ export class DasdassComponent {
             this.allTexts.set(data);
             this.startQuiz();
         });
-    }
-
-    setMode(m: QuizMode): void {
-        this.mode.set(m);
     }
 
     startQuiz(): void {

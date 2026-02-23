@@ -17,6 +17,7 @@ export { AppCardComponent } from '../../../frontend/src/app/shared/components/ap
 export type { AppInfo, AppMetrics as AppCardMetrics } from '../../../frontend/src/app/shared/components/app-card/app-card.component';
 export { AuthModalComponent } from '../../../frontend/src/app/shared/components/auth-modal/auth-modal.component';
 export { ToastContainerComponent } from '../../../frontend/src/app/shared/components/toast-container/toast-container.component';
+export { ModeBtnComponent } from '../../../frontend/src/app/shared/components/mode-btn';
 export { BadgeNotificationComponent } from '../../../frontend/src/app/shared/components/badge-notification/badge-notification.component';
 export { BadgeShowcaseComponent } from '../../../frontend/src/app/shared/components/badge-showcase/badge-showcase.component';
 

@@ -5,6 +5,7 @@ import { DataService } from '../../services/data.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
+import { ModeSelectorComponent } from '../../shared/components/mode-btn';
 
 
 interface Sentence {
@@ -25,7 +26,7 @@ type QuizMode = 'einzeln' | 'zufall' | 'gemischt';
 @Component({
     selector: 'app-aehnlichewoerter',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, ModeSelectorComponent],
     templateUrl: './aehnlichewoerter.component.html',
     styleUrl: './aehnlichewoerter.component.css'
 })
@@ -125,10 +126,6 @@ export class AehnlichewoerterComponent {
 
     selectPair(event: Event): void {
         this.selectedPairId.set((event.target as HTMLSelectElement).value);
-    }
-
-    setMode(m: QuizMode): void {
-        this.mode.set(m);
     }
 
     startQuiz(): void {

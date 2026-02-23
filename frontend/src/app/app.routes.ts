@@ -28,6 +28,7 @@ export const routes: Routes = [
     { path: 'wortarten', loadComponent: () => import('./apps/wortarten/wortarten.component').then(m => m.WortartenComponent) },
     { path: 'synant', loadComponent: () => import('./apps/synant/synant.component').then(m => m.SynantComponent) },
     { path: 'textverstaendnis', loadComponent: () => import('./apps/textverstaendnis/textverstaendnis.component').then(m => m.TextverstaendnisComponent) },
+    { path: 'flaechenfinden', loadComponent: () => import('./apps/flaechenfinden/flaechenfinden.component').then(m => m.FlaechenfindenComponent) },
     { path: 'admin/text-aufgaben', canActivate: [authGuard], loadComponent: () => import('./admin/text-aufgaben-admin/text-aufgaben-admin.component').then(m => m.TextAufgabenAdminComponent) },
     { path: 'admin/content', canActivate: [authGuard], loadComponent: () => import('./admin/content-editor/content-editor.component').then(m => m.ContentEditorComponent) },
     { path: 'admin/reading-review', canActivate: [authGuard], loadComponent: () => import('./admin/reading-review/reading-review.component').then(m => m.ReadingReviewComponent) },

@@ -14,11 +14,12 @@ type QuizMode = 'tippen' | 'auswahl' | 'eindringling';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
+import { ModeSelectorComponent } from "../../shared/components/mode-btn";
 
 @Component({
     selector: 'app-oberbegriffe',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, ModeSelectorComponent],
     templateUrl: './oberbegriffe.component.html',
     styleUrl: './oberbegriffe.component.css',
     host: {
@@ -85,10 +86,6 @@ export class OberbegriffeComponent {
             next: (data) => this.allItems.set(data),
             error: (err) => console.error('Error loading oberbegriffe data:', err)
         });
-    }
-
-    setMode(m: QuizMode): void {
-        this.mode.set(m);
     }
 
     startQuiz(): void {
