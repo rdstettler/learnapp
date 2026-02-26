@@ -150,6 +150,7 @@ export class ContentEditorComponent implements OnInit {
         wortfamilie: 'Füge Beispielsätze hinzu falls sinnvoll.',
         kasus: 'Füge typische Fehler hinzu falls der Kasus häufig verwechselt wird.',
         redewendungen: 'Füge eine Herkunft/Etymologie hinzu falls bekannt.',
+        rechtschreibung: 'WICHTIG: Erstelle Lückentext Bsp. mit markierter korrekter Form: "Das K[*i/ie]nd". Erstelle Zuordnen Bsp. mit "word": "K__nd", "options": ["ie","i"], "correct": "ie", "rule": "ie/i". BEIDES für Mode "luecken" oder "zuordnen" setzen.',
     };
 
     // Summary computed
