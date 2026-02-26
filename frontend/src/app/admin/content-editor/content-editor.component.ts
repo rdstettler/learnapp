@@ -20,6 +20,7 @@ interface ContentItem {
     data: Record<string, unknown>;
     level: number | null;
     skillLevel: number | null;
+    mode: string | null;
     aiGenerated: boolean;
     humanVerified: boolean;
     flagCounter: number;
@@ -83,6 +84,7 @@ export class ContentEditorComponent implements OnInit {
     readonly editingId = signal<number | null>(null);
     readonly editJson = signal('');
     readonly editLevel = signal<number | null>(null);
+    readonly editMode = signal<string | null>(null);
     readonly saving = signal(false);
     readonly jsonError = signal<string | null>(null);
 
@@ -110,6 +112,7 @@ export class ContentEditorComponent implements OnInit {
     readonly showAddForm = signal(false);
     readonly addJson = signal('');
     readonly addLevel = signal<number | null>(null);
+    readonly addMode = signal<string | null>(null);
 
     // Template & AI Enhancement
     readonly templateId = signal<number | null>(null);
@@ -441,6 +444,7 @@ export class ContentEditorComponent implements OnInit {
         this.editingId.set(item.id);
         this.editJson.set(JSON.stringify(item.data, null, 2));
         this.editLevel.set(item.level);
+        this.editMode.set(item.mode);
         this.jsonError.set(null);
     }
 
@@ -471,6 +475,7 @@ export class ContentEditorComponent implements OnInit {
                     id,
                     data: parsed,
                     level: this.editLevel(),
+                    mode: this.editMode(),
                     human_verified: true
                 })
             );
@@ -491,6 +496,7 @@ export class ContentEditorComponent implements OnInit {
         if (this.showAddForm()) {
             this.addJson.set('{\n  \n}');
             this.addLevel.set(null);
+            this.addMode.set(null);
         }
     }
 
@@ -511,7 +517,8 @@ export class ContentEditorComponent implements OnInit {
                 this.http.post('/api/admin/add-content', {
                     app_id: this.selectedAppId(),
                     content: parsed,
-                    level: this.addLevel()
+                    level: this.addLevel(),
+                    mode: this.addMode()
                 })
             );
             this.flashSuccess('Inhalt hinzugefügt!');

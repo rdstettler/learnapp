@@ -1,4 +1,9 @@
-<div class="app-card" (click)="onCardClick($event)">
+<div class="app-card" [class.loading]="isLoading()" (click)="onCardClick($event)">
+    @if (isLoading()) {
+    <div class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+    }
     @if (showFavorite()) {
     <div class="favorite-icon" (click)="onFavoriteClick($event)" [class.active]="isFavorite()"
         title="Favorit umschalten">

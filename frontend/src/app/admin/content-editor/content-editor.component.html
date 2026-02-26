@@ -9,9 +9,7 @@
         <label>App wählen:</label>
         <div class="app-chips">
             @for (app of apps(); track app.id) {
-            <button class="app-chip"
-                    [class.active]="selectedAppId() === app.id"
-                    (click)="selectApp(app.id)">
+            <button class="app-chip" [class.active]="selectedAppId() === app.id" (click)="selectApp(app.id)">
                 {{ app.icon }} {{ app.name }}
             </button>
             }
@@ -44,12 +42,11 @@
             <button class="action-btn add-btn" (click)="toggleAddForm()">
                 {{ showAddForm() ? '✕ Abbrechen' : '+ Neuer Eintrag' }}
             </button>
-            <button class="action-btn enhance-btn" (click)="toggleEnhancePanel()"
-                    [class.active]="showEnhancePanel()">
+            <button class="action-btn enhance-btn" (click)="toggleEnhancePanel()" [class.active]="showEnhancePanel()">
                 🤖 KI-Erweiterung
             </button>
             <button class="action-btn generate-btn" (click)="toggleGeneratePanel()"
-                    [class.active]="showGeneratePanel()">
+                [class.active]="showGeneratePanel()">
                 ✨ Neue Einträge mit KI
             </button>
             <select class="sort-select" [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)">
@@ -85,10 +82,9 @@
         <!-- Custom Prompt -->
         <div class="prompt-section">
             <label>Anweisungen an die KI (app-spezifisch):</label>
-            <textarea class="prompt-editor" rows="4"
-                      [ngModel]="customPrompt()"
-                      (ngModelChange)="customPrompt.set($event)"
-                      placeholder="z.B. 'Nur bei unregelmässigen Verben typicalMistakes hinzufügen...'"></textarea>
+            <textarea class="prompt-editor" rows="4" [ngModel]="customPrompt()"
+                (ngModelChange)="customPrompt.set($event)"
+                placeholder="z.B. 'Nur bei unregelmässigen Verben typicalMistakes hinzufügen...'"></textarea>
         </div>
 
         <!-- Batch Controls -->
@@ -99,13 +95,13 @@
             </div>
             <span class="sparse-count">{{ sparseEntries().length }} unvollständige Einträge</span>
             <button class="save-btn" (click)="runEnhanceBatch()"
-                    [disabled]="enhancing() || !templateItem() || sparseEntries().length === 0">
+                [disabled]="enhancing() || !templateItem() || sparseEntries().length === 0">
                 @if (enhancing()) {
-                    @if (enhanceProgress(); as p) {
-                    <span>⏳ {{ p.current }}/{{ p.total }}...</span>
-                    } @else {
-                    <span>⏳ Starte...</span>
-                    }
+                @if (enhanceProgress(); as p) {
+                <span>⏳ {{ p.current }}/{{ p.total }}...</span>
+                } @else {
+                <span>⏳ Starte...</span>
+                }
                 } @else {
                 <span>🚀 Nächsten Batch erweitern</span>
                 }
@@ -136,9 +132,8 @@
                     <div class="result-col">
                         <h5>Nachher (KI)</h5>
                         @if (editingEnhancedId() === r.id) {
-                        <textarea class="json-editor" rows="14"
-                                  [ngModel]="editingEnhancedJson()"
-                                  (ngModelChange)="editingEnhancedJson.set($event)"></textarea>
+                        <textarea class="json-editor" rows="14" [ngModel]="editingEnhancedJson()"
+                            (ngModelChange)="editingEnhancedJson.set($event)"></textarea>
                         <div class="edit-actions" style="margin-top:6px;">
                             <button class="save-btn" (click)="saveEditEnhanced(r)">✓ Übernehmen</button>
                             <button class="cancel-btn" (click)="cancelEditEnhanced()">Abbrechen</button>
@@ -186,19 +181,18 @@
 
         <div class="prompt-section">
             <label>Anweisungen an die KI (optional):</label>
-            <textarea class="prompt-editor" rows="3"
-                      [ngModel]="generatePrompt()"
-                      (ngModelChange)="generatePrompt.set($event)"
-                      placeholder="z.B. 'Erstelle Einträge zu Tier-Themen' oder 'Schwierigkeitsgrad soll hoch sein'"></textarea>
+            <textarea class="prompt-editor" rows="3" [ngModel]="generatePrompt()"
+                (ngModelChange)="generatePrompt.set($event)"
+                placeholder="z.B. 'Erstelle Einträge zu Tier-Themen' oder 'Schwierigkeitsgrad soll hoch sein'"></textarea>
         </div>
 
         <div class="batch-controls">
             <div class="field-group">
                 <label>Anzahl:</label>
-                <input type="number" [ngModel]="generateCount()" (ngModelChange)="generateCount.set($event)" min="1" max="20">
+                <input type="number" [ngModel]="generateCount()" (ngModelChange)="generateCount.set($event)" min="1"
+                    max="20">
             </div>
-            <button class="save-btn" (click)="runGenerate()"
-                    [disabled]="generating()">
+            <button class="save-btn" (click)="runGenerate()" [disabled]="generating()">
                 @if (generating()) {
                 <span>⏳ KI generiert...</span>
                 } @else {
@@ -212,18 +206,16 @@
         <div class="enhance-results">
             <h4>{{ generateResults().length }} neue Einträge — Prüfen & Übernehmen</h4>
             @for (entry of generateResults(); track $index) {
-            <div class="result-card"
-                 [class.accepted]="isGenerateAccepted($index)"
-                 [class.rejected]="isGenerateRejected($index)">
+            <div class="result-card" [class.accepted]="isGenerateAccepted($index)"
+                [class.rejected]="isGenerateRejected($index)">
                 <div class="result-header">
                     <span class="result-id">Neu {{ $index + 1 }}</span>
                     <span class="result-preview">{{ getPreview(entry) }}</span>
                 </div>
                 <div class="result-body" style="flex-direction:column;">
                     @if (editingGenerateIdx() === $index) {
-                    <textarea class="json-editor" rows="14"
-                              [ngModel]="editingGenerateJson()"
-                              (ngModelChange)="editingGenerateJson.set($event)"></textarea>
+                    <textarea class="json-editor" rows="14" [ngModel]="editingGenerateJson()"
+                        (ngModelChange)="editingGenerateJson.set($event)"></textarea>
                     <div class="edit-actions" style="margin-top:6px;">
                         <button class="save-btn" (click)="saveEditGenerate($index)">✓ Übernehmen</button>
                         <button class="cancel-btn" (click)="cancelEditGenerate()">Abbrechen</button>
@@ -234,13 +226,15 @@
                 </div>
                 <div class="result-actions">
                     @if (editingGenerateIdx() !== $index) {
-                    <button class="action-btn accept-btn" (click)="acceptGenerate($index)" [class.active]="isGenerateAccepted($index)">
+                    <button class="action-btn accept-btn" (click)="acceptGenerate($index)"
+                        [class.active]="isGenerateAccepted($index)">
                         ✓ Übernehmen
                     </button>
                     <button class="action-btn edit-enhanced-btn" (click)="startEditGenerate($index)">
                         ✏️ Bearbeiten
                     </button>
-                    <button class="action-btn reject-btn" (click)="rejectGenerate($index)" [class.active]="isGenerateRejected($index)">
+                    <button class="action-btn reject-btn" (click)="rejectGenerate($index)"
+                        [class.active]="isGenerateRejected($index)">
                         ✕ Ablehnen
                     </button>
                     }
@@ -252,7 +246,8 @@
             @if (acceptedGenerateIdxs().size > 0) {
             <div class="save-accepted-bar">
                 <button class="save-btn" (click)="saveAcceptedGenerated()" [disabled]="savingGenerated()">
-                    {{ savingGenerated() ? 'Speichert...' : '💾 ' + acceptedGenerateIdxs().size + ' neue Einträge speichern' }}
+                    {{ savingGenerated() ? 'Speichert...' : '💾 ' + acceptedGenerateIdxs().size + ' neue Einträge
+                    speichern' }}
                 </button>
             </div>
             }
@@ -268,7 +263,13 @@
         <div class="edit-fields">
             <div class="field-group">
                 <label>Level (optional)</label>
-                <input type="number" [ngModel]="addLevel()" (ngModelChange)="addLevel.set($event)" min="1" max="10" placeholder="—">
+                <input type="number" [ngModel]="addLevel()" (ngModelChange)="addLevel.set($event)" min="1" max="10"
+                    placeholder="—">
+            </div>
+            <div class="field-group">
+                <label>Mode (optional)</label>
+                <input type="text" [ngModel]="addMode()" (ngModelChange)="addMode.set($event)"
+                    placeholder="z.B. luecken">
             </div>
         </div>
         <textarea class="json-editor" rows="10" [ngModel]="addJson()" (ngModelChange)="addJson.set($event)"></textarea>
@@ -302,22 +303,19 @@
     @if (!loading() && items().length > 0) {
     <div class="content-table">
         @for (item of sortedItems(); track item.id) {
-        <div class="content-row"
-             [class.flagged]="item.flagCounter > 0"
-             [class.editing]="editingId() === item.id"
-             [class.is-template]="templateId() === item.id"
-             [class.sparse]="(item.completeness ?? 100) < 80">
+        <div class="content-row" [class.flagged]="item.flagCounter > 0" [class.editing]="editingId() === item.id"
+            [class.is-template]="templateId() === item.id" [class.sparse]="(item.completeness ?? 100) < 80">
             <!-- Row Header -->
             <div class="row-header">
                 <div class="row-id">#{{ item.id }}</div>
                 <div class="row-preview">{{ getPreview(item.data) }}</div>
 
                 <!-- Completeness Bar -->
-                <div class="completeness-cell" [title]="'Vollständigkeit: ' + (item.completeness ?? 100) + '% (' + (item.depthScore ?? 0) + ' Props)'">
+                <div class="completeness-cell"
+                    [title]="'Vollständigkeit: ' + (item.completeness ?? 100) + '% (' + (item.depthScore ?? 0) + ' Props)'">
                     <div class="completeness-bar">
-                        <div class="completeness-fill"
-                             [style.width.%]="item.completeness ?? 100"
-                             [style.background]="getCompletenessColor(item.completeness ?? 100)"></div>
+                        <div class="completeness-fill" [style.width.%]="item.completeness ?? 100"
+                            [style.background]="getCompletenessColor(item.completeness ?? 100)"></div>
                     </div>
                     <span class="completeness-pct" [style.color]="getCompletenessColor(item.completeness ?? 100)">
                         {{ item.completeness ?? 100 }}%
@@ -340,6 +338,10 @@
                     @if (item.level) {
                     <span class="badge badge-level" title="Level">Lv{{ item.level }}</span>
                     }
+                    @if (item.mode) {
+                    <span class="badge badge-mode" title="Mode"
+                        style="background: var(--bg-modifier-hover); color: var(--text-normal);">{{ item.mode }}</span>
+                    }
                 </div>
                 <div class="row-stats">
                     @if (item.stats.totalAttempts > 0) {
@@ -356,7 +358,7 @@
                 </div>
                 <div class="row-actions">
                     <button class="icon-btn template-btn" (click)="setAsTemplate(item)" title="Als Vorlage setzen"
-                            [class.active]="templateId() === item.id">⭐</button>
+                        [class.active]="templateId() === item.id">⭐</button>
                     <button class="icon-btn edit-btn" (click)="startEdit(item)" title="Bearbeiten">✏️</button>
                     <button class="icon-btn delete-btn" (click)="deleteItem(item)" title="Löschen">🗑️</button>
                 </div>
@@ -368,10 +370,17 @@
                 <div class="edit-fields">
                     <div class="field-group">
                         <label>Level</label>
-                        <input type="number" [ngModel]="editLevel()" (ngModelChange)="editLevel.set($event)" min="1" max="10" placeholder="—">
+                        <input type="number" [ngModel]="editLevel()" (ngModelChange)="editLevel.set($event)" min="1"
+                            max="10" placeholder="—">
+                    </div>
+                    <div class="field-group">
+                        <label>Mode (optional)</label>
+                        <input type="text" [ngModel]="editMode()" (ngModelChange)="editMode.set($event)"
+                            placeholder="—">
                     </div>
                 </div>
-                <textarea class="json-editor" rows="14" [ngModel]="editJson()" (ngModelChange)="editJson.set($event)"></textarea>
+                <textarea class="json-editor" rows="14" [ngModel]="editJson()"
+                    (ngModelChange)="editJson.set($event)"></textarea>
                 @if (jsonError()) {
                 <div class="json-error">{{ jsonError() }}</div>
                 }
@@ -390,13 +399,15 @@
     <!-- Pagination -->
     @if (totalPages() > 1) {
     <div class="pagination">
-        <button class="page-btn" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1">← Zurück</button>
+        <button class="page-btn" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1">←
+            Zurück</button>
         @for (p of [].constructor(totalPages()); track $index) {
         <button class="page-btn" [class.active]="currentPage() === $index + 1" (click)="goToPage($index + 1)">
             {{ $index + 1 }}
         </button>
         }
-        <button class="page-btn" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()">Weiter →</button>
+        <button class="page-btn" (click)="goToPage(currentPage() + 1)"
+            [disabled]="currentPage() === totalPages()">Weiter →</button>
     </div>
     }
     }

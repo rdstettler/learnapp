@@ -105,6 +105,7 @@ async function handleGetContent(req: VercelRequest, res: VercelResponse, db: any
                 data,
                 level: row.level,
                 skillLevel: row.skill_level,
+                mode: row.mode,
                 aiGenerated: Boolean(row.ai_generated),
                 humanVerified: Boolean(row.human_verified),
                 flagCounter: row.flag_counter,
@@ -135,7 +136,7 @@ async function handleGetContent(req: VercelRequest, res: VercelResponse, db: any
 }
 
 async function handleAddContent(req: VercelRequest, res: VercelResponse, db: any) {
-    const { app_id, content, level } = req.body;
+    const { app_id, content, level, mode } = req.body;
 
     if (!app_id || !content) {
         return res.status(400).json({ error: 'Missing required fields (app_id, content)' });
@@ -146,6 +147,7 @@ async function handleAddContent(req: VercelRequest, res: VercelResponse, db: any
             app_id,
             data: JSON.stringify(content),
             level: level || null,
+            mode: mode || null,
             ai_generated: false,
             human_verified: true
         }).select('id').single();
@@ -164,7 +166,7 @@ async function handleAddContent(req: VercelRequest, res: VercelResponse, db: any
 }
 
 async function handleUpdateContent(req: VercelRequest, res: VercelResponse, db: any) {
-    const { id, data, level, human_verified } = req.body;
+    const { id, data, level, mode, human_verified } = req.body;
 
     if (!id || data === undefined) {
         return res.status(400).json({ error: 'Missing required fields (id, data)' });
@@ -175,6 +177,7 @@ async function handleUpdateContent(req: VercelRequest, res: VercelResponse, db: 
             .update({
                 data: typeof data === 'string' ? data : JSON.stringify(data),
                 level: level ?? null,
+                mode: mode ?? null,
                 human_verified: human_verified !== undefined ? human_verified : true,
                 flag_counter: 0
             })

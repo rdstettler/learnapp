@@ -1,5 +1,5 @@
 
-import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface AppInfo {
@@ -37,7 +37,12 @@ export class AppCardComponent {
     favoriteToggled = output<boolean>();
     removeClicked = output<void>();
 
+    isLoading = signal(false);
+
     onCardClick(event: Event): void {
+        this.isLoading.set(true);
+        // Reset after 5s as a safety net in case navigation fails
+        setTimeout(() => this.isLoading.set(false), 5000);
         this.appClicked.emit();
     }
 
