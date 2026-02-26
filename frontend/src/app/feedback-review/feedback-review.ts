@@ -105,7 +105,12 @@ export class FeedbackReviewComponent {
 
   loadApps() {
     this.http.get<{ apps: AppConfig[] }>('/api/apps').subscribe({
-      next: (res) => this.availableApps.set(res.apps),
+      next: (res) => {
+        const filtered = res.apps
+          .filter((a: any) => a.type !== 'game' && a.type !== 'simulation')
+          .sort((a: any, b: any) => a.name.localeCompare(b.name, 'de'));
+        this.availableApps.set(filtered);
+      },
       error: (e) => console.error('Failed to load apps', e)
     });
   }

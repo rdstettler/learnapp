@@ -238,6 +238,14 @@ export class RechtschreibungComponent {
         if (this.mode() === 'luecken') {
             this.userChoiceLuecken.set(null);
             this.correctChoiceLuecken.set(null);
+
+            // Auto-extract options for inline buttons
+            const lItem = item as LueckenContent;
+            const slot = lItem.parsedParts?.find(p => p.type === 'slot');
+            if (slot && slot.options) {
+                this.lueckenOptions.set(shuffle([...slot.options]));
+                this.correctChoiceLuecken.set(slot.options[slot.correctIndex || 0]);
+            }
         } else if (this.mode() === 'zuordnen') {
             this.userChoiceZuordnen.set(null);
             const zItem = item as ZuordnenContent;
@@ -249,16 +257,12 @@ export class RechtschreibungComponent {
 
     // --- Lückentext Mode Logic ---
 
-    openLueckenPopup(options: string[], correctIndex: number): void {
-        if (this.answered()) return;
-        this.lueckenOptions.set(shuffle([...options]));
-        this.correctChoiceLuecken.set(options[correctIndex]);
-        this.showPopup.set(true);
-    }
+    // `openLueckenPopup` is removed because we use inline buttons now.
+
 
     selectLueckenChoice(choice: string): void {
+        if (this.answered()) return;
         this.userChoiceLuecken.set(choice);
-        this.showPopup.set(false);
         this.checkLueckenAnswer();
     }
 
@@ -275,6 +279,17 @@ export class RechtschreibungComponent {
 
         this.answered.set(true);
         this.trackProgress(isCorrect);
+    }
+
+    getLueckenOptionClass(option: string): string {
+        if (!this.answered()) return '';
+
+        const isSelected = option === this.userChoiceLuecken();
+        const isCorrectOption = option === this.correctChoiceLuecken();
+
+        if (isCorrectOption) return 'correct';
+        if (isSelected && !isCorrectOption) return 'incorrect';
+        return 'missed';
     }
 
     getSlotDisplay(part: any): string {
@@ -330,7 +345,12 @@ export class RechtschreibungComponent {
         const item = this.currentItem() as ZuordnenContent;
         const choice = this.userChoiceZuordnen();
         if (this.answered() && choice) {
-            return item.word.replace('__', `<span class="${choice === item.correct ? 'word-slot correct' : 'word-slot incorrect'}">${choice}</span>`);
+            const isCorrect = choice === item.correct;
+            if (isCorrect) {
+                return item.word.replace('__', `<span class="word-slot correct">${choice}</span>`);
+            } else {
+                return item.word.replace('__', `<span class="word-slot incorrect" style="text-decoration: line-through;">${choice}</span> <span class="word-slot correct" style="margin-left: 5px;">${item.correct}</span>`);
+            }
         }
         return item.word.replace('__', '<span class="word-slot empty">_</span>');
     }

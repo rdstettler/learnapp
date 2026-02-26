@@ -37,11 +37,19 @@
                 @if (part.type === 'text') {
                 <span>{{ part.content }}</span>
                 } @else {
-                <span class="choice-slot" [class]="getSlotClass(part)"
-                    (click)="openLueckenPopup(part.options || [], part.correctIndex || 0)">
+                <span class="choice-slot" [class]="getSlotClass(part)">
                     {{ getSlotDisplay(part) }}
                 </span>
                 }
+                }
+            </div>
+
+            <div class="options-grid" style="margin-top: 40px; justify-content: center;">
+                @for (option of lueckenOptions(); track option) {
+                <button class="option-btn" [class]="getLueckenOptionClass(option)" (click)="selectLueckenChoice(option)"
+                    [disabled]="answered()">
+                    {{ option }}
+                </button>
                 }
             </div>
 
@@ -106,17 +114,5 @@
         }
     </div>
 
-    <!-- Choice Popup for Lückentext -->
-    @if (showPopup()) {
-    <div class="popup-overlay visible" (click)="showPopup.set(false)">
-        <div class="popup" (click)="$event.stopPropagation()">
-            <div class="popup-title">Wähle die richtige Form:</div>
-            <div class="popup-options">
-                @for (opt of lueckenOptions(); track opt) {
-                <button class="popup-option" (click)="selectLueckenChoice(opt)">{{ opt }}</button>
-                }
-            </div>
-        </div>
-    </div>
-    }
+
 </app-learning-app-layout>
