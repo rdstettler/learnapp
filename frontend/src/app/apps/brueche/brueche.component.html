@@ -1,0 +1,113 @@
+<app-learning-app-layout title="🔢 Brüche & Dezimalzahlen" appId="brueche" [content]="currentQuestion()">
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+
+        <!-- Welcome Screen -->
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">🔢</div>
+            <h2>Brüche &amp; Dezimalzahlen</h2>
+            <p class="welcome-desc">Erkenne den Zusammenhang zwischen Brüchen und Dezimalzahlen!</p>
+            <button class="btn btn-primary" (click)="startQuiz()">Quiz starten</button>
+        </div>
+        }
+
+        <!-- Quiz Screen -->
+        @if (screen() === 'quiz' && currentQuestion()) {
+        <div class="quiz-content">
+            <div class="round-info">Aufgabe {{ currentIndex() + 1 }} / {{ itemsPerRound }}</div>
+
+            <div class="score-live">
+                <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
+                <div class="score-live-item wrong">✗ {{ totalWrong() }}</div>
+            </div>
+
+            <!-- Prompt -->
+            <div class="prompt-container">
+                <div class="prompt-label">
+                    @if (currentQuestion().displayMode === 'fraction-to-decimal') {
+                    Welche Dezimalzahl entspricht diesem Bruch?
+                    } @else {
+                    Welcher Bruch entspricht dieser Dezimalzahl?
+                    }
+                </div>
+
+                <div class="prompt-value">
+                    @if (currentQuestion().displayMode === 'fraction-to-decimal') {
+                    <span class="fraction-display">
+                        <span class="frac-numerator">{{ currentQuestion().fraction.n }}</span>
+                        <span class="frac-line"></span>
+                        <span class="frac-denominator">{{ currentQuestion().fraction.d }}</span>
+                    </span>
+                    } @else {
+                    <span class="decimal-display">{{ currentQuestion().decimalStr }}</span>
+                    }
+                </div>
+            </div>
+
+            <!-- Options -->
+            <div class="options-grid">
+                @if (currentQuestion().displayMode === 'fraction-to-decimal') {
+                @for (opt of currentQuestion().decimalOptions; track $index) {
+                <button class="option-btn" [class]="getOptionClass($index)" (click)="selectOption($index)"
+                    [disabled]="answered()">
+                    {{ opt }}
+                </button>
+                }
+                } @else {
+                @for (opt of currentQuestion().options; track $index) {
+                <button class="option-btn fraction-option" [class]="getOptionClass($index)"
+                    (click)="selectOption($index)" [disabled]="answered()">
+                    <span class="frac-numerator">{{ opt.n }}</span>
+                    <span class="frac-line"></span>
+                    <span class="frac-denominator">{{ opt.d }}</span>
+                </button>
+                }
+                }
+            </div>
+
+            @if (answered()) {
+            <div class="feedback" [class]="isCorrectAnswer() ? 'feedback-correct' : 'feedback-wrong'">
+                @if (isCorrectAnswer()) {
+                ✓ Richtig!
+                } @else {
+                ✗ Falsch — richtig wäre:
+                @if (currentQuestion().displayMode === 'fraction-to-decimal') {
+                <strong>{{ currentQuestion().decimalOptions[currentQuestion().correctOptionIndex] }}</strong>
+                } @else {
+                <strong>
+                    {{ currentQuestion().options[currentQuestion().correctOptionIndex].n }} /
+                    {{ currentQuestion().options[currentQuestion().correctOptionIndex].d }}
+                </strong>
+                }
+                }
+            </div>
+            <button class="btn btn-primary" style="margin-top: 16px;" (click)="nextItem()">Weiter</button>
+            }
+        </div>
+        }
+
+        <!-- Results Screen -->
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <p class="score-text">{{ totalCorrect() }} von {{ totalCorrect() + totalWrong() }} richtig!</p>
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ totalCorrect() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ totalWrong() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 30px;" (click)="startQuiz()">Weiter üben</button>
+            <button class="btn btn-secondary" style="margin-top: 10px;" (click)="restartQuiz()">Zurück</button>
+        </div>
+        }
+    </div>
+</app-learning-app-layout>
