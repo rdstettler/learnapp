@@ -215,12 +215,17 @@ function generateQuestion(): Question {
 
         // Build shuffled option arrays (already simplified)
         const allFractions = shuffleArray([correctFrac, ...simplifiedDistractors]);
-        const allDecimals = shuffleArray([
-            correctTerminates ? decimalStr : decimalStr, // keep as-is
+        const rawDecimals = [
+            decimalStr,
             formatOption(simplifiedDistractors[0].n, simplifiedDistractors[0].d),
             formatOption(simplifiedDistractors[1].n, simplifiedDistractors[1].d),
             formatOption(simplifiedDistractors[2].n, simplifiedDistractors[2].d),
-        ]);
+        ];
+
+        // Reject if any two formatted decimal strings are identical (can happen when rounding)
+        if (new Set(rawDecimals).size < rawDecimals.length) continue;
+
+        const allDecimals = shuffleArray(rawDecimals);
 
         const displayMode: DisplayMode = Math.random() < 0.5 ? 'fraction-to-decimal' : 'decimal-to-fraction';
         const correctOptionIndex = displayMode === 'fraction-to-decimal'
