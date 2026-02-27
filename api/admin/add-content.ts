@@ -215,7 +215,7 @@ async function handleGenerateContent(req: VercelRequest, res: VercelResponse, db
         const { data: existing, error } = await db.from('app_content')
             .select('id, data')
             .eq('app_id', app_id)
-            .limit(100);
+            .limit(1000);
 
         if (error) throw error;
 
@@ -507,13 +507,25 @@ Return a JSON array of ${count} new entries.`;
 }
 
 function condenseSummary(data: Record<string, unknown>, appId: string): string {
-    switch (appId) {
-        case 'verben': return `- ${data['verb'] || '?'}`;
-        case 'wortfamilie': return `- ${data['nomen'] || '?'} / ${data['verb'] || '?'} / ${data['adjektiv'] || '?'}`;
-        case 'wortstaemme': return `- Stamm: ${data['stem'] || '?'}`;
-        case 'oberbegriffe': return `- ${data['category'] || '?'}`;
-        default: return `- ${JSON.stringify(data).slice(0, 100)}`;
+    if (!data || typeof data !== 'object') return '- Ungültige Daten';
+
+    // Extract up to 3 meaningful string/array values
+    const parts: string[] = [];
+    for (const [key, value] of Object.entries(data)) {
+        if (parts.length >= 3) break;
+        if (typeof value === 'string' && value.length < 50) {
+            parts.push(value);
+        } else if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'string') {
+            parts.push(value.slice(0, 3).join('/'));
+        }
     }
+
+    if (parts.length > 0) {
+        return `- ${parts.join(' | ')}`;
+    }
+
+    // Fallback if no simple strings found
+    return `- ${JSON.stringify(data).slice(0, 100)}`;
 }
 
 function collectKeyPaths(obj: unknown, prefix = ''): string[] {
