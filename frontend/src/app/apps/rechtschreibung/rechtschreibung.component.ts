@@ -7,7 +7,22 @@ import { ModeSelectorComponent } from "../../shared/components/mode-btn";
 import { launchConfetti } from '../../shared/confetti';
 import { shuffle } from '../../shared/utils/array.utils';
 
-type QuizMode = 'luecken' | 'zuordnen';
+type QuizMode = 'luecken' | 'zuordnen' | 'grossschreibung';
+
+interface GrossschreibungContent {
+    text: string;
+    rule: string;
+    _contentId?: number;
+    parsedWords?: {
+        original: string;
+        lowercase: string;
+        isCapitalized: boolean;
+        found: boolean;
+        error: boolean;
+        prefix: string;
+        suffix: string;
+    }[];
+}
 
 interface LueckenContent {
     text: string;
@@ -43,7 +58,8 @@ export class RechtschreibungComponent {
 
     readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [
         { id: 'luecken', label: 'Lückentext', icon: '📝', description: 'Wähle die richtige Rechtschreibung im Satz.' },
-        { id: 'zuordnen', label: 'Zuordnen', icon: '🧩', description: 'Welche Buchstaben fehlen im Wort?' }
+        { id: 'zuordnen', label: 'Zuordnen', icon: '🧩', description: 'Welche Buchstaben fehlen im Wort?' },
+        { id: 'grossschreibung', label: 'Grossschreibung', icon: 'Aa', description: 'Finde alle grossgeschriebenen Nomen und Satzanfänge.' }
     ];
     mode = signal<QuizMode>('luecken');
 
@@ -52,8 +68,9 @@ export class RechtschreibungComponent {
     // Content signals
     allLuecken = signal<LueckenContent[]>([]);
     allZuordnen = signal<ZuordnenContent[]>([]);
+    allGrossschreibung = signal<GrossschreibungContent[]>([]);
 
-    currentItems = signal<(LueckenContent | ZuordnenContent)[]>([]);
+    currentItems = signal<(LueckenContent | ZuordnenContent | GrossschreibungContent)[]>([]);
     currentIndex = signal(0);
 
     totalCorrect = signal(0);
@@ -88,6 +105,7 @@ export class RechtschreibungComponent {
     dataLoaded = computed(() => {
         if (this.mode() === 'luecken') return this.allLuecken().length > 0;
         if (this.mode() === 'zuordnen') return this.allZuordnen().length > 0;
+        if (this.mode() === 'grossschreibung') return this.allGrossschreibung().length > 0;
         return false;
     });
 
@@ -150,6 +168,10 @@ export class RechtschreibungComponent {
                 this.mode.set('zuordnen');
                 this.allZuordnen.set(loadedItems);
                 this.itemsPerRound = loadedItems.length;
+            } else if (sample.rule === 'Nomen und Satzanfänge' || sample.rule === 'Grossschreibung üben' || this.mode() === 'grossschreibung') {
+                this.mode.set('grossschreibung');
+                this.allGrossschreibung.set(this.parseGrossschreibungItems(loadedItems));
+                this.itemsPerRound = loadedItems.length;
             } else {
                 this.mode.set('luecken');
                 this.allLuecken.set(this.parseLueckenItems(loadedItems));
@@ -166,6 +188,30 @@ export class RechtschreibungComponent {
         });
         this.dataService.loadAppContent<ZuordnenContent>('rechtschreibung', 'zuordnen').subscribe(data => {
             if (data) this.allZuordnen.set(data);
+        });
+        this.dataService.loadAppContent<GrossschreibungContent>('rechtschreibung', 'grossschreibung').subscribe(data => {
+            if (data) this.allGrossschreibung.set(this.parseGrossschreibungItems(data));
+        });
+    }
+
+    private parseGrossschreibungItems(items: any[]): GrossschreibungContent[] {
+        return items.map(item => {
+            const text = item.text || '';
+            const rawTokens = text.split(' ');
+            const parsedWords = rawTokens.map((token: string) => {
+                const match = token.match(/^([^a-zA-ZäöüÄÖÜß]*)([a-zA-ZäöüÄÖÜß]+)([^a-zA-ZäöüÄÖÜß]*)$/);
+                if (match) {
+                    const prefix = match[1];
+                    const word = match[2];
+                    const suffix = match[3];
+                    const lowercase = word.toLowerCase();
+                    const isCapitalized = word[0] !== lowercase[0] && /[A-ZÄÖÜ]/.test(word[0]);
+                    return { original: word, lowercase, isCapitalized, found: false, error: false, prefix, suffix };
+                } else {
+                    return { original: token, lowercase: token.toLowerCase(), isCapitalized: false, found: false, error: false, prefix: '', suffix: '' };
+                }
+            });
+            return { ...item, parsedWords };
         });
     }
 
@@ -216,6 +262,13 @@ export class RechtschreibungComponent {
 
         if (this.mode() === 'luecken') {
             quizItems = this.isSessionMode ? [...this.allLuecken()] : shuffle(this.allLuecken()).slice(0, this.itemsPerRound);
+        } else if (this.mode() === 'grossschreibung') {
+            // Need a deep copy so we can reset 'found' and 'error' flags for every run
+            const items = this.isSessionMode ? [...this.allGrossschreibung()] : shuffle(this.allGrossschreibung()).slice(0, this.itemsPerRound);
+            quizItems = items.map(item => ({
+                ...item,
+                parsedWords: item.parsedWords?.map(w => ({ ...w, found: false, error: false }))
+            }));
         } else {
             quizItems = this.isSessionMode ? [...this.allZuordnen()] : shuffle(this.allZuordnen()).slice(0, this.itemsPerRound);
         }
@@ -227,6 +280,10 @@ export class RechtschreibungComponent {
         this.totalWrong.set(0);
         this.screen.set('quiz');
         this.showItem();
+    }
+
+    getCurrentGrossschreibung(): GrossschreibungContent {
+        return this.currentItem() as GrossschreibungContent;
     }
 
     private showItem(): void {
@@ -353,6 +410,41 @@ export class RechtschreibungComponent {
             }
         }
         return item.word.replace('__', '<span class="word-slot empty">_</span>');
+    }
+
+    // --- Grossschreibung Mode Logic ---
+
+    selectGrossschreibungWord(index: number): void {
+        if (this.answered()) return;
+        const item = this.getCurrentGrossschreibung();
+        const word = item.parsedWords![index];
+
+        if (word.found || word.error) return;
+
+        let isCorrect = false;
+        if (word.isCapitalized) {
+            word.found = true;
+            this.totalCorrect.update(c => c + 1);
+            isCorrect = true;
+        } else {
+            word.error = true;
+            this.totalWrong.update(c => c + 1);
+            // clear error flash after 1 second
+            setTimeout(() => {
+                word.error = false;
+                this.cdr.markForCheck();
+            }, 1000);
+        }
+
+        // Check completion
+        const allCaps = item.parsedWords!.filter(w => w.isCapitalized);
+        const foundCaps = allCaps.filter(w => w.found);
+        if (allCaps.length > 0 && foundCaps.length === allCaps.length) {
+            this.answered.set(true);
+        }
+
+        this.trackProgress(isCorrect);
+        this.cdr.markForCheck();
     }
 
     // --- Shared Nav ---

@@ -59,6 +59,36 @@
         </div>
         }
 
+        <!-- Quiz Screen: Grossschreibung -->
+        @if (screen() === 'quiz' && mode() === 'grossschreibung') {
+        <div class="quiz-content">
+            <div class="round-info">Regel: {{ currentRule() }} | Geschichte {{ currentIndex() + 1 }} / {{ itemsPerRound
+                }}
+            </div>
+
+            <div class="score-live">
+                <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
+                <div class="score-live-item wrong">✗ {{ totalWrong() }}</div>
+            </div>
+
+            <div class="text-container grossschreibung-text">
+                @for (word of getCurrentGrossschreibung().parsedWords; track $index) {
+                <span class="grossschreibung-word-wrapper">
+                    {{ word.prefix }}<span class="grossschreibung-word" [class.found]="word.found"
+                        [class.error]="word.error" (click)="selectGrossschreibungWord($index)">{{ word.found ||
+                        answered() && word.isCapitalized ? word.original : word.lowercase }}</span>{{ word.suffix }}
+                </span>&nbsp;
+                }
+            </div>
+
+            @if (answered()) {
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-primary" (click)="nextItem()">Weiter</button>
+            </div>
+            }
+        </div>
+        }
+
         <!-- Quiz Screen: Zuordnen -->
         @if (screen() === 'quiz' && mode() === 'zuordnen') {
         <div class="quiz-content">
