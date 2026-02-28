@@ -222,8 +222,13 @@
     transition: all 0.2s ease;
 }
 
-.grossschreibung-word:hover:not(.found):not(.error) {
+.grossschreibung-word:hover:not(.found):not(.error):not(.selected) {
     background: rgba(20, 184, 166, 0.2);
+}
+
+.grossschreibung-word.selected {
+    background: rgba(234, 179, 8, 0.3);
+    /* Yellowish */
 }
 
 .grossschreibung-word.found {
@@ -237,6 +242,14 @@
     color: var(--error);
     animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
 }
+
+.grossschreibung-word.missed {
+    color: var(--error);
+    text-decoration: underline wavy var(--error);
+    font-weight: 600;
+}
+
+
 
 @keyframes shake {
 

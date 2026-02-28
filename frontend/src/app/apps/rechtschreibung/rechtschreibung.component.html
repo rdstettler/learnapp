@@ -74,18 +74,21 @@
             <div class="text-container grossschreibung-text">
                 @for (word of getCurrentGrossschreibung().parsedWords; track $index) {
                 <span class="grossschreibung-word-wrapper">
-                    {{ word.prefix }}<span class="grossschreibung-word" [class.found]="word.found"
-                        [class.error]="word.error" (click)="selectGrossschreibungWord($index)">{{ word.found ||
+                    {{ word.prefix }}<span class="grossschreibung-word" [class.selected]="word.selected && !answered()"
+                        [class.found]="word.found" [class.error]="word.error" [class.missed]="word.missed"
+                        (click)="selectGrossschreibungWord($index)">{{ word.found || word.missed ||
                         answered() && word.isCapitalized ? word.original : word.lowercase }}</span>{{ word.suffix }}
                 </span>&nbsp;
                 }
             </div>
 
-            @if (answered()) {
             <div style="text-align: center; margin-top: 20px;">
+                @if (!answered()) {
+                <button class="btn btn-primary" (click)="checkGrossschreibung()">Prüfen</button>
+                } @else {
                 <button class="btn btn-primary" (click)="nextItem()">Weiter</button>
+                }
             </div>
-            }
         </div>
         }
 

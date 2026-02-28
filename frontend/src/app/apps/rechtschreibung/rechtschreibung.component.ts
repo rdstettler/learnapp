@@ -17,8 +17,10 @@ interface GrossschreibungContent {
         original: string;
         lowercase: string;
         isCapitalized: boolean;
+        selected: boolean;
         found: boolean;
         error: boolean;
+        missed: boolean;
         prefix: string;
         suffix: string;
     }[];
@@ -206,9 +208,9 @@ export class RechtschreibungComponent {
                     const suffix = match[3];
                     const lowercase = word.toLowerCase();
                     const isCapitalized = word[0] !== lowercase[0] && /[A-ZÄÖÜ]/.test(word[0]);
-                    return { original: word, lowercase, isCapitalized, found: false, error: false, prefix, suffix };
+                    return { original: word, lowercase, isCapitalized, selected: false, found: false, error: false, missed: false, prefix, suffix };
                 } else {
-                    return { original: token, lowercase: token.toLowerCase(), isCapitalized: false, found: false, error: false, prefix: '', suffix: '' };
+                    return { original: token, lowercase: token.toLowerCase(), isCapitalized: false, selected: false, found: false, error: false, missed: false, prefix: '', suffix: '' };
                 }
             });
             return { ...item, parsedWords };
@@ -267,7 +269,7 @@ export class RechtschreibungComponent {
             const items = this.isSessionMode ? [...this.allGrossschreibung()] : shuffle(this.allGrossschreibung()).slice(0, this.itemsPerRound);
             quizItems = items.map(item => ({
                 ...item,
-                parsedWords: item.parsedWords?.map(w => ({ ...w, found: false, error: false }))
+                parsedWords: item.parsedWords?.map(w => ({ ...w, selected: false, found: false, error: false, missed: false }))
             }));
         } else {
             quizItems = this.isSessionMode ? [...this.allZuordnen()] : shuffle(this.allZuordnen()).slice(0, this.itemsPerRound);
@@ -419,31 +421,34 @@ export class RechtschreibungComponent {
         const item = this.getCurrentGrossschreibung();
         const word = item.parsedWords![index];
 
-        if (word.found || word.error) return;
+        // Toggle selected state
+        word.selected = !word.selected;
+        this.cdr.markForCheck();
+    }
 
-        let isCorrect = false;
-        if (word.isCapitalized) {
-            word.found = true;
-            this.totalCorrect.update(c => c + 1);
-            isCorrect = true;
-        } else {
-            word.error = true;
-            this.totalWrong.update(c => c + 1);
-            // clear error flash after 1 second
-            setTimeout(() => {
-                word.error = false;
-                this.cdr.markForCheck();
-            }, 1000);
-        }
+    checkGrossschreibung(): void {
+        const item = this.getCurrentGrossschreibung();
+        let allCorrect = true;
 
-        // Check completion
-        const allCaps = item.parsedWords!.filter(w => w.isCapitalized);
-        const foundCaps = allCaps.filter(w => w.found);
-        if (allCaps.length > 0 && foundCaps.length === allCaps.length) {
-            this.answered.set(true);
-        }
+        item.parsedWords!.forEach(word => {
+            if (word.selected) {
+                if (word.isCapitalized) {
+                    word.found = true;
+                    this.totalCorrect.update(c => c + 1);
+                } else {
+                    word.error = true;
+                    this.totalWrong.update(c => c + 1);
+                    allCorrect = false;
+                }
+            } else if (word.isCapitalized) {
+                word.missed = true;
+                this.totalWrong.update(c => c + 1);
+                allCorrect = false;
+            }
+        });
 
-        this.trackProgress(isCorrect);
+        this.answered.set(true);
+        this.trackProgress(allCorrect);
         this.cdr.markForCheck();
     }
 
