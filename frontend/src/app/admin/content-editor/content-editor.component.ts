@@ -39,6 +39,7 @@ interface AppOption {
 
 interface ContentResponse {
     items: ContentItem[];
+    modes?: string[];
     pagination: { page: number; limit: number; totalCount: number; totalPages: number };
 }
 
@@ -71,6 +72,8 @@ export class ContentEditorComponent implements OnInit {
     readonly apps = signal<AppOption[]>([]);
     readonly selectedAppId = signal<string>('');
     readonly items = signal<ContentItem[]>([]);
+    readonly availableModes = signal<string[]>([]);
+    readonly selectedMode = signal<string>('');
     readonly loading = signal(false);
     readonly error = signal<string | null>(null);
     readonly successMsg = signal<string | null>(null);
@@ -212,6 +215,7 @@ export class ContentEditorComponent implements OnInit {
 
     async selectApp(appId: string): Promise<void> {
         this.selectedAppId.set(appId);
+        this.selectedMode.set('');
         this.currentPage.set(1);
         this.editingId.set(null);
         this.showAddForm.set(false);
@@ -225,6 +229,18 @@ export class ContentEditorComponent implements OnInit {
         await this.loadContent();
     }
 
+    async selectMode(mode: string): Promise<void> {
+        this.selectedMode.set(mode);
+        this.currentPage.set(1);
+        this.editingId.set(null);
+        this.templateId.set(null);
+        this.showEnhancePanel.set(false);
+        this.showGeneratePanel.set(false);
+        this.enhanceResults.set([]);
+        this.generateResults.set([]);
+        await this.loadContent();
+    }
+
     async loadContent(): Promise<void> {
         const appId = this.selectedAppId();
         if (!appId) return;
@@ -233,11 +249,15 @@ export class ContentEditorComponent implements OnInit {
         this.error.set(null);
 
         try {
+            const modeQuery = this.selectedMode() ? `&mode=${encodeURIComponent(this.selectedMode())}` : '';
             const res = await firstValueFrom(
                 this.http.get<ContentResponse>(
-                    `/api/admin/add-content?app_id=${appId}&page=${this.currentPage()}&limit=50`
+                    `/api/admin/add-content?app_id=${appId}&page=${this.currentPage()}&limit=50${modeQuery}`
                 )
             );
+            if (res.modes) {
+                this.availableModes.set(res.modes.sort((a, b) => a.localeCompare(b, 'de')));
+            }
             // Compute depth scores
             const items = res.items;
             const scores = items.map(i => this.computeDepthScore(i.data));
@@ -497,7 +517,7 @@ export class ContentEditorComponent implements OnInit {
         if (this.showAddForm()) {
             this.addJson.set('{\n  \n}');
             this.addLevel.set(null);
-            this.addMode.set(null);
+            this.addMode.set(this.selectedMode() || null);
         }
     }
 
@@ -571,7 +591,8 @@ export class ContentEditorComponent implements OnInit {
                     action: 'generate',
                     app_id: this.selectedAppId(),
                     count: this.generateCount(),
-                    customPrompt: this.generatePrompt() || undefined
+                    customPrompt: this.generatePrompt() || undefined,
+                    mode: this.selectedMode() || undefined
                 })
             );
             this.generateResults.set(res.entries);
@@ -632,6 +653,7 @@ export class ContentEditorComponent implements OnInit {
                     this.http.post('/api/admin/add-content', {
                         app_id: this.selectedAppId(),
                         content: entry,
+                        mode: this.selectedMode() || undefined
                     })
                 );
                 saved++;

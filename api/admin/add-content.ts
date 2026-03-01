@@ -53,7 +53,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 async function handleGetContent(req: VercelRequest, res: VercelResponse, db: any) {
     const app_id = req.query.app_id as string;
-    console.log(`[GET content] app_id=${app_id}, page=${req.query.page}, limit=${req.query.limit}`);
+    const mode = req.query.mode as string;
+    console.log(`[GET content] app_id=${app_id}, mode=${mode || 'none'}, page=${req.query.page}, limit=${req.query.limit}`);
     if (!app_id) {
         return res.status(400).json({ error: 'app_id query param required' });
     }
@@ -63,11 +64,21 @@ async function handleGetContent(req: VercelRequest, res: VercelResponse, db: any
     const offset = (page - 1) * limit;
 
     try {
+        // Fetch all modes for the app
+        const { data: modeData } = await db.from('app_content').select('mode').eq('app_id', app_id).not('mode', 'is', null);
+        const modes = Array.from(new Set(modeData?.map((m: any) => m.mode).filter(Boolean)));
+
         // Fetch content
-        const { data: items, count: totalCount, error } = await db
+        let query = db
             .from('app_content')
             .select('*', { count: 'exact' })
-            .eq('app_id', app_id)
+            .eq('app_id', app_id);
+
+        if (mode) {
+            query = query.eq('mode', mode);
+        }
+
+        const { data: items, count: totalCount, error } = await query
             .order('id', { ascending: true })
             .range(offset, offset + limit - 1);
 
@@ -122,6 +133,7 @@ async function handleGetContent(req: VercelRequest, res: VercelResponse, db: any
 
         return res.status(200).json({
             items: enrichedItems,
+            modes: modes as string[],
             pagination: {
                 page,
                 limit,
@@ -206,16 +218,21 @@ async function handleDeleteContent(req: VercelRequest, res: VercelResponse, db: 
 }
 
 async function handleGenerateContent(req: VercelRequest, res: VercelResponse, db: any) {
-    const { app_id, count: rawCount, customPrompt } = req.body;
+    const { app_id, count: rawCount, customPrompt, mode } = req.body;
     if (!app_id) return res.status(400).json({ error: 'app_id is required' });
 
     const count = Math.min(20, Math.max(1, parseInt(rawCount) || 5));
 
     try {
-        const { data: existing, error } = await db.from('app_content')
+        let query = db.from('app_content')
             .select('id, data')
-            .eq('app_id', app_id)
-            .limit(1000);
+            .eq('app_id', app_id);
+
+        if (mode) {
+            query = query.eq('mode', mode);
+        }
+
+        const { data: existing, error } = await query.limit(1000);
 
         if (error) throw error;
 
@@ -235,7 +252,7 @@ async function handleGenerateContent(req: VercelRequest, res: VercelResponse, db
 
         const userPrompt = `
 App: ${app_id}
-
+${mode ? `Mode: ${mode}\n` : ''}
 STRUCTURE EXAMPLES (follow this exact JSON structure):
 ${fullExamples.map((ex, i) => `Example ${i + 1}:\n${JSON.stringify(ex.data, null, 2)}`).join('\n\n')}
 

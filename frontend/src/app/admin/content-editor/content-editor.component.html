@@ -17,6 +17,21 @@
     </div>
 
     @if (selectedAppId()) {
+    <!-- Mode Selector -->
+    @if (availableModes().length > 0) {
+    <div class="app-selector" style="margin-top: 10px;">
+        <label>Mode filtern:</label>
+        <div class="app-chips">
+            <button class="app-chip" [class.active]="selectedMode() === ''" (click)="selectMode('')">Alle Modes</button>
+            @for (mode of availableModes(); track mode) {
+            <button class="app-chip" [class.active]="selectedMode() === mode" (click)="selectMode(mode)">
+                {{ mode }}
+            </button>
+            }
+        </div>
+    </div>
+    }
+
     <!-- Summary Bar -->
     @if (summary(); as s) {
     <div class="summary-bar">
