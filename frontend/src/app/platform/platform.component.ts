@@ -9,7 +9,6 @@ import { BadgeService } from '../services/badge.service';
 import { StreakService } from '../services/streak.service';
 import { AuthModalComponent, AppCardComponent } from '../shared';
 import { BadgeShowcaseComponent } from '../shared/components/badge-showcase/badge-showcase.component';
-import { LearningViewComponent } from './learning-view/learning-view.component';
 import { PlanViewComponent } from './plan-view/plan-view.component';
 import { PropertiesModalComponent } from './properties-modal/properties-modal.component';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -24,7 +23,7 @@ interface AppsConfig {
 @Component({
     selector: 'app-platform',
     standalone: true,
-    imports: [AuthModalComponent, AppCardComponent, LearningViewComponent, PlanViewComponent, PropertiesModalComponent, BadgeShowcaseComponent],
+    imports: [AuthModalComponent, AppCardComponent, PlanViewComponent, PropertiesModalComponent, BadgeShowcaseComponent],
     templateUrl: './platform.component.html',
     styleUrl: './platform.component.css'
 })
@@ -86,7 +85,7 @@ export class PlatformComponent implements OnInit, AfterViewInit {
             const user = this.authService.user();
             const view = this.currentView();
             // If logged out and on a protected view, switch to 'all'
-            if (!user && (view === 'favorites' || view === 'ai' || view === 'plan')) {
+            if (!user && (view === 'favorites' || view === 'plan')) {
                 this.setView('all');
             }
         }, { allowSignalWrites: true });
@@ -114,8 +113,8 @@ export class PlatformComponent implements OnInit, AfterViewInit {
 
 
     // View State — initialized from URL query param, falls back to localStorage, then 'all'
-    private static readonly VALID_VIEWS = ['all', 'favorites', 'ai', 'plan'] as const;
-    currentView = signal<'all' | 'favorites' | 'ai' | 'plan'>('all');
+    private static readonly VALID_VIEWS = ['all', 'favorites', 'plan'] as const;
+    currentView = signal<'all' | 'favorites' | 'plan'>('all');
 
     favorites = signal<Set<string>>(new Set());
 
@@ -137,15 +136,6 @@ export class PlatformComponent implements OnInit, AfterViewInit {
         // 1. Filter by View
         if (view === 'favorites') {
             apps = apps.filter(a => this.favorites().has(a.id));
-        } else if (view === 'ai') {
-            // Filter by skill level compatibility
-            const profile = this.userService.profile();
-            if (profile && profile.skillLevel !== null && profile.skillLevel !== -1) {
-                apps = apps.filter(a => a.featured);
-            } else {
-                // No profile, show featured
-                apps = apps.filter(a => a.featured);
-            }
         }
 
         // 2. Filter by Category
@@ -184,12 +174,12 @@ export class PlatformComponent implements OnInit, AfterViewInit {
         const viewParam = params['view'] as string;
 
         if (viewParam && PlatformComponent.VALID_VIEWS.includes(viewParam as any)) {
-            this.currentView.set(viewParam as 'all' | 'favorites' | 'ai' | 'plan');
+            this.currentView.set(viewParam as 'all' | 'favorites' | 'plan');
         } else {
             // Fallback to localStorage
             const stored = typeof localStorage !== 'undefined' ? localStorage.getItem('dashboard_view') : null;
             if (stored && PlatformComponent.VALID_VIEWS.includes(stored as any)) {
-                this.currentView.set(stored as 'all' | 'favorites' | 'ai' | 'plan');
+                this.currentView.set(stored as 'all' | 'favorites' | 'plan');
                 // Sync URL with the stored value
                 this.router.navigate([], {
                     queryParams: { view: stored === 'all' ? null : stored },
@@ -285,7 +275,7 @@ export class PlatformComponent implements OnInit, AfterViewInit {
         });
     }
 
-    setView(view: 'all' | 'favorites' | 'ai' | 'plan'): void {
+    setView(view: 'all' | 'favorites' | 'plan'): void {
         this.currentView.set(view);
         if (typeof localStorage !== 'undefined') {
             localStorage.setItem('dashboard_view', view);

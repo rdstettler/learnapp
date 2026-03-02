@@ -732,8 +732,8 @@ Create a structured learning plan spread across ${requestedDays} days.
 
 RULES:
 - Pick 3-6 questions per day from the candidate list
-- Prioritize "weak" questions first (high failure, low success)
-- Mix in some "unseen" questions for variety
+- IMPORTANT: You MUST include unseen questions (priority: unseen) to introduce new content. Ensure at least 50% of the selected questions are marked as priority "unseen"!
+- Prioritize "weak" questions only for review (high failure, low success)
 - Group questions from the same app together within a day when possible
 - Create a motivating title and description for the plan
 - For each day, provide a short "focus" description
@@ -798,6 +798,10 @@ Return ONLY valid JSON:
 
             // Remove empty days
             planResponse.days = planResponse.days.filter(d => d.task_ids.length > 0);
+
+            if (planResponse.days.length === 0) {
+                return res.status(400).json({ error: "Die KI konnte keinen gültigen Plan erstellen (keine Inhalte ausgewählt). Bitte versuche es erneut." });
+            }
 
             if (planResponse.days.length === 0) {
                 return res.status(500).json({ error: "AI generated an empty plan. Please try again." });

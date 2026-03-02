@@ -19,9 +19,6 @@
                 <button class="view-tab" [class.active]="currentView() === 'favorites'" (click)="setView('favorites')">
                     Favoriten
                 </button>
-                <button class="view-tab" [class.active]="currentView() === 'ai'" (click)="setView('ai')">
-                    KI Vorschläge ✨
-                </button>
                 <button class="view-tab" [class.active]="currentView() === 'plan'" (click)="setView('plan')">
                     📋 Lernplan
                 </button>
@@ -83,9 +80,7 @@
         </div>
     </div>
 
-    @if (currentView() === 'ai') {
-    <app-learning-view></app-learning-view>
-    } @else if (currentView() === 'plan') {
+    @if (currentView() === 'plan') {
     <app-plan-view></app-plan-view>
     } @else {
     <div class="apps-grid">

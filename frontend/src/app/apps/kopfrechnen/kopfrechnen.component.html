@@ -28,8 +28,16 @@
             <div class="operation-selector">
                 <button class="operation-btn" [class.active]="isOperationActive('add')"
                     (click)="toggleOperation('add')">+ Addition</button>
+                <button class="operation-btn" [class.active]="isOperationActive('sub')"
+                    (click)="toggleOperation('sub')">- Subtraktion</button>
+                <button class="operation-btn" [class.active]="isOperationActive('mul')"
+                    (click)="toggleOperation('mul')">× Multiplikation</button>
                 <button class="operation-btn" [class.active]="isOperationActive('div')"
                     (click)="toggleOperation('div')">÷ Division</button>
+                <button class="operation-btn" [class.active]="isOperationActive('sqrt')"
+                    (click)="toggleOperation('sqrt')">√ Wurzel</button>
+                <button class="operation-btn" [class.active]="isOperationActive('pow')"
+                    (click)="toggleOperation('pow')">xⁿ Potenz</button>
             </div>
 
             <button class="btn btn-primary" style="margin-top: 24px;" (click)="startQuiz()">Starten</button>
@@ -47,81 +55,102 @@
             </div>
 
             @if (question(); as q) {
-            <div class="equation-container">
-                @if (q.blankPosition === 0) {
-                <input type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
-                    [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
-                    (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
-                    inputmode="numeric" autofocus>
-                } @else {
-                <span class="equation-part">{{ q.a }}</span>
-                }
+            @if (q.operation === 'sqrt') {
+            <span class="operator">√</span>
 
-                <span class="operator">{{ getOperatorSymbol() }}</span>
-
-                @if (q.blankPosition === 1) {
-                <input type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
-                    [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
-                    (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
-                    inputmode="numeric" autofocus>
-                } @else {
-                <span class="equation-part">{{ q.b }}</span>
-                }
-
-                <span class="operator">=</span>
-
-                @if (q.blankPosition === 2) {
-                <input type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
-                    [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
-                    (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
-                    inputmode="numeric" autofocus>
-                } @else {
-                <span class="equation-part">{{ q.result }}</span>
-                }
-            </div>
+            @if (q.blankPosition === 1 || q.blankPosition === 0) {
+            <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
+                [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
+                (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
+                inputmode="numeric">
+            } @else {
+            <span class="equation-part">{{ q.b }}</span>
+            }
+            <span class="operator">=</span>
+            @if (q.blankPosition === 2) {
+            <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
+                [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
+                (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
+                inputmode="numeric">
+            } @else {
+            <span class="equation-part">{{ q.result }}</span>
+            }
+            } @else {
+            @if (q.blankPosition === 0) {
+            <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
+                [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
+                (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
+                inputmode="numeric">
+            } @else {
+            <span class="equation-part">{{ q.a }}</span>
             }
 
-            @if (feedbackText()) {
-            <div class="feedback" [class.correct]="isCorrect()" [class.incorrect]="!isCorrect()">
-                {{ feedbackText() }}
-            </div>
+            <span class="operator">{{ getOperatorSymbol() }}</span>
+
+            @if (q.blankPosition === 1) {
+            <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
+                [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
+                (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
+                inputmode="numeric">
+            } @else {
+            <span class="equation-part">{{ q.b }}</span>
             }
 
-            <button class="btn btn-primary" (click)="checkAnswer()">
-                {{ answered() ? 'Weiter' : 'Prüfen' }}
-            </button>
+            <span class="operator">=</span>
 
-            <div class="streak-display">
-                Serie: <span class="streak-count">{{ streak() }}</span> richtige Antworten
-            </div>
+            @if (q.blankPosition === 2) {
+            <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
+                [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
+                (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
+                inputmode="numeric">
+            } @else {
+            <span class="equation-part">{{ q.result }}</span>
+            }
+            }
         </div>
         }
 
-        <!-- Results Screen -->
-        @if (screen() === 'results') {
-        <div class="score-display">
-            <div class="score-circle">{{ percentage() }}%</div>
-            <div class="score-text">Richtig beantwortet</div>
-            <div class="score-breakdown">
-                <div class="score-item correct">
-                    <div class="score-item-number">{{ correctCount() }}</div>
-                    <div class="score-item-label">Richtig</div>
-                </div>
-                <div class="score-item wrong">
-                    <div class="score-item-number">{{ wrongCount() }}</div>
-                    <div class="score-item-label">Falsch</div>
-                </div>
-            </div>
-            <div style="margin-top: 16px;" class="text-secondary">
-                Längste Serie: <strong>{{ maxStreak() }}</strong>
-            </div>
-            <button class="btn btn-primary" style="margin-top: 30px; max-width: 200px;" (click)="startQuiz()">
-                Weiter üben
-            </button>
-            <button class="btn btn-secondary" style="margin-top: 10px;" (click)="restartQuiz()">
-                Zurück
-            </button>
+        @if (feedbackText()) {
+        <div class="feedback" [class.correct]="isCorrect()" [class.incorrect]="!isCorrect()">
+            {{ feedbackText() }}
         </div>
         }
+
+        <button class="btn btn-primary" (click)="checkAnswer()">
+            {{ answered() ? 'Weiter' : 'Prüfen' }}
+        </button>
+
+        <div class="streak-display">
+            Serie: <span class="streak-count">{{ streak() }}</span> richtige Antworten
+        </div>
+    </div>
+    }
+
+    <!-- Results Screen -->
+    @if (screen() === 'results') {
+    <div class="score-display">
+        <div class="score-circle">{{ percentage() }}%</div>
+        <div class="score-text">Richtig beantwortet</div>
+        <div class="score-breakdown">
+            <div class="score-item correct">
+                <div class="score-item-number">{{ correctCount() }}</div>
+                <div class="score-item-label">Richtig</div>
+            </div>
+            <div class="score-item wrong">
+                <div class="score-item-number">{{ wrongCount() }}</div>
+                <div class="score-item-label">Falsch</div>
+            </div>
+        </div>
+        <div style="margin-top: 16px;" class="text-secondary">
+            Längste Serie: <strong>{{ maxStreak() }}</strong>
+        </div>
+        <button class="btn btn-primary" style="margin-top: 30px; max-width: 200px;" (click)="startQuiz()">
+            Weiter üben
+        </button>
+        <button class="btn btn-secondary" style="margin-top: 10px;" (click)="restartQuiz()">
+            Zurück
+        </button>
+    </div>
+    }
     </div>
 </app-learning-app-layout>

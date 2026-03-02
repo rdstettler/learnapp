@@ -21,7 +21,7 @@ interface WordPair {
     sentences: Sentence[];
 }
 
-type QuizMode = 'einzeln' | 'zufall' | 'gemischt';
+type QuizMode = 'einzeln' | 'zufall';
 
 @Component({
     selector: 'app-aehnlichewoerter',
@@ -39,19 +39,11 @@ export class AehnlichewoerterComponent {
 
     readonly modes: { id: QuizMode; label: string; icon: string; description: string }[] = [
         { id: 'einzeln', label: 'Einzeln', icon: '🔤', description: 'Übe ein Wortpaar gezielt.' },
-        { id: 'zufall', label: 'Zufall', icon: '🎯', description: 'Zufälliges Wortpaar.' },
-        { id: 'gemischt', label: 'Gemischt', icon: '🎲', description: 'Sätze aus mehreren Paaren gemischt!' }
+        { id: 'zufall', label: 'Zufall', icon: '🎯', description: 'Zufälliges Wortpaar.' }
     ];
     mode = signal<QuizMode>('einzeln');
-    mixedPairs = signal<WordPair[]>([]);
 
     currentWordOptions = computed(() => {
-        if (this.mode() === 'gemischt') {
-            const pairs = this.mixedPairs();
-            const allWords = new Set<string>();
-            pairs.forEach(p => p.words.forEach(w => allWords.add(w)));
-            return Array.from(allWords);
-        }
         return this.currentPair()?.words || [];
     });
 
@@ -129,11 +121,6 @@ export class AehnlichewoerterComponent {
     }
 
     startQuiz(): void {
-        if (this.mode() === 'gemischt') {
-            this.startMixed();
-            return;
-        }
-
         if (this.mode() === 'zufall') {
             const allPairs = this.pairs();
             const randomPair = allPairs[Math.floor(Math.random() * allPairs.length)];
@@ -330,25 +317,6 @@ export class AehnlichewoerterComponent {
         this.screen.set('welcome');
         this.selectedPairId.set('');
         this.currentPair.set(null);
-    }
-
-    // ═══ MODE: GEMISCHT ═══
-
-    private startMixed(): void {
-        const allPairs = shuffle(this.pairs());
-        const selectedPairs = allPairs.slice(0, Math.min(3, allPairs.length));
-        this.mixedPairs.set(selectedPairs);
-
-        const allSentences = selectedPairs.flatMap(p => p.sentences);
-        const shuffled = shuffle(allSentences);
-        this.sentences.set(shuffled.slice(0, this.SENTENCES_PER_ROUND));
-
-        this.currentSentenceIndex.set(0);
-        this.resetRoundState();
-        this.userAnswers.set(new Map());
-        this.totalCorrect.set(0);
-        this.totalWrong.set(0);
-        this.screen.set('quiz');
     }
 
     getSelectedSlotValue(): string {
