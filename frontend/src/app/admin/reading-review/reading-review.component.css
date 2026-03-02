@@ -236,22 +236,6 @@
     background-clip: text;
 }
 
-.back-btn {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    color: #ccc;
-    padding: 8px 14px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s;
-}
-
-.back-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
-}
-
 /* Toast */
 .toast {
     position: fixed;

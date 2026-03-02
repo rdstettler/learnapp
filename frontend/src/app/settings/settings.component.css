@@ -21,23 +21,6 @@
     background-clip: text;
 }
 
-.back-btn {
-    padding: 10px 20px;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    background: var(--glass-bg);
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: inherit;
-    font-size: 0.95rem;
-}
-
-.back-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateX(-4px);
-}
-
 .auth-warning {
     text-align: center;
     padding: 48px;

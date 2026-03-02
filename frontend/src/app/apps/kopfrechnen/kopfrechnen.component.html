@@ -62,7 +62,7 @@
             <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
                 [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
                 (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
-                inputmode="numeric">
+                inputmode="numeric" />
             } @else {
             <span class="equation-part">{{ q.b }}</span>
             }
@@ -71,7 +71,7 @@
             <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
                 [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
                 (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
-                inputmode="numeric">
+                inputmode="numeric" />
             } @else {
             <span class="equation-part">{{ q.result }}</span>
             }
@@ -80,7 +80,7 @@
             <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
                 [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
                 (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
-                inputmode="numeric">
+                inputmode="numeric" />
             } @else {
             <span class="equation-part">{{ q.a }}</span>
             }
@@ -91,7 +91,7 @@
             <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
                 [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
                 (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
-                inputmode="numeric">
+                inputmode="numeric" />
             } @else {
             <span class="equation-part">{{ q.b }}</span>
             }
@@ -102,13 +102,13 @@
             <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
                 [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
                 (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
-                inputmode="numeric">
+                inputmode="numeric" />
             } @else {
             <span class="equation-part">{{ q.result }}</span>
             }
             }
+            }
         </div>
-        }
 
         @if (feedbackText()) {
         <div class="feedback" [class.correct]="isCorrect()" [class.incorrect]="!isCorrect()">
@@ -123,34 +123,33 @@
         <div class="streak-display">
             Serie: <span class="streak-count">{{ streak() }}</span> richtige Antworten
         </div>
-    </div>
-    }
+        }
 
-    <!-- Results Screen -->
-    @if (screen() === 'results') {
-    <div class="score-display">
-        <div class="score-circle">{{ percentage() }}%</div>
-        <div class="score-text">Richtig beantwortet</div>
-        <div class="score-breakdown">
-            <div class="score-item correct">
-                <div class="score-item-number">{{ correctCount() }}</div>
-                <div class="score-item-label">Richtig</div>
+        <!-- Results Screen -->
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <div class="score-text">Richtig beantwortet</div>
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ correctCount() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ wrongCount() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
             </div>
-            <div class="score-item wrong">
-                <div class="score-item-number">{{ wrongCount() }}</div>
-                <div class="score-item-label">Falsch</div>
+            <div style="margin-top: 16px;" class="text-secondary">
+                Längste Serie: <strong>{{ maxStreak() }}</strong>
             </div>
+            <button class="btn btn-primary" style="margin-top: 30px; max-width: 200px;" (click)="startQuiz()">
+                Weiter üben
+            </button>
+            <button class="btn btn-secondary" style="margin-top: 10px;" (click)="restartQuiz()">
+                Zurück
+            </button>
         </div>
-        <div style="margin-top: 16px;" class="text-secondary">
-            Längste Serie: <strong>{{ maxStreak() }}</strong>
-        </div>
-        <button class="btn btn-primary" style="margin-top: 30px; max-width: 200px;" (click)="startQuiz()">
-            Weiter üben
-        </button>
-        <button class="btn btn-secondary" style="margin-top: 10px;" (click)="restartQuiz()">
-            Zurück
-        </button>
-    </div>
-    }
+        }
     </div>
 </app-learning-app-layout>

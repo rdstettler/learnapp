@@ -54,7 +54,7 @@
     <!-- Actions Bar -->
     <div class="actions-bar">
         <div class="actions-left">
-            <button class="action-btn add-btn" (click)="toggleAddForm()">
+            <button class="action-btn" (click)="toggleAddForm()">
                 {{ showAddForm() ? '✕ Abbrechen' : '+ Neuer Eintrag' }}
             </button>
             <button class="action-btn enhance-btn" (click)="toggleEnhancePanel()" [class.active]="showEnhancePanel()">

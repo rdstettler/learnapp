@@ -2,10 +2,10 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
-    selector: 'app-about',
-    standalone: true,
-    templateUrl: './about.component.html',
-    styles: [`
+  selector: 'app-about',
+  standalone: true,
+  templateUrl: './about.component.html',
+  styles: [`
     .about-container {
       max-width: 800px;
       margin: 0 auto;
@@ -17,19 +17,6 @@ import { Router } from '@angular/router';
       align-items: center;
       gap: 1rem;
       margin-bottom: 2rem;
-    }
-    .back-btn {
-      background: none;
-      border: none;
-      color: var(--text-secondary);
-      cursor: pointer;
-      font-size: 1.1rem;
-      padding: 0.5rem;
-      border-radius: 8px;
-    }
-    .back-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-primary);
     }
     .section {
       background: rgba(255, 255, 255, 0.05);
@@ -60,9 +47,9 @@ import { Router } from '@angular/router';
   `]
 })
 export class AboutComponent {
-    private router = inject(Router);
+  private router = inject(Router);
 
-    goBack(): void {
-        this.router.navigate(['/']);
-    }
+  goBack(): void {
+    this.router.navigate(['/']);
+  }
 }

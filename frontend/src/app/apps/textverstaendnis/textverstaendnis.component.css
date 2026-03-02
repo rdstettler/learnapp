@@ -29,22 +29,6 @@
     background-clip: text;
 }
 
-.back-btn {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    color: #ccc;
-    padding: 8px 14px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s;
-}
-
-.back-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
-}
-
 /* Loading */
 .loading {
     text-align: center;
@@ -112,34 +96,7 @@
     border-color: #fc5c7d;
 }
 
-/* Modal Overlay */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    animation: fadeIn 0.2s ease;
-}
 
-.modal-content {
-    background: #1a1a2e;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 16px;
-    width: 90%;
-    max-width: 500px;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    animation: slideUp 0.25s ease;
-}
 
 @keyframes slideUp {
     from {
