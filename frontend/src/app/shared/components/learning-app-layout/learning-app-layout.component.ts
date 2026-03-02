@@ -11,7 +11,7 @@ import { ErrorReporterComponent } from '../error-reporter/error-reporter.compone
     <div class="bg-animation"></div>
     <div class="app-container">
         <div class="app-header">
-            <a [routerLink]="backLink()" class="back-button">← Dashboard</a>
+            <a [routerLink]="backLink()" class="back-btn">← Dashboard</a>
             <h1>{{ title() }}</h1>
         </div>
 
