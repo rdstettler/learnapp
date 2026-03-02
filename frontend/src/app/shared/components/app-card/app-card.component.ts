@@ -1,6 +1,7 @@
 
 import { Component, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SpinnerComponent } from '../spinner/spinner.component';
 
 export interface AppInfo {
     id: string;
@@ -21,7 +22,7 @@ export interface AppMetrics {
 @Component({
     selector: 'app-app-card',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, SpinnerComponent],
     templateUrl: './app-card.component.html',
     styleUrl: './app-card.component.css',
     changeDetection: ChangeDetectionStrategy.OnPush

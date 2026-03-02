@@ -7,7 +7,7 @@
 
     <!-- Toast message -->
     @if (actionMessage()) {
-    <div class="toast">{{actionMessage()}}</div>
+    <div class="toast visible">{{actionMessage()}}</div>
     }
 
     <!-- Add Text Panel -->
@@ -62,9 +62,10 @@
             </div>
 
             <div class="generate-section">
-                <button class="generate-btn" (click)="generateQuestions()" [disabled]="generating()">
+                <button class="btn-gradient" (click)="generateQuestions()" [disabled]="generating()"
+                    style="display: inline-flex; align-items: center; gap: 8px;">
                     @if (generating()) {
-                    <span class="spinner"></span> Generiere Fragen...
+                    <app-spinner></app-spinner> Generiere Fragen...
                     } @else {
                     🤖 Fragen generieren
                     }
@@ -81,25 +82,33 @@
                     @if (editingGenIdx() === i) {
                     <!-- Editing mode -->
                     <div class="edit-form">
-                        <label>Frage:</label>
-                        <textarea [(ngModel)]="editGenQuestion" rows="2"></textarea>
+                        <div class="form-group">
+                            <label>Frage:</label>
+                            <textarea [(ngModel)]="editGenQuestion" rows="2"></textarea>
+                        </div>
 
                         @if (editGenOptions.length > 0) {
-                        <label>Optionen:</label>
-                        @for (opt of editGenOptions; track $index; let j = $index) {
-                        <input type="text" [(ngModel)]="editGenOptions[j]" class="option-input" />
-                        }
+                        <div class="form-group">
+                            <label>Optionen:</label>
+                            @for (opt of editGenOptions; track $index; let j = $index) {
+                            <input type="text" [(ngModel)]="editGenOptions[j]" class="option-input" />
+                            }
+                        </div>
                         }
 
-                        <label>Korrekte Antwort:</label>
-                        <input type="text" [(ngModel)]="editGenCorrectAnswer" />
+                        <div class="form-group">
+                            <label>Korrekte Antwort:</label>
+                            <input type="text" [(ngModel)]="editGenCorrectAnswer" />
+                        </div>
 
-                        <label>Erklärung:</label>
-                        <textarea [(ngModel)]="editGenExplanation" rows="2"></textarea>
+                        <div class="form-group">
+                            <label>Erklärung:</label>
+                            <textarea [(ngModel)]="editGenExplanation" rows="2"></textarea>
+                        </div>
 
                         <div class="edit-actions">
-                            <button class="save-btn" (click)="saveEditGenerated(i)">💾 Übernehmen</button>
-                            <button class="cancel-btn" (click)="cancelEditGenerated()">Abbrechen</button>
+                            <button class="btn-gradient" (click)="saveEditGenerated(i)">💾 Übernehmen</button>
+                            <button class="btn-glass" (click)="cancelEditGenerated()">Abbrechen</button>
                         </div>
                     </div>
                     } @else {
@@ -134,9 +143,10 @@
                 }
 
                 <div class="save-all-section">
-                    <button class="save-all-btn" (click)="saveTextWithQuestions()" [disabled]="savingText()">
+                    <button class="btn-gradient" (click)="saveTextWithQuestions()" [disabled]="savingText()"
+                        style="display: inline-flex; align-items: center; gap: 8px;">
                         @if (savingText()) {
-                        <span class="spinner"></span> Speichere...
+                        <app-spinner></app-spinner> Speichere...
                         } @else {
                         💾 Text + {{generatedQuestions().length}} Fragen speichern
                         }
@@ -211,25 +221,33 @@
             <!-- Editing mode -->
             @if (editingQuestion()?.id === q.id) {
             <div class="edit-form">
-                <label>Frage:</label>
-                <textarea [(ngModel)]="editQuestion" rows="2"></textarea>
+                <div class="form-group">
+                    <label>Frage:</label>
+                    <textarea [(ngModel)]="editQuestion" rows="2"></textarea>
+                </div>
 
                 @if (editOptions.length > 0) {
-                <label>Optionen:</label>
-                @for (opt of editOptions; track $index; let i = $index) {
-                <input type="text" [(ngModel)]="editOptions[i]" class="option-input" />
-                }
+                <div class="form-group">
+                    <label>Optionen:</label>
+                    @for (opt of editOptions; track $index; let i = $index) {
+                    <input type="text" [(ngModel)]="editOptions[i]" class="option-input" />
+                    }
+                </div>
                 }
 
-                <label>Korrekte Antwort:</label>
-                <input type="text" [(ngModel)]="editCorrectAnswer" />
+                <div class="form-group">
+                    <label>Korrekte Antwort:</label>
+                    <input type="text" [(ngModel)]="editCorrectAnswer" />
+                </div>
 
-                <label>Erklärung:</label>
-                <textarea [(ngModel)]="editExplanation" rows="2"></textarea>
+                <div class="form-group">
+                    <label>Erklärung:</label>
+                    <textarea [(ngModel)]="editExplanation" rows="2"></textarea>
+                </div>
 
                 <div class="edit-actions">
-                    <button class="save-btn" (click)="saveEdit()">💾 Speichern & Genehmigen</button>
-                    <button class="cancel-btn" (click)="cancelEdit()">Abbrechen</button>
+                    <button class="btn-gradient" (click)="saveEdit()">💾 Speichern & Genehmigen</button>
+                    <button class="btn-glass" (click)="cancelEdit()">Abbrechen</button>
                 </div>
             </div>
             } @else {

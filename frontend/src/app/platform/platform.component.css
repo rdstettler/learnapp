@@ -82,39 +82,7 @@ a.app-card {
     padding: 0 20px;
 }
 
-/* Category Filters */
-.category-filters {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    max-width: 1000px;
-}
 
-.category-chip {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-color);
-    padding: 8px 16px;
-    border-radius: 20px;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-}
-
-.category-chip:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--text-primary);
-    transform: translateY(-1px);
-}
-
-.category-chip.active {
-    background: var(--surface-light);
-    color: white;
-    border-color: var(--accent-1);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
 
 /* Mobile Optimizations */
 @media (max-width: 768px) {
@@ -198,15 +166,7 @@ a.app-card {
     font-family: inherit;
 }
 
-.login-btn {
-    background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-    color: white;
-}
 
-.login-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
-}
 
 .logout-btn {
     background: rgba(255, 255, 255, 0.1);
@@ -292,8 +252,13 @@ a.app-card {
 }
 
 @keyframes flicker {
-    0% { transform: scale(1) rotate(-3deg); }
-    100% { transform: scale(1.15) rotate(3deg); }
+    0% {
+        transform: scale(1) rotate(-3deg);
+    }
+
+    100% {
+        transform: scale(1.15) rotate(3deg);
+    }
 }
 
 /* Badge Button */

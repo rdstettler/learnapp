@@ -1,7 +1,7 @@
 <div class="editor-container">
-    <header class="editor-header">
+    <header class="flex-gap-20 ai-center mb-24">
         <button class="back-btn" (click)="goBack()">← Zurück</button>
-        <h1>📦 Inhalte verwalten</h1>
+        <h1 class="editor-header-h1">📦 Inhalte verwalten</h1>
     </header>
 
     <!-- App Selector -->
@@ -9,7 +9,7 @@
         <label>App wählen:</label>
         <div class="app-chips">
             @for (app of apps(); track app.id) {
-            <button class="app-chip" [class.active]="selectedAppId() === app.id" (click)="selectApp(app.id)">
+            <button class="category-chip" [class.active]="selectedAppId() === app.id" (click)="selectApp(app.id)">
                 {{ app.icon }} {{ app.name }}
             </button>
             }
@@ -22,9 +22,10 @@
     <div class="app-selector" style="margin-top: 10px;">
         <label>Mode filtern:</label>
         <div class="app-chips">
-            <button class="app-chip" [class.active]="selectedMode() === ''" (click)="selectMode('')">Alle Modes</button>
+            <button class="category-chip" [class.active]="selectedMode() === ''" (click)="selectMode('')">Alle
+                Modes</button>
             @for (mode of availableModes(); track mode) {
-            <button class="app-chip" [class.active]="selectedMode() === mode" (click)="selectMode(mode)">
+            <button class="category-chip" [class.active]="selectedMode() === mode" (click)="selectMode(mode)">
                 {{ mode }}
             </button>
             }
@@ -109,7 +110,7 @@
                 <input type="number" [ngModel]="batchSize()" (ngModelChange)="batchSize.set($event)" min="1" max="10">
             </div>
             <span class="sparse-count">{{ sparseEntries().length }} unvollständige Einträge</span>
-            <button class="save-btn" (click)="runEnhanceBatch()"
+            <button class="btn-gradient" (click)="runEnhanceBatch()"
                 [disabled]="enhancing() || !templateItem() || sparseEntries().length === 0">
                 @if (enhancing()) {
                 @if (enhanceProgress(); as p) {
@@ -150,8 +151,8 @@
                         <textarea class="json-editor" rows="14" [ngModel]="editingEnhancedJson()"
                             (ngModelChange)="editingEnhancedJson.set($event)"></textarea>
                         <div class="edit-actions" style="margin-top:6px;">
-                            <button class="save-btn" (click)="saveEditEnhanced(r)">✓ Übernehmen</button>
-                            <button class="cancel-btn" (click)="cancelEditEnhanced()">Abbrechen</button>
+                            <button class="btn-gradient" (click)="saveEditEnhanced(r)">✓ Übernehmen</button>
+                            <button class="btn-glass" (click)="cancelEditEnhanced()">Abbrechen</button>
                         </div>
                         } @else {
                         <pre class="diff-pre enhanced">{{ r.enhanced | json }}</pre>
@@ -178,7 +179,7 @@
             <!-- Save All Accepted -->
             @if (acceptedIds().size > 0) {
             <div class="save-accepted-bar">
-                <button class="save-btn" (click)="saveAcceptedEnhancements()" [disabled]="savingEnhanced()">
+                <button class="btn-gradient" (click)="saveAcceptedEnhancements()" [disabled]="savingEnhanced()">
                     {{ savingEnhanced() ? 'Speichert...' : '💾 ' + acceptedIds().size + ' Änderungen speichern' }}
                 </button>
             </div>
@@ -207,7 +208,7 @@
                 <input type="number" [ngModel]="generateCount()" (ngModelChange)="generateCount.set($event)" min="1"
                     max="20">
             </div>
-            <button class="save-btn" (click)="runGenerate()" [disabled]="generating()">
+            <button class="btn-gradient" (click)="runGenerate()" [disabled]="generating()">
                 @if (generating()) {
                 <span>⏳ KI generiert...</span>
                 } @else {
@@ -232,8 +233,8 @@
                     <textarea class="json-editor" rows="14" [ngModel]="editingGenerateJson()"
                         (ngModelChange)="editingGenerateJson.set($event)"></textarea>
                     <div class="edit-actions" style="margin-top:6px;">
-                        <button class="save-btn" (click)="saveEditGenerate($index)">✓ Übernehmen</button>
-                        <button class="cancel-btn" (click)="cancelEditGenerate()">Abbrechen</button>
+                        <button class="btn-gradient" (click)="saveEditGenerate($index)">✓ Übernehmen</button>
+                        <button class="btn-glass" (click)="cancelEditGenerate()">Abbrechen</button>
                     </div>
                     } @else {
                     <pre class="diff-pre enhanced">{{ entry | json }}</pre>
@@ -260,7 +261,7 @@
             <!-- Save All Accepted Generated -->
             @if (acceptedGenerateIdxs().size > 0) {
             <div class="save-accepted-bar">
-                <button class="save-btn" (click)="saveAcceptedGenerated()" [disabled]="savingGenerated()">
+                <button class="btn-gradient" (click)="saveAcceptedGenerated()" [disabled]="savingGenerated()">
                     {{ savingGenerated() ? 'Speichert...' : '💾 ' + acceptedGenerateIdxs().size + ' neue Einträge
                     speichern' }}
                 </button>
@@ -273,7 +274,7 @@
 
     <!-- Add Form -->
     @if (showAddForm()) {
-    <div class="edit-panel add-panel">
+    <div class="edit-panel add-panel glass-panel" style="padding: 24px;">
         <h3>Neuer Eintrag für {{ selectedAppId() }}</h3>
         <div class="edit-fields">
             <div class="field-group">
@@ -292,7 +293,7 @@
         <div class="json-error">{{ jsonError() }}</div>
         }
         <div class="edit-actions">
-            <button class="save-btn" (click)="addContent()" [disabled]="saving()">
+            <button class="btn-gradient" (click)="addContent()" [disabled]="saving()">
                 {{ saving() ? 'Speichert...' : '✓ Hinzufügen' }}
             </button>
         </div>
@@ -301,7 +302,7 @@
 
     <!-- Success Message -->
     @if (successMsg()) {
-    <div class="success-toast">{{ successMsg() }}</div>
+    <div class="toast visible" style="transform: translateX(-50%) translateY(0); opacity: 1;">{{ successMsg() }}</div>
     }
 
     <!-- Loading -->
@@ -381,7 +382,7 @@
 
             <!-- Inline Editor -->
             @if (editingId() === item.id) {
-            <div class="edit-panel">
+            <div class="edit-panel glass-panel" style="padding: 24px;">
                 <div class="edit-fields">
                     <div class="field-group">
                         <label>Level</label>
@@ -400,10 +401,10 @@
                 <div class="json-error">{{ jsonError() }}</div>
                 }
                 <div class="edit-actions">
-                    <button class="save-btn" (click)="saveEdit()" [disabled]="saving()">
+                    <button class="btn-gradient" (click)="saveEdit()" [disabled]="saving()">
                         {{ saving() ? 'Speichert...' : '✓ Speichern' }}
                     </button>
-                    <button class="cancel-btn" (click)="cancelEdit()">Abbrechen</button>
+                    <button class="btn-glass" (click)="cancelEdit()">Abbrechen</button>
                 </div>
             </div>
             }

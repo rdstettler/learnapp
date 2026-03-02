@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { UserService } from '../../services/user.service';
+import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 
 interface ReadingQuestion {
     id: number;
@@ -39,7 +40,7 @@ interface AvailableText {
 @Component({
     selector: 'app-textverstaendnis',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, SpinnerComponent],
     templateUrl: './textverstaendnis.component.html',
     styleUrl: './textverstaendnis.component.css'
 })

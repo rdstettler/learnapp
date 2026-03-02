@@ -1,160 +1,158 @@
 <div class="plan-container">
     @if (loading()) {
-        <div class="loading-state">
-            <div class="spinner"></div>
-            <p>Lade Lernplan...</p>
-        </div>
+    <div class="loading-state">
+        <app-spinner></app-spinner>
+        <p>Lade Lernplan...</p>
+    </div>
     } @else if (plan()) {
-        <!-- Active Plan -->
-        <div class="plan-view fade-in">
-            <!-- Plan Header -->
-            <div class="plan-header">
-                <div class="plan-header-top">
-                    <h2>📋 {{ plan()!.title }}</h2>
-                    <button class="abandon-btn" (click)="abandonPlan()" title="Plan aufgeben">✕</button>
-                </div>
-                <p class="plan-description">{{ plan()!.description }}</p>
+    <!-- Active Plan -->
+    <div class="plan-view fade-in">
+        <!-- Plan Header -->
+        <div class="plan-header text-gradient"
+            style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+            <div class="plan-header-top">
+                <h2>📋 {{ plan()!.title }}</h2>
+                <button class="abandon-btn btn-glass" style="border: none; padding: 0" (click)="abandonPlan()"
+                    title="Plan aufgeben">✕</button>
+            </div>
+            <p class="plan-description">{{ plan()!.description }}</p>
 
-                <div class="progress-bar-container">
-                    <div class="progress-text">
-                        {{ completedTasks() }} von {{ totalTasks() }} Aufgaben erledigt ({{ overallProgress() }}%)
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" [style.width.%]="overallProgress()"></div>
-                    </div>
+            <div class="progress-bar-container">
+                <div class="progress-text">
+                    {{ completedTasks() }} von {{ totalTasks() }} Aufgaben erledigt ({{ overallProgress() }}%)
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" [style.width.%]="overallProgress()"></div>
                 </div>
             </div>
-
-            <!-- Day Tabs -->
-            <div class="day-tabs">
-                @for (day of plan()!.days; track day.day) {
-                    <button
-                        class="day-tab"
-                        [class.active]="selectedDay() === day.day"
-                        [class.complete]="isDayComplete(day.day)"
-                        (click)="selectDay(day.day)"
-                    >
-                        <span class="day-label">Tag {{ day.day }}</span>
-                        <span class="day-progress">
-                            @if (isDayComplete(day.day)) {
-                                ✅
-                            } @else {
-                                {{ getDayCompletedCount(day.day) }}/{{ getDayTotalCount(day.day) }}
-                            }
-                        </span>
-                    </button>
-                }
-            </div>
-
-            <!-- Current Day Content -->
-            <div class="day-content fade-in">
-                @if (currentDayFocus()) {
-                    <div class="day-focus">
-                        <span class="focus-icon">🎯</span>
-                        <span>{{ currentDayFocus() }}</span>
-                    </div>
-                }
-
-                <div class="day-progress-mini">
-                    <div class="mini-bar">
-                        <div class="mini-fill" [style.width.%]="currentDayProgress()"></div>
-                    </div>
-                </div>
-
-                <div class="task-groups">
-                    @for (group of groupedCurrentDayTasks(); track group.app_id) {
-                        <div class="task-group" [class.all-done]="isGroupComplete(group)">
-                            <div class="task-group-header">
-                                <div class="app-info">
-                                    <span class="app-icon">{{ group.app_icon }}</span>
-                                    <span class="app-name">{{ group.app_name }}</span>
-                                </div>
-                                <span class="task-count-badge">
-                                    {{ getGroupCompletedCount(group) }}/{{ group.tasks.length }}
-                                </span>
-                            </div>
-
-                            <div class="task-list">
-                                @for (task of group.tasks; track task.id) {
-                                    <div class="task-item" [class.done]="task.completed">
-                                        <span class="task-check">{{ task.completed ? '✅' : '⬜' }}</span>
-                                        <span class="task-label">Aufgabe {{ task.order_index }}</span>
-                                    </div>
-                                }
-                            </div>
-
-                            <div class="task-group-actions">
-                                @if (hasIncompleteTasks(group)) {
-                                    <button class="start-btn" (click)="startTask(group)">
-                                        ▶️ Starten
-                                    </button>
-                                    <button class="skip-btn" (click)="markGroupComplete(group)" title="Als erledigt markieren">
-                                        Überspringen
-                                    </button>
-                                } @else {
-                                    <span class="done-label">🎉 Erledigt!</span>
-                                }
-                            </div>
-                        </div>
-                    }
-
-                    @if (groupedCurrentDayTasks().length === 0) {
-                        <div class="empty-day">
-                            <p>Keine Aufgaben für diesen Tag.</p>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <!-- Completion Celebration -->
-            @if (overallProgress() === 100) {
-                <div class="completion-message fade-in">
-                    <h3>🎉 Fantastisch! Du hast den gesamten Lernplan abgeschlossen!</h3>
-                    <p>Möchtest du einen neuen Plan erstellen?</p>
-                    <button class="generate-btn" (click)="plan.set(null)">Neuen Plan erstellen</button>
-                </div>
-            }
         </div>
-    } @else if (notEnoughData()) {
-        <!-- Not Enough Data -->
-        <div class="empty-state fade-in">
-            <div class="magic-icon">📊</div>
-            <h2>Noch nicht genug Daten</h2>
-            <p>{{ notEnoughData() }}</p>
-        </div>
-    } @else {
-        <!-- Ready to Generate -->
-        <div class="ready-state fade-in">
-            <div class="magic-icon">📋</div>
-            <h2>Erstelle deinen persönlichen Lernplan!</h2>
-            <p>Basierend auf deinen bisherigen Ergebnissen erstellt die KI 🤖 einen strukturierten Lernplan über mehrere Tage.</p>
 
-            <div class="days-selector">
-                <label>Wie viele Tage soll der Plan umfassen?</label>
-                <div class="days-buttons">
-                    @for (d of [1, 2, 3, 5, 7]; track d) {
-                        <button
-                            class="day-option"
-                            [class.selected]="daysConfig() === d"
-                            (click)="setDaysConfig(d)"
-                        >
-                            {{ d }} {{ d === 1 ? 'Tag' : 'Tage' }}
-                        </button>
+        <!-- Day Tabs -->
+        <div class="nav-tabs" style="margin: 1.5rem 0 1rem; flex-wrap: wrap;">
+            @for (day of plan()!.days; track day.day) {
+            <button class="nav-tab day-tab" [class.active]="selectedDay() === day.day"
+                [class.complete]="isDayComplete(day.day)" (click)="selectDay(day.day)">
+                <span class="day-label">Tag {{ day.day }}</span>
+                <span class="day-progress">
+                    @if (isDayComplete(day.day)) {
+                    ✅
+                    } @else {
+                    {{ getDayCompletedCount(day.day) }}/{{ getDayTotalCount(day.day) }}
                     }
-                </div>
-            </div>
-
-            @if (generationError()) {
-                <div class="error-message">⚠️ {{ generationError() }}</div>
-            }
-
-            <button class="generate-btn" (click)="generatePlan()" [disabled]="generating()">
-                @if (generating()) {
-                    {{ loadingMessage() }}
-                } @else {
-                    Lernplan erstellen ✨
-                }
+                </span>
             </button>
+            }
         </div>
+
+        <!-- Current Day Content -->
+        <div class="day-content fade-in">
+            @if (currentDayFocus()) {
+            <div class="day-focus flex ai-center flex-gap-10 mb-16">
+                <span class="focus-icon">🎯</span>
+                <span>{{ currentDayFocus() }}</span>
+            </div>
+            }
+
+            <div class="day-progress-mini mb-16">
+                <div class="mini-bar">
+                    <div class="mini-fill" [style.width.%]="currentDayProgress()"></div>
+                </div>
+            </div>
+
+            <div class="flex-column" style="gap: 1rem;">
+                @for (group of groupedCurrentDayTasks(); track group.app_id) {
+                <div class="glass-panel task-group" [class.all-done]="isGroupComplete(group)">
+                    <div class="task-group-header">
+                        <div class="app-info">
+                            <span class="app-icon">{{ group.app_icon }}</span>
+                            <span class="app-name">{{ group.app_name }}</span>
+                        </div>
+                        <span class="task-count-badge">
+                            {{ getGroupCompletedCount(group) }}/{{ group.tasks.length }}
+                        </span>
+                    </div>
+
+                    <div class="task-list">
+                        @for (task of group.tasks; track task.id) {
+                        <div class="task-item" [class.done]="task.completed">
+                            <span class="task-check">{{ task.completed ? '✅' : '⬜' }}</span>
+                            <span class="task-label">Aufgabe {{ task.order_index }}</span>
+                        </div>
+                        }
+                    </div>
+
+                    <div class="task-group-actions">
+                        @if (hasIncompleteTasks(group)) {
+                        <button class="btn-gradient" (click)="startTask(group)" style="padding: 0.6rem 1.4rem;">
+                            ▶️ Starten
+                        </button>
+                        <button class="btn-glass" (click)="markGroupComplete(group)" title="Als erledigt markieren"
+                            style="padding: 0.6rem 1.2rem;">
+                            Überspringen
+                        </button>
+                        } @else {
+                        <span class="done-label">🎉 Erledigt!</span>
+                        }
+                    </div>
+                </div>
+                }
+
+                @if (groupedCurrentDayTasks().length === 0) {
+                <div class="empty-day">
+                    <p>Keine Aufgaben für diesen Tag.</p>
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- Completion Celebration -->
+        @if (overallProgress() === 100) {
+        <div class="alert-success fade-in" style="margin-top: 2rem; padding: 2rem;">
+            <h3>🎉 Fantastisch! Du hast den gesamten Lernplan abgeschlossen!</h3>
+            <p style="margin-top: 0.5rem; margin-bottom: 1rem">Möchtest du einen neuen Plan erstellen?</p>
+            <button class="btn-gradient" (click)="plan.set(null)">Neuen Plan erstellen</button>
+        </div>
+        }
+    </div>
+    } @else if (notEnoughData()) {
+    <!-- Not Enough Data -->
+    <div class="empty-state fade-in">
+        <div class="magic-icon">📊</div>
+        <h2>Noch nicht genug Daten</h2>
+        <p>{{ notEnoughData() }}</p>
+    </div>
+    } @else {
+    <!-- Ready to Generate -->
+    <div class="ready-state fade-in">
+        <div class="magic-icon">📋</div>
+        <h2>Erstelle deinen persönlichen Lernplan!</h2>
+        <p>Basierend auf deinen bisherigen Ergebnissen erstellt die KI 🤖 einen strukturierten Lernplan über mehrere
+            Tage.</p>
+
+        <div class="days-selector">
+            <label>Wie viele Tage soll der Plan umfassen?</label>
+            <div class="flex jc-center" style="gap: 0.5rem; flex-wrap: wrap;">
+                @for (d of [1, 2, 3, 5, 7]; track d) {
+                <button class="btn-glass day-option" [class.active]="daysConfig() === d" (click)="setDaysConfig(d)">
+                    {{ d }} {{ d === 1 ? 'Tag' : 'Tage' }}
+                </button>
+                }
+            </div>
+        </div>
+
+        @if (generationError()) {
+        <div class="alert-error" style="width: 100%; max-width: 500px; text-align: left;">⚠️ {{ generationError() }}
+        </div>
+        }
+
+        <button class="btn-gradient" (click)="generatePlan()" [disabled]="generating()"
+            style="border-radius: 50px; padding: 1rem 2rem; font-size: 1.2rem;">
+            @if (generating()) {
+            {{ loadingMessage() }}
+            } @else {
+            Lernplan erstellen ✨
+            }
+        </button>
+    </div>
     }
 </div>

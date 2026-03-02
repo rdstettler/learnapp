@@ -2,13 +2,13 @@
     <!-- Header -->
     <div class="header">
         <button class="back-btn" (click)="goBack()">← Zurück</button>
-        <h1>📖 Textverständnis</h1>
+        <h1 class="text-gradient">📖 Textverständnis</h1>
     </div>
 
     <!-- Loading -->
     @if (loading()) {
     <div class="loading">
-        <div class="spinner"></div>
+        <app-spinner></app-spinner>
         <p>Text wird geladen...</p>
     </div>
     }
@@ -20,11 +20,11 @@
 
     <!-- Text action buttons -->
     @if (!loading() && availableTexts().length > 1) {
-    <div class="text-actions">
-        <button class="action-btn" (click)="openTextModal()">
+    <div class="flex-gap-10 mb-24">
+        <button class="btn-outline" (click)="openTextModal()">
             📚 Geschichte wählen
         </button>
-        <button class="action-btn random-btn" (click)="loadRandomText()">
+        <button class="btn-gradient" (click)="loadRandomText()">
             🎲 Zufälliger Text
         </button>
     </div>
@@ -84,7 +84,7 @@
         }
 
         @if (currentChunkQuestions().length === 0 || canAdvanceChunk()) {
-        <button class="next-chunk-btn" (click)="nextChunk()" [disabled]="!canAdvanceChunk()">
+        <button class="btn-gradient next-chunk-btn" (click)="nextChunk()" [disabled]="!canAdvanceChunk()">
             @if (currentChunkIndex() < chunks().length - 1) { Weiter lesen → } @else { Fertig! 🎉 } </button>
                 }
     </div>
@@ -105,7 +105,7 @@
     @if (questions().length > 0) {
     <div class="questions-section">
         <h3 class="questions-header">Fragen zum Text</h3>
-        <button class="scroll-to-text" (click)="scrollToText()">
+        <button class="btn-outline scroll-to-text" (click)="scrollToText()">
             ↑ Zurück zum Text
         </button>
         @for (q of questions(); track q.id) {
@@ -122,7 +122,7 @@
     <h3>🏆 Ergebnis</h3>
     <div class="score-value">{{score()}} / {{totalAnswered()}}</div>
     <p class="score-percent">{{getScorePercent()}}% richtig</p>
-    <button class="next-text-btn" (click)="loadText()">Nächster Text →</button>
+    <button class="btn-gradient" (click)="loadText()" style="padding: 12px 32px;">Nächster Text →</button>
 </div>
 }
 }

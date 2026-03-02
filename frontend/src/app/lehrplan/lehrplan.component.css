@@ -69,31 +69,6 @@
     color: #8888aa;
 }
 
-.spinner {
-    width: 36px;
-    height: 36px;
-    border: 3px solid rgba(124, 140, 248, 0.2);
-    border-top-color: #7c8cf8;
-    border-radius: 50%;
-    margin: 0 auto 12px;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.error-msg {
-    text-align: center;
-    padding: 20px;
-    color: #f87171;
-    background: rgba(248, 113, 113, 0.1);
-    border-radius: 12px;
-    border: 1px solid rgba(248, 113, 113, 0.2);
-}
-
 /* Tree */
 .tree {
     background: rgba(255, 255, 255, 0.03);

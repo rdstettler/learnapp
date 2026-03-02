@@ -6,7 +6,7 @@
 
     @if (loading()) {
     <div class="loading-state">
-        <div class="spinner"></div>
+        <app-spinner></app-spinner>
         <p>Lade Statistiken...</p>
     </div>
     } @else if (error()) {
@@ -48,9 +48,8 @@
                 @for (week of heatmapGrid(); track $index) {
                 <div class="heatmap-week">
                     @for (day of week; track day.date) {
-                    <div class="heatmap-cell"
-                         [class.active]="day.active"
-                         [title]="formatDate(day.date) + (day.active ? ' ✓' : '')">
+                    <div class="heatmap-cell" [class.active]="day.active"
+                        [title]="formatDate(day.date) + (day.active ? ' ✓' : '')">
                     </div>
                     }
                 </div>
@@ -78,9 +77,8 @@
                 </div>
                 <div class="accuracy-bar-container">
                     <div class="accuracy-bar">
-                        <div class="accuracy-fill"
-                             [style.width.%]="app.accuracy"
-                             [style.background]="getAccuracyColor(app.accuracy)">
+                        <div class="accuracy-fill" [style.width.%]="app.accuracy"
+                            [style.background]="getAccuracyColor(app.accuracy)">
                         </div>
                     </div>
                     <span class="accuracy-value" [style.color]="getAccuracyColor(app.accuracy)">

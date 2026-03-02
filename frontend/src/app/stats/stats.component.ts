@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../services/auth.service';
 import { StreakService } from '../services/streak.service';
 import { firstValueFrom } from 'rxjs';
+import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
 
 interface AppAccuracy {
     appId: string;
@@ -39,6 +40,7 @@ interface StatsData {
 @Component({
     selector: 'app-stats',
     standalone: true,
+    imports: [SpinnerComponent],
     templateUrl: './stats.component.html',
     styleUrl: './stats.component.css'
 })

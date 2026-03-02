@@ -3,32 +3,32 @@
         <button class="back-btn" (click)="goBack()">
             ← Zurück
         </button>
-        <h1>⚙️ Einstellungen</h1>
+        <h1 class="text-gradient">⚙️ Einstellungen</h1>
     </header>
 
     @if (!authService.isAuthenticated()) {
-    <div class="auth-warning">
+    <div class="auth-warning glass-panel">
         <p>⚠️ Du musst angemeldet sein, um dein Profil zu bearbeiten.</p>
-        <button class="primary-btn" (click)="goBack()">Zur Startseite</button>
+        <button class="btn-gradient" (click)="goBack()">Zur Startseite</button>
     </div>
     } @else {
     <div class="settings-content">
         <!-- Tab Navigation -->
-        <div class="tab-nav">
-            <button class="tab-btn" [class.active]="activeTab() === 'profile'" (click)="setTab('profile')">
+        <div class="nav-tabs">
+            <button class="nav-tab" [class.active]="activeTab() === 'profile'" (click)="setTab('profile')">
                 👤 Profil
             </button>
-            <button class="tab-btn" [class.active]="activeTab() === 'avatar'" (click)="setTab('avatar')">
+            <button class="nav-tab" [class.active]="activeTab() === 'avatar'" (click)="setTab('avatar')">
                 🎨 Avatar
             </button>
-            <button class="tab-btn" [class.active]="activeTab() === 'learning'" (click)="setTab('learning')">
+            <button class="nav-tab" [class.active]="activeTab() === 'learning'" (click)="setTab('learning')">
                 📚 Lernen
             </button>
         </div>
 
         <!-- Profile Tab -->
         @if (activeTab() === 'profile') {
-        <div class="tab-content">
+        <div class="tab-content glass-panel">
             <div class="profile-section">
                 <!-- ... existing profile content ... -->
                 <div class="avatar-preview-large">
@@ -43,14 +43,14 @@
                     }
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="max-width: 400px;">
                     <label for="displayName">Anzeigename</label>
                     <input type="text" id="displayName" [ngModel]="displayName()"
                         (ngModelChange)="displayName.set($event)" placeholder="Dein Name" maxlength="50">
                     <span class="hint">Dieser Name wird in der App angezeigt</span>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" style="max-width: 400px;">
                     <label for="language">Sprache</label>
                     <select id="language" [ngModel]="languageVariant()" (ngModelChange)="languageVariant.set($event)"
                         style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--surface-border); background: var(--surface-card); color: var(--text-color); font-size: 1rem;">
@@ -60,12 +60,12 @@
                     <span class="hint">Bevorzugte Sprache für KI-Aufgaben</span>
                 </div>
 
-                <div class="form-group readonly">
+                <div class="form-group readonly" style="max-width: 400px;">
                     <label>E-Mail</label>
                     <input type="text" [value]="authService.user()?.email" readonly disabled>
                 </div>
 
-                <div class="form-group readonly">
+                <div class="form-group readonly" style="max-width: 400px;">
                     <label>Anmeldemethode</label>
                     <input type="text" [value]="authService.user()?.provider === 'google' ? 'Google' : 'E-Mail'"
                         readonly disabled>
@@ -76,14 +76,14 @@
 
         <!-- Avatar Tab -->
         @if (activeTab() === 'avatar') {
-        <div class="tab-content">
+        <div class="tab-content glass-panel">
             <div class="avatar-editor">
                 <!-- ... existing avatar content ... -->
                 <div class="avatar-preview-section">
                     <div class="avatar-preview-large">
                         <div class="avatar-image" [innerHTML]="avatarSvgSafe()"></div>
                     </div>
-                    <button class="randomize-btn" (click)="randomizeAvatar()">
+                    <button class="btn-glass" (click)="randomizeAvatar()">
                         🎲 Zufällig
                     </button>
                 </div>
@@ -91,8 +91,9 @@
                 <!-- Customization Options -->
                 <div class="avatar-options">
                     <!-- Background Color -->
-                    <div class="option-group">
-                        <label>Hintergrund</label>
+                    <div class="glass-panel" style="padding: 16px;">
+                        <label
+                            style="display: block; margin-bottom: 12px; font-weight: 500; color: var(--text-secondary); font-size: 0.95rem;">Hintergrund</label>
                         <div class="color-options">
                             @for (color of backgroundColors; track color) {
                             <button class="color-btn" [style.background]="color"
@@ -104,8 +105,9 @@
                     </div>
                     <!-- ... other avatar options ... -->
                     <!-- Skin Tone -->
-                    <div class="option-group">
-                        <label>Hautfarbe</label>
+                    <div class="glass-panel" style="padding: 16px;">
+                        <label
+                            style="display: block; margin-bottom: 12px; font-weight: 500; color: var(--text-secondary); font-size: 0.95rem;">Hautfarbe</label>
                         <div class="color-options">
                             @for (tone of skinTones; track tone) {
                             <button class="color-btn" [style.background]="tone"
@@ -117,8 +119,9 @@
                     </div>
 
                     <!-- Hair Style -->
-                    <div class="option-group">
-                        <label>Frisur</label>
+                    <div class="glass-panel" style="padding: 16px;">
+                        <label
+                            style="display: block; margin-bottom: 12px; font-weight: 500; color: var(--text-secondary); font-size: 0.95rem;">Frisur</label>
                         <div class="style-options">
                             @for (style of hairStyles; track style.id) {
                             <button class="style-btn" [class.active]="avatarConfig().hairStyle === style.id"
@@ -130,8 +133,9 @@
                     </div>
 
                     <!-- Hair Color -->
-                    <div class="option-group">
-                        <label>Haarfarbe</label>
+                    <div class="glass-panel" style="padding: 16px;">
+                        <label
+                            style="display: block; margin-bottom: 12px; font-weight: 500; color: var(--text-secondary); font-size: 0.95rem;">Haarfarbe</label>
                         <div class="color-options">
                             @for (color of hairColors; track color) {
                             <button class="color-btn" [style.background]="color"
@@ -143,8 +147,9 @@
                     </div>
 
                     <!-- Eyes -->
-                    <div class="option-group">
-                        <label>Augen</label>
+                    <div class="glass-panel" style="padding: 16px;">
+                        <label
+                            style="display: block; margin-bottom: 12px; font-weight: 500; color: var(--text-secondary); font-size: 0.95rem;">Augen</label>
                         <div class="style-options">
                             @for (style of eyeStyles; track style.id) {
                             <button class="style-btn" [class.active]="avatarConfig().eyes === style.id"
@@ -156,8 +161,9 @@
                     </div>
 
                     <!-- Eyebrows -->
-                    <div class="option-group">
-                        <label>Augenbrauen</label>
+                    <div class="glass-panel" style="padding: 16px;">
+                        <label
+                            style="display: block; margin-bottom: 12px; font-weight: 500; color: var(--text-secondary); font-size: 0.95rem;">Augenbrauen</label>
                         <div class="style-options">
                             @for (style of eyebrowStyles; track style.id) {
                             <button class="style-btn" [class.active]="avatarConfig().eyebrows === style.id"
@@ -169,8 +175,9 @@
                     </div>
 
                     <!-- Mouth -->
-                    <div class="option-group">
-                        <label>Mund</label>
+                    <div class="glass-panel" style="padding: 16px;">
+                        <label
+                            style="display: block; margin-bottom: 12px; font-weight: 500; color: var(--text-secondary); font-size: 0.95rem;">Mund</label>
                         <div class="style-options">
                             @for (style of mouthStyles; track style.id) {
                             <button class="style-btn" [class.active]="avatarConfig().mouth === style.id"
@@ -182,8 +189,9 @@
                     </div>
 
                     <!-- Accessories -->
-                    <div class="option-group">
-                        <label>Accessoires</label>
+                    <div class="glass-panel" style="padding: 16px;">
+                        <label
+                            style="display: block; margin-bottom: 12px; font-weight: 500; color: var(--text-secondary); font-size: 0.95rem;">Accessoires</label>
                         <div class="style-options">
                             @for (option of accessoryOptions; track option.id) {
                             <button class="style-btn" [class.active]="avatarConfig().accessories === option.id"
@@ -195,8 +203,9 @@
                     </div>
 
                     <!-- Facial Hair -->
-                    <div class="option-group">
-                        <label>Bart</label>
+                    <div class="glass-panel" style="padding: 16px;">
+                        <label
+                            style="display: block; margin-bottom: 12px; font-weight: 500; color: var(--text-secondary); font-size: 0.95rem;">Bart</label>
                         <div class="style-options">
                             @for (option of facialHairOptions; track option.id) {
                             <button class="style-btn" [class.active]="avatarConfig().facialHair === option.id"
@@ -213,27 +222,28 @@
 
         <!-- Learning Tab -->
         @if (activeTab() === 'learning') {
-        <div class="tab-content">
+        <div class="tab-content glass-panel">
             @if (optedOut()) {
-            <div class="auth-warning">
+            <div class="auth-warning glass-panel">
                 <p>⚠️ Du hast personifizierte Lernvorschläge deaktiviert.</p>
                 <p style="font-size: 1rem; color: var(--text-secondary);">Aktiviere sie, um Aufgaben zu erhalten, die
                     genau zu deinem Schulniveau passen.</p>
-                <button class="primary-btn" (click)="toggleOptOut(false)">Einstellungen aktivieren</button>
+                <button class="btn-gradient" (click)="toggleOptOut(false)">Einstellungen aktivieren</button>
             </div>
             } @else {
             <div class="learning-options">
-                <div class="section-header">
-                    <h2>Lernniveau</h2>
-                    <button class="text-btn small-btn" (click)="toggleOptOut(true)"
-                        title="Daten löschen und deaktivieren">
+                <div class="flex ai-center" style="justify-content: space-between; margin-bottom: 8px;">
+                    <h2 style="margin: 0; font-size: 1.2rem; color: var(--text-primary);">Lernniveau</h2>
+                    <button class="small-btn" (click)="toggleOptOut(true)" title="Daten löschen und deaktivieren">
                         🗑️ Deaktivieren
                     </button>
                 </div>
 
                 <!-- Skill Level -->
-                <div class="option-group">
-                    <label>Deine Einschätzung</label>
+                <div class="glass-panel" style="padding: 16px;">
+                    <label
+                        style="display: block; margin-bottom: 12px; font-weight: 500; color: var(--text-secondary); font-size: 0.95rem;">Deine
+                        Einschätzung</label>
                     <div class="slider-container">
                         <input type="range" min="0" max="1" step="0.1" [ngModel]="skillLevel()"
                             (ngModelChange)="skillLevel.set($event)" class="range-slider">
@@ -245,8 +255,9 @@
                 </div>
 
                 <!-- School Type -->
-                <div class="option-group">
-                    <label>Schulstufe</label>
+                <div class="glass-panel" style="padding: 16px;">
+                    <label
+                        style="display: block; margin-bottom: 12px; font-weight: 500; color: var(--text-secondary); font-size: 0.95rem;">Schulstufe</label>
                     <div class="style-options">
                         @for (type of schoolTypes; track type.id) {
                         <button class="style-btn" [class.active]="schoolType() === type.id"
@@ -258,8 +269,10 @@
                 </div>
 
                 <!-- Grade -->
-                <div class="option-group">
-                    <label>Klasse / Stufe</label>
+                <div class="glass-panel" style="padding: 16px;">
+                    <label
+                        style="display: block; margin-bottom: 12px; font-weight: 500; color: var(--text-secondary); font-size: 0.95rem;">Klasse
+                        / Stufe</label>
                     <div class="style-options">
                         @for (g of gradesForType; track g) {
                         <button class="style-btn" [class.active]="grade() === g" (click)="updateGrade(g)">
@@ -276,12 +289,13 @@
         <!-- Save Button -->
         <div class="actions">
             @if (saveSuccess()) {
-            <div class="success-message">✅ Profil gespeichert!</div>
+            <div class="alert-success">✅ Profil gespeichert!</div>
             }
             @if (saveError()) {
-            <div class="error-message">❌ {{ saveError() }}</div>
+            <div class="alert-error">❌ {{ saveError() }}</div>
             }
-            <button class="save-btn" (click)="saveProfile()" [disabled]="saving()">
+            <button class="btn-gradient" (click)="saveProfile()" [disabled]="saving()"
+                style="padding: 16px 48px; font-size: 1.1rem; font-weight: 600;">
                 @if (saving()) {
                 Speichern...
                 } @else {

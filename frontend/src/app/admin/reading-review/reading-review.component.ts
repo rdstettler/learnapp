@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
+import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 
 interface TextSummary {
     id: number;
@@ -46,7 +47,7 @@ interface GeneratedQuestion {
 @Component({
     selector: 'app-reading-review',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, SpinnerComponent],
     templateUrl: './reading-review.component.html',
     styleUrl: './reading-review.component.css'
 })

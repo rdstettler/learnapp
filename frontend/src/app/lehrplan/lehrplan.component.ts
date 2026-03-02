@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { UserService } from '../services/user.service';
+import { SpinnerComponent } from '../shared/components/spinner/spinner.component';
 
 interface CurriculumNode {
     id: number;
@@ -49,7 +50,7 @@ const APP_INFO: Record<string, { name: string; icon: string }> = {
 @Component({
     selector: 'app-lehrplan',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, SpinnerComponent],
     templateUrl: './lehrplan.component.html',
     styleUrl: './lehrplan.component.css'
 })

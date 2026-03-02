@@ -30,7 +30,7 @@
 
             <div class="options-list">
                 @for (composite of currentStem()?.composites; track composite.word) {
-                <div class="option-item" [class.selected]="stage1Selections().has(composite.word)"
+                <div class="quiz-option" [class.selected]="stage1Selections().has(composite.word)"
                     (click)="toggleStage1Selection(composite.word)">
                     <div class="checkbox"></div>
                     <span>{{ composite.word }}</span>
@@ -67,12 +67,13 @@
         @if (screen() === 'stage2') {
         <div class="quiz-content">
             <h2 class="stage-title">Stufe 2: Bedeutungen</h2>
-            <div class="word-badge">{{ currentMeaningWord() }}</div>
+            <div class="badge badge-gradient mb-16" style="font-size: 1.1rem; display: inline-block;">{{
+                currentMeaningWord() }}</div>
             <p class="stage-subtitle">Welche Bedeutungen sind korrekt?</p>
 
             <div class="options-list">
                 @for (meaning of currentMeanings(); track $index) {
-                <div class="option-item" [class.selected]="stage2Selections().has($index)"
+                <div class="quiz-option" [class.selected]="stage2Selections().has($index)"
                     (click)="toggleStage2Selection($index)">
                     <div class="checkbox"></div>
                     <span>{{ meaning.option }}</span>
@@ -103,7 +104,8 @@
         @if (screen() === 'build') {
         <div class="quiz-content">
             <h2 class="stage-title">Wörter bilden</h2>
-            <div class="word-badge">{{ currentStem()?.stem }}</div>
+            <div class="badge badge-gradient mb-16" style="font-size: 1.1rem; display: inline-block;">{{
+                currentStem()?.stem }}</div>
             <p class="stage-subtitle">Welche zusammengesetzten Wörter mit «{{ currentStem()?.stem }}» kennst du?</p>
 
             <div class="build-input-row">
@@ -129,7 +131,7 @@
         <!-- ═══ SATZAUSWAHL MODE ═══ -->
         @if (screen() === 'sentence' || screen() === 'sentence-result') {
         <div class="quiz-content">
-            <div class="progress-bar-container">
+            <div class="progress-container">
                 <div class="progress-info">
                     <span>Frage {{ sentenceIndex() + 1 }} von {{ sentenceQuestions().length }}</span>
                     <span>{{ totalCorrect() }} richtig</span>
@@ -152,7 +154,7 @@
             @if (currentSentenceQ(); as q) {
             <div class="options-list">
                 @for (option of q.options; track option) {
-                <div class="option-item sentence-option" [class]="getSentenceOptionClass(option)"
+                <div class="quiz-option sentence-option" [class]="getSentenceOptionClass(option)"
                     (click)="selectSentenceOption(option)">
                     <div class="radio-dot"></div>
                     <span>{{ option }}</span>
@@ -181,7 +183,7 @@
         <!-- ═══ SCHREIBEN MODE ═══ -->
         @if (screen() === 'write' || screen() === 'write-result') {
         <div class="quiz-content">
-            <div class="progress-bar-container">
+            <div class="progress-container">
                 <div class="progress-info">
                     <span>Frage {{ writeIndex() + 1 }} von {{ writeQuestions().length }}</span>
                     <span>{{ totalCorrect() }} richtig</span>

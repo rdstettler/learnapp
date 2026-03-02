@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { LearningPlan, PlanDay, PlanTask, PlanNotEnoughDataResponse } from '../../shared/models/learning-session.model';
+import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 
 @Component({
     selector: 'app-plan-view',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, SpinnerComponent],
     templateUrl: './plan-view.component.html',
     styleUrl: './plan-view.component.css'
 })

@@ -187,18 +187,3 @@
     justify-content: center;
     z-index: 10;
 }
-
-.loading-spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid rgba(255, 255, 255, 0.2);
-    border-top-color: rgba(255, 255, 255, 0.85);
-    border-radius: 50%;
-    animation: card-spin 0.7s linear infinite;
-}
-
-@keyframes card-spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
