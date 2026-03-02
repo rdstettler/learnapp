@@ -55,58 +55,60 @@
             </div>
 
             @if (question(); as q) {
-            @if (q.operation === 'sqrt') {
-            <span class="operator">√</span>
+            <div class="equation-container">
+                @if (q.operation === 'sqrt') {
+                <span class="operator">√</span>
 
-            @if (q.blankPosition === 1 || q.blankPosition === 0) {
-            <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
-                [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
-                (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
-                inputmode="numeric" />
-            } @else {
-            <span class="equation-part">{{ q.b }}</span>
-            }
-            <span class="operator">=</span>
-            @if (q.blankPosition === 2) {
-            <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
-                [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
-                (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
-                inputmode="numeric" />
-            } @else {
-            <span class="equation-part">{{ q.result }}</span>
-            }
-            } @else {
-            @if (q.blankPosition === 0) {
-            <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
-                [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
-                (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
-                inputmode="numeric" />
-            } @else {
-            <span class="equation-part">{{ q.a }}</span>
-            }
+                @if (q.blankPosition === 1 || q.blankPosition === 0) {
+                <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
+                    [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
+                    (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
+                    inputmode="numeric" />
+                } @else {
+                <span class="equation-part">{{ q.b }}</span>
+                }
+                <span class="operator">=</span>
+                @if (q.blankPosition === 2) {
+                <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
+                    [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
+                    (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
+                    inputmode="numeric" />
+                } @else {
+                <span class="equation-part">{{ q.result }}</span>
+                }
+                } @else {
+                @if (q.blankPosition === 0) {
+                <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
+                    [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
+                    (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
+                    inputmode="numeric" />
+                } @else {
+                <span class="equation-part">{{ q.a }}</span>
+                }
 
-            <span class="operator">{{ getOperatorSymbol() }}</span>
+                <span class="operator">{{ getOperatorSymbol() }}</span>
 
-            @if (q.blankPosition === 1) {
-            <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
-                [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
-                (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
-                inputmode="numeric" />
-            } @else {
-            <span class="equation-part">{{ q.b }}</span>
-            }
+                @if (q.blankPosition === 1) {
+                <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
+                    [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
+                    (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
+                    inputmode="numeric" />
+                } @else {
+                <span class="equation-part">{{ q.b }}</span>
+                }
 
-            <span class="operator">=</span>
+                <span class="operator">=</span>
 
-            @if (q.blankPosition === 2) {
-            <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
-                [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
-                (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
-                inputmode="numeric" />
-            } @else {
-            <span class="equation-part">{{ q.result }}</span>
-            }
-            }
+                @if (q.blankPosition === 2) {
+                <input #inputField type="text" class="equation-blank" [class.correct]="answered() && isCorrect()"
+                    [class.incorrect]="answered() && !isCorrect()" [value]="userAnswer()"
+                    (input)="onInputChange($any($event.target).value)" [disabled]="answered()" autocomplete="off"
+                    inputmode="numeric" />
+                } @else {
+                <span class="equation-part">{{ q.result }}</span>
+                }
+                }
+            </div>
             }
         </div>
 

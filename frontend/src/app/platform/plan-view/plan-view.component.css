@@ -242,28 +242,7 @@
     font-size: 0.95rem;
 }
 
-/* ── Days Selector (Generate) ── */
-.days-selector {
-    margin: 1.5rem 0;
-}
 
-.days-selector label {
-    display: block;
-    margin-bottom: 0.8rem;
-    font-size: 1rem;
-    color: var(--text-secondary, #666);
-}
-
-.day-option {
-    font-size: 0.95rem;
-}
-
-.day-option.selected {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    border-color: transparent;
-    box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
-}
 
 /* ── Empty Day ── */
 .empty-day {

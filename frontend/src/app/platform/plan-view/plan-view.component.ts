@@ -26,8 +26,7 @@ export class PlanViewComponent implements OnInit {
     // Day selector
     selectedDay = signal<number>(1);
 
-    // Days config for the plan generation
-    daysConfig = signal(3);
+
 
     // Generation timer
     generationSeconds = signal(0);
@@ -238,7 +237,7 @@ export class PlanViewComponent implements OnInit {
         }, 1000);
 
         try {
-            const plan = await this.apiService.generateLearningPlan(this.daysConfig());
+            const plan = await this.apiService.generateLearningPlan(3); // Defaulting to 3 days
             this.plan.set(plan);
             this.autoSelectDay(plan);
         } catch (e: unknown) {
@@ -262,9 +261,7 @@ export class PlanViewComponent implements OnInit {
         this.plan.set(null);
     }
 
-    setDaysConfig(days: number): void {
-        this.daysConfig.set(Math.min(Math.max(days, 1), 7));
-    }
+
 
     isGroupComplete(group: { tasks: PlanTask[] }): boolean {
         return group.tasks.length > 0 && group.tasks.every(t => t.completed);

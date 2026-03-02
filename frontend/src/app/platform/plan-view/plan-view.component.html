@@ -129,16 +129,7 @@
         <p>Basierend auf deinen bisherigen Ergebnissen erstellt die KI 🤖 einen strukturierten Lernplan über mehrere
             Tage.</p>
 
-        <div class="days-selector">
-            <label>Wie viele Tage soll der Plan umfassen?</label>
-            <div class="flex jc-center" style="gap: 0.5rem; flex-wrap: wrap;">
-                @for (d of [1, 2, 3, 5, 7]; track d) {
-                <button class="btn-glass day-option" [class.active]="daysConfig() === d" (click)="setDaysConfig(d)">
-                    {{ d }} {{ d === 1 ? 'Tag' : 'Tage' }}
-                </button>
-                }
-            </div>
-        </div>
+
 
         @if (generationError()) {
         <div class="alert-error" style="width: 100%; max-width: 500px; text-align: left;">⚠️ {{ generationError() }}
