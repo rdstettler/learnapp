@@ -31,6 +31,7 @@ export const routes: Routes = [
     { path: 'flaechenfinden', loadComponent: () => import('./apps/flaechenfinden/flaechenfinden.component').then(m => m.FlaechenfindenComponent) },
     { path: 'rechtschreibung', loadComponent: () => import('./apps/rechtschreibung/rechtschreibung.component').then(m => m.RechtschreibungComponent) },
     { path: 'brueche', loadComponent: () => import('./apps/brueche/brueche.component').then(m => m.BruecheComponent) },
+    { path: 'komplexe-abbildung', loadComponent: () => import('./apps/komplexe-abbildung/komplexe-abbildung.component').then(m => m.KomplexeAbbildungComponent) },
     { path: 'admin/text-aufgaben', canActivate: [authGuard], loadComponent: () => import('./admin/text-aufgaben-admin/text-aufgaben-admin.component').then(m => m.TextAufgabenAdminComponent) },
     { path: 'admin/content', canActivate: [authGuard], loadComponent: () => import('./admin/content-editor/content-editor.component').then(m => m.ContentEditorComponent) },
     { path: 'admin/reading-review', canActivate: [authGuard], loadComponent: () => import('./admin/reading-review/reading-review.component').then(m => m.ReadingReviewComponent) },

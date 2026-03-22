@@ -1,0 +1,311 @@
+.transform-app {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.intro-section {
+    margin-bottom: 1.5rem;
+}
+
+.intro-text {
+    color: #aaa;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* ── Function selector ─────────────────────────────────────── */
+
+.function-selector h3 {
+    color: #ddd;
+    font-size: 1rem;
+    margin: 0 0 0.75rem;
+}
+
+.function-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.fn-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #ccc;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 70px;
+}
+
+.fn-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(100, 200, 255, 0.3);
+}
+
+.fn-btn.active {
+    background: rgba(100, 200, 255, 0.15);
+    border-color: rgba(100, 200, 255, 0.6);
+    color: #fff;
+}
+
+.fn-formula {
+    font-family: 'Cambria Math', 'Latin Modern Math', Georgia, serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.fn-name {
+    font-size: 0.7rem;
+    opacity: 0.6;
+}
+
+/* ── Parameters ────────────────────────────────────────────── */
+
+.params-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.params-panel label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #bbb;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.params-panel input[type="range"] {
+    width: 120px;
+    accent-color: #64c8ff;
+}
+
+.param-value {
+    color: #64c8ff;
+    font-family: monospace;
+    min-width: 2.5em;
+    text-align: right;
+}
+
+/* ── Controls bar ──────────────────────────────────────────── */
+
+.controls-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.control-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    color: #ccc;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.control-btn.primary {
+    background: rgba(100, 200, 255, 0.1);
+    border-color: rgba(100, 200, 255, 0.3);
+    color: #64c8ff;
+}
+
+.control-btn.primary:hover {
+    background: rgba(100, 200, 255, 0.2);
+}
+
+.control-btn.accent {
+    background: rgba(0, 200, 100, 0.12);
+    border-color: rgba(0, 200, 100, 0.3);
+    color: #00c864;
+}
+
+.control-btn.accent:hover {
+    background: rgba(0, 200, 100, 0.22);
+}
+
+/* ── Function info bar ─────────────────────────────────────── */
+
+.function-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    background: rgba(100, 200, 255, 0.06);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.formula-display {
+    font-family: 'Cambria Math', 'Latin Modern Math', Georgia, serif;
+    font-size: 1.2rem;
+    color: #64c8ff;
+    font-weight: 600;
+}
+
+.formula-desc {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+/* ── Canvas area ───────────────────────────────────────────── */
+
+.canvas-area {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: nowrap;
+}
+
+.canvas-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.canvas-wrapper h4 {
+    color: #aaa;
+    font-size: 0.85rem;
+    margin: 0 0 0.5rem;
+    font-weight: 500;
+}
+
+.canvas-wrapper canvas {
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 100%;
+    height: auto;
+}
+
+.canvas-overlay {
+    position: absolute;
+    top: 24px; /* account for h4 */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: rgba(26, 26, 46, 0.7);
+    border-radius: 8px;
+    cursor: pointer;
+    color: #888;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.canvas-overlay:hover {
+    background: rgba(26, 26, 46, 0.5);
+    color: #aaa;
+}
+
+.canvas-overlay.processing {
+    cursor: default;
+    color: #64c8ff;
+}
+
+.upload-icon {
+    font-size: 2rem;
+}
+
+.upload-hint {
+    font-size: 0.75rem;
+    opacity: 0.6;
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(100, 200, 255, 0.2);
+    border-top-color: #64c8ff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.image-info {
+    text-align: center;
+    color: #666;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+
+@media (max-width: 700px) {
+    .canvas-area {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .canvas-wrapper {
+        flex: unset;
+        width: 100%;
+    }
+
+    .canvas-wrapper canvas {
+        width: 100%;
+        max-width: 450px;
+    }
+}
+
+@media (max-width: 600px) {
+    .function-grid {
+        gap: 0.35rem;
+    }
+
+    .fn-btn {
+        padding: 0.4rem 0.5rem;
+        min-width: 56px;
+        font-size: 0.8rem;
+    }
+
+    .params-panel {
+        flex-direction: column;
+    }
+
+    .controls-bar {
+        flex-direction: column;
+    }
+
+    .control-btn {
+        justify-content: center;
+    }
+
+    .function-info {
+        flex-direction: column;
+        gap: 0.25rem;
+        text-align: center;
+    }
+}

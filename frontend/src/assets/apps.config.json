@@ -256,6 +256,22 @@
             ]
         },
         {
+            "id": "komplexe-abbildung",
+            "name": "Komplexe Abbildungen",
+            "description": "Lade ein Bild hoch und transformiere es mit komplexen Funktionen wie z², eᶻ, 1/z, sin(z) und mehr!",
+            "category": "Spiele",
+            "route": "/komplexe-abbildung",
+            "icon": "🌀",
+            "tags": [
+                "mathematik",
+                "komplex",
+                "transformation",
+                "funktion",
+                "visualisierung",
+                "bild"
+            ]
+        },
+        {
             "id": "wortarten",
             "name": "Wortarten",
             "description": "Finde alle Nomen, Verben und Adjektive im Text",

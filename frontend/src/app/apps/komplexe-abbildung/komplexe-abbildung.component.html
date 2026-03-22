@@ -1,0 +1,141 @@
+<app-learning-app-layout title="Komplexe Abbildungen" appId="komplexe-abbildung">
+    <div class="transform-app">
+        <!-- Header description -->
+        <div class="intro-section">
+            <p class="intro-text">
+                Lade ein Bild hoch und beobachte, wie komplexe Funktionen es verzerren.
+                Jeder Pixel wird als Punkt in der komplexen Ebene behandelt und durch die gewählte Funktion transformiert.
+            </p>
+        </div>
+
+        <!-- Function selector -->
+        <div class="function-selector">
+            <h3>Funktion wählen</h3>
+            <div class="function-grid">
+                @for (fn of functions; track fn.id) {
+                    <button
+                        class="fn-btn"
+                        [class.active]="selectedFunction() === fn.id"
+                        (click)="selectFunction(fn.id)"
+                        [title]="fn.description"
+                    >
+                        <span class="fn-formula">{{ fn.formula }}</span>
+                        <span class="fn-name">{{ fn.name }}</span>
+                    </button>
+                }
+            </div>
+        </div>
+
+        <!-- Parameters panel -->
+        @if (needsParamN()) {
+            <div class="params-panel">
+                <label>
+                    Exponent n:
+                    <input type="range" min="2" max="8" step="1"
+                        [value]="paramN()"
+                        (input)="paramN.set(+$any($event.target).value); onParamChange()">
+                    <span class="param-value">{{ paramN() }}</span>
+                </label>
+            </div>
+        }
+
+        @if (needsLinearParams()) {
+            <div class="params-panel">
+                <label>
+                    Skalierung |a|:
+                    <input type="range" min="0.1" max="3" step="0.1"
+                        [value]="paramA()"
+                        (input)="paramA.set(+$any($event.target).value); onParamChange()">
+                    <span class="param-value">{{ paramA() }}</span>
+                </label>
+                <label>
+                    Drehwinkel (°):
+                    <input type="range" min="0" max="360" step="5"
+                        [value]="paramAngle()"
+                        (input)="paramAngle.set(+$any($event.target).value); onParamChange()">
+                    <span class="param-value">{{ paramAngle() }}°</span>
+                </label>
+                <label>
+                    Verschiebung b:
+                    <input type="range" min="-3" max="3" step="0.1"
+                        [value]="paramB()"
+                        (input)="paramB.set(+$any($event.target).value); onParamChange()">
+                    <span class="param-value">{{ paramB() }}</span>
+                </label>
+            </div>
+        }
+
+        @if (needsMobiusParams()) {
+            <div class="params-panel">
+                <label>
+                    |a|:
+                    <input type="range" min="0.1" max="3" step="0.1"
+                        [value]="paramA()"
+                        (input)="paramA.set(+$any($event.target).value); onParamChange()">
+                    <span class="param-value">{{ paramA() }}</span>
+                </label>
+                <label>
+                    b:
+                    <input type="range" min="-3" max="3" step="0.1"
+                        [value]="paramB()"
+                        (input)="paramB.set(+$any($event.target).value); onParamChange()">
+                    <span class="param-value">{{ paramB() }}</span>
+                </label>
+            </div>
+        }
+
+        <!-- Image controls -->
+        <div class="controls-bar">
+            <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" style="display: none">
+            <button class="control-btn primary" (click)="triggerFileInput()">
+                📁 Bild hochladen
+            </button>
+            <button class="control-btn" (click)="loadSampleImage()">
+                🎨 Musterbild
+            </button>
+            <button class="control-btn" (click)="toggleAxes()">
+                {{ showAxes() ? '🔲 Achsen aus' : '📐 Achsen ein' }}
+            </button>
+            @if (imageLoaded()) {
+                <button class="control-btn accent" (click)="applyTransform()">
+                    ▶ Transformieren
+                </button>
+            }
+        </div>
+
+        <!-- Current function info -->
+        <div class="function-info">
+            <span class="formula-display">{{ currentFunction().formula }}</span>
+            <span class="formula-desc">{{ currentFunction().description }}</span>
+        </div>
+
+        <!-- Canvas area -->
+        <div class="canvas-area">
+            <div class="canvas-wrapper">
+                <h4>Original</h4>
+                <canvas #sourceCanvas></canvas>
+                @if (!imageLoaded()) {
+                    <div class="canvas-overlay" (click)="triggerFileInput()">
+                        <span class="upload-icon">📤</span>
+                        <span>Klicke um ein Bild hochzuladen</span>
+                        <span class="upload-hint">oder verwende das Musterbild</span>
+                    </div>
+                }
+            </div>
+            <div class="canvas-wrapper">
+                <h4>{{ currentFunction().formula }}</h4>
+                <canvas #resultCanvas></canvas>
+                @if (isProcessing()) {
+                    <div class="canvas-overlay processing">
+                        <span class="spinner"></span>
+                        <span>Transformiere...</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (imageName()) {
+            <p class="image-info">Bild: {{ imageName() }}</p>
+        }
+    </div>
+</app-learning-app-layout>
