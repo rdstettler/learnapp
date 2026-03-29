@@ -256,6 +256,23 @@
             ]
         },
         {
+            "id": "einheitskreis",
+            "name": "Einheitskreis & Dreiecke",
+            "description": "Visualisiere den Einheitskreis mit Sinus, Cosinus, Tangens und komplexen Zahlen – interaktiv mit Dreieck!",
+            "category": "Mathematik",
+            "route": "/einheitskreis",
+            "icon": "⭕",
+            "tags": [
+                "mathematik",
+                "trigonometrie",
+                "einheitskreis",
+                "sinus",
+                "cosinus",
+                "komplex",
+                "euler"
+            ]
+        },
+        {
             "id": "komplexe-abbildung",
             "name": "Komplexe Abbildungen",
             "description": "Lade ein Bild hoch und transformiere es mit komplexen Funktionen wie z², eᶻ, 1/z, sin(z) und mehr!",

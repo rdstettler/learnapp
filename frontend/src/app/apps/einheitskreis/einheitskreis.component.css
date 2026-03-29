@@ -1,0 +1,304 @@
+.unit-circle-app {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* Override global app-container constraint */
+:host ::ng-deep .app-container {
+    max-width: 1500px;
+}
+
+/* ── Controls bar ──────────────────────────────────────────── */
+
+.controls-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.control-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #bbb;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(100, 200, 255, 0.3);
+}
+
+.control-btn.active {
+    background: rgba(100, 200, 255, 0.12);
+    border-color: rgba(100, 200, 255, 0.5);
+    color: #64c8ff;
+}
+
+/* ── Main layout ───────────────────────────────────────────── */
+
+.main-layout {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.canvas-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.canvas-section canvas {
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: crosshair;
+    touch-action: none;
+    max-width: 100%;
+    height: auto;
+}
+
+.drag-hint {
+    color: #555;
+    font-size: 0.78rem;
+    margin: 0.4rem 0 0;
+}
+
+/* ── Plot section ────────────────────────────────────────── */
+
+.plot-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.plot-section canvas {
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    max-width: 100%;
+    height: auto;
+}
+
+/* ── Values panel ──────────────────────────────────────────── */
+
+.values-panel {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.value-section {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+}
+
+.value-section h4 {
+    color: #888;
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 0.5rem;
+}
+
+.angle-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #64c8ff;
+    font-family: 'Cambria Math', Georgia, serif;
+}
+
+.quadrant-badge {
+    display: inline-block;
+    margin-top: 0.35rem;
+    padding: 0.15rem 0.6rem;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+    color: #aaa;
+    font-size: 0.75rem;
+}
+
+.special-badge {
+    display: inline-block;
+    margin-top: 0.35rem;
+    margin-left: 0.35rem;
+    padding: 0.15rem 0.6rem;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+    border-radius: 20px;
+    color: #fbbf24;
+    font-size: 0.75rem;
+}
+
+/* ── Value rows ────────────────────────────────────────────── */
+
+.value-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.value-row:last-child {
+    border-bottom: none;
+}
+
+.value-label {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.value-num {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.9rem;
+    color: #ddd;
+}
+
+.value-exact {
+    font-family: 'Cambria Math', Georgia, serif;
+    font-size: 1rem;
+    color: #fbbf24;
+    font-weight: 600;
+}
+
+/* Color-coded rows */
+.sin-row .value-label { color: #f472b6; }
+.sin-row .value-num   { color: #f472b6; }
+.sin-row .value-exact { color: #f472b6; }
+.cos-row .value-label { color: #4ade80; }
+.cos-row .value-num   { color: #4ade80; }
+.cos-row .value-exact { color: #4ade80; }
+.tan-row .value-label { color: rgba(251, 191, 36, 0.7); }
+.tan-row .value-num   { color: rgba(251, 191, 36, 0.7); }
+.cot-row .value-label { color: rgba(168, 85, 247, 0.65); }
+.cot-row .value-num   { color: rgba(168, 85, 247, 0.65); }
+.re-row .value-label  { color: #38bdf8; }
+.re-row .value-num    { color: #38bdf8; }
+.im-row .value-label  { color: #c084fc; }
+.im-row .value-num    { color: #c084fc; }
+
+/* ── Identities ────────────────────────────────────────────── */
+
+.identities {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.identity {
+    font-family: 'Cambria Math', Georgia, serif;
+    color: #777;
+    font-size: 0.85rem;
+    padding: 0.15rem 0;
+}
+
+/* ── Euler formula ─────────────────────────────────────────── */
+
+.euler-formula {
+    font-family: 'Cambria Math', Georgia, serif;
+    font-size: 1.1rem;
+    color: #c084fc;
+    margin-bottom: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    background: rgba(192, 132, 252, 0.06);
+    border-radius: 6px;
+    text-align: center;
+}
+
+/* ── Special angles bar ────────────────────────────────────── */
+
+.special-angles-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 1rem;
+    padding: 0.6rem 0.8rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+}
+
+.bar-label {
+    color: #666;
+    font-size: 0.78rem;
+    margin-right: 0.3rem;
+}
+
+.special-btn {
+    padding: 0.25rem 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    color: #888;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.special-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ccc;
+}
+
+.special-btn.active {
+    background: rgba(251, 191, 36, 0.12);
+    border-color: rgba(251, 191, 36, 0.4);
+    color: #fbbf24;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+
+@media (max-width: 1050px) {
+    .main-layout {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .canvas-section canvas {
+        width: 100%;
+        max-width: 450px;
+    }
+
+    .plot-section canvas {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .values-panel {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .controls-bar {
+        gap: 0.35rem;
+    }
+
+    .control-btn {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    .special-angles-bar {
+        gap: 0.2rem;
+    }
+
+    .special-btn {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.7rem;
+    }
+}
