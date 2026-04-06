@@ -303,6 +303,34 @@
                 "verben",
                 "adjektive"
             ]
+        },
+        {
+            "id": "vektoren",
+            "name": "Vektoren",
+            "description": "Lerne und übe Vektorrechnung in 2D",
+            "category": "Mathematik",
+            "route": "/vektoren",
+            "icon": "↗️",
+            "tags": [
+                "mathematik",
+                "vektoren",
+                "geometrie",
+                "2d"
+            ]
+        },
+        {
+            "id": "funktionen",
+            "name": "Funktionen",
+            "description": "Zeichne und bestimme mathematische Funktionen",
+            "category": "Mathematik",
+            "route": "/funktionen",
+            "icon": "📈",
+            "tags": [
+                "mathematik",
+                "funktionen",
+                "graphen",
+                "algebra"
+            ]
         }
     ]
 }

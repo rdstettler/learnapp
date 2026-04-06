@@ -1,0 +1,114 @@
+<div class="math-chart-container" [class.interactive]="interactiveMode !== 'none'">
+  <svg #svgElement 
+       [attr.viewBox]="viewBox" 
+       preserveAspectRatio="xMidYMid meet"
+       class="math-svg">
+    
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5"
+          markerWidth="6" markerHeight="6"
+          orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+      </marker>
+      <!-- We can color markers by referencing colored markers, but let's keep it simple -->
+    </defs>
+
+    <!-- Scale group so math y-up is rendered correctly in svg y-down -->
+    <g transform="scale(1, -1)">
+      
+      <!-- Grid -->
+      <g class="grid" *ngIf="showGrid">
+        <!-- Vertical lines -->
+        <g class="grid-vertical">
+          <line *ngFor="let x of gridLinesX" 
+                [attr.x1]="x" [attr.y1]="domainY[0]" 
+                [attr.x2]="x" [attr.y2]="domainY[1]" 
+                [class.axis]="x === 0" />
+        </g>
+        
+        <!-- Horizontal lines -->
+        <g class="grid-horizontal">
+          <line *ngFor="let y of gridLinesY" 
+                [attr.x1]="domainX[0]" [attr.y1]="y" 
+                [attr.x2]="domainX[1]" [attr.y2]="y" 
+                [class.axis]="y === 0" />
+        </g>
+      </g>
+
+      <!-- Functions/Curves -->
+      <g class="functions">
+        <path *ngFor="let fn of functions" 
+              [attr.d]="fn.path" 
+              [attr.stroke]="fn.color || '#3b82f6'" 
+              [attr.stroke-width]="fn.thickness || 3" 
+              fill="none" 
+              vector-effect="non-scaling-stroke" />
+      </g>
+
+      <!-- Given Vectors -->
+      <g class="vectors">
+        <g *ngFor="let v of vectors" [style.color]="v.color || '#10b981'">
+          <line [attr.x1]="v.start[0]" [attr.y1]="v.start[1]" 
+                [attr.x2]="v.end[0]" [attr.y2]="v.end[1]" 
+                stroke="currentColor" 
+                [attr.stroke-width]="v.thickness || 3" 
+                marker-end="url(#arrow)" 
+                vector-effect="non-scaling-stroke" />
+          
+          <!-- Vector Label -->
+          <text *ngIf="v.label" 
+                [attr.x]="(v.start[0] + v.end[0]) / 2 + 0.2" 
+                [attr.y]="-((v.start[1] + v.end[1]) / 2 + 0.2)" 
+                transform="scale(1, -1)"
+                class="vector-label" 
+                fill="currentColor">{{ v.label }}</text>
+        </g>
+      </g>
+
+      <!-- Points -->
+      <g class="points">
+        <g *ngFor="let p of points" 
+           [style.color]="p.color || '#ef4444'"
+           [class.draggable]="interactiveMode === 'drag-points' && p.draggable"
+           (mousedown)="onPointMouseDown($event, p)"
+           (touchstart)="onPointMouseDown($event, p)">
+          
+          <circle *ngIf="!p.type || p.type === 'circle'" 
+                  [attr.cx]="p.x" [attr.cy]="p.y" 
+                  r="0.2" 
+                  fill="currentColor" />
+                  
+          <path *ngIf="p.type === 'cross'" 
+                [attr.d]="'M ' + (p.x-0.2) + ' ' + (p.y-0.2) + ' L ' + (p.x+0.2) + ' ' + (p.y+0.2) + ' M ' + (p.x-0.2) + ' ' + (p.y+0.2) + ' L ' + (p.x+0.2) + ' ' + (p.y-0.2)"
+                stroke="currentColor" stroke-width="2" vector-effect="non-scaling-stroke" />
+        </g>
+      </g>
+
+      <!-- Active Drawing Vector -->
+      <g class="drawing-vector" *ngIf="activeVectorStart && activeVectorEnd" style="color: #6366f1">
+        <line [attr.x1]="activeVectorStart[0]" [attr.y1]="activeVectorStart[1]"
+              [attr.x2]="activeVectorEnd[0]" [attr.y2]="activeVectorEnd[1]"
+              stroke="currentColor" stroke-width="2" stroke-dasharray="4"
+              marker-end="url(#arrow)" vector-effect="non-scaling-stroke" />
+      </g>
+
+      <!-- Tick Labels (Numbers on axes) -->
+      <g class="tick-labels" *ngIf="showGrid" transform="scale(1, -1)">
+        <!-- X Axis labels -->
+        <text *ngFor="let x of gridLinesX" 
+              [attr.x]="x" 
+              [attr.y]="0.5" 
+              class="axis-label x-axis-label">{{ x !== 0 ? x : '' }}</text>
+              
+        <!-- Y Axis labels -->
+        <text *ngFor="let y of gridLinesY" 
+              [attr.x]="-0.2" 
+              [attr.y]="-y" 
+              class="axis-label y-axis-label">{{ y !== 0 ? y : '' }}</text>
+              
+        <!-- Origin (0) -->
+        <text x="-0.2" y="0.5" class="axis-label origin-label">0</text>
+      </g>
+    </g>
+  </svg>
+</div>

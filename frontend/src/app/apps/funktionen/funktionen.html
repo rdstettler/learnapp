@@ -1,0 +1,248 @@
+<app-learning-app-layout title="Funktionen" appId="funktionen">
+
+  <div class="card">
+    
+    <!-- Intro State -->
+    @if (state() === 'intro') {
+    <div class="welcome-container">
+      <h2 class="mb-24">Wähle einen Modus</h2>
+      <div class="mb-24">
+        <app-mode-selector [modes]="modes" [(mode)]="mode"></app-mode-selector>
+      </div>
+
+      <h2 class="mb-16">Welcher Funktionstyp?</h2>
+      <div class="flex-row jc-center flex-gap-20" style="flex-wrap: wrap; max-width: 600px; margin: 0 auto;">
+        <button [class.btn-primary]="funktionType() === 'linear'" [class.btn-secondary]="funktionType() !== 'linear'"
+                class="btn" style="max-width: 200px; min-width: 140px;"
+                (click)="funktionType.set('linear')">Linear</button>
+        <button [class.btn-primary]="funktionType() === 'quadratisch'" [class.btn-secondary]="funktionType() !== 'quadratisch'"
+                class="btn" style="max-width: 200px; min-width: 140px;"
+                (click)="funktionType.set('quadratisch')">Quadratisch</button>
+        <button [class.btn-primary]="funktionType() === 'kubisch'" [class.btn-secondary]="funktionType() !== 'kubisch'"
+                class="btn" style="max-width: 200px; min-width: 140px;"
+                (click)="funktionType.set('kubisch')">Kubisch</button>
+        <button [class.btn-primary]="funktionType() === 'sin'" [class.btn-secondary]="funktionType() !== 'sin'"
+                class="btn" style="max-width: 200px; min-width: 140px;"
+                (click)="funktionType.set('sin')">Sinus</button>
+        <button [class.btn-primary]="funktionType() === 'cos'" [class.btn-secondary]="funktionType() !== 'cos'"
+                class="btn" style="max-width: 200px; min-width: 140px;"
+                (click)="funktionType.set('cos')">Cosinus</button>
+        <button [class.btn-primary]="funktionType() === 'exp'" [class.btn-secondary]="funktionType() !== 'exp'"
+                class="btn" style="max-width: 200px; min-width: 140px;"
+                (click)="funktionType.set('exp')">Exponential</button>
+        <button [class.btn-primary]="funktionType() === 'ln'" [class.btn-secondary]="funktionType() !== 'ln'"
+                class="btn" style="max-width: 200px; min-width: 140px;"
+                (click)="funktionType.set('ln')">Logarithmus</button>
+      </div>
+
+      <button (click)="startQuiz(funktionType())" class="btn btn-primary" style="margin-top: 40px; max-width: 300px;">
+        Starten!
+      </button>
+    </div>
+    }
+
+    <!-- Play/Feedback State -->
+    @if (state() !== 'intro') {
+    <div class="quiz-content" style="align-items: center;">
+      
+      <!-- Task Header -->
+      <h2 class="stage-title" style="text-align: center;">
+          <ng-container *ngIf="mode() === 'zeichnen'">
+            Finde die Parameter für den Ziel-Graphen:
+            
+            <ng-container *ngIf="zeichnenModus() === 'sliders'">
+              <b *ngIf="funktionType() === 'linear'" style="display: block; margin-top: 10px; font-size: 1.3rem;">f(x) = ax + b</b>
+              
+              <b *ngIf="funktionType() === 'quadratisch' && quadForm() === 'vertex'" style="display: block; margin-top: 10px; font-size: 1.3rem;">f(x) = (x - a)² + b</b>
+              <b *ngIf="funktionType() === 'quadratisch' && quadForm() === 'factored'" style="display: block; margin-top: 10px; font-size: 1.3rem;">f(x) = a(x - b)(x - c)</b>
+              <b *ngIf="funktionType() === 'quadratisch' && quadForm() === 'standard'" style="display: block; margin-top: 10px; font-size: 1.3rem;">f(x) = ax² + bx + c</b>
+
+              <b *ngIf="funktionType() === 'kubisch'" style="display: block; margin-top: 10px; font-size: 1.3rem;">f(x) = a(x - b)(x - c)(x - d)</b>
+              <b *ngIf="funktionType() === 'sin'" style="display: block; margin-top: 10px; font-size: 1.3rem;">f(x) = a * sin(bx + c) + d</b>
+              <b *ngIf="funktionType() === 'cos'" style="display: block; margin-top: 10px; font-size: 1.3rem;">f(x) = a * cos(bx + c) + d</b>
+              <b *ngIf="funktionType() === 'exp'" style="display: block; margin-top: 10px; font-size: 1.3rem;">f(x) = a * e^(bx) + c</b>
+              <b *ngIf="funktionType() === 'ln'" style="display: block; margin-top: 10px; font-size: 1.3rem;">f(x) = a * ln(x) + b</b>
+            </ng-container>
+
+            <ng-container *ngIf="zeichnenModus() === 'handles'">
+              <b *ngIf="funktionType() === 'linear'" style="display: block; margin-top: 10px; font-size: 1.3rem;">f(x) = {{targetA() !== 1 ? targetA() : ''}}x {{targetB() >= 0 ? '+' : '-'}} {{abs(targetB())}}</b>
+              
+              <b *ngIf="funktionType() === 'quadratisch' && quadForm() === 'vertex'" style="display: block; margin-top: 10px; font-size: 1.3rem;">f(x) = (x {{targetA() >= 0 ? '-' : '+'}} {{abs(targetA())}})² {{targetB() >= 0 ? '+' : '-'}} {{abs(targetB())}}</b>
+              <b *ngIf="funktionType() === 'quadratisch' && quadForm() === 'factored'" style="display: block; margin-top: 10px; font-size: 1.3rem;">f(x) = {{targetA() !== 1 ? targetA() : ''}}(x {{targetB() >= 0 ? '-' : '+'}} {{abs(targetB())}})(x {{targetC() >= 0 ? '-' : '+'}} {{abs(targetC())}})</b>
+              <b *ngIf="funktionType() === 'quadratisch' && quadForm() === 'standard'" style="display: block; margin-top: 10px; font-size: 1.3rem;">f(x) = {{targetA() !== 1 ? targetA() : ''}}x² {{targetB() >= 0 ? '+' : '-'}} {{abs(targetB())}}x {{targetC() >= 0 ? '+' : '-'}} {{abs(targetC())}}</b>
+            </ng-container>
+
+          </ng-container>
+          <ng-container *ngIf="mode() === 'ablesen'">
+            Bestimme die Funktionsgleichung dieses Graphen:
+          </ng-container>
+      </h2>
+
+      <!-- Chart area -->
+      <div class="glass-panel" style="width: 100%; max-width: 800px; aspect-ratio: 16/9; margin: 20px 0; padding: 10px;">
+         <app-math-chart 
+            [domainX]="[-8, 8]"
+            [domainY]="[-6, 6]"
+            [functions]="chartFunctions()"
+            [points]="mode() === 'zeichnen' ? activePoints() : []"
+            [interactiveMode]="chartInteractive()"
+            (pointDragged)="onPointDragged($event)"
+            style="width: 100%; height: 100%; display: block;">
+         </app-math-chart>
+      </div>
+
+      <!-- Controls & Inputs below chart -->
+      <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 20px;">
+        
+        <!-- Toggle for Zeichnen method -->
+        @if (mode() === 'zeichnen' && state() === 'play') {
+          <div class="flex-row ai-center flex-gap-10">
+             <label style="font-weight: bold; color: var(--text-secondary);">Methodik:</label>
+             <select [(ngModel)]="zeichnenModus" class="card" style="padding: 5px; font-size: 1rem; background: var(--glass-bg); color: var(--text-primary); border: 1px solid var(--border-color); cursor: pointer;">
+                <option value="sliders">Schieberegler</option>
+                <option value="handles" *ngIf="funktionType() === 'linear' || funktionType() === 'quadratisch'">Punkte verschieben</option>
+             </select>
+          </div>
+        }
+
+        <!-- SLIDER CONTROLS FOR ZEICHNEN MODE -->
+        @if (mode() === 'zeichnen' && zeichnenModus() === 'sliders' && state() !== 'intro') {
+           <div class="flex-column" style="gap: 15px; width: 100%; max-width: 600px;">
+              <div class="flex-row ai-center" style="gap: 10px;">
+                 <label style="width: 30px; font-weight: bold; text-align: right;">a:</label>
+                 <input type="range" [(ngModel)]="sliderA" [disabled]="state() === 'feedback'" min="-5" max="5" step="0.25" style="flex: 1;">
+                 <span style="width: 40px; text-align: right;">{{sliderA()}}</span>
+              </div>
+              <div class="flex-row ai-center" style="gap: 10px;">
+                 <label style="width: 30px; font-weight: bold; text-align: right;">b:</label>
+                 <input type="range" [(ngModel)]="sliderB" [disabled]="state() === 'feedback'" min="-5" max="5" step="0.25" style="flex: 1;">
+                 <span style="width: 40px; text-align: right;">{{sliderB()}}</span>
+              </div>
+              @if (funktionType() !== 'linear' && funktionType() !== 'ln') {
+                <div class="flex-row ai-center" style="gap: 10px;">
+                   <label style="width: 30px; font-weight: bold; text-align: right;">c:</label>
+                   <input type="range" [(ngModel)]="sliderC" [disabled]="state() === 'feedback'" min="-5" max="5" step="0.25" style="flex: 1;">
+                   <span style="width: 40px; text-align: right;">{{sliderC()}}</span>
+                </div>
+              }
+              @if (funktionType() === 'kubisch' || funktionType() === 'sin' || funktionType() === 'cos') {
+                <div class="flex-row ai-center" style="gap: 10px;">
+                   <label style="width: 30px; font-weight: bold; text-align: right;">d:</label>
+                   <input type="range" [(ngModel)]="sliderD" [disabled]="state() === 'feedback'" min="-5" max="5" step="0.25" style="flex: 1;">
+                   <span style="width: 40px; text-align: right;">{{sliderD()}}</span>
+                </div>
+              }
+           </div>
+        }
+
+        <!-- Input section for 'ablesen' Linear -->
+        @if (mode() === 'ablesen' && funktionType() === 'linear') {
+        <div class="flex-row ai-center flex-gap-10" style="font-size: 1.2rem; font-weight: bold;">
+          <span>f(x) = </span>
+          <input type="number" [(ngModel)]="inputM" [disabled]="state() === 'feedback'" placeholder="m"
+                 style="width: 60px; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--glass-bg); color: white; font-size: 1.1rem;">
+          <span>x + </span>
+          <input type="number" [(ngModel)]="inputQ" [disabled]="state() === 'feedback'" placeholder="q"
+                 style="width: 60px; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--glass-bg); color: white; font-size: 1.1rem;">
+        </div>
+        }
+
+        <!-- Input section for 'ablesen' Quadratisch -->
+        @if (mode() === 'ablesen' && funktionType() === 'quadratisch') {
+          <div class="flex-row ai-center flex-gap-10" style="font-size: 1.2rem; font-weight: bold; flex-wrap: wrap; justify-content: center;">
+            @if (quadForm() === 'vertex') {
+              <span>f(x) = (x - </span>
+              <input type="number" [(ngModel)]="inputA" [disabled]="state() === 'feedback'" placeholder="a"
+                     style="width: 60px; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--glass-bg); color: white; font-size: 1.1rem;">
+              <span>)² + </span>
+              <input type="number" [(ngModel)]="inputB" [disabled]="state() === 'feedback'" placeholder="b"
+                     style="width: 60px; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--glass-bg); color: white; font-size: 1.1rem;">
+            }
+            @if (quadForm() === 'factored') {
+              <span>f(x) = </span>
+              <input type="number" [(ngModel)]="inputA" [disabled]="state() === 'feedback'" placeholder="a"
+                     style="width: 60px; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--glass-bg); color: white; font-size: 1.1rem;">
+              <span>(x - </span>
+              <input type="number" [(ngModel)]="inputB" [disabled]="state() === 'feedback'" placeholder="b"
+                     style="width: 60px; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--glass-bg); color: white; font-size: 1.1rem;">
+              <span>)(x - </span>
+              <input type="number" [(ngModel)]="inputC" [disabled]="state() === 'feedback'" placeholder="c"
+                     style="width: 60px; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--glass-bg); color: white; font-size: 1.1rem;">
+              <span>)</span>
+            }
+            @if (quadForm() === 'standard') {
+              <span>f(x) = </span>
+              <input type="number" [(ngModel)]="inputA" [disabled]="state() === 'feedback'" placeholder="a"
+                     style="width: 60px; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--glass-bg); color: white; font-size: 1.1rem;">
+              <span>x² + </span>
+              <input type="number" [(ngModel)]="inputB" [disabled]="state() === 'feedback'" placeholder="b"
+                     style="width: 60px; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--glass-bg); color: white; font-size: 1.1rem;">
+              <span>x + </span>
+              <input type="number" [(ngModel)]="inputC" [disabled]="state() === 'feedback'" placeholder="c"
+                     style="width: 60px; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--glass-bg); color: white; font-size: 1.1rem;">
+            }
+          </div>
+        }
+
+        <!-- Advanced ablesen inputs -->
+        @if (mode() === 'ablesen' && (funktionType() === 'kubisch' || funktionType() === 'sin' || funktionType() === 'cos' || funktionType() === 'exp' || funktionType() === 'ln')) {
+          <div class="flex-row ai-center flex-gap-10" style="font-size: 1.2rem; font-weight: bold; flex-wrap: wrap; justify-content: center;">
+            <span>f(x) = </span>
+            
+            @if (funktionType() === 'kubisch') {
+              <input type="number" [(ngModel)]="inputA" [disabled]="state() === 'feedback'" placeholder="a" class="math-input">
+              <span>(x - </span><input type="number" [(ngModel)]="inputB" [disabled]="state() === 'feedback'" placeholder="b" class="math-input">
+              <span>)(x - </span><input type="number" [(ngModel)]="inputC" [disabled]="state() === 'feedback'" placeholder="c" class="math-input">
+              <span>)(x - </span><input type="number" [(ngModel)]="inputD" [disabled]="state() === 'feedback'" placeholder="d" class="math-input"><span>)</span>
+            } 
+            @if (funktionType() === 'sin' || funktionType() === 'cos') {
+              <input type="number" [(ngModel)]="inputA" [disabled]="state() === 'feedback'" placeholder="a" class="math-input">
+              <span>* {{funktionType()}}(</span><input type="number" [(ngModel)]="inputB" [disabled]="state() === 'feedback'" placeholder="b" class="math-input">
+              <span>x + </span><input type="number" [(ngModel)]="inputC" [disabled]="state() === 'feedback'" placeholder="c" class="math-input">
+              <span>) + </span><input type="number" [(ngModel)]="inputD" [disabled]="state() === 'feedback'" placeholder="d" class="math-input">
+            }
+            @if (funktionType() === 'exp') {
+              <input type="number" [(ngModel)]="inputA" [disabled]="state() === 'feedback'" placeholder="a" class="math-input">
+              <span>* e^(</span><input type="number" [(ngModel)]="inputB" [disabled]="state() === 'feedback'" placeholder="b" class="math-input">
+              <span>x) + </span><input type="number" [(ngModel)]="inputC" [disabled]="state() === 'feedback'" placeholder="c" class="math-input">
+            }
+            @if (funktionType() === 'ln') {
+              <input type="number" [(ngModel)]="inputA" [disabled]="state() === 'feedback'" placeholder="a" class="math-input">
+              <span>* ln(x) + </span><input type="number" [(ngModel)]="inputB" [disabled]="state() === 'feedback'" placeholder="c" class="math-input">
+            }
+          </div>
+        }
+
+        @if (state() === 'play') {
+          <div class="flex flex-gap-10">
+            <button (click)="restart()" class="btn btn-secondary" style="max-width: 200px; font-size: 1.1rem;">
+              Zurück
+            </button>
+            <button (click)="checkAnswer()" class="btn btn-primary" style="max-width: 300px; font-size: 1.1rem;">
+              Prüfen
+            </button>
+          </div>
+        }
+
+        @if (state() === 'feedback') {
+          <div class="feedback" [class.correct]="feedbackCorrect()" [class.incorrect]="!feedbackCorrect()" style="width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 15px;">
+            <div style="font-size: 1.2rem; white-space: pre-wrap;">
+              <span>{{ feedbackCorrect() ? '✓' : '✗' }}</span>
+              {{ feedbackMsg() }}
+            </div>
+            <div class="flex flex-gap-10">
+              <button (click)="restart()" class="btn btn-secondary">
+                Zurück
+              </button>
+              <button (click)="nextQuestion()" class="btn btn-primary" [class.btn-secondary]="!feedbackCorrect()">
+                Weiter
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+      
+    </div>
+    }
+  </div>
+</app-learning-app-layout>

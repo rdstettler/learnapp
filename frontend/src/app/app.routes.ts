@@ -33,6 +33,8 @@ export const routes: Routes = [
     { path: 'brueche', loadComponent: () => import('./apps/brueche/brueche.component').then(m => m.BruecheComponent) },
     { path: 'komplexe-abbildung', loadComponent: () => import('./apps/komplexe-abbildung/komplexe-abbildung.component').then(m => m.KomplexeAbbildungComponent) },
     { path: 'einheitskreis', loadComponent: () => import('./apps/einheitskreis/einheitskreis.component').then(m => m.EinheitskreisComponent) },
+    { path: 'vektoren', loadComponent: () => import('./apps/vektoren/vektoren').then(m => m.VektorenComponent) },
+    { path: 'funktionen', loadComponent: () => import('./apps/funktionen/funktionen').then(m => m.FunktionenComponent) },
     { path: 'admin/text-aufgaben', canActivate: [authGuard], loadComponent: () => import('./admin/text-aufgaben-admin/text-aufgaben-admin.component').then(m => m.TextAufgabenAdminComponent) },
     { path: 'admin/content', canActivate: [authGuard], loadComponent: () => import('./admin/content-editor/content-editor.component').then(m => m.ContentEditorComponent) },
     { path: 'admin/reading-review', canActivate: [authGuard], loadComponent: () => import('./admin/reading-review/reading-review.component').then(m => m.ReadingReviewComponent) },

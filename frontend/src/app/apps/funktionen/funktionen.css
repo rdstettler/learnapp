@@ -1,0 +1,10 @@
+.math-input {
+  width: 60px;
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--glass-bg);
+  color: white;
+  font-size: 1.1rem;
+}

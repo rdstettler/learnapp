@@ -1,0 +1,109 @@
+<app-learning-app-layout title="Vektoren" appId="vektoren">
+
+  <div class="card">
+    
+    <!-- Intro State -->
+    @if (state() === 'intro') {
+    <div class="welcome-container">
+      <h2 class="mb-24">Wähle einen Modus</h2>
+      
+      <app-mode-selector [modes]="modes" [(mode)]="mode"></app-mode-selector>
+
+      <button (click)="startQuiz()" class="btn btn-primary" style="margin-top: 30px; max-width: 300px;">
+        Starten!
+      </button>
+    </div>
+    }
+
+    <!-- Play/Feedback State -->
+    @if (state() !== 'intro') {
+    <div class="quiz-content" style="align-items: center;">
+      
+      <!-- Task Header -->
+      <h2 class="stage-title" style="text-align: center;">
+          <ng-container [ngSwitch]="mode()">
+            <span *ngSwitchCase="'zeichnen'">Zeichne den Vektor: <b>v = ({{targetVector()[0]}}, {{targetVector()[1]}})</b></span>
+            <span *ngSwitchCase="'ablesen'">Wie lauten die Koordinaten dieses Vektors?</span>
+            <ng-container *ngSwitchCase="'rechnen'">
+              @if (rechnenType() === 'addition') {
+                <span>Zeichne die Summe der beiden Vektoren (a + b).</span>
+              } @else {
+                <span>Zeichne den Vektor: <b>{{scalar()}} &middot; v</b></span>
+              }
+            </ng-container>
+            <span *ngSwitchCase="'laenge'">Berechne die Länge des Vektors.</span>
+          </ng-container>
+      </h2>
+
+      <!-- Chart area -->
+      <div class="glass-panel" style="width: 100%; max-width: 800px; aspect-ratio: 1/1; margin: 20px 0; padding: 10px;">
+         <app-math-chart 
+            [domainX]="[-8, 8]"
+            [domainY]="[-6, 6]"
+            [vectors]="chartVectors()"
+            [interactiveMode]="chartInteractive()"
+            (vectorDrawn)="onVectorDrawn($event)"
+            style="width: 100%; height: 100%; display: block;">
+         </app-math-chart>
+      </div>
+
+      <!-- Controls & Inputs below chart -->
+      <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 20px;">
+        
+        <!-- Input section for 'ablesen' -->
+        @if (mode() === 'ablesen') {
+        <div class="flex-row ai-center flex-gap-10" style="font-size: 1.2rem; font-weight: bold;">
+          <span>v = </span>
+          <div class="flex-column flex-gap-10">
+            <input type="number" [(ngModel)]="inputX" [disabled]="state() === 'feedback'" placeholder="x"
+                   style="width: 80px; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--glass-bg); color: white; font-size: 1.1rem;">
+            <input type="number" [(ngModel)]="inputY" [disabled]="state() === 'feedback'" placeholder="y"
+                   style="width: 80px; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--glass-bg); color: white; font-size: 1.1rem;">
+          </div>
+        </div>
+        }
+
+        <!-- Input section for 'laenge' -->
+        @if (mode() === 'laenge') {
+        <div class="flex-row ai-center flex-gap-10" style="font-size: 1.2rem; font-weight: bold;">
+          <span>|v| = </span>
+          <input type="text" [(ngModel)]="inputLength" [disabled]="state() === 'feedback'" placeholder="Länge"
+                 style="width: 100px; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--glass-bg); color: white; font-size: 1.1rem;">
+        </div>
+        }
+
+        @if (state() === 'play') {
+          <div class="flex flex-gap-10">
+            <button (click)="restart()" class="btn btn-secondary" style="max-width: 200px; font-size: 1.1rem;">
+              Zurück
+            </button>
+            <button (click)="checkAnswer()" 
+              [disabled]="(mode() === 'zeichnen' || mode() === 'rechnen') ? !drawnVector() : false"
+              class="btn btn-primary" style="max-width: 300px; font-size: 1.1rem;">
+              Prüfen
+            </button>
+          </div>
+        }
+
+        @if (state() === 'feedback') {
+          <div class="feedback" [class.correct]="feedbackCorrect()" [class.incorrect]="!feedbackCorrect()" style="width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 15px;">
+            <div style="font-size: 1.2rem; white-space: pre-wrap;">
+              <span>{{ feedbackCorrect() ? '✓' : '✗' }}</span>
+              {{ feedbackMsg() }}
+            </div>
+            <div class="flex flex-gap-10">
+              <button (click)="restart()" class="btn btn-secondary">
+                Zurück
+              </button>
+              <button (click)="nextQuestion()" class="btn btn-primary" [class.btn-secondary]="!feedbackCorrect()">
+                Weiter
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+      
+    </div>
+    }
+  </div>
+</app-learning-app-layout>

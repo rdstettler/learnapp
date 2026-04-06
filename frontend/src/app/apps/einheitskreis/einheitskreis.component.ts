@@ -86,10 +86,7 @@ export class EinheitskreisComponent implements AfterViewInit, OnDestroy {
     sinVal = computed(() => Math.sin(this.angle()));
     cosVal = computed(() => Math.cos(this.angle()));
     tanVal = computed(() => Math.tan(this.angle()));
-    cotVal = computed(() => {
-        const t = Math.tan(this.angle());
-        return Math.abs(t) < 1e-10 ? Infinity : 1 / t;
-    });
+    cotVal = computed(() => Math.cos(this.angle()) / Math.sin(this.angle()));
 
     quadrant = computed(() => {
         const d = this.angleDeg();
@@ -655,12 +652,14 @@ export class EinheitskreisComponent implements AfterViewInit, OnDestroy {
     }
 
     formatNum(n: number): string {
-        if (!isFinite(n)) return '—';
+        if (!isFinite(n) || Math.abs(n) > 1e10) return n > 0 ? '∞' : '-∞';
+        if (Math.abs(n) < 1e-10) return '0.0000';
         return n.toFixed(4);
     }
 
     formatShort(n: number): string {
-        if (!isFinite(n)) return '—';
+        if (!isFinite(n) || Math.abs(n) > 1e10) return n > 0 ? '∞' : '-∞';
+        if (Math.abs(n) < 1e-10) return '0.00';
         return n.toFixed(2);
     }
 

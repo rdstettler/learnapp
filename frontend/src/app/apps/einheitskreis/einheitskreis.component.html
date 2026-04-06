@@ -10,9 +10,9 @@
                 {{ viewMode() === 'trig' ? '📐 Trigonometrie' : 'ℂ Komplex' }}
             </button>
             @if (viewMode() === 'trig') {
-                <button class="control-btn" [class.active]="showTanCot()" (click)="toggleTanCot()">
-                    {{ showTanCot() ? '📏 tan/cot aus' : '📏 tan/cot ein' }}
-                </button>
+            <button class="control-btn" [class.active]="showTanCot()" (click)="toggleTanCot()">
+                {{ showTanCot() ? '📏 tan/cot aus' : '📏 tan/cot ein' }}
+            </button>
             }
             <button class="control-btn" [class.active]="useDegrees()" (click)="toggleDegrees()">
                 {{ useDegrees() ? '°→rad' : 'rad→°' }}
@@ -26,15 +26,10 @@
         <div class="main-layout">
             <!-- Canvas -->
             <div class="canvas-section">
-                <canvas
-                    #circleCanvas
-                    (pointerdown)="onPointerDown($event)"
-                    (pointermove)="onPointerMove($event)"
-                    (pointerup)="onPointerUp()"
-                    (pointerleave)="onPointerUp()"
-                ></canvas>
+                <canvas #circleCanvas (pointerdown)="onPointerDown($event)" (pointermove)="onPointerMove($event)"
+                    (pointerup)="onPointerUp()" (pointerleave)="onPointerUp()"></canvas>
                 @if (!autoMode()) {
-                    <p class="drag-hint">Ziehe den Punkt auf dem Kreis</p>
+                <p class="drag-hint">Ziehe den Punkt auf dem Kreis</p>
                 }
             </div>
 
@@ -50,83 +45,82 @@
                     <h4>Winkel θ</h4>
                     <div class="angle-value">{{ angleDisplay() }}</div>
                     <div class="quadrant-badge">Quadrant {{ quadrant() }}</div>
-                    @if (!autoMode()) {
-                        <div class="special-badge" [style.visibility]="specialAngle() ? 'visible' : 'hidden'">Spezialwinkel {{ specialAngle()?.deg ?? 0 }}°</div>
-                    }
                 </div>
 
                 @if (viewMode() === 'trig') {
-                    <!-- Trig values -->
-                    <div class="value-section">
-                        <h4>Trigonometrische Werte</h4>
-                        <div class="value-row sin-row">
-                            <span class="value-label">sin θ</span>
-                            <span class="value-num">{{ formatNum(sinVal()) }}</span>
-                        </div>
-                        <div class="value-row cos-row">
-                            <span class="value-label">cos θ</span>
-                            <span class="value-num">{{ formatNum(cosVal()) }}</span>
-                        </div>
-                        <div class="value-row tan-row">
-                            <span class="value-label">tan θ</span>
-                            <span class="value-num">{{ formatNum(tanVal()) }}</span>
-                        </div>
-                        <div class="value-row cot-row">
-                            <span class="value-label">cot θ</span>
-                            <span class="value-num">{{ formatNum(cotVal()) }}</span>
-                        </div>
+                <!-- Trig values -->
+                <div class="value-section">
+                    <h4>Trigonometrische Werte</h4>
+                    <div class="value-row sin-row">
+                        <span class="value-label">sin θ</span>
+                        <span class="value-num">{{ formatNum(sinVal()) }}</span>
                     </div>
-
-                    <!-- Identities -->
-                    <div class="value-section identities">
-                        <h4>Identitäten</h4>
-                        <div class="identity">sin²θ + cos²θ = {{ formatShort(sinVal() * sinVal() + cosVal() * cosVal()) }}</div>
-                        <div class="identity">tan θ = sin/cos = {{ formatShort(sinVal() / cosVal()) }}</div>
+                    <div class="value-row cos-row">
+                        <span class="value-label">cos θ</span>
+                        <span class="value-num">{{ formatNum(cosVal()) }}</span>
                     </div>
+                    <div class="value-row tan-row">
+                        <span class="value-label">tan θ</span>
+                        <span class="value-num">{{ formatNum(tanVal()) }}</span>
+                    </div>
+                    <div class="value-row cot-row">
+                        <span class="value-label">cot θ</span>
+                        <span class="value-num">{{ formatNum(cotVal()) }}</span>
+                    </div>
+                </div>
 
-                    <!-- Exact values at special angles (hidden in auto mode) -->
-                    @if (!autoMode()) {
-                        <div class="value-section exact-values" [style.visibility]="specialAngle() ? 'visible' : 'hidden'">
-                            <h4>Exakte Werte</h4>
-                            <div class="value-row sin-row">
-                                <span class="value-label">sin {{ specialAngle()?.deg ?? 0 }}°</span>
-                                <span class="value-exact">{{ specialAngle()?.sin ?? '' }}</span>
-                            </div>
-                            <div class="value-row cos-row">
-                                <span class="value-label">cos {{ specialAngle()?.deg ?? 0 }}°</span>
-                                <span class="value-exact">{{ specialAngle()?.cos ?? '' }}</span>
-                            </div>
-                        </div>
-                    }
+                <!-- Identities -->
+                <div class="value-section identities">
+                    <h4>Identitäten</h4>
+                    <div class="identity">sin²θ + cos²θ = {{ formatShort(sinVal() * sinVal() + cosVal() * cosVal()) }}
+                    </div>
+                    <div class="identity">tan θ = sin/cos = {{ formatShort(sinVal() / cosVal()) }}</div>
+                </div>
+
+                <!-- Exact values at special angles (hidden in auto mode) -->
+                @if (!autoMode()) {
+                <div class="value-section exact-values" [style.visibility]="specialAngle() ? 'visible' : 'hidden'">
+                    <h4>Exakte Werte</h4>
+                    <div class="value-row sin-row">
+                        <span class="value-label">sin {{ specialAngle()?.deg ?? 0 }}°</span>
+                        <span class="value-exact">{{ specialAngle()?.sin ?? '' }}</span>
+                    </div>
+                    <div class="value-row cos-row">
+                        <span class="value-label">cos {{ specialAngle()?.deg ?? 0 }}°</span>
+                        <span class="value-exact">{{ specialAngle()?.cos ?? '' }}</span>
+                    </div>
+                </div>
+                }
                 } @else {
-                    <!-- Complex values -->
-                    <div class="value-section">
-                        <h4>Euler-Darstellung</h4>
-                        <div class="euler-formula">
-                            e<sup>iθ</sup> = cos θ + i · sin θ
-                        </div>
-                        <div class="value-row re-row">
-                            <span class="value-label">Re(e<sup>iθ</sup>)</span>
-                            <span class="value-num">{{ formatNum(cosVal()) }}</span>
-                        </div>
-                        <div class="value-row im-row">
-                            <span class="value-label">Im(e<sup>iθ</sup>)</span>
-                            <span class="value-num">{{ formatNum(sinVal()) }}</span>
-                        </div>
-                        <div class="value-row">
-                            <span class="value-label">|e<sup>iθ</sup>|</span>
-                            <span class="value-num">1.0000</span>
-                        </div>
-                        <div class="value-row">
-                            <span class="value-label">arg</span>
-                            <span class="value-num">{{ useDegrees() ? angleDeg().toFixed(1) + '°' : (angle() % (2 * 3.14159265)).toFixed(4) + ' rad' }}</span>
-                        </div>
+                <!-- Complex values -->
+                <div class="value-section">
+                    <h4>Euler-Darstellung</h4>
+                    <div class="euler-formula">
+                        e<sup>iθ</sup> = cos θ + i · sin θ
                     </div>
+                    <div class="value-row re-row">
+                        <span class="value-label">Re(e<sup>iθ</sup>)</span>
+                        <span class="value-num">{{ formatNum(cosVal()) }}</span>
+                    </div>
+                    <div class="value-row im-row">
+                        <span class="value-label">Im(e<sup>iθ</sup>)</span>
+                        <span class="value-num">{{ formatNum(sinVal()) }}</span>
+                    </div>
+                    <div class="value-row">
+                        <span class="value-label">|e<sup>iθ</sup>|</span>
+                        <span class="value-num">1.0000</span>
+                    </div>
+                    <div class="value-row">
+                        <span class="value-label">arg</span>
+                        <span class="value-num">{{ useDegrees() ? angleDeg().toFixed(1) + '°' : (angle() % (2 *
+                            3.14159265)).toFixed(4) + ' rad' }}</span>
+                    </div>
+                </div>
 
-                    <div class="value-section identities">
-                        <h4>Kartesische Form</h4>
-                        <div class="identity">z = {{ formatShort(cosVal()) }} + {{ formatShort(sinVal()) }}i</div>
-                    </div>
+                <div class="value-section identities">
+                    <h4>Kartesische Form</h4>
+                    <div class="identity">z = {{ formatShort(cosVal()) }} + {{ formatShort(sinVal()) }}i</div>
+                </div>
                 }
             </div>
         </div>
@@ -135,14 +129,10 @@
         <div class="special-angles-bar">
             <span class="bar-label">Spezialwinkel:</span>
             @for (sa of specialAngles; track sa.deg) {
-                <button
-                    class="special-btn"
-                    [class.active]="specialAngle()?.deg === sa.deg"
-                    (click)="setAngle(sa.deg)"
-                    [title]="sa.rad"
-                >
-                    {{ sa.deg }}°
-                </button>
+            <button class="special-btn" [class.active]="specialAngle()?.deg === sa.deg" (click)="setAngle(sa.deg)"
+                [title]="sa.rad">
+                {{ sa.deg }}°
+            </button>
             }
         </div>
     </div>
