@@ -112,15 +112,18 @@
             }
         </div>
 
-        @if (feedbackText()) {
-        <div class="feedback" [class.correct]="isCorrect()" [class.incorrect]="!isCorrect()">
-            {{ feedbackText() }}
-        </div>
-        }
-
+        @if (!answered()) {
         <button class="btn btn-primary" (click)="checkAnswer()">
-            {{ answered() ? 'Weiter' : 'Prüfen' }}
+            Prüfen
         </button>
+        } @else {
+        <app-feedback-panel
+            [isCorrect]="isCorrect()"
+            [message]="feedbackText()"
+            [showRetry]="false"
+            (onNext)="checkAnswer()">
+        </app-feedback-panel>
+        }
 
         <div class="streak-display">
             Serie: <span class="streak-count">{{ streak() }}</span> richtige Antworten

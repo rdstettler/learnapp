@@ -3,6 +3,7 @@ import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { inject } from '@angular/core';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
+import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 type ProblemType = 'mixed-to-single' | 'single-to-mixed' | 'fraction';
 
@@ -17,7 +18,7 @@ interface TimeProblem {
 @Component({
     selector: 'app-zeitrechnen',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, FeedbackPanelComponent],
     templateUrl: './zeitrechnen.component.html',
     styleUrl: './zeitrechnen.component.css'
 })

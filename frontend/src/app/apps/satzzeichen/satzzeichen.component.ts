@@ -12,11 +12,12 @@ interface WordSlot {
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
+import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 @Component({
     selector: 'app-satzzeichen',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, FeedbackPanelComponent],
     templateUrl: './satzzeichen.component.html',
     styleUrl: './satzzeichen.component.css'
 })

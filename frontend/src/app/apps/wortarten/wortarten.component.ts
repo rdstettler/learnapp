@@ -7,6 +7,7 @@ import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { UserService } from '../../services/user.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
+import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 /** Tag codes used in the annotated text */
 type WordTag = 'n' | 'v' | 'a' | 'pr' | 'pa' | 'av';
@@ -49,7 +50,7 @@ const EXTENDED_TAGS: WordTag[] = ['n', 'v', 'a', 'av', 'pr', 'pa'];
 @Component({
     selector: 'app-wortarten',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, FeedbackPanelComponent],
     templateUrl: './wortarten.component.html',
     styleUrl: './wortarten.component.css'
 })

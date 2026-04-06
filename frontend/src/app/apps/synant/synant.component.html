@@ -52,30 +52,16 @@
                 </div>
             </div>
 
-            @if (answered()) {
-            <div class="feedback-row">
-                @if (isRoundCorrect()) {
-                <span class="feedback correct">✓ Richtig! Alle Spione gefunden!</span>
-                } @else {
-                <span class="feedback incorrect">
-                    ✗ Nicht ganz!
-                    @if (mode() === 'spion') {
-                    Die Spione waren: {{ round.targets.join(', ') }}
-                    } @else {
-                    Das schwächste Wort war: {{ round.targets[0] }}
-                    }
-                </span>
-                }
-            </div>
-            }
-            }
-
             @if (!answered()) {
             <button class="btn btn-primary" [disabled]="!hasSelection" (click)="checkAnswer()">Überprüfen</button>
             } @else {
-            <button class="btn btn-primary" (click)="nextRound()">
-                {{ currentIndex() + 1 >= ROUNDS_PER_GAME ? 'Ergebnis anzeigen' : 'Weiter' }}
-            </button>
+            <app-feedback-panel
+                [isCorrect]="isRoundCorrect()"
+                [message]="isRoundCorrect() ? 'Richtig!' : (mode() === 'spion' ? 'Nicht ganz! Die Spione waren: ' + round.targets.join(', ') : 'Nicht ganz! Das schwächste Wort war: ' + round.targets[0])"
+                [showRetry]="false"
+                (onNext)="nextRound()">
+            </app-feedback-panel>
+            }
             }
         </div>
         }

@@ -3,6 +3,7 @@ import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { inject } from '@angular/core';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
+import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 interface UnitCategory {
     id: string;
@@ -28,7 +29,7 @@ interface Problem {
 @Component({
     selector: 'app-umrechnen',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, FeedbackPanelComponent],
     templateUrl: './umrechnen.component.html',
     styleUrl: './umrechnen.component.css'
 })

@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { ModeSelectorComponent } from '../../shared/components/mode-btn';
 import { MathChart, ChartVector } from '../../shared/components/math-chart/math-chart';
+import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 type VektorMode = 'zeichnen' | 'ablesen' | 'rechnen' | 'laenge';
 
 @Component({
   selector: 'app-vektoren',
   standalone: true,
-  imports: [CommonModule, FormsModule, LearningAppLayoutComponent, ModeSelectorComponent, MathChart],
+  imports: [CommonModule, FormsModule, LearningAppLayoutComponent, ModeSelectorComponent, MathChart, FeedbackPanelComponent],
   templateUrl: './vektoren.html',
   styleUrl: './vektoren.css'
 })

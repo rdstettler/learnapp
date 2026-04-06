@@ -746,6 +746,30 @@ body {
     transform: translateY(-1px);
 }
 
+/* Inputs */
+.input-glass {
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--glass-bg);
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.input-glass:focus {
+    outline: none;
+    border-color: var(--accent-1);
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.input-glass:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 /* Tabs */
 .nav-tabs {
     display: flex;

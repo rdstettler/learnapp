@@ -6,6 +6,7 @@ import { LearningAppLayoutComponent } from '../../shared/components/learning-app
 import { ModeSelectorComponent } from "../../shared/components/mode-btn";
 import { launchConfetti } from '../../shared/confetti';
 import { shuffle } from '../../shared/utils/array.utils';
+import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 type QuizMode = 'luecken' | 'zuordnen' | 'grossschreibung';
 
@@ -45,7 +46,7 @@ interface ZuordnenContent {
 @Component({
     selector: 'app-rechtschreibung',
     standalone: true,
-    imports: [LearningAppLayoutComponent, ModeSelectorComponent],
+    imports: [LearningAppLayoutComponent, ModeSelectorComponent, FeedbackPanelComponent],
     templateUrl: './rechtschreibung.component.html',
     styleUrl: './rechtschreibung.component.css'
 })

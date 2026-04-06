@@ -48,14 +48,13 @@
                 }
             </div>
 
-            @if (feedbackText()) {
-            <div class="feedback" [class.correct]="isCorrect()" [class.incorrect]="!isCorrect()">
-                {{ feedbackText() }}
-            </div>
-            }
-
             @if (answered()) {
-            <button class="btn btn-primary" (click)="nextQuestion()">Weiter</button>
+            <app-feedback-panel
+                [isCorrect]="isCorrect()"
+                [message]="feedbackText()"
+                [showRetry]="false"
+                (onNext)="nextQuestion()">
+            </app-feedback-panel>
             }
         </div>
         }
@@ -99,14 +98,13 @@
                 }
             </div>
 
-            @if (feedbackText()) {
-            <div class="feedback" [class.correct]="isCorrect()" [class.incorrect]="!isCorrect()">
-                {{ feedbackText() }}
-            </div>
-            }
-
             @if (answered()) {
-            <button class="btn btn-primary" (click)="nextQuestion()">Weiter</button>
+            <app-feedback-panel
+                [isCorrect]="isCorrect()"
+                [message]="feedbackText()"
+                [showRetry]="false"
+                (onNext)="nextQuestion()">
+            </app-feedback-panel>
             }
         </div>
         }

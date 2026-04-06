@@ -47,16 +47,17 @@
                 <span class="correction-value">{{ getPossibleAnswers() }}</span>
             </div>
             }
-            @if (answered() && isCorrect()) {
-            <div class="success-hint">✓ Richtig! <span class="matched-answer">{{ matchedAnswer() }}</span></div>
-            }
             }
             @if (!answered()) {
             <button class="btn btn-primary" [disabled]="!userAnswer()" (click)="checkAnswer()">Überprüfen</button>
             } @else {
-            <button class="btn btn-primary" (click)="nextItem()">
-                {{ currentIndex() + 1 >= PROBLEMS_PER_ROUND ? 'Ergebnis anzeigen' : 'Weiter' }}
-            </button>
+            <app-feedback-panel
+                style="margin-top: 15px;"
+                [isCorrect]="isCorrect()"
+                [message]="isCorrect() ? 'Richtig! ' + matchedAnswer() : 'Falsch!'"
+                [showRetry]="false"
+                (onNext)="nextItem()">
+            </app-feedback-panel>
             }
         </div>
         }
@@ -86,16 +87,13 @@
             </div>
             }
             @if (mcAnswered()) {
-            <div class="feedback-row">
-                @if (mcIsCorrect()) {
-                <span class="feedback correct">✓ Richtig!</span>
-                } @else {
-                <span class="feedback incorrect">✗ Richtig wäre: {{ mcCorrectAnswer() }}</span>
-                }
-            </div>
-            <button class="btn btn-primary" (click)="nextItem()">
-                {{ currentIndex() + 1 >= PROBLEMS_PER_ROUND ? 'Ergebnis anzeigen' : 'Weiter' }}
-            </button>
+            <app-feedback-panel
+                style="margin-top: 15px;"
+                [isCorrect]="mcIsCorrect()"
+                [message]="mcIsCorrect() ? 'Richtig!' : 'Richtig wäre: ' + mcCorrectAnswer()"
+                [showRetry]="false"
+                (onNext)="nextItem()">
+            </app-feedback-panel>
             }
         </div>
         }
@@ -118,16 +116,13 @@
                 </div>
             </div>
             @if (oooAnswered()) {
-            <div class="feedback-row">
-                @if (oooIsCorrect()) {
-                <span class="feedback correct">✓ Richtig! «{{ oooIntruder() }}» gehört zu «{{ oooIntruderCategory() }}».</span>
-                } @else {
-                <span class="feedback incorrect">✗ «{{ oooIntruder() }}» war der Eindringling ({{ oooIntruderCategory() }}).</span>
-                }
-            </div>
-            <button class="btn btn-primary" (click)="nextItem()">
-                {{ currentIndex() + 1 >= PROBLEMS_PER_ROUND ? 'Ergebnis anzeigen' : 'Weiter' }}
-            </button>
+            <app-feedback-panel
+                style="margin-top: 15px;"
+                [isCorrect]="oooIsCorrect()"
+                [message]="oooIsCorrect() ? 'Richtig! «' + oooIntruder() + '» gehört zu «' + oooIntruderCategory() + '».' : '«' + oooIntruder() + '» war der Eindringling (' + oooIntruderCategory() + ').'"
+                [showRetry]="false"
+                (onNext)="nextItem()">
+            </app-feedback-panel>
             }
         </div>
         }

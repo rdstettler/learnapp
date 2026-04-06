@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { ModeSelectorComponent } from '../../shared/components/mode-btn';
 import { MathChart, ChartPoint, ChartFunction } from '../../shared/components/math-chart/math-chart';
+import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 type FunktionMode = 'zeichnen' | 'ablesen';
 type FunktionType = 'linear' | 'quadratisch' | 'kubisch' | 'sin' | 'cos' | 'exp' | 'ln';
@@ -11,7 +12,7 @@ type FunktionType = 'linear' | 'quadratisch' | 'kubisch' | 'sin' | 'cos' | 'exp'
 @Component({
   selector: 'app-funktionen',
   standalone: true,
-  imports: [CommonModule, FormsModule, LearningAppLayoutComponent, ModeSelectorComponent, MathChart],
+  imports: [CommonModule, FormsModule, LearningAppLayoutComponent, ModeSelectorComponent, MathChart, FeedbackPanelComponent],
   templateUrl: './funktionen.html',
   styleUrl: './funktionen.css'
 })

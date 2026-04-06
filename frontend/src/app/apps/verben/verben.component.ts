@@ -6,6 +6,7 @@ import { LearningAppLayoutComponent } from '../../shared/components/learning-app
 import { launchConfetti } from '../../shared/confetti';
 import { shuffle } from '../../shared/utils/array.utils';
 import { ModeSelectorComponent } from "../../shared/components/mode-btn";
+import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 interface VerbData {
     verb: string;
@@ -73,7 +74,7 @@ type QuizMode = 'konjugation' | 'zeitform' | 'multiplechoice' | 'fehlerfinden';
 @Component({
     selector: 'app-verben',
     standalone: true,
-    imports: [LearningAppLayoutComponent, ModeSelectorComponent],
+    imports: [LearningAppLayoutComponent, ModeSelectorComponent, FeedbackPanelComponent],
     templateUrl: './verben.component.html',
     styleUrl: './verben.component.css'
 })

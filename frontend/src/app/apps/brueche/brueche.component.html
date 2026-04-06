@@ -70,22 +70,12 @@
             </div>
 
             @if (answered()) {
-            <div class="feedback" [class]="isCorrectAnswer() ? 'feedback-correct' : 'feedback-wrong'">
-                @if (isCorrectAnswer()) {
-                ✓ Richtig!
-                } @else {
-                ✗ Falsch — richtig wäre:
-                @if (currentQuestion().displayMode === 'fraction-to-decimal') {
-                <strong>{{ currentQuestion().decimalOptions[currentQuestion().correctOptionIndex] }}</strong>
-                } @else {
-                <strong>
-                    {{ currentQuestion().options[currentQuestion().correctOptionIndex].n }} /
-                    {{ currentQuestion().options[currentQuestion().correctOptionIndex].d }}
-                </strong>
-                }
-                }
-            </div>
-            <button class="btn btn-primary" style="margin-top: 16px;" (click)="nextItem()">Weiter</button>
+            <app-feedback-panel style="margin-top: 16px;"
+                [isCorrect]="isCorrectAnswer()"
+                [message]="feedbackMsg()"
+                [showRetry]="false"
+                (onNext)="nextItem()">
+            </app-feedback-panel>
             }
         </div>
         }

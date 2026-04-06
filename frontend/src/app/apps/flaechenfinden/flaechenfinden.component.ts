@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { Point, Line, Circle, GeometryUtils, Condition } from './geometry';
 import { PuzzleGenerator, PuzzleDef } from './generator';
+import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 interface DrawnLine {
     start: Point;
@@ -18,7 +19,7 @@ interface DrawnCircle {
 @Component({
     selector: 'app-flaechenfinden',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, FeedbackPanelComponent],
     templateUrl: './flaechenfinden.component.html',
     styleUrl: './flaechenfinden.component.css'
 })

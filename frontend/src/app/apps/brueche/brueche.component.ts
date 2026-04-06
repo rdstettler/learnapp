@@ -2,6 +2,7 @@ import { Component, signal, computed, inject, ChangeDetectorRef } from '@angular
 import { ApiService } from '../../services/api.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 import { launchConfetti } from '../../shared/confetti';
 
 // ─── Math Helpers ────────────────────────────────────────────────────────────
@@ -250,7 +251,7 @@ const ITEMS_PER_ROUND = 10;
 @Component({
     selector: 'app-brueche',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, FeedbackPanelComponent],
     templateUrl: './brueche.component.html',
     styleUrl: './brueche.component.css'
 })
@@ -283,6 +284,16 @@ export class BruecheComponent {
     });
 
     currentQuestion = computed(() => this.questions()[this.currentIndex()]);
+    
+    feedbackMsg = computed(() => {
+        if (!this.answered()) return '';
+        if (this.isCorrectAnswer()) return 'Richtig!';
+        const q = this.currentQuestion();
+        const correct = q.displayMode === 'fraction-to-decimal' ? 
+            q.decimalOptions[q.correctOptionIndex] : 
+            `${q.options[q.correctOptionIndex].n} / ${q.options[q.correctOptionIndex].d}`;
+        return `Falsch — richtig wäre: ${correct}`;
+    });
 
     constructor() {
         const state = window.history.state as any;

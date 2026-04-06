@@ -4,6 +4,7 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 type ViewMode = 'trig' | 'complex';
 
@@ -38,7 +39,7 @@ const SPECIAL_ANGLES: SpecialAngle[] = [
 @Component({
     selector: 'app-einheitskreis',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, FeedbackPanelComponent],
     templateUrl: './einheitskreis.component.html',
     styleUrl: './einheitskreis.component.css'
 })

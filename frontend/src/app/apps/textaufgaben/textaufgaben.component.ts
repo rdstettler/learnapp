@@ -5,6 +5,7 @@ import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
 import { shuffle } from '../../shared/utils/array.utils';
+import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 interface TextaufgabeItem {
     id: string;
@@ -18,7 +19,7 @@ interface TextaufgabeItem {
 @Component({
     selector: 'app-textaufgaben',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, FeedbackPanelComponent],
     templateUrl: './textaufgaben.component.html',
     styleUrl: './textaufgaben.component.css'
 })

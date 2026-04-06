@@ -3,6 +3,7 @@ import { DataService } from '../../services/data.service';
 import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { ModeSelectorComponent } from "../../shared/components/mode-btn";
+import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 
 interface MeaningOption {
@@ -45,7 +46,7 @@ type Screen = 'welcome' | 'stage1' | 'results1' | 'stage2' | 'results2' | 'final
 @Component({
     selector: 'app-wortstaemme',
     standalone: true,
-    imports: [LearningAppLayoutComponent, ModeSelectorComponent],
+    imports: [LearningAppLayoutComponent, ModeSelectorComponent, FeedbackPanelComponent],
     templateUrl: './wortstaemme.component.html',
     styleUrl: './wortstaemme.component.css'
 })

@@ -1,6 +1,7 @@
 import { Component, signal, computed, ElementRef, viewChild, AfterViewInit, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
+import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 interface ComplexNumber {
     re: number;
@@ -26,7 +27,7 @@ interface TransformParams {
 @Component({
     selector: 'app-komplexe-abbildung',
     standalone: true,
-    imports: [LearningAppLayoutComponent],
+    imports: [LearningAppLayoutComponent, FeedbackPanelComponent],
     templateUrl: './komplexe-abbildung.component.html',
     styleUrl: './komplexe-abbildung.component.css'
 })

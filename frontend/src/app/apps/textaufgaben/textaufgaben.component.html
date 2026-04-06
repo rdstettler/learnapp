@@ -34,12 +34,6 @@
             </div>
             }
 
-            @if (feedbackText()) {
-            <div class="feedback" [class.correct]="isCorrect()" [class.incorrect]="!isCorrect()">
-                {{ feedbackText() }}
-            </div>
-            }
-
             @if (answered() && getCurrentProblem(); as problem) {
             <button class="btn btn-secondary explanation-btn" (click)="toggleExplanation()">
                 {{ showExplanation() ? 'Erklärung ausblenden' : 'Erklärung anzeigen' }}
@@ -56,7 +50,13 @@
                 Überprüfen
             </button>
             } @else {
-            <button class="btn btn-primary" (click)="nextRound()">Weiter</button>
+            <app-feedback-panel
+                style="margin-top: 15px;"
+                [isCorrect]="isCorrect()"
+                [message]="feedbackText()"
+                [showRetry]="false"
+                (onNext)="nextRound()">
+            </app-feedback-panel>
             }
         </div>
         }

@@ -56,9 +56,9 @@
           <span>v = </span>
           <div class="flex-column flex-gap-10">
             <input type="number" [(ngModel)]="inputX" [disabled]="state() === 'feedback'" placeholder="x"
-                   style="width: 80px; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--glass-bg); color: white; font-size: 1.1rem;">
+                   class="input-glass" style="width: 80px;">
             <input type="number" [(ngModel)]="inputY" [disabled]="state() === 'feedback'" placeholder="y"
-                   style="width: 80px; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--glass-bg); color: white; font-size: 1.1rem;">
+                   class="input-glass" style="width: 80px;">
           </div>
         </div>
         }
@@ -68,7 +68,7 @@
         <div class="flex-row ai-center flex-gap-10" style="font-size: 1.2rem; font-weight: bold;">
           <span>|v| = </span>
           <input type="text" [(ngModel)]="inputLength" [disabled]="state() === 'feedback'" placeholder="Länge"
-                 style="width: 100px; text-align: center; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--glass-bg); color: white; font-size: 1.1rem;">
+                 class="input-glass" style="width: 100px;">
         </div>
         }
 
@@ -86,20 +86,12 @@
         }
 
         @if (state() === 'feedback') {
-          <div class="feedback" [class.correct]="feedbackCorrect()" [class.incorrect]="!feedbackCorrect()" style="width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 15px;">
-            <div style="font-size: 1.2rem; white-space: pre-wrap;">
-              <span>{{ feedbackCorrect() ? '✓' : '✗' }}</span>
-              {{ feedbackMsg() }}
-            </div>
-            <div class="flex flex-gap-10">
-              <button (click)="restart()" class="btn btn-secondary">
-                Zurück
-              </button>
-              <button (click)="nextQuestion()" class="btn btn-primary" [class.btn-secondary]="!feedbackCorrect()">
-                Weiter
-              </button>
-            </div>
-          </div>
+          <app-feedback-panel
+            [isCorrect]="feedbackCorrect()"
+            [message]="feedbackMsg()"
+            (onRetry)="restart()"
+            (onNext)="nextQuestion()">
+          </app-feedback-panel>
         }
       </div>
       

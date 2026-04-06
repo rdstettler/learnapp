@@ -166,15 +166,13 @@
             <button class="btn btn-primary" [disabled]="!sentenceSelected()"
                 (click)="checkSentenceAnswer()">Überprüfen</button>
             } @else {
-            <div class="feedback-box" [class.correct]="sentenceSelected() === q.answerDisplay"
-                [class.wrong]="sentenceSelected() !== q.answerDisplay">
-                @if (sentenceSelected() === q.answerDisplay) {
-                <span class="feedback-icon">✓</span> Richtig!
-                } @else {
-                <span class="feedback-icon">✗</span> Falsch — Richtige Antwort: <strong>{{ q.answerDisplay }}</strong>
-                }
-            </div>
-            <button class="btn btn-primary" (click)="nextSentence()">Weiter</button>
+            <app-feedback-panel
+                style="margin-top: 15px;"
+                [isCorrect]="sentenceSelected() === q.answerDisplay"
+                [message]="sentenceSelected() === q.answerDisplay ? 'Richtig!' : 'Falsch — Richtige Antwort: ' + q.answerDisplay"
+                [showRetry]="false"
+                (onNext)="nextSentence()">
+            </app-feedback-panel>
             }
             }
         </div>
@@ -223,15 +221,13 @@
             @if (!writeChecked()) {
             <button class="btn btn-primary" (click)="checkWriteAnswer()">Überprüfen</button>
             } @else {
-            <div class="feedback-box" [class.correct]="writeCorrect()" [class.wrong]="!writeCorrect()">
-                @if (writeCorrect()) {
-                <span class="feedback-icon">✓</span> Richtig!
-                } @else {
-                <span class="feedback-icon">✗</span> Richtige Antwort: <strong>{{ q.answerParts.join(' ... ')
-                    }}</strong>
-                }
-            </div>
-            <button class="btn btn-primary" (click)="nextWriteQuestion()">Weiter</button>
+            <app-feedback-panel
+                style="margin-top: 15px;"
+                [isCorrect]="writeCorrect()"
+                [message]="writeCorrect() ? 'Richtig!' : 'Richtige Antwort: ' + q.answerParts.join(' ... ')"
+                [showRetry]="false"
+                (onNext)="nextWriteQuestion()">
+            </app-feedback-panel>
             }
             }
         </div>

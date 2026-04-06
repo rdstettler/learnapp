@@ -97,14 +97,13 @@
             </div>
 
             @if (tenseAnswered()) {
-            <div class="feedback-row">
-                @if (q.isCorrect) {
-                <span class="feedback correct">✓ Richtig!</span>
-                } @else {
-                <span class="feedback incorrect">✗ Es war: {{ tenseNames[q.correctTense] }}</span>
-                }
-            </div>
-            <button class="btn btn-primary" (click)="nextTenseQuestion()">Weiter</button>
+            <app-feedback-panel
+                style="margin-top: 15px;"
+                [isCorrect]="!!q.isCorrect"
+                [message]="q.isCorrect ? 'Richtig!' : 'Es war: ' + tenseNames[q.correctTense]"
+                [showRetry]="false"
+                (onNext)="nextTenseQuestion()">
+            </app-feedback-panel>
             }
             }
         </div>
@@ -135,14 +134,13 @@
             </div>
 
             @if (mcAnswered()) {
-            <div class="feedback-row">
-                @if (q.isCorrect) {
-                <span class="feedback correct">✓ Richtig!</span>
-                } @else {
-                <span class="feedback incorrect">✗ Richtig wäre: {{ q.correctAnswer }}</span>
-                }
-            </div>
-            <button class="btn btn-primary" (click)="nextMCQuestion()">Weiter</button>
+            <app-feedback-panel
+                style="margin-top: 15px;"
+                [isCorrect]="!!q.isCorrect"
+                [message]="q.isCorrect ? 'Richtig!' : 'Richtig wäre: ' + q.correctAnswer"
+                [showRetry]="false"
+                (onNext)="nextMCQuestion()">
+            </app-feedback-panel>
             }
             }
         </div>
@@ -203,25 +201,13 @@
             </div>
 
             @if (fehlerAnswered()) {
-            <div class="feedback-row">
-                @if (q.isCorrect) {
-                @if (fehlerDifficulty() === 'hard') {
-                <span class="feedback correct">✓ Richtig! Die Form «{{ q.options[0].form }}» ist {{ q.isCorrectForm ?
-                    'korrekt' : 'falsch' }}.</span>
-                } @else {
-                <span class="feedback correct">✓ Richtig! «{{ q.mistakeForm }}» ist falsch.</span>
-                }
-                } @else {
-                @if (fehlerDifficulty() === 'hard') {
-                <span class="feedback incorrect">✗ Die Form «{{ q.options[0].form }}» ist {{ q.isCorrectForm ? 'korrekt'
-                    : 'falsch' }}. Richtig: {{ q.correctForm }}</span>
-                } @else {
-                <span class="feedback incorrect">✗ «{{ q.mistakePerson }}: {{ q.mistakeForm }}» war der Fehler. Richtig:
-                    {{ q.correctForm }}</span>
-                }
-                }
-            </div>
-            <button class="btn btn-primary" (click)="nextFehlerQuestion()">Weiter</button>
+            <app-feedback-panel
+                style="margin-top: 15px;"
+                [isCorrect]="!!q.isCorrect"
+                [message]="fehlerDifficulty() === 'hard' ? (q.isCorrect ? 'Richtig! Die Form «' + q.options[0].form + '» ist ' + (q.isCorrectForm ? 'korrekt' : 'falsch') + '.' : 'Die Form «' + q.options[0].form + '» ist ' + (q.isCorrectForm ? 'korrekt' : 'falsch') + '. Richtig: ' + q.correctForm) : (q.isCorrect ? 'Richtig! «' + q.mistakeForm + '» ist falsch.' : '«' + q.mistakePerson + ': ' + q.mistakeForm + '» war der Fehler. Richtig: ' + q.correctForm)"
+                [showRetry]="false"
+                (onNext)="nextFehlerQuestion()">
+            </app-feedback-panel>
             }
             }
         </div>
