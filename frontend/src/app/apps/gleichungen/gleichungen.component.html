@@ -1,0 +1,135 @@
+<app-learning-app-layout title="⚖️ Gleichungen" appId="gleichungen">
+    <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="progress()"></div>
+    </div>
+
+    <div class="card">
+        <!-- Welcome Screen -->
+        @if (screen() === 'welcome') {
+        <div class="welcome-container">
+            <div class="welcome-emoji">⚖️</div>
+            <h2>Gleichungen lösen</h2>
+            <p class="welcome-desc">Trainiere das Lösen von Gleichungen – Schritt für Schritt!</p>
+
+            <app-mode-selector [modes]="modes" [(mode)]="mode"></app-mode-selector>
+
+            <div class="difficulty-picker">
+                @for (d of difficulties; track d.id) {
+                <button class="difficulty-btn" [class.active]="difficulty() === d.id"
+                    (click)="setDifficulty(d.id)">
+                    <span class="diff-label">{{ d.label }}</span>
+                    <span class="diff-desc">{{ d.description }}</span>
+                </button>
+                }
+            </div>
+
+            <button class="btn btn-primary" (click)="startQuiz()">Quiz starten</button>
+        </div>
+        }
+
+        <!-- Quiz Screen -->
+        @if (screen() === 'quiz') {
+        <div class="quiz-content">
+            <div class="quiz-header">
+                <button class="quiz-back-btn" (click)="restartQuiz()">← Zurück</button>
+                <div class="round-info">Aufgabe {{ currentIndex() + 1 }} / {{ QUESTIONS_PER_ROUND }}</div>
+            </div>
+            <div class="score-live">
+                <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
+                <div class="score-live-item wrong">✗ {{ totalWrong() }}</div>
+            </div>
+
+            <!-- ═══ Solve / Gap Mode ═══ -->
+            @if (mode() !== 'schritte' && currentEquation(); as eq) {
+            <div class="equation-display">
+                <div class="equation-text">{{ eq.display }}</div>
+                @if (mode() === 'loesen') {
+                <div class="equation-label">Finde x</div>
+                } @else {
+                <div class="equation-label">Finde den fehlenden Wert</div>
+                }
+            </div>
+
+            <div class="options-grid">
+                @for (opt of options(); track opt) {
+                <button class="option-btn" [class]="getOptionClass(opt)" [disabled]="answered()"
+                    (click)="selectOption(opt)">
+                    @if (mode() === 'loesen') {
+                    x = {{ opt }}
+                    } @else {
+                    ? = {{ opt }}
+                    }
+                </button>
+                }
+            </div>
+            }
+
+            <!-- ═══ Steps Mode ═══ -->
+            @if (mode() === 'schritte' && currentSteps(); as sq) {
+            <div class="equation-display">
+                <div class="equation-text">{{ sq.equation }}</div>
+                <div class="equation-label">Ordne die Lösungsschritte</div>
+            </div>
+
+            <!-- User's arranged steps -->
+            <div class="steps-arranged">
+                @if (sq.userOrder.length === 0) {
+                <div class="steps-placeholder">Tippe unten auf die Schritte in der richtigen Reihenfolge</div>
+                }
+                @for (step of sq.userOrder; track $index; let i = $index) {
+                <div class="step-slot" [class.step-correct]="answered() && isStepCorrect(i)"
+                    [class.step-wrong]="answered() && !isStepCorrect(i)"
+                    (click)="removeStep(i)">
+                    <span class="step-number">{{ i + 1 }}.</span>
+                    <span class="step-text">{{ step }}</span>
+                    @if (!answered()) {
+                    <span class="step-remove">✕</span>
+                    }
+                </div>
+                }
+            </div>
+
+            <!-- Available steps pool -->
+            @if (!answered()) {
+            <div class="steps-pool">
+                @for (step of sq.shuffledSteps; track step) {
+                <button class="step-chip" [disabled]="isStepUsed(step)" (click)="selectStep(step)">
+                    {{ step }}
+                </button>
+                }
+            </div>
+            }
+            }
+
+            <!-- Feedback -->
+            @if (answered()) {
+            <app-feedback-panel style="margin-top: 15px;" [isCorrect]="isCorrectAnswer()" [message]="feedbackMsg()"
+                [showRetry]="false" (onNext)="nextQuestion()">
+            </app-feedback-panel>
+            }
+        </div>
+        }
+
+        <!-- Results Screen -->
+        @if (screen() === 'results') {
+        <div class="score-display">
+            <div class="score-circle">{{ percentage() }}%</div>
+            <p class="score-text">{{ totalCorrect() }} von {{ QUESTIONS_PER_ROUND }} richtig!</p>
+            <div class="score-breakdown">
+                <div class="score-item correct">
+                    <div class="score-item-number">{{ totalCorrect() }}</div>
+                    <div class="score-item-label">Richtig</div>
+                </div>
+                <div class="score-item wrong">
+                    <div class="score-item-number">{{ totalWrong() }}</div>
+                    <div class="score-item-label">Falsch</div>
+                </div>
+            </div>
+            <div class="result-actions">
+                <button class="btn btn-primary" (click)="startQuiz()">Weiter üben</button>
+                <button class="btn btn-secondary" (click)="restartQuiz()">Zurück</button>
+            </div>
+        </div>
+        }
+    </div>
+</app-learning-app-layout>

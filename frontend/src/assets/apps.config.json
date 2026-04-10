@@ -331,6 +331,21 @@
                 "graphen",
                 "algebra"
             ]
+        },
+        {
+            "id": "gleichungen",
+            "name": "Gleichungen",
+            "description": "Lerne Gleichungen zu lösen – von einfachen bis zu Klammer-Gleichungen",
+            "category": "Mathematik",
+            "route": "/gleichungen",
+            "icon": "⚖️",
+            "tags": [
+                "mathematik",
+                "gleichungen",
+                "algebra",
+                "terme",
+                "variablen"
+            ]
         }
     ]
 }

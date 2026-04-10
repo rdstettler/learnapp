@@ -35,6 +35,7 @@ export const routes: Routes = [
     { path: 'einheitskreis', loadComponent: () => import('./apps/einheitskreis/einheitskreis.component').then(m => m.EinheitskreisComponent) },
     { path: 'vektoren', loadComponent: () => import('./apps/vektoren/vektoren').then(m => m.VektorenComponent) },
     { path: 'funktionen', loadComponent: () => import('./apps/funktionen/funktionen').then(m => m.FunktionenComponent) },
+    { path: 'gleichungen', loadComponent: () => import('./apps/gleichungen/gleichungen.component').then(m => m.GleichungenComponent) },
     { path: 'admin/text-aufgaben', canActivate: [authGuard], loadComponent: () => import('./admin/text-aufgaben-admin/text-aufgaben-admin.component').then(m => m.TextAufgabenAdminComponent) },
     { path: 'admin/content', canActivate: [authGuard], loadComponent: () => import('./admin/content-editor/content-editor.component').then(m => m.ContentEditorComponent) },
     { path: 'admin/reading-review', canActivate: [authGuard], loadComponent: () => import('./admin/reading-review/reading-review.component').then(m => m.ReadingReviewComponent) },
