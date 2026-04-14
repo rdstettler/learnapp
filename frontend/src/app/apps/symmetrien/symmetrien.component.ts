@@ -1,7 +1,6 @@
 import { Component, signal, ElementRef, viewChild, AfterViewInit, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
-import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 interface Point {
     x: number;
@@ -22,7 +21,7 @@ interface MirrorLine {
 @Component({
     selector: 'app-symmetrien',
     standalone: true,
-    imports: [LearningAppLayoutComponent, FeedbackPanelComponent],
+    imports: [LearningAppLayoutComponent],
     templateUrl: './symmetrien.component.html',
     styleUrl: './symmetrien.component.css'
 })

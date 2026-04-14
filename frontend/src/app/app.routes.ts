@@ -7,6 +7,7 @@ export const routes: Routes = [
     { path: 'stats', loadComponent: () => import('./stats/stats.component').then(m => m.StatsComponent) },
     { path: 'about', loadComponent: () => import('./about/about.component').then(m => m.AboutComponent) },
     { path: 'lehrplan', loadComponent: () => import('./lehrplan/lehrplan.component').then(m => m.LehrplanComponent) },
+    { path: 'voci/:langCode', loadComponent: () => import('./apps/voci/voci.component').then(m => m.VociComponent) },
     { path: 'aehnlichewoerter', loadComponent: () => import('./apps/aehnlichewoerter/aehnlichewoerter.component').then(m => m.AehnlichewoerterComponent) },
     { path: 'oberbegriffe', loadComponent: () => import('./apps/oberbegriffe/oberbegriffe.component').then(m => m.OberbegriffeComponent) },
     { path: 'wortfamilie', loadComponent: () => import('./apps/wortfamilie/wortfamilie.component').then(m => m.WortfamilieComponent) },

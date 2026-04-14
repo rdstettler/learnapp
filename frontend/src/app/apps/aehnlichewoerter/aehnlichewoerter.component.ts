@@ -6,7 +6,6 @@ import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
 import { ModeSelectorComponent } from '../../shared/components/mode-btn';
-import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 
 interface Sentence {
@@ -27,7 +26,7 @@ type QuizMode = 'einzeln' | 'zufall';
 @Component({
     selector: 'app-aehnlichewoerter',
     standalone: true,
-    imports: [LearningAppLayoutComponent, ModeSelectorComponent, FeedbackPanelComponent],
+    imports: [LearningAppLayoutComponent, ModeSelectorComponent],
     templateUrl: './aehnlichewoerter.component.html',
     styleUrl: './aehnlichewoerter.component.css'
 })

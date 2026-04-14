@@ -20,6 +20,7 @@
         <!-- Quiz Screen: Korrektur -->
         @if (screen() === 'quiz' && mode() === 'korrektur') {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="stats-bar">
                 <span>Text <strong>{{ currentTextIndex() + 1 }}</strong> von <strong>{{ texts().length
                         }}</strong></span>
@@ -47,6 +48,7 @@
         <!-- Quiz Screen: Markieren -->
         @if (screen() === 'quiz' && mode() === 'markieren') {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="stats-bar">
                 <span>Text <strong>{{ currentTextIndex() + 1 }}</strong> von <strong>{{ texts().length }}</strong></span>
             </div>
@@ -74,6 +76,7 @@
         <!-- Quiz Screen: Sätze -->
         @if (screen() === 'quiz' && mode() === 'saetze') {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="stats-bar">
                 <span>Satz <strong>{{ currentSentenceIndex() + 1 }}</strong> von <strong>{{ sentences().length }}</strong></span>
                 <span>✅ {{ sentenceCorrectCount() }}/{{ sentenceTotalCount() }}</span>

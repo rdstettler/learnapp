@@ -1,6 +1,5 @@
 import { Component, signal, computed } from '@angular/core';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
-import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 interface Position {
     x: number;
@@ -44,7 +43,7 @@ const DIRECTIONS: Position[] = [
 @Component({
     selector: 'app-isolation',
     standalone: true,
-    imports: [LearningAppLayoutComponent, FeedbackPanelComponent],
+    imports: [LearningAppLayoutComponent],
     templateUrl: './isolation.component.html',
     styleUrl: './isolation.component.css'
 })

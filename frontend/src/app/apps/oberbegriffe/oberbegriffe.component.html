@@ -21,6 +21,7 @@
         <!-- Quiz: Tippen -->
         @if (screen() === 'quiz' && mode() === 'tippen') {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="round-info">Aufgabe {{ currentIndex() + 1 }} / {{ PROBLEMS_PER_ROUND }}</div>
             <div class="score-live">
                 <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
@@ -65,6 +66,7 @@
         <!-- Quiz: Auswahl (MC) -->
         @if (screen() === 'quiz' && mode() === 'auswahl') {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="round-info">Aufgabe {{ currentIndex() + 1 }} / {{ PROBLEMS_PER_ROUND }}</div>
             <div class="score-live">
                 <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
@@ -101,6 +103,7 @@
         <!-- Quiz: Eindringling (OOO) -->
         @if (screen() === 'quiz' && mode() === 'eindringling') {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="round-info">Aufgabe {{ currentIndex() + 1 }} / {{ PROBLEMS_PER_ROUND }}</div>
             <div class="score-live">
                 <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>

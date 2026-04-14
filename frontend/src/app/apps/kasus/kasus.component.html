@@ -30,6 +30,7 @@
 
         @if (screen() === 'quiz' && mode() === 'klassisch') {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="round-info">Runde {{ currentRound() + 1 }} / 5</div>
 
             <div class="sentence-container">
@@ -66,6 +67,7 @@
         <!-- Speed Drill -->
         @if (screen() === 'quiz' && mode() === 'schnell') {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="round-info">Wort {{ drillIndex() + 1 }} / {{ drillParts().length }}</div>
             <div class="score-live">
                 <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>

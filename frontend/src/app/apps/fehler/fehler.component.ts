@@ -7,7 +7,6 @@ import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
 import { ModeSelectorComponent } from "../../shared/components/mode-btn";
-import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 
 interface DisplayWord {
@@ -42,7 +41,7 @@ type QuizMode = 'korrektur' | 'markieren' | 'saetze';
 @Component({
     selector: 'app-fehler',
     standalone: true,
-    imports: [FormsModule, LearningAppLayoutComponent, ModeSelectorComponent, FeedbackPanelComponent],
+    imports: [FormsModule, LearningAppLayoutComponent, ModeSelectorComponent],
     templateUrl: './fehler.component.html',
     styleUrl: './fehler.component.css'
 })

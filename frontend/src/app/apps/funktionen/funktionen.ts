@@ -316,14 +316,14 @@ export class FunktionenComponent {
         }
       }
     } else if (m === 'ablesen') {
-      const ua = parseFloat(this.inputA().replace(',', '.') || '0');
-      const ub = parseFloat(this.inputB().replace(',', '.') || '0');
-      const uc = parseFloat(this.inputC().replace(',', '.') || '0');
-      const ud = parseFloat(this.inputD().replace(',', '.') || '0');
+      const ua = parseFloat(String(this.inputA()).replace(',', '.') || '0');
+      const ub = parseFloat(String(this.inputB()).replace(',', '.') || '0');
+      const uc = parseFloat(String(this.inputC()).replace(',', '.') || '0');
+      const ud = parseFloat(String(this.inputD()).replace(',', '.') || '0');
 
       if (type === 'linear') {
-        const um = parseFloat(this.inputM().replace(',', '.') || '0');
-        const uq = parseFloat(this.inputQ().replace(',', '.') || '0');
+        const um = parseFloat(String(this.inputM()).replace(',', '.') || '0');
+        const uq = parseFloat(String(this.inputQ()).replace(',', '.') || '0');
         isCorrect = Math.abs(um - this.targetA()) < 0.01 && Math.abs(uq - this.targetB()) < 0.01;
       } else if (type === 'quadratisch') {
         if (form === 'vertex') {

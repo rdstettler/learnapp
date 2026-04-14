@@ -42,6 +42,7 @@
         <!-- ═══ QUIZ: KONJUGATION ═══ -->
         @if (screen() === 'quiz' && mode() === 'konjugation') {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="round-info">Runde {{ currentRoundIndex() + 1 }} / 5</div>
 
             <div class="question-list">
@@ -74,6 +75,7 @@
         <!-- ═══ QUIZ: ZEITFORM ═══ -->
         @if (screen() === 'quiz' && mode() === 'zeitform') {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="round-info">Frage {{ currentTenseIndex() + 1 }} / {{ totalQuestions() }}</div>
 
             @if (currentTenseQuestion(); as q) {
@@ -112,6 +114,7 @@
         <!-- ═══ QUIZ: MULTIPLE CHOICE ═══ -->
         @if (screen() === 'quiz' && mode() === 'multiplechoice') {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="round-info">Frage {{ currentMCIndex() + 1 }} / {{ totalQuestions() }}</div>
 
             @if (currentMCQuestion(); as q) {
@@ -149,6 +152,7 @@
         <!-- ═══ QUIZ: FEHLER FINDEN ═══ -->
         @if (screen() === 'quiz' && mode() === 'fehlerfinden') {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="round-info">Frage {{ currentFehlerIndex() + 1 }} / {{ totalQuestions() }}</div>
 
             @if (currentFehlerQuestion(); as q) {

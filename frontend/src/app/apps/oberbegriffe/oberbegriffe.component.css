@@ -252,3 +252,18 @@
 .feedback { font-size: 1rem; font-weight: 600; }
 .feedback.correct { color: var(--success); }
 .feedback.incorrect { color: var(--error); }
+
+.back-to-modes {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 0;
+    margin-bottom: 8px;
+    transition: color 0.2s;
+}
+.back-to-modes:hover {
+    color: var(--text-primary);
+}

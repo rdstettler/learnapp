@@ -51,6 +51,27 @@ export class DataService {
     }
 
     /**
+     * Load Voci application content from API
+     */
+    loadVociData(langCode: string, topic?: string, limit?: number): Observable<any[]> {
+        let url = '/api/voci?';
+        const params = new URLSearchParams();
+        params.append('lang_code', langCode);
+        if (topic) params.append('topic', topic);
+        if (limit) params.append('limit', limit.toString());
+        url += params.toString();
+
+        if (!this.cache.has(url)) {
+            const request = this.http.get<{ words: any[] }>(url).pipe(
+                map(res => res.words),
+                shareReplay(1)
+            );
+            this.cache.set(url, request);
+        }
+        return this.cache.get(url) as Observable<any[]>;
+    }
+
+    /**
      * Clear cached data (useful for testing or when data updates)
      */
     clearCache(filename?: string): void {

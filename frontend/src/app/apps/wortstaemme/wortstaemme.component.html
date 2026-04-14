@@ -24,6 +24,7 @@
 
         @if (screen() === 'stage1') {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <h2 class="stage-title">Stufe 1: Wortexistenz</h2>
             <p class="stage-subtitle">Welche Wörter mit "<strong>{{ currentStem()?.stem }}</strong>" existieren
                 wirklich?</p>

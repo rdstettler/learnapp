@@ -21,6 +21,7 @@
         <!-- Quiz Screen: Spion / Schwach -->
         @if (screen() === 'quiz' && (mode() === 'spion' || mode() === 'schwach')) {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="round-info">Aufgabe {{ currentIndex() + 1 }} / {{ ROUNDS_PER_GAME }}</div>
             <div class="score-live">
                 <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
@@ -69,6 +70,7 @@
         <!-- Quiz Screen: Paare finden -->
         @if (screen() === 'quiz' && (mode() === 'syn-paare' || mode() === 'ant-paare')) {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="round-info">{{ matchedPairs().size }} / {{ pairItems().length }} Paare gefunden</div>
             <div class="score-live">
                 <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>

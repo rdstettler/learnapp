@@ -6,7 +6,6 @@ import { AppTelemetryService } from '../../services/app-telemetry.service';
 import { LearningAppLayoutComponent } from '../../shared/components/learning-app-layout/learning-app-layout.component';
 import { launchConfetti } from '../../shared/confetti';
 import { ModeSelectorComponent } from "../../shared/components/mode-btn";
-import { FeedbackPanelComponent } from '../../shared/components/feedback-panel/feedback-panel.component';
 
 
 interface WortfamilieItem {
@@ -37,7 +36,7 @@ interface Problem {
 @Component({
     selector: 'app-wortfamilie',
     standalone: true,
-    imports: [LearningAppLayoutComponent, ModeSelectorComponent, FeedbackPanelComponent],
+    imports: [LearningAppLayoutComponent, ModeSelectorComponent],
     templateUrl: './wortfamilie.component.html',
     styleUrl: './wortfamilie.component.css',
     host: {

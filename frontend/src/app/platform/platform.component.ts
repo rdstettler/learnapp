@@ -167,7 +167,12 @@ export class PlatformComponent implements OnInit, AfterViewInit {
         // Check for 'all-apps' param first - this overrides view preference and forces 'all'
         if (params['all-apps'] !== undefined) {
             this.currentView.set('all');
-            // We don't save this to localStorage as it might be a temporary override link
+            // Sync URL to use the canonical ?view=all format
+            this.router.navigate([], {
+                queryParams: { view: 'all' },
+                queryParamsHandling: 'merge',
+                replaceUrl: true
+            });
             return;
         }
 
@@ -180,13 +185,13 @@ export class PlatformComponent implements OnInit, AfterViewInit {
             const stored = typeof localStorage !== 'undefined' ? localStorage.getItem('dashboard_view') : null;
             if (stored && PlatformComponent.VALID_VIEWS.includes(stored as any)) {
                 this.currentView.set(stored as 'all' | 'favorites' | 'plan');
-                // Sync URL with the stored value
-                this.router.navigate([], {
-                    queryParams: { view: stored === 'all' ? null : stored },
-                    queryParamsHandling: 'merge',
-                    replaceUrl: true
-                });
             }
+            // Always sync URL with the resolved view value
+            this.router.navigate([], {
+                queryParams: { view: this.currentView() },
+                queryParamsHandling: 'merge',
+                replaceUrl: true
+            });
         }
     }
 
@@ -280,7 +285,7 @@ export class PlatformComponent implements OnInit, AfterViewInit {
         if (typeof localStorage !== 'undefined') {
             localStorage.setItem('dashboard_view', view);
         }
-        // Sync URL — omit ?view= for 'all' to keep URL clean
+        // Always include ?view= in URL so browser history tracks it correctly
         this.router.navigate([], {
             queryParams: { view },
             queryParamsHandling: 'merge'

@@ -29,6 +29,7 @@
         <!-- Quiz Screen: Standard -->
         @if (screen() === 'quiz' && mode() === 'standard') {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="round-info">Text {{ currentTextIndex() + 1 }} / {{ textsPerRound }}</div>
 
             <div class="score-live">
@@ -58,6 +59,7 @@
         <!-- Quiz Screen: Fehlerjagd -->
         @if (screen() === 'quiz' && mode() === 'fehlerjagd') {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="round-info">Text {{ currentTextIndex() + 1 }} / {{ textsPerRound }}</div>
             <div class="score-live">
                 <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>

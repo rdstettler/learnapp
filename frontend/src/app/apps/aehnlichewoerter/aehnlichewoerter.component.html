@@ -41,6 +41,7 @@
         <!-- Quiz Screen -->
         @if (screen() === 'quiz') {
         <div class="quiz-content">
+            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
             <div class="round-info">Satz {{ currentSentenceIndex() + 1 }} / {{ SENTENCES_PER_ROUND }}</div>
 
             @if (mode() === 'einzeln') {

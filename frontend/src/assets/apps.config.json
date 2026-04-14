@@ -1,6 +1,34 @@
 {
     "apps": [
         {
+            "id": "voci-fr",
+            "name": "Französisch Vokabeln",
+            "description": "Lerne französische Wörter mit dem Vokabeltrainer - tippen oder als Karteikarten",
+            "category": "Französisch",
+            "route": "/voci/fr",
+            "icon": "🇫🇷",
+            "tags": [
+                "französisch",
+                "vokabeln",
+                "sprache",
+                "übersetzen"
+            ]
+        },
+        {
+            "id": "voci-en",
+            "name": "Englisch Vokabeln",
+            "description": "Lerne englische Wörter mit dem Vokabeltrainer - tippen oder als Karteikarten",
+            "category": "Englisch",
+            "route": "/voci/en",
+            "icon": "🇬🇧",
+            "tags": [
+                "englisch",
+                "vokabeln",
+                "sprache",
+                "übersetzen"
+            ]
+        },
+        {
             "id": "aehnlichewoerter",
             "name": "Ähnliche Wörter",
             "description": "Lerne den Unterschied zwischen ähnlich klingenden Wörtern wie viel/fiel, seid/seit, wieder/wider",
