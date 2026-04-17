@@ -1,9 +1,6 @@
-
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { getSupabaseClient } from '../_lib/supabase.js';
 import { requireAuth, handleCors } from '../_lib/auth.js';
-import { xai } from '@ai-sdk/xai';
-import { generateText } from 'ai';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (handleCors(req, res)) return;
@@ -66,32 +63,30 @@ async function handleGetContent(req: VercelRequest, res: VercelResponse, db: any
     const offset = (page - 1) * limit;
 
     try {
-        // Fetch all modes for the app
-        const { data: modeData } = await db.from('app_content').select('mode').eq('app_id', app_id).not('mode', 'is', null);
-        const modes = Array.from(new Set(modeData?.map((m: any) => m.mode).filter(Boolean)));
+        // Parallelize Initial Fetches
+        const modePromise = db.from('app_content').select('mode').eq('app_id', app_id).not('mode', 'is', null);
+        
+        let query = db.from('app_content').select('*', { count: 'exact' }).eq('app_id', app_id);
+        if (mode) query = query.eq('mode', mode);
+        const contentPromise = query.order('id', { ascending: true }).range(offset, offset + limit - 1);
 
-        // Fetch content
-        let query = db
-            .from('app_content')
-            .select('*', { count: 'exact' })
-            .eq('app_id', app_id);
+        const [modeRes, contentRes] = await Promise.all([modePromise, contentPromise]);
 
-        if (mode) {
-            query = query.eq('mode', mode);
+        if (contentRes.error) throw contentRes.error;
+        const modes = Array.from(new Set(modeRes.data?.map((m: any) => m.mode).filter(Boolean)));
+        const items = contentRes.data || [];
+        const totalCount = contentRes.count || 0;
+
+        // Fetch stats in parallel for these items if any exist
+        let statsRows = [];
+        if (items.length > 0) {
+            const itemIds = items.map((i: any) => i.id);
+            const statsRes = await db
+                .from('user_question_progress')
+                .select('app_content_id, success_count, failure_count, user_uid')
+                .in('app_content_id', itemIds);
+            statsRows = statsRes.data || [];
         }
-
-        const { data: items, count: totalCount, error } = await query
-            .order('id', { ascending: true })
-            .range(offset, offset + limit - 1);
-
-        if (error) throw error;
-
-        // Fetch stats for these items
-        const itemIds = items.map((i: any) => i.id);
-        const { data: statsRows } = await db
-            .from('user_question_progress')
-            .select('app_content_id, success_count, failure_count, user_uid')
-            .in('app_content_id', itemIds);
 
         // Aggregate stats in memory
         const statsMap = new Map<number, { attempts: number, correct: number, wrong: number, users: Set<string> }>();
@@ -264,6 +259,9 @@ ${condensedList.join('\n')}
 ${customPrompt ? `ADMIN INSTRUCTIONS:\n${customPrompt}\n` : ''}
 TASK: Generate exactly ${count} NEW and UNIQUE learning entries.
 Return a JSON array of exactly ${count} new entries.`;
+
+        const { xai } = await import('@ai-sdk/xai');
+        const { generateText } = await import('ai');
 
         const aiRes = await generateText({
             model: xai('grok-4-1-fast-reasoning'),
@@ -490,6 +488,9 @@ TASK: Generate ${count} NEW and UNIQUE learning entries.
 Return a JSON array of ${count} new entries.`;
 
     try {
+        const { xai } = await import('@ai-sdk/xai');
+        const { generateText } = await import('ai');
+
         const aiRes = await generateText({
             model: xai('grok-4-1-fast-reasoning'),
             system: systemPrompt,
@@ -562,6 +563,9 @@ async function enhanceEntry(appId: string, template: object, entry: object, miss
     const systemPrompt = `You are an educational content enhancer. Add missing properties based on a template. Standard German spelling. Return JSON.`;
     const userPrompt = `App: ${appId}\nTEMPLATE: ${JSON.stringify(template)}\nENTRY: ${JSON.stringify(entry)}\nMISSING: ${missingKeys.join(', ')}\n${customPrompt || ''}`;
 
+    const { xai } = await import('@ai-sdk/xai');
+    const { generateText } = await import('ai');
+
     const aiRes = await generateText({
         model: xai('grok-4-1-fast-reasoning'),
         system: systemPrompt,
@@ -576,6 +580,9 @@ async function batchReviewItems(appId: string, items: any[], customPrompt?: stri
     ${customPrompt || ''}`;
 
     try {
+        const { xai } = await import('@ai-sdk/xai');
+        const { generateText } = await import('ai');
+
         const aiRes = await generateText({
             model: xai('grok-4-1-fast-reasoning'),
             system: "Data Quality Auditor. Standard German.",

@@ -86,17 +86,16 @@ async function handleMetrics(req: VercelRequest, res: VercelResponse, db: DbClie
         return res.status(200).json({ metrics });
     }
     if (req.method === 'POST') {
-        // Save/update user metrics — uid from verified token
+        // Save/update user metrics — single batched upsert instead of N sequential upserts
         const { metrics } = req.body;
         if (!metrics || typeof metrics !== 'object') return res.status(400).json({ error: 'metrics object is required' });
-        for (const [appId, appMetrics] of Object.entries(metrics)) {
+        const rows = Object.entries(metrics).map(([appId, appMetrics]) => {
             const { openCount, lastOpened } = appMetrics as { openCount: number; lastOpened: string | null };
-            await db.from('user_metrics').upsert({
-                user_uid: uid,
-                app_id: appId,
-                open_count: openCount,
-                last_opened: lastOpened
-            }, { onConflict: 'user_uid, app_id' });
+            return { user_uid: uid, app_id: appId, open_count: openCount, last_opened: lastOpened };
+        });
+        if (rows.length > 0) {
+            const { error } = await db.from('user_metrics').upsert(rows, { onConflict: 'user_uid, app_id' });
+            if (error) return res.status(500).json({ error: error.message });
         }
         return res.status(200).json({ success: true });
     }
@@ -147,8 +146,8 @@ async function handleBadges(req: VercelRequest, res: VercelResponse, db: DbClien
             const { data: earnedRows, error: earnedError } = await db.from('user_badges').select('badge_id').eq('user_uid', uid);
             if (earnedError) return res.status(500).json({ error: earnedError.message });
 
-            const existingBadgeIds = new Set((earnedRows || []).map(r => r.badge_id));
-            const newlyAwardedIds = await import('./_lib/badges.js').then(m => m.checkAllBadges(db, uid, existingBadgeIds));
+            const existingBadgeIds = new Set((earnedRows || []).map((r: any) => r.badge_id));
+            const newlyAwardedIds = await checkAllBadges(db, uid, existingBadgeIds);
 
             const newlyAwarded: { id: string; name: string; icon: string; tier: string }[] = [];
 
@@ -158,9 +157,8 @@ async function handleBadges(req: VercelRequest, res: VercelResponse, db: DbClien
                 const { error: insertError } = await db.from('user_badges').upsert(inserts, { onConflict: 'user_uid, badge_id' });
                 if (insertError) console.error("Error inserting badges", insertError);
 
-                // Prepare response
-                const defs = await import('./_lib/badges.js').then(m => m.BADGE_DEFINITIONS);
-                const defMap = new Map(defs.map(d => [d.id, d]));
+                // Use statically imported BADGE_DEFINITIONS (no redundant dynamic import)
+                const defMap = new Map(BADGE_DEFINITIONS.map(d => [d.id, d]));
 
                 for (const id of newlyAwardedIds) {
                     const badge = defMap.get(id);

@@ -186,35 +186,27 @@ export class VociAdminComponent implements OnInit {
         if (suggestions.length === 0) return;
 
         this.savingSuggestions.set(true);
-        let saved = 0;
+        const payload = {
+            entries: suggestions.map(s => ({
+                de_word: s.de_word,
+                fr_word: s.fr_word,
+                en_word: s.en_word,
+                topic: this.aiTopic()
+            }))
+        };
 
-        const processNext = (index: number) => {
-            if (index >= suggestions.length) {
-                this.flashSuccess(saved + ' Einträge gespeichert!');
+        this.http.post('/api/admin/voci', payload).subscribe({
+            next: () => {
+                this.flashSuccess(suggestions.length + ' Einträge gespeichert!');
                 this.savingSuggestions.set(false);
                 this.aiSuggestions.set([]);
                 this.loadContent();
-                return;
+            },
+            error: (err) => {
+                alert(err.error?.error || 'Speichern fehlgeschlagen');
+                this.savingSuggestions.set(false);
             }
-
-            const item = suggestions[index];
-            this.http.post('/api/admin/voci', {
-                de_word: item.de_word,
-                fr_word: item.fr_word,
-                en_word: item.en_word,
-                topic: this.aiTopic()
-            }).subscribe({
-                next: () => {
-                    saved++;
-                    processNext(index + 1);
-                },
-                error: () => {
-                    processNext(index + 1); // skip on error
-                }
-            });
-        };
-
-        processNext(0);
+        });
     }
 
     private flashSuccess(msg: string) {

@@ -331,27 +331,24 @@ async function handleReadingText(req: VercelRequest, res: VercelResponse) {
     const userUid = decoded?.uid || null;
 
     try {
-        // Fetch all texts for this zyklus level (needed for both random selection and available list)
-        const { data: allTexts } = await db
-            .from('reading_texts')
-            .select('*')
-            .lte('zyklus', maxZyklus);
+        // Fetch texts and user progress in parallel
+        const [textsResult, progressResult] = await Promise.all([
+            db.from('reading_texts').select('*').lte('zyklus', maxZyklus),
+            userUid
+                ? db.from('user_reading_progress').select('text_id').eq('user_uid', userUid)
+                : Promise.resolve({ data: [] as { text_id: number }[] })
+        ]);
+
+        const allTexts = textsResult.data;
 
         if (!allTexts || allTexts.length === 0) {
             return res.status(404).json({ error: 'No texts found' });
         }
 
-        // Get solved text IDs for this user
-        let solvedTextIds: Set<number> = new Set();
-        if (userUid) {
-            const { data: progress } = await db
-                .from('user_reading_progress')
-                .select('text_id')
-                .eq('user_uid', userUid);
-            if (progress) {
-                solvedTextIds = new Set(progress.map((p: any) => p.text_id));
-            }
-        }
+        // Build solved set from parallel-fetched progress
+        const solvedTextIds: Set<number> = new Set(
+            (progressResult.data || []).map((p: any) => p.text_id)
+        );
 
         let textRow: any;
 

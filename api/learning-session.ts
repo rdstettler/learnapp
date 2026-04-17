@@ -3,6 +3,8 @@ import { getSupabaseClient } from './_lib/supabase.js';
 import { requireAuth, handleCors } from './_lib/auth.js';
 import { replaceEszett } from './_lib/text-utils.js';
 import crypto from 'node:crypto';
+import { xai } from '@ai-sdk/xai';
+import { generateText } from 'ai';
 
 interface AISessionResponse {
     topic: string;
@@ -283,16 +285,11 @@ For each task, generate SPECIFIC content that follows the app's Target Structure
 Create a motivating header (topic) and a short explanation (text).
 ADDITIONALLY, provide "theory" cards that explain the concepts the user struggles with.`;
 
-            // 5. Call AI (xAI Grok) — lazy import to avoid cold-start tax on GET/PUT
+            // 5. Call AI (xAI Grok)
             if (!process.env.XAI_API_KEY) {
                 console.error("Missing XAI_API_KEY");
                 return res.status(500).json({ error: "Server Configuration Error: Missing API Key" });
             }
-
-            const [{ xai }, { generateText }] = await Promise.all([
-                import('@ai-sdk/xai'),
-                import('ai')
-            ]);
 
             let text = "";
             try {
@@ -753,16 +750,11 @@ Return ONLY valid JSON:
 
             const userPrompt = `Create a ${requestedDays}-day learning plan from these question candidates:\n\n${candidateSummary}`;
 
-            // 7. Call AI — lazy import to avoid cold-start tax on GET/PUT
+            // 7. Call AI
             if (!process.env.XAI_API_KEY) {
                 console.error("Missing XAI_API_KEY");
                 return res.status(500).json({ error: "Server Configuration Error: Missing API Key" });
             }
-
-            const [{ xai }, { generateText }] = await Promise.all([
-                import('@ai-sdk/xai'),
-                import('ai')
-            ]);
 
             let text = "";
             try {
