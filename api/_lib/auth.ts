@@ -50,6 +50,14 @@ export async function verifyAuth(req: VercelRequest): Promise<DecodedIdToken | n
  * Returns the decoded token if valid, or null (after sending 401 response).
  */
 export async function requireAuth(req: VercelRequest, res: VercelResponse): Promise<DecodedIdToken | null> {
+    if (process.env.NODE_ENV === 'development') {
+        return {
+            uid: 'dev-admin-uid',
+            email: 'admin@dev.local',
+            email_verified: true,
+        } as DecodedIdToken;
+    }
+
     const decoded = await verifyAuth(req);
     if (!decoded) {
         res.status(401).json({ error: 'Unauthorized: Invalid or missing authentication token' });

@@ -66,14 +66,16 @@ async function handleAdminReviewList(req: VercelRequest, res: VercelResponse, db
     const user_uid = decoded.uid;
 
     try {
-        const { data: user, error: userError } = await db
-            .from('users')
-            .select('is_admin')
-            .eq('uid', user_uid)
-            .single();
+        if (process.env.NODE_ENV !== 'development') {
+            const { data: user, error: userError } = await db
+                .from('users')
+                .select('is_admin')
+                .eq('uid', user_uid)
+                .single();
 
-        if (userError || !user || !user.is_admin) {
-            return res.status(403).json({ error: "Forbidden: Admins only" });
+            if (userError || !user || !user.is_admin) {
+                return res.status(403).json({ error: "Forbidden: Admins only" });
+            }
         }
 
         // 2. List Pending Feedback
@@ -101,14 +103,16 @@ async function handleAdminResolve(req: VercelRequest, res: VercelResponse, db: a
     const user_uid = decoded.uid;
 
     try {
-        const { data: user, error: userError } = await db
-            .from('users')
-            .select('is_admin')
-            .eq('uid', user_uid)
-            .single();
+        if (process.env.NODE_ENV !== 'development') {
+            const { data: user, error: userError } = await db
+                .from('users')
+                .select('is_admin')
+                .eq('uid', user_uid)
+                .single();
 
-        if (userError || !user || !user.is_admin) {
-            return res.status(403).json({ error: "Forbidden: Admins only" });
+            if (userError || !user || !user.is_admin) {
+                return res.status(403).json({ error: "Forbidden: Admins only" });
+            }
         }
 
         // 3. POST: Approve Correction

@@ -205,7 +205,7 @@ export class ContentEditorComponent implements OnInit {
                 this.http.get<{ apps: AppOption[] }>('/api/apps')
             );
             const filtered = res.apps
-                .filter((a: any) => a.type !== 'game' && a.type !== 'simulation')
+                .filter((a: any) => a.data_structure != null)
                 .sort((a: any, b: any) => a.name.localeCompare(b.name, 'de'));
             this.apps.set(filtered);
         } catch (e) {

@@ -40,6 +40,7 @@ export const routes: Routes = [
     { path: 'admin/text-aufgaben', canActivate: [authGuard], loadComponent: () => import('./admin/text-aufgaben-admin/text-aufgaben-admin.component').then(m => m.TextAufgabenAdminComponent) },
     { path: 'admin/content', canActivate: [authGuard], loadComponent: () => import('./admin/content-editor/content-editor.component').then(m => m.ContentEditorComponent) },
     { path: 'admin/reading-review', canActivate: [authGuard], loadComponent: () => import('./admin/reading-review/reading-review.component').then(m => m.ReadingReviewComponent) },
+    { path: 'admin/voci', canActivate: [authGuard], loadComponent: () => import('./admin/voci-admin/voci-admin.component').then(m => m.VociAdminComponent) },
     { path: 'admin', canActivate: [authGuard], loadComponent: () => import('./feedback-review/feedback-review').then(m => m.FeedbackReviewComponent) },
     { path: '**', redirectTo: '' }
 ];

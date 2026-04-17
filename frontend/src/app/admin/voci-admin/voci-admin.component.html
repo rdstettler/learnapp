@@ -1,0 +1,141 @@
+<div class="admin-container">
+    <header class="admin-header">
+        <div class="header-left">
+            <button class="btn-icon" (click)="goBack()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+            </button>
+            <h1>🌍 Voci Admin</h1>
+        </div>
+        <div class="header-controls">
+            <select [ngModel]="selectedFilterTopic()" (ngModelChange)="selectedFilterTopic.set($event)" class="select-topic">
+                <option value="">Alle Themen</option>
+                @for (t of topics(); track t) {
+                    <option [value]="t">{{t}}</option>
+                }
+            </select>
+            <button class="btn-primary" (click)="toggleAIPanel()">✨ AI Suggest</button>
+            <button class="btn-primary" (click)="openAdd()">+ Neu</button>
+        </div>
+    </header>
+
+    @if (successMsg()) {
+        <div class="alert-success">{{successMsg()}}</div>
+    }
+
+    @if (error()) {
+        <div class="alert-error">{{error()}}</div>
+    }
+
+    @if (showAIPanel()) {
+        <div class="card ai-panel">
+            <h3>✨ AI Vocabulary Suggestion</h3>
+            <p style="opacity:0.8; font-size: 0.9em;">Suggests 5 unified vocabulary words for a topic in both French and English.</p>
+            <div class="form-group row-flex">
+                <input class="input-field" type="text" [ngModel]="aiTopic()" (ngModelChange)="aiTopic.set($event)" placeholder="Topic (z.B. food, travel)" />
+                <button class="btn-primary" [disabled]="aiGenerating() || !aiTopic()" (click)="generateSuggestions()">
+                    {{ aiGenerating() ? 'Generiert...' : 'Generieren' }}
+                </button>
+            </div>
+            
+            @if (aiSuggestions().length > 0) {
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Deutsch</th>
+                            <th>Französisch</th>
+                            <th>Englisch</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (s of aiSuggestions(); track s.de_word) {
+                            <tr>
+                                <td>{{s.de_word}}</td>
+                                <td>{{s.fr_word}}</td>
+                                <td>{{s.en_word}}</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <div style="margin-top: 1rem; text-align: right;">
+                    <button class="btn-primary" [disabled]="savingSuggestions()" (click)="saveSuggestions()">
+                        {{ savingSuggestions() ? 'Speichert...' : 'Alle übernehmen' }}
+                    </button>
+                </div>
+            }
+        </div>
+    }
+
+    <main class="content-main">
+        @if (loading()) {
+            <p>Loading...</p>
+        } @else {
+            <div class="card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Thema</th>
+                            <th>Deutsch</th>
+                            <th>Französisch 🇫🇷</th>
+                            <th>Englisch 🇬🇧</th>
+                            <th width="120">Aktion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (item of filteredItems(); track item.id) {
+                            <tr>
+                                <td><span class="topic-badge">{{item.topic}}</span></td>
+                                <td style="font-weight: 500;">{{item.de_word}}</td>
+                                <td>{{item.fr_word || '-'}}</td>
+                                <td>{{item.en_word || '-'}}</td>
+                                <td>
+                                    <button class="btn-text" (click)="openEdit(item)">✏️</button>
+                                    <button class="btn-text text-danger" (click)="deleteItem(item)">🗑️</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @if (filteredItems().length === 0) {
+                    <p style="padding: 20px; text-align: center; opacity: 0.5;">Keine Vokabeln gefunden.</p>
+                }
+            </div>
+        }
+    </main>
+
+    @if (showForm()) {
+        <div class="modal-overlay">
+            <div class="modal-content card">
+                <h2>{{ isEditing() ? 'Vokabel bearbeiten' : 'Neue Vokabel' }}</h2>
+                
+                <div class="form-group">
+                    <label>Thema</label>
+                    <input class="input-field" type="text" [ngModel]="formTopic()" (ngModelChange)="formTopic.set($event)" placeholder="z.B. food" />
+                </div>
+                
+                <div class="form-group">
+                    <label>Deutsch</label>
+                    <input class="input-field" type="text" [ngModel]="formDeWord()" (ngModelChange)="formDeWord.set($event)" placeholder="z.B. der Apfel" />
+                </div>
+                
+                <div class="form-group">
+                    <label>Französisch 🇫🇷</label>
+                    <input class="input-field" type="text" [ngModel]="formFrWord()" (ngModelChange)="formFrWord.set($event)" placeholder="z.B. la pomme" />
+                </div>
+                
+                <div class="form-group">
+                    <label>Englisch 🇬🇧</label>
+                    <input class="input-field" type="text" [ngModel]="formEnWord()" (ngModelChange)="formEnWord.set($event)" placeholder="z.B. the apple" />
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn-dismiss" (click)="cancelForm()">Abbrechen</button>
+                    <button class="btn-approve" (click)="save()" [disabled]="saving()">
+                        {{ saving() ? 'Speichern...' : 'Speichern' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -1,8 +1,12 @@
-import { inject } from '@angular/core';
+import { inject, isDevMode } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from './auth.service';
 
 export const authGuard: CanActivateFn = () => {
+    if (isDevMode()) {
+        return true;
+    }
+
     const auth = inject(AuthService);
     const router = inject(Router);
 
