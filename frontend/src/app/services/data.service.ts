@@ -64,22 +64,27 @@ export class DataService {
     }
 
     /**
-     * Transcribe base64 audio via AI STT endpoint
+     * Transcribe base64 audio via AI audio endpoint
      */
     transcribeAudio(audioBase64: string, language?: string): Observable<{ text: string }> {
-        const url = '/api/ai-voci/stt';
+        const url = '/api/ai-voci/audio';
         return this.http.post<{ text: string }>(url, {
+            method: 'stt',
             audioBase64,
             language
         });
     }
 
     /**
-     * Synthesize text to audio via AI TTS endpoint
+     * Synthesize text to audio via AI audio endpoint
      */
     synthesizeAudio(text: string, language?: string): Observable<Blob> {
-        const url = '/api/ai-voci/tts';
-        return this.http.post(url, { text, language }, { responseType: 'blob' });
+        const url = '/api/ai-voci/audio';
+        return this.http.post(url, { 
+            method: 'tts',
+            text, 
+            language 
+        }, { responseType: 'blob' });
     }
 
     /**
