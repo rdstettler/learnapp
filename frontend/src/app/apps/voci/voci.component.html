@@ -1,41 +1,92 @@
-<app-learning-app-layout [title]="pageTitle()" appId="voci" [content]="currentWord()">
-    <div class="progress-bar">
-        <div class="progress-fill" [style.width.%]="progress()"></div>
-    </div>
-
+<app-learning-app-layout [title]="pageTitle()" appId="voci">
     <div class="card">
         <!-- Welcome Screen -->
         @if (screen() === 'welcome') {
         <div class="welcome-container">
             <div class="welcome-emoji">{{ langConfig().flag }}</div>
-            <h2 style="margin-bottom: 10px;">{{ langConfig().name }} Vokabeltrainer</h2>
+            <h2 style="margin-bottom: 10px;">Sprachen Lernen AI Tutor</h2>
             <p style="color: var(--text-secondary); margin-bottom: 20px;">
-                Lerne wichtige {{ langConfig().name | lowercase }} Wörter für den Alltag. Wähle eine Kategorie oder beginne direkt!
+                Führe Konversationen oder übersetze Sätze, die von der KI auf dein Niveau zugeschnitten sind.
             </p>
 
-            <app-mode-selector
-                [modes]="directionModes()"
-                [(mode)]="mode">
-            </app-mode-selector>
-
-            <h3 style="margin: 24px 0 10px;">Interaktionsmethode</h3>
-            <app-mode-selector
-                [modes]="interactionModes"
-                [(mode)]="interactionMode">
-            </app-mode-selector>
-
-            @if (topics().length > 0) {
-            <label class="topic-label">Kategorie (Optional):</label>
-            <select class="topic-select" (change)="selectTopic($event)" [value]="selectedTopic()">
-                <option value="">Alle Themenbereiche gemischt</option>
-                @for (topic of topics(); track topic) {
-                <option [value]="topic">{{ topicLabel(topic) }}</option>
+            <h3 style="margin: 24px 0 10px;">Welche Sprache möchtest du lernen?</h3>
+            <select class="vocab-input-area" [ngModel]="langCode()" (ngModelChange)="langCode.set($event)" style="min-height: auto; margin-bottom: 24px; text-align: center; display: block; margin-left: auto; margin-right: auto; max-width: 300px;">
+                @for (lang of availableLanguages; track lang.code) {
+                    <option [value]="lang.code">{{ lang.flag }} {{ lang.name }}</option>
                 }
             </select>
-            }
 
-            <button class="btn btn-primary" style="margin-top: 24px;" (click)="startQuiz()" [disabled]="!dataLoaded()">
-                Quiz starten
+            <h3 style="margin: 24px 0 10px;">Was möchtest du tun? (Aufgabe)</h3>
+            <app-mode-selector
+                [modes]="taskModes"
+                [(mode)]="taskMode">
+            </app-mode-selector>
+
+            <h3 style="margin: 24px 0 10px;">Wie möchtest du antworten? (Dein Input)</h3>
+            <app-mode-selector
+                [modes]="inputModes"
+                [(mode)]="inputMode">
+            </app-mode-selector>
+
+            <h3 style="margin: 24px 0 10px;">Wie möchtest du die Aufgaben erhalten? (App Output)</h3>
+            <app-mode-selector
+                [modes]="outputModes"
+                [(mode)]="outputMode">
+            </app-mode-selector>
+
+            <button class="btn btn-primary" style="margin-top: 32px; font-size: 18px; padding: 16px 32px;" (click)="startSession()">
+                🚀 Session Starten
+            </button>
+        </div>
+        }
+
+        <!-- Loading Screen -->
+        @if (screen() === 'loading') {
+        <div class="loading-container">
+            <div class="spinner"></div>
+            <h3>Die KI bereitet deine Aufgaben vor...</h3>
+        </div>
+        }
+
+        <!-- Feedback Screen -->
+        @if (screen() === 'feedback') {
+        <div class="feedback-container">
+            <h2>Feedback zur letzten Runde</h2>
+            <div class="feedback-list">
+                @for (fb of detailedFeedback(); track fb.id) {
+                    <div class="feedback-item-detailed" [ngClass]="{'pass-1': fb.pass === 1, 'pass-0': fb.pass === 0, 'pass--1': fb.pass === -1}">
+                        <div class="feedback-top">
+                            <div class="feedback-status-icon">
+                                @if (fb.pass === 1) { ✅ }
+                                @if (fb.pass === 0) { ⚠️ }
+                                @if (fb.pass === -1) { ❌ }
+                            </div>
+                            <div class="feedback-orig">{{ fb.originalText }}</div>
+                        </div>
+
+                        <div class="feedback-comparison">
+                            <div class="comparison-row">
+                                <span class="label">Deine Antwort:</span>
+                                <span class="val">{{ fb.userText || '(Keine Antwort)' }}</span>
+                            </div>
+                            @if (fb.correction) {
+                                <div class="comparison-row correction">
+                                    <span class="label">Korrektur:</span>
+                                    <span class="val">{{ fb.correction }}</span>
+                                </div>
+                            }
+                        </div>
+
+                        @if (fb.hint) {
+                            <div class="feedback-hint-box">
+                                💡 {{ fb.hint }}
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+            <button class="btn btn-primary" style="margin-top: 24px;" (click)="continueAfterFeedback()">
+                Nächste Aufgaben starten
             </button>
         </div>
         }
@@ -43,104 +94,70 @@
         <!-- Quiz Screen -->
         @if (screen() === 'quiz') {
         <div class="quiz-content">
-            <button class="back-to-modes" (click)="restartQuiz()">← Modus wählen</button>
-            <div class="round-info">Wort {{ currentWordIndex() + 1 }} / {{ quizQueue().length }}</div>
+            <button class="back-to-modes" (click)="restartApp()">← Beenden</button>
+            
+            <div class="task-column">
+                @for (task of currentBatch(); track task.id; let i = $index) {
+                    <div class="task-row-card">
+                        <div class="task-header">
+                            <span class="task-number">#{{ i + 1 }}</span>
+                            @if (outputMode() === 'speech') {
+                                <button class="btn-audio-mini" (click)="playTaskAudio(task)">🔊</button>
+                            }
+                        </div>
 
-            <div class="score-live">
-                <div class="score-live-item correct">✓ {{ totalCorrect() }}</div>
-                <div class="score-live-item wrong">✗ {{ totalWrong() }}</div>
+                        <div class="task-body">
+                            @if (outputMode() === 'text') {
+                                <div class="task-text-mini">{{ task.text }}</div>
+                            }
+                            @if (task.hint) {
+                                <div class="task-hint-mini">💡 {{ task.hint }}</div>
+                            }
+
+                            <div class="task-input-wrapper">
+                                @if (inputMode() === 'text') {
+                                    <input type="text" 
+                                           class="task-input-field" 
+                                           [placeholder]="'Antwort für #' + (i+1)"
+                                           [(ngModel)]="userAnswers()[task.id]"
+                                           (ngModelChange)="userAnswers.set(userAnswers())">
+                                } @else {
+                                    <div class="speech-input-mini">
+                                        <button 
+                                            class="record-btn-mini" 
+                                            [class.recording]="isRecording() === task.id" 
+                                            [class.processing]="isAudioProcessing() === task.id"
+                                            (click)="toggleRecording(task.id)"
+                                            [disabled]="isAudioProcessing() !== null && isAudioProcessing() !== task.id">
+                                            @if (isAudioProcessing() === task.id) { ⏳ }
+                                            @else if (isRecording() === task.id) { 🛑 }
+                                            @else { 🎤 }
+                                        </button>
+                                        <span class="transcript-preview">
+                                            {{ userAnswers()[task.id] || 'Klicke zum Sprechen...' }}
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
 
-            <div class="flashcard">
-                <div class="lang-icon">{{ currentChallenge().langIcon }}</div>
-                <div class="prompt-word">{{ currentChallenge().prompt }}</div>
-                <div class="input-hint">Übersetze in {{ currentChallenge().lang }}:</div>
-                
-                @if (interactionMode() === 'typing') {
-                    <input type="text"
-                        #vocabInput
-                        class="vocab-input"
-                        [class.input-correct]="answered() && isCorrect()"
-                        [class.input-wrong]="answered() && !isCorrect()"
-                        placeholder="Deine Antwort..."
-                        [(ngModel)]="userInput"
-                        (keydown)="onInputKeyDown($event)"
-                        [disabled]="answered()"
-                        autofocus />
-                } @else {
-                    @if (!flashcardRevealed()) {
-                        <button class="btn btn-secondary reveal-btn" (click)="revealFlashcard()">
-                            Lösung anzeigen
-                        </button>
-                    } @else {
-                        <div class="revealed-answer">
-                            {{ currentChallenge().answer }}
-                        </div>
-                    }
-                }
-            </div>
-
-            @if (interactionMode() === 'typing') {
-                @if (answered() && !isCorrect()) {
-                <div class="correction-hint">
-                    <span class="correction-label">Richtig wäre:</span>
-                    <span class="correction-word">{{ currentChallenge().answer }}</span>
-                </div>
-                }
-            }
-
-            <div class="action-buttons">
-                @if (interactionMode() === 'typing') {
-                    @if (!answered()) {
-                    <button class="btn btn-primary" (click)="checkAnswer()" [disabled]="!userInput().trim()">
-                        Überprüfen
-                    </button>
-                    } @else {
-                    <button class="btn btn-primary" (click)="nextWord()">
-                        {{ currentWordIndex() + 1 >= quizQueue().length ? 'Ergebnis anzeigen' : 'Weiteres Wort' }}
-                    </button>
-                    }
-                } @else {
-                    @if (flashcardRevealed() && !answered()) {
-                        <div class="flashcard-assessment">
-                            <button class="btn btn-wrong" (click)="assessFlashcard(false)">Wusste ich nicht ❌</button>
-                            <button class="btn btn-correct" (click)="assessFlashcard(true)">Wusste ich ✅</button>
-                        </div>
-                    } @else if (answered()) {
-                        <button class="btn btn-primary" (click)="nextWord()">
-                            {{ currentWordIndex() + 1 >= quizQueue().length ? 'Ergebnis anzeigen' : 'Weiteres Wort' }}
-                        </button>
-                    }
-                }
+            <div class="submit-all-area">
+                <button class="btn btn-primary btn-large" (click)="submitAll()" [disabled]="isAudioProcessing() !== null">
+                    Alle Antworten absenden
+                </button>
             </div>
         </div>
         }
 
-        <!-- Results Screen -->
-        @if (screen() === 'results') {
-        <div class="score-display">
-            <div class="score-circle">{{ percentage() }}%</div>
-            <p class="score-text">{{ totalCorrect() }} von {{ totalCorrect() + totalWrong() }} richtig!</p>
-
-            <div class="score-breakdown">
-                <div class="score-item correct">
-                    <div class="score-item-number">{{ totalCorrect() }}</div>
-                    <div class="score-item-label">Richtig</div>
-                </div>
-                <div class="score-item wrong">
-                    <div class="score-item-number">{{ totalWrong() }}</div>
-                    <div class="score-item-label">Falsch</div>
-                </div>
-            </div>
-
-            <div class="result-actions">
-                <button class="btn btn-primary" (click)="startQuiz()">
-                    Mit {{ selectedTopic() ? 'gleicher Kategorie' : 'allen Themen' }} weiterüben
-                </button>
-                <button class="btn btn-secondary" (click)="restartQuiz()">
-                    Neues Quiz konfigurieren
-                </button>
-            </div>
+        <!-- Finished Screen -->
+        @if (screen() === 'finished') {
+        <div class="finished-container">
+            <div class="score-circle">🎉</div>
+            <h2 class="score-text">Alle Aufgaben erledigt!</h2>
+            <button class="btn btn-primary" (click)="restartApp()">Zurück zum Menü</button>
         </div>
         }
     </div>

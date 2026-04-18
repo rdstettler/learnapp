@@ -51,24 +51,35 @@ export class DataService {
     }
 
     /**
-     * Load Voci application content from API
+     * Generate next learning set using AI Voci endpoint
      */
-    loadVociData(langCode: string, topic?: string, limit?: number): Observable<any[]> {
-        let url = '/api/voci?';
-        const params = new URLSearchParams();
-        params.append('lang_code', langCode);
-        if (topic) params.append('topic', topic);
-        if (limit) params.append('limit', limit.toString());
-        url += params.toString();
+    generateAiVoci(langCode: string, mode: string, inputMode: string, previousIteration?: any[]): Observable<any> {
+        const url = '/api/ai-voci/generate';
+        return this.http.post<any>(url, {
+            lang_code: langCode,
+            mode: mode,
+            input_mode: inputMode,
+            previous_iteration: previousIteration
+        });
+    }
 
-        if (!this.cache.has(url)) {
-            const request = this.http.get<{ words: any[] }>(url).pipe(
-                map(res => res.words),
-                shareReplay(1)
-            );
-            this.cache.set(url, request);
-        }
-        return this.cache.get(url) as Observable<any[]>;
+    /**
+     * Transcribe base64 audio via AI STT endpoint
+     */
+    transcribeAudio(audioBase64: string, language?: string): Observable<{ text: string }> {
+        const url = '/api/ai-voci/stt';
+        return this.http.post<{ text: string }>(url, {
+            audioBase64,
+            language
+        });
+    }
+
+    /**
+     * Synthesize text to audio via AI TTS endpoint
+     */
+    synthesizeAudio(text: string, language?: string): Observable<Blob> {
+        const url = '/api/ai-voci/tts';
+        return this.http.post(url, { text, language }, { responseType: 'blob' });
     }
 
     /**
