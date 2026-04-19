@@ -15,7 +15,7 @@ interface VociEntry {
 @Component({
     selector: 'app-voci-admin',
     standalone: true,
-    imports: [FormsModule, JsonPipe],
+    imports: [FormsModule],
     templateUrl: './voci-admin.component.html',
     styleUrl: './voci-admin.component.css'
 })
@@ -56,7 +56,7 @@ export class VociAdminComponent implements OnInit {
     showAIPanel = signal(false);
     aiTopic = signal('');
     aiGenerating = signal(false);
-    aiSuggestions = signal<{de_word: string, fr_word: string, en_word: string}[]>([]);
+    aiSuggestions = signal<{ de_word: string, fr_word: string, en_word: string }[]>([]);
     savingSuggestions = signal(false);
 
     ngOnInit() {
@@ -139,8 +139,8 @@ export class VociAdminComponent implements OnInit {
     }
 
     deleteItem(item: VociEntry) {
-        if (!confirm('Eintrag "'+item.de_word+'" in beiden Sprachen löschen?')) return;
-        
+        if (!confirm('Eintrag "' + item.de_word + '" in beiden Sprachen löschen?')) return;
+
         this.http.delete('/api/admin/voci', {
             body: { de_word: item.de_word, topic: item.topic }
         }).subscribe({
@@ -165,7 +165,7 @@ export class VociAdminComponent implements OnInit {
     generateSuggestions() {
         if (!this.aiTopic().trim()) return;
         this.aiGenerating.set(true);
-        this.http.post<{entries: any[]}>('/api/admin/voci', {
+        this.http.post<{ entries: any[] }>('/api/admin/voci', {
             action: 'generate',
             topic: this.aiTopic().trim(),
             count: 5

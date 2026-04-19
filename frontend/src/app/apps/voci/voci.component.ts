@@ -212,41 +212,31 @@ export class VociComponent implements OnInit, OnDestroy {
     private async startRecording(taskId: number): Promise<void> {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const audioContext = new AudioContext();
-            const source = audioContext.createMediaStreamSource(stream);
-            const processor = audioContext.createScriptProcessor(4096, 1, 1);
+            this.mediaRecorder = new MediaRecorder(stream);
+            const audioChunks: Blob[] = [];
 
-            const leftChannel: Float32Array[] = [];
-            let recordingLength = 0;
-
-            processor.onaudioprocess = (e) => {
-                const left = e.inputBuffer.getChannelData(0);
-                leftChannel.push(new Float32Array(left));
-                recordingLength += 4096;
-            };
-
-            source.connect(processor);
-            processor.connect(audioContext.destination);
-
-            this.mediaRecorder = {
-                stop: () => {
-                    processor.disconnect();
-                    source.disconnect();
-                    audioContext.close();
-                    stream.getTracks().forEach(t => t.stop());
-                    
-                    const samples = new Float32Array(recordingLength);
-                    let offset = 0;
-                    for (let i = 0; i < leftChannel.length; i++) {
-                        samples.set(leftChannel[i], offset);
-                        offset += leftChannel[i].length;
-                    }
-                    
-                    const wavBlob = this.encodeWAV(samples, audioContext.sampleRate);
-                    this.processAudioBlob(wavBlob, taskId);
+            this.mediaRecorder.ondataavailable = (e: BlobEvent) => {
+                if (e.data.size > 0) {
+                    audioChunks.push(e.data);
                 }
             };
 
+            this.mediaRecorder.onstop = async () => {
+                stream.getTracks().forEach(t => t.stop());
+                const webmBlob = new Blob(audioChunks, { type: this.mediaRecorder.mimeType || 'audio/webm' });
+                this.isAudioProcessing.set(taskId);
+                
+                try {
+                    const wavBlob = await this.convertToWav(webmBlob);
+                    this.processAudioBlob(wavBlob, taskId);
+                } catch (err) {
+                    console.error("Error converting audio to WAV", err);
+                    alert("Fehler bei der Audio-Konvertierung.");
+                    this.isAudioProcessing.set(null);
+                }
+            };
+
+            this.mediaRecorder.start();
             this.isRecording.set(taskId);
         } catch (e) {
             console.error("Microphone access denied or error", e);
@@ -254,35 +244,64 @@ export class VociComponent implements OnInit, OnDestroy {
         }
     }
 
-    private encodeWAV(samples: Float32Array, sampleRate: number): Blob {
+    private async convertToWav(blob: Blob): Promise<Blob> {
+        const arrayBuffer = await blob.arrayBuffer();
+        const audioContext = new AudioContext();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        
+        const numOfChannels = audioBuffer.numberOfChannels;
+        const length = audioBuffer.length;
+        const sampleRate = audioBuffer.sampleRate;
+        const interleaved = new Float32Array(length * numOfChannels);
+        
+        for (let channel = 0; channel < numOfChannels; channel++) {
+            const channelData = audioBuffer.getChannelData(channel);
+            for (let i = 0; i < length; i++) {
+                interleaved[i * numOfChannels + channel] = channelData[i];
+            }
+        }
+        
+        const dataView = this.encodeWAV(interleaved, numOfChannels, sampleRate);
+        return new Blob([dataView as any], { type: 'audio/wav' });
+    }
+
+    private encodeWAV(samples: Float32Array, numChannels: number, sampleRate: number): DataView {
         const buffer = new ArrayBuffer(44 + samples.length * 2);
         const view = new DataView(buffer);
+
         const writeString = (offset: number, string: string) => {
-            for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
         };
+
         writeString(0, 'RIFF');
         view.setUint32(4, 36 + samples.length * 2, true);
         writeString(8, 'WAVE');
         writeString(12, 'fmt ');
         view.setUint32(16, 16, true);
         view.setUint16(20, 1, true);
-        view.setUint16(22, 1, true);
+        view.setUint16(22, numChannels, true);
         view.setUint32(24, sampleRate, true);
-        view.setUint32(28, sampleRate * 2, true);
-        view.setUint16(32, 2, true);
+        view.setUint32(28, sampleRate * numChannels * 2, true);
+        view.setUint16(32, numChannels * 2, true);
         view.setUint16(34, 16, true);
         writeString(36, 'data');
         view.setUint32(40, samples.length * 2, true);
+
         let offset = 44;
         for (let i = 0; i < samples.length; i++, offset += 2) {
             const s = Math.max(-1, Math.min(1, samples[i]));
             view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
         }
-        return new Blob([view], { type: 'audio/wav' });
+
+        return view;
     }
 
     private stopRecording(): void {
-        if (this.mediaRecorder) this.mediaRecorder.stop();
+        if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+            this.mediaRecorder.stop();
+        }
         this.isRecording.set(null);
     }
 

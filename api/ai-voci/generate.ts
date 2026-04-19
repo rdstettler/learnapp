@@ -71,9 +71,12 @@ Create EXACTLY 5 sentences (text items) based on the progress so far.
 - If you need to add "difficult" words, create a hint in German.
 - Validate the user input from the [Previous iteration] (if provided).
 - Return a detailed update for [Progress so far] in the "ProgressSoFar" field.
+- The format of the questions/sentences has to match the "current mode" below!
 
 [Current mode]
-${currentMode}
+current mode is: ${currentMode}
+If the current mode is 'reply', then ask questions the user can reasonably answer. Accordingly, correct the user by assessing if the answer makes any sense at all. In reply mode, the language given by the AI is the same as the users answer.
+If the current mode is 'translation', then the user has to translate the given sentences.
 
 [Input mode]
 ${req.body.input_mode || 'typing'}
@@ -105,6 +108,7 @@ Return ONLY valid JSON. No markdown wrapping.
             return res.status(500).json({ error: "Missing XAI_API_KEY" });
         }
 
+        console.log("Generating AI Voci with prompt:\n", systemPrompt);
         const aiRes = await generateText({
             model: xai('grok-4-1-fast-reasoning'),
             system: systemPrompt,
@@ -113,6 +117,7 @@ Return ONLY valid JSON. No markdown wrapping.
 
         // 4. Parse output
         const cleanText = aiRes.text.replace(/```json\n?|```/g, '').trim();
+        console.log("AI Output:", cleanText);
         let aiOutput;
         try {
             aiOutput = JSON.parse(cleanText);

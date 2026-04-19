@@ -3,7 +3,7 @@ import { requireAuth, handleCors } from '../_lib/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (handleCors(req, res)) return;
-    
+
     // Auth Check
     const decoded = await requireAuth(req, res);
     if (!decoded) return;
@@ -27,6 +27,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             }
 
             const audioBuffer = Buffer.from(audioBase64, 'base64');
+            console.log("Audio buffer length:", audioBuffer.length);
             const file = new File([audioBuffer], 'recording.wav', { type: 'audio/wav' });
 
             const formData = new FormData();
@@ -47,8 +48,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 throw new Error(`x.ai STT API returned ${response.status}: ${errorText}`);
             }
 
-            const data = await response.json();
-            return res.status(200).json({ text: data.text || JSON.stringify(data) });
+            const data = (await response.json()) as any;
+            console.log("x.ai STT API response:", data);
+            const responseText = typeof data.text === 'string' ? data.text : JSON.stringify(data);
+            return res.status(200).json({ text: responseText });
 
         } else if (method === 'tts') {
             const { text } = req.body;
